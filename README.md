@@ -5,7 +5,7 @@ The Windows module requires Gdi32.
 
 
 ## Code details
-The code is split up into modules.
+The code is split up by header and source files. These are divided further by namespaces.
 
 ### Directory structure
 > **incl** - Header files and namespace folders.
@@ -18,7 +18,7 @@ Any header or source files not connected to a namespace are considered as common
 A namespace consists of the following:
 * A folder with the same name as the namespace in **incl** containing the namespace's header files.
 * A folder with the same name as the namespace in **src** containing the namespace's source files.
-* A C++ namespace with the same name as the module in which all the module's code lies under.
+* A C++ namespace with the same name as the namespace in which all the namespace's code lies under.
 
 
 #### Windows
