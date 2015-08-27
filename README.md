@@ -20,6 +20,7 @@ A namespace consists of the following:
 * A folder with the same name as the namespace in **src** containing the namespace's source files.
 * A C++ namespace with the same name as the namespace in which all the namespace's code lies under.
 
+The following subsections describe existing namespaces.
 
 #### Windows
 Windows-specific code.
