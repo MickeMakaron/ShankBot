@@ -9,6 +9,7 @@ The code is split up into modules.
 
 ### Directory structure
 > **incl** - Header files and namespace folders.
+
 > **src** - Source files and namespace folders.
 
 Any header or source files not connected to a namespace are considered as common and must be usable by all platforms and in any C++-code without external libraries.
