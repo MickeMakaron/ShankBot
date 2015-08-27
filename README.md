@@ -12,7 +12,7 @@ The code is split up into modules.
 
 > **src** - Source files and namespace folders.
 
-Any header or source files not connected to a namespace are considered as common and must be usable by all platforms and in any C++-code without external libraries.
+Any header or source files not connected to a namespace are considered as common and must be usable by all platforms and in any C++ code without external libraries.
 
 ### Namespaces
 A namespace consists of the following:
