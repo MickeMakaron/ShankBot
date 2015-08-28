@@ -1,7 +1,9 @@
 # ShankBot
 
 ## Linking
-The Windows module requires Gdi32.
+All code NOT under a namespace does not require any external libraries.
+
+See each namespace's section in the [Namespaces](https://github.com/MickeMakaron/ShankBot#namespaces "https://github.com/MickeMakaron/ShankBot#namespaces") section for more information.
 
 
 ## Code details
@@ -24,3 +26,5 @@ The following subsections describe existing namespaces.
 
 #### Windows
 Windows-specific code.
+
+**Libraries**: Gdi32 (exists by default on Windows machines)
