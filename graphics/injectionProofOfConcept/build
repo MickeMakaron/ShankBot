@@ -1,0 +1,14 @@
+#!/bin/bash
+
+make
+
+rm run
+echo "#!/bin/bash" > run
+echo "LD_PRELOAD=./inject.so ./injectee" >> run
+
+chmod +x run
+
+cp run bin/Debug/
+cp run bin/Release/
+
+rm run
