@@ -6,7 +6,7 @@ import urllib, os
 # Downloads images starting from the Images category on Tibia Wiki.
 
 # Edit this to include more top level categories present in the image page root: http://tibia.wikia.com/wiki/Category:Images
-top_level_image_categories = ["Object Images"];
+top_level_image_categories = ["Item Images"];
 
 mech = Browser()
 base_url = "http://tibia.wikia.com"
@@ -49,9 +49,10 @@ def subcrawl(current_cat_soup, sub_cats_to_crawl, save_dir_base):
         next_html = next_page.read()
         next_soup = BeautifulSoup(next_html)
         cat_media = next_soup.find('div', id='mw-category-media')
-        # Download the gifs
         current_save_dir_base = save_dir_base + "/" + sub_cat.string
-        download_giefs(cat_media, current_save_dir_base)
+        if cat_media: # if there are images on this page
+            # Download the gifs
+            download_giefs(cat_media, current_save_dir_base)
         # Go to next subdirectory
         subcrawl(next_soup, [], current_save_dir_base)
 
