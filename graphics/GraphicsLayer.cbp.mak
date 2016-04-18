@@ -44,14 +44,9 @@ OBJ_DEBUG = $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/SpriteCache.o $(O
 
 OBJ_RELEASE = $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/SpriteCache.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/utility.o
 
-all: before_build build_debug build_release after_build
+all: debug release
 
 clean: clean_debug clean_release
-
-before_build: 
-
-after_build: 
-	cbp2make -in Graphics.workspace -out Makefile
 
 before_debug: 
 	test -d bin/Debug || mkdir -p bin/Debug
@@ -59,9 +54,7 @@ before_debug:
 
 after_debug: 
 
-build_debug: before_debug out_debug after_debug
-
-debug: before_build build_debug after_build
+debug: before_debug out_debug after_debug
 
 out_debug: before_debug $(OBJ_DEBUG) $(DEP_DEBUG)
 	$(LD) $(LIBDIR_DEBUG) -o $(OUT_DEBUG) $(OBJ_DEBUG)  $(LDFLAGS_DEBUG) $(LIB_DEBUG)
@@ -95,9 +88,7 @@ before_release:
 
 after_release: 
 
-build_release: before_release out_release after_release
-
-release: before_build build_release after_build
+release: before_release out_release after_release
 
 out_release: before_release $(OBJ_RELEASE) $(DEP_RELEASE)
 	$(LD) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE)  $(LDFLAGS_RELEASE) $(LIB_RELEASE)
@@ -125,5 +116,5 @@ clean_release:
 	rm -rf bin/Release
 	rm -rf $(OBJDIR_RELEASE)/src
 
-.PHONY: before_build after_build before_debug after_debug clean_debug before_release after_release clean_release
+.PHONY: before_debug after_debug clean_debug before_release after_release clean_release
 
