@@ -173,7 +173,7 @@ int main(int argc, char *args[])
     //SpriteDatabase db("spriteDatabase");
 
     putenv((char*)"HOME=./");
-    putenv((char*)"LD_PRELOAD=../bin/Debug/GraphicsMonitor.so");
+    putenv((char*)"LD_PRELOAD=../bin/Debug/libGraphicsMonitor.so");
 
     int pipeFd[2];
     pipe2(pipeFd, O_NONBLOCK);
