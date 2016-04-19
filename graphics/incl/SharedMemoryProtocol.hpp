@@ -1,10 +1,18 @@
-#ifndef GRAPHICS_LAYER_PIPE_PROTOCOL
-#define GRAPHICS_LAYER_PIPE_PROTOCOL
+#ifndef GRAPHICS_LAYER_SHARED_MEMORY_PROTOCOL
+#define GRAPHICS_LAYER_SHARED_MEMORY_PROTOCOL
+
+
+///////////////////////////////////
+// STD C++
+#include <cstdlib>
+///////////////////////////////////
 
 namespace GraphicsLayer
 {
-    namespace PipeProtocol
+    namespace SharedMemoryProtocol
     {
+
+
         enum class Type : unsigned char
         {
             PIXEL_DATA,
@@ -36,8 +44,23 @@ namespace GraphicsLayer
             unsigned short width;
             unsigned short height;
         };
+
+        const size_t MAX_NUM_PIXEL_DATA = 500;
+        const size_t MAX_NUM_DRAW_CALL = 3000;
+
+        struct SharedMemorySegment
+        {
+            bool hasPendingChanges = false;
+            unsigned int numPixelData = 0;
+            unsigned int numDrawCall = 0;
+            PixelData pixelData[MAX_NUM_PIXEL_DATA];
+            DrawCall drawCall[MAX_NUM_DRAW_CALL];
+        };
+
+        const size_t NUM_BYTES = sizeof(SharedMemorySegment);
+
     }
 }
 
 
-#endif // GRAPHICS_LAYER_PIPE_PROTOCOL
+#endif // GRAPHICS_LAYER_SHARED_MEMORY_PROTOCOL

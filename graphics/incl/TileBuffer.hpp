@@ -3,7 +3,7 @@
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "PipeProtocol.hpp"
+#include "SharedMemoryProtocol.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -24,7 +24,7 @@ namespace GraphicsLayer
         public:
             TileBuffer();
 
-            void setTile(PipeProtocol::PixelData pixels);
+            void setTile(SharedMemoryProtocol::PixelData pixels);
             unsigned char* getTile(size_t x, size_t y) const;
             unsigned char* getPixels(size_t x, size_t y, size_t width, size_t height) const;
 

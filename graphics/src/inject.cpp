@@ -13,7 +13,10 @@
 #include <unistd.h>
 
 #include <dlfcn.h>
-#include "PipeProtocol.hpp"
+#include <sys/mman.h>
+
+#include "SharedMemoryProtocol.hpp"
+
 
 namespace GraphicsMonitor
 {
@@ -61,7 +64,14 @@ namespace GraphicsMonitor
 
     Atom tibiaRunningAtom;
 
-    int pipeWriteFd = strtol(getenv("SHANKBOT_PIPE_WRITE"), NULL, 10);
+    int shmFd = strtol(getenv("SHANKBOT_SHARED_MEMORY_FD"), NULL, 10);
+
+    GraphicsLayer::SharedMemoryProtocol::SharedMemorySegment* shm = nullptr;
+
+    std::vector<GraphicsLayer::SharedMemoryProtocol::PixelData> pixelPackets;
+    std::vector<GraphicsLayer::SharedMemoryProtocol::DrawCall> drawCallPackets;
+
+    bool updateDrawCalls = false;
 }
 
 ///////////////////////////////////
@@ -88,20 +98,49 @@ void glDeleteTextures( GLsizei n, const GLuint *textures)
 
 ///////////////////////////////////
 
+
+
 void glXSwapBuffers(Display* dpy, GLXDrawable drawable)
 {
+    using namespace GraphicsMonitor;
+
+    if(shm == nullptr)
+    {
+        shm = (GraphicsLayer::SharedMemoryProtocol::SharedMemorySegment*)mmap(nullptr, GraphicsLayer::SharedMemoryProtocol::NUM_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, shmFd, 0);
+        if(shm == MAP_FAILED)
+        {
+            std::cout << "Could not map shared memory." << std::endl;
+            std::cout << errno << std::endl;
+        }
+
+        shm->hasPendingChanges = false;
+    }
     void (*originalFunc)(Display*, GLXDrawable) = (void (*)(Display*, GLXDrawable))dlsym(RTLD_NEXT, "glXSwapBuffers");
 
     originalFunc(dpy, drawable);
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glXSwapBuffers 1"<< std::endl;
 
-    std::cout << "swapping" << GraphicsMonitor::swapCount++ << std::endl;
+    updateDrawCalls = false;
+    if(!shm->hasPendingChanges)
+    {
+        memcpy(shm->pixelData, pixelPackets.data(), pixelPackets.size() * sizeof(GraphicsLayer::SharedMemoryProtocol::PixelData));
+        shm->numPixelData = pixelPackets.size();
 
-    GraphicsMonitor::numGlEndCallsNotRect = 0;
-    GraphicsMonitor::numLetters = 0;
-    GraphicsMonitor::numGlEndCallsNonTexRect = 0;
-    GraphicsMonitor::numGlEndCalls = 0;
+        memcpy(shm->drawCall, drawCallPackets.data(), drawCallPackets.size() * sizeof(GraphicsLayer::SharedMemoryProtocol::DrawCall));
+        shm->numDrawCall = drawCallPackets.size();
+
+        shm->hasPendingChanges = true;
+        updateDrawCalls = true;
+
+        pixelPackets.clear();
+        drawCallPackets.clear();
+    }
+
+    numGlEndCallsNotRect = 0;
+    numLetters = 0;
+    numGlEndCallsNonTexRect = 0;
+    numGlEndCalls = 0;
 
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glXSwapBuffers 2" << std::endl;
@@ -146,10 +185,13 @@ void glBegin(GLenum mode)
 
 void glEnd()
 {
-    if(!GraphicsMonitor::isPerformingPrimitiveDrawSession)
+    using namespace GraphicsMonitor;
+    using namespace GraphicsLayer::SharedMemoryProtocol;
+
+    if(!isPerformingPrimitiveDrawSession)
         return;
 
-    GraphicsMonitor::isPerformingPrimitiveDrawSession = false;
+    isPerformingPrimitiveDrawSession = false;
 
     void (*originalFunc)() = (void (*)())dlsym(RTLD_NEXT, "glEnd");
     originalFunc();
@@ -157,18 +199,14 @@ void glEnd()
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glEnd" << std::endl;
 
-    GraphicsMonitor::Texture texture = GraphicsMonitor::textures[GraphicsMonitor::current2dTexture];
-    const auto& vertices = GraphicsMonitor::vertices;
-    const auto& texCoords = GraphicsMonitor::texCoords;
-
     if(vertices.size() != 4)
     {
-        GraphicsMonitor::numGlEndCallsNotRect++;
+        numGlEndCallsNotRect++;
     }
     else if(texCoords.size() == 4)
     {
-        GraphicsMonitor::Vector2f texCoordMax;
-        GraphicsMonitor::Vector2f texCoordMin;
+        Vector2f texCoordMax;
+        Vector2f texCoordMin;
 
         if(texCoords[2].x > texCoords[0].x)
         {
@@ -192,8 +230,8 @@ void glEnd()
             texCoordMin.y = texCoords[2].y;
         }
 
-        GraphicsMonitor::Vector2f vertexMax;
-        GraphicsMonitor::Vector2f vertexMin;
+        Vector2f vertexMax;
+        Vector2f vertexMin;
 
         if(vertices[2].x > vertices[0].x)
         {
@@ -217,71 +255,62 @@ void glEnd()
             vertexMin.y = vertices[2].y;
         }
 
-
-        size_t width = (texCoordMax.x - texCoordMin.x) * texture.width;
-        size_t height = (texCoordMax.y - texCoordMin.y) * texture.height;
-
-        using namespace GraphicsLayer::PipeProtocol;
-        Header header;
-        header.packetCount = 1;
-        header.type = Type::DRAW_CALL;
-
-        DrawCall packet;
-        packet.textureId = GraphicsMonitor::current2dTexture;
+        Texture texture = textures[current2dTexture];
 
         if(texCoordMin.x > 0.99f || texCoordMin.y > 0.99f)
         {
-            std::cout << "SOMETHING'S WRONG: " << texCoords[1].y << std::endl;
-
-            std::cout   << "Drawing quad" << std::endl;
-
-            std::cout << "\tVERTICES: ";
-            for(GraphicsMonitor::Vector2f v : GraphicsMonitor::vertices)
-            {
-                std::cout << "{" << v.x << ", " << v.y << "} ";
-            }
-
-            std::cout << "\tTEXCOORDS: ";
-            for(GraphicsMonitor::Vector2f v : GraphicsMonitor::texCoords)
-            {
-                std::cout << "{" << (int)(v.x * texture.width) << ", " << (int)(v.y * texture.height) << "} ";
-            }
+//            std::cout << "SOMETHING'S WRONG: " << texCoords[1].y << std::endl;
+//
+//            std::cout   << "Drawing quad" << std::endl;
+//
+//            std::cout << "\tVERTICES: ";
+//            for(Vector2f v : vertices)
+//            {
+//                std::cout << "{" << v.x << ", " << v.y << "} ";
+//            }
+//
+//            std::cout << "\tTEXCOORDS: ";
+//            for(Vector2f v : texCoords)
+//            {
+//                std::cout << "{" << (int)(v.x * texture.width) << ", " << (int)(v.y * texture.height) << "} ";
+//            }
         }
-
-        packet.texX = texCoordMin.x * texture.width;
-        packet.texY = texCoordMin.y * texture.height;
-        packet.screenX = vertexMin.x;
-        packet.screenY = vertexMin.y;
-        packet.width = width;
-        packet.height = height;
-
-
-        void* p = malloc(sizeof(Header) + sizeof(DrawCall) * header.packetCount);
-        memcpy(p, &header, sizeof(Header));
-        memcpy(p + sizeof(Header), &packet, sizeof(DrawCall) * header.packetCount);
-        write(GraphicsMonitor::pipeWriteFd, p, sizeof(Header) + sizeof(DrawCall) * header.packetCount);
-
-        delete p;
-
-        if
-        (
-            (width == 8 && height == 8) ||
-            (width == 8 && height == 10) ||
-            (width == 8 && height == 16) ||
-            (width == 8 && height == 14) ||
-            (width == 16 && height == 16)
-        )
+        else if(updateDrawCalls)
         {
-            GraphicsMonitor::numLetters++;
+            size_t width = (texCoordMax.x - texCoordMin.x) * texture.width;
+            size_t height = (texCoordMax.y - texCoordMin.y) * texture.height;
+
+            DrawCall packet;
+            packet.textureId = current2dTexture;
+            packet.texX = texCoordMin.x * texture.width;
+            packet.texY = texCoordMin.y * texture.height;
+            packet.screenX = vertexMin.x;
+            packet.screenY = vertexMin.y;
+            packet.width = width;
+            packet.height = height;
+
+            drawCallPackets.push_back(packet);
         }
+//
+//        if
+//        (
+//            (width == 8 && height == 8) ||
+//            (width == 8 && height == 10) ||
+//            (width == 8 && height == 16) ||
+//            (width == 8 && height == 14) ||
+//            (width == 16 && height == 16)
+//        )
+//        {
+//            GraphicsMonitor::numLetters++;
+//        }
     }
-    else
-    {
-        GraphicsMonitor::numGlEndCallsNonTexRect++;
-    }
+//    else
+//    {
+//        GraphicsMonitor::numGlEndCallsNonTexRect++;
+//    }
 
 
-    GraphicsMonitor::numGlEndCalls++;
+//    GraphicsMonitor::numGlEndCalls++;
 }
 
 ///////////////////////////////////
@@ -367,28 +396,26 @@ void glTexSubImage2D( 	GLenum target,
   	GLenum type,
   	const GLvoid * pixels)
 {
+    using namespace GraphicsMonitor;
+    using namespace GraphicsLayer::SharedMemoryProtocol;
+
     if(width == 32 && height == 32)
     {
-        using namespace GraphicsMonitor;
-        using namespace GraphicsLayer::PipeProtocol;
+        const Texture& texture = textures[current2dTexture];
+        if(texture.height == 512 && texture.width == 512)
+        {
+            PixelData packet;
+            memcpy(packet.pixels, pixels, 32 * 32 * 4);
+            packet.textureId = current2dTexture;
+            packet.texX = xoffset;
+            packet.texY = yoffset;
 
-        PixelData packet;
-        memcpy(packet.pixels, pixels, 32 * 32 * 4);
-        packet.textureId = GraphicsMonitor::current2dTexture;
-        packet.texX = xoffset;
-        packet.texY = yoffset;
+            Header header;
+            header.packetCount = 1;
+            header.type = Type::PIXEL_DATA;
 
-        Header header;
-        header.packetCount = 1;
-        header.type = Type::PIXEL_DATA;
-
-        void* p = malloc(sizeof(Header) + sizeof(PixelData) * header.packetCount);
-        memcpy(p, &header, sizeof(Header));
-        memcpy(p + sizeof(Header), &packet, sizeof(PixelData) * header.packetCount);
-
-        write(GraphicsMonitor::pipeWriteFd, p, sizeof(Header) + sizeof(PixelData) * header.packetCount);
-        delete p;
-
+            pixelPackets.push_back(packet);
+        }
     }
 
     void (*originalFunc)(GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*)
