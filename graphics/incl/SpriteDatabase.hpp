@@ -40,7 +40,6 @@ namespace GraphicsLayer
                 float red[NUM_BUCKETS_PER_BYTE];
                 float green[NUM_BUCKETS_PER_BYTE];
                 float blue[NUM_BUCKETS_PER_BYTE];
-                float alpha[NUM_BUCKETS_PER_BYTE];
             };
 
 
@@ -58,7 +57,7 @@ namespace GraphicsLayer
 
             void insert(std::string name, size_t width, size_t height, unsigned char* pixels);
 
-            bool compareSprites(size_t size, unsigned char* s1, unsigned char* s2) const;
+            bool findSimilarSprite(size_t size, unsigned char* pixels, HistogramEntry& similarSprite) const;
 
             void insertHistogramEntry(std::string name, size_t size, unsigned char* pixels);
             bool createHistogramEntry(std::string name, size_t size, unsigned char* pixels, HistogramEntry& entry) const;

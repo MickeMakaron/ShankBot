@@ -13,6 +13,7 @@
 #include <cassert>
 #include <limits>
 #include <cmath>
+#include <iostream>
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -41,7 +42,8 @@ SpriteDatabase::Sprite::~Sprite()
 }
 
 ///////////////////////////////////
-#include <iostream>
+
+
 SpriteDatabase::SpriteDatabase(std::string directory)
 : mSpriteMap()
 , mNames()
@@ -55,17 +57,30 @@ SpriteDatabase::SpriteDatabase(std::string directory)
 
             for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
             {
-                sum += j.red[i] + j.blue[i] + j.green[i]; //+ j.alpha[i];
+                sum += j.red[i] + j.blue[i] + j.green[i];
             }
             assert(sum > 0.99999f && sum < 1.000001f);
         }
 }
 
 ///////////////////////////////////
-#include <iostream>
+
 bool SpriteDatabase::getName(size_t width, size_t height, unsigned char* pixels, std::string& name) const
 {
-    size_t size = width * height;
+    HistogramEntry sprite;
+    if(findSimilarSprite(width * height, pixels, sprite))
+    {
+        name = sprite.name;
+        return true;
+    }
+
+    return false;
+}
+
+///////////////////////////////////
+
+bool SpriteDatabase::findSimilarSprite(size_t size, unsigned char* pixels, HistogramEntry& similarSprite) const
+{
     auto entries = mHistogramMap.find(size);
     if(entries == mHistogramMap.end())
         return false;
@@ -84,7 +99,6 @@ bool SpriteDatabase::getName(size_t width, size_t height, unsigned char* pixels,
             delta += std::fabs(sprite.red[i] - e.red[i]);
             delta += std::fabs(sprite.green[i] - e.green[i]);
             delta += std::fabs(sprite.blue[i] - e.blue[i]);
-//            delta += std::fabs(sprite.alpha[i] - e.alpha[i]);
         }
 
         if(delta < minDelta)
@@ -97,121 +111,11 @@ bool SpriteDatabase::getName(size_t width, size_t height, unsigned char* pixels,
     if(minDelta < 0.01f)
     {
         std::cout << "Closest sprite is: " << closestSprite.name << " (delta=" << minDelta << ")" << std::endl;
-        name = closestSprite.name;
+        similarSprite = closestSprite;
         return true;
     }
-    else
-        return false;
 
-
-
-
-//    size_t size = width * height;
-//    auto sprites = mSpriteMap.find(size);
-//    if(sprites == mSpriteMap.end())
-//        return false;
-//
-//    for(const SpritePtr& sprite : sprites->second)
-//    {
-//        if(compareSprites(size, sprite->pixels, pixels))
-//        {
-//            name = sprite->name;
-//            return true;
-//        }
-//    }
-//
-//    return false;
-}
-
-///////////////////////////////////
-
-bool SpriteDatabase::compareSprites(size_t size, unsigned char* s1, unsigned char* s2) const
-{
-    size_t halfIndex = (size / 2) * TileBuffer::BYTES_PER_PIXEL;
-    size_t numBytes = size * TileBuffer::BYTES_PER_PIXEL;
-
-    const int EPSILON = 100;
-
-    for(size_t i = halfIndex; i < numBytes; i += TileBuffer::BYTES_PER_PIXEL * 2)
-    {
-        for(size_t j = i; j < i + 4; j++)
-        {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
-        }
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
-    }
-
-    for(int i = halfIndex; i >= 0; i -= TileBuffer::BYTES_PER_PIXEL * 2)
-    {
-
-        for(size_t j = i; j < i + 4; j++)
-        {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
-        }
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
-    }
-
-    for(size_t i = halfIndex + TileBuffer::BYTES_PER_PIXEL; i < numBytes; i += TileBuffer::BYTES_PER_PIXEL * 2)
-    {
-        for(size_t j = i; j < i + 4; j++)
-        {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
-        }
-
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
-    }
-
-    for(int i = halfIndex - TileBuffer::BYTES_PER_PIXEL; i >= 0; i -= TileBuffer::BYTES_PER_PIXEL * 2)
-    {
-        for(size_t j = i; j < i + 4; j++)
-        {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
-        }
-
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
-    }
-
-    return true;
+    return false;
 }
 
 ///////////////////////////////////
@@ -273,7 +177,6 @@ void SpriteDatabase::insert(std::string name, size_t width, size_t height, unsig
     sprites.first->second.push_back(SpritePtr(new Sprite(name, pixels)));
 
     insertHistogramEntry(name, width * height, pixels);
-
 }
 
 
@@ -293,14 +196,10 @@ bool SpriteDatabase::createHistogramEntry(std::string name, size_t size, unsigne
     float red[NUM_BUCKETS_PER_BYTE];
     float green[NUM_BUCKETS_PER_BYTE];
     float blue[NUM_BUCKETS_PER_BYTE];
-    float alpha[NUM_BUCKETS_PER_BYTE];
     size_t numTransparentPixels = 0;
 
     for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
-    {
-        red[i] = green[i] = blue[i] = alpha[i] = 0.f;
-    }
-
+        red[i] = green[i] = blue[i] = 0.f;
 
     for(size_t i = 0; i < NUM_BYTES;)
     {
@@ -345,70 +244,10 @@ bool SpriteDatabase::createHistogramEntry(std::string name, size_t size, unsigne
         }
     }
 
-//
-//    for(size_t iRed = 0; iRed < NUM_BYTES; iRed += TileBuffer::BYTES_PER_PIXEL)
-//    {
-//        if(pixels[iRed + 3] < 50)
-//        {
-//            alpha[0]++;
-//        }
-//        else
-//        {
-//            for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
-//            {
-//                if(pixels[iRed] <= BUCKET_RANGES[iBucket])
-//                {
-//                    red[iBucket]++;
-//                    break;
-//                }
-//            }
-//        }
-//
-//    }
-//
-//    for(size_t iGreen = 1; iGreen < NUM_BYTES; iGreen += TileBuffer::BYTES_PER_PIXEL)
-//    {
-//        for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
-//        {
-//            if(pixels[iGreen] <= BUCKET_RANGES[iBucket])
-//            {
-//                green[iBucket]++;
-//                break;
-//            }
-//        }
-//    }
-//
-//    for(size_t iBlue = 2; iBlue < NUM_BYTES; iBlue += TileBuffer::BYTES_PER_PIXEL)
-//    {
-//        for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
-//        {
-//            if(pixels[iBlue] <= BUCKET_RANGES[iBucket])
-//            {
-//                blue[iBucket]++;
-//                break;
-//            }
-//        }
-//    }
-//
-//    for(size_t iAlpha = 3; iAlpha < NUM_BYTES; iAlpha += TileBuffer::BYTES_PER_PIXEL)
-//    {
-//        for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
-//        {
-//            if(pixels[iAlpha] <= BUCKET_RANGES[iBucket])
-//            {
-//                alpha[iBucket]++;
-//                break;
-//            }
-//        }
-//    }
-
     if(size <= numTransparentPixels)
         return false;
 
-
     entry.name = name;
-
-//    const float NUM_BYTES_FLOAT = (float)(NUM_BYTES - numTransparentPixels * TileBuffer::BYTES_PER_PIXEL);
     const float NUM_BYTES_FLOAT = (float)((size - numTransparentPixels) * (TileBuffer::BYTES_PER_PIXEL - 1));
 
     for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
@@ -416,12 +255,10 @@ bool SpriteDatabase::createHistogramEntry(std::string name, size_t size, unsigne
         red[i] /= NUM_BYTES_FLOAT;
         green[i] /= NUM_BYTES_FLOAT;
         blue[i] /= NUM_BYTES_FLOAT;
-        alpha[i] /= NUM_BYTES_FLOAT;
 
         entry.red[i] = red[i];
         entry.green[i] = green[i];
         entry.blue[i] = blue[i];
-        entry.alpha[i] = alpha[i];
     }
 
     return true;

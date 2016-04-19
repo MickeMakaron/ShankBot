@@ -47,30 +47,6 @@ int main(int argc, char *args[])
     if(ftruncate(shmFd, SharedMemoryProtocol::NUM_BYTES) == -1)
         throw std::runtime_error("Could not set shared memory size.");
 
-//    std::string TIBIA_DIR = "/home/vendrii/Documents/programming/projects/test/tibia";
-//
-//    setEnvironmentVar("HOME", TIBIA_DIR);
-////
-////    std::string environmentVar = "HOME=";
-////    putenv((char*)(environmentVar + TIBIA_DIR).c_str());
-
-//    PngImage png = readPng("Achad-0-0.png");
-//
-////    unsigned char* rgba = new unsigned char[pngWut::imgWidth * pngWut::imgHeight * 4];
-//////    memcpy(rgba, *row_pointers, imgWidth * imgHeight * 4);
-////    for(size_t y = 0; y < pngWut::imgHeight; y++)
-////        memcpy(&rgba[y * pngWut::imgWidth * 4], pngWut::row_pointers[y], pngWut::imgWidth * 4);
-////
-////    std::cout << "Pixels: " << std::endl << "\t" << "'";
-////    for(size_t i = 0; i < 20; i++)
-////        std::cout << (int)(rgba[i]) << " ";
-////    std::cout << "'" << std::endl;
-//
-//
-//    unsigned char* rgb = rgbaToRgb(png.pixelData, png.width, png.height);
-//
-//
-//    writePixelsToFile("achadYO.ppm", rgb, png.width, png.height);
 //
 //    std::list<PngImage> testImages;
 //    testLoadImages("spriteDatabase", testImages);
