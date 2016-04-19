@@ -15,7 +15,7 @@ INC = -Iincl
 CFLAGS = -Wall -std=c++14
 RESINC = 
 LIBDIR = 
-LIB = -lpng
+LIB = -lpng -lrt
 LDFLAGS = 
 
 INC_DEBUG = $(INC)
