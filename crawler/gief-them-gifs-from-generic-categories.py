@@ -23,6 +23,9 @@ def download_giefs(soup):
     pages = soup.find('div', id='mw-pages')
     table = pages.find('table')
     for page in table.findAll('a'):
+        if "Template:" in page['href']:
+            print "Disallowed by robots!" + page['href']
+            continue
         specific_page = mech.open(base_url + page['href'])
         specific_html = specific_page.read()
         specific_soup = BeautifulSoup(specific_html)
