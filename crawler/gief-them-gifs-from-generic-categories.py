@@ -12,7 +12,7 @@ import re
 # http://tibia.wikia.com/wiki/Category:Items
 
 # Edit this to include more top level categories present in the image page root: http://tibia.wikia.com/wiki/Category:Images
-top_level_categories = ["Items"];
+top_level_categories = ["Creatures", "Objects", "Items"];
 save_dir = "./downloads"
 
 mech = Browser()
