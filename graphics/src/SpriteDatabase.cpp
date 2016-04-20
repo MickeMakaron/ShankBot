@@ -72,36 +72,85 @@ bool SpriteDatabase::compareSprites(size_t size, unsigned char* s1, unsigned cha
     size_t halfIndex = (size / 2) * TileBuffer::BYTES_PER_PIXEL;
     size_t numBytes = size * TileBuffer::BYTES_PER_PIXEL;
 
+    const int EPSILON = 100;
+
     for(size_t i = halfIndex; i < numBytes; i += TileBuffer::BYTES_PER_PIXEL * 2)
     {
-        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+        for(size_t j = i; j < i + 4; j++)
         {
-            return false;
+            int s2Max = s2[j];
+            s2Max += EPSILON;
+
+            int s2Min = s2[j];
+            s2Min -= EPSILON;
+            if(s1[j] > s2Max || s1[j] < s2Min)
+                return false;
+
         }
+//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+//        {
+//            return false;
+//        }
     }
 
     for(int i = halfIndex; i >= 0; i -= TileBuffer::BYTES_PER_PIXEL * 2)
     {
-        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+
+        for(size_t j = i; j < i + 4; j++)
         {
-            return false;
+            int s2Max = s2[j];
+            s2Max += EPSILON;
+
+            int s2Min = s2[j];
+            s2Min -= EPSILON;
+            if(s1[j] > s2Max || s1[j] < s2Min)
+                return false;
+
         }
+//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+//        {
+//            return false;
+//        }
     }
 
     for(size_t i = halfIndex + TileBuffer::BYTES_PER_PIXEL; i < numBytes; i += TileBuffer::BYTES_PER_PIXEL * 2)
     {
-        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+        for(size_t j = i; j < i + 4; j++)
         {
-            return false;
+            int s2Max = s2[j];
+            s2Max += EPSILON;
+
+            int s2Min = s2[j];
+            s2Min -= EPSILON;
+            if(s1[j] > s2Max || s1[j] < s2Min)
+                return false;
+
         }
+
+//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+//        {
+//            return false;
+//        }
     }
 
     for(int i = halfIndex - TileBuffer::BYTES_PER_PIXEL; i >= 0; i -= TileBuffer::BYTES_PER_PIXEL * 2)
     {
-        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+        for(size_t j = i; j < i + 4; j++)
         {
-            return false;
+            int s2Max = s2[j];
+            s2Max += EPSILON;
+
+            int s2Min = s2[j];
+            s2Min -= EPSILON;
+            if(s1[j] > s2Max || s1[j] < s2Min)
+                return false;
+
         }
+
+//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
+//        {
+//            return false;
+//        }
     }
 
     return true;

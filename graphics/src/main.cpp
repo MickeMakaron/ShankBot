@@ -8,7 +8,6 @@
 #include <fcntl.h>
 #include <sstream>
 
-#include "PipeProtocol.hpp"
 #include <vector>
 #include <map>
 
@@ -24,8 +23,6 @@ void setEnvironmentVar(std::string name, std::string value)
     std::string concatenated = name + std::string("=") + value;
     putenv((char*)concatenated.c_str());
 }
-//#include <dirent.h>
-//#include "TileBuffer.hpp"
 
 
 #include "TileBuffer.hpp"
@@ -33,118 +30,22 @@ void setEnvironmentVar(std::string name, std::string value)
 
 TileBuffer* tileBuffers = new TileBuffer[20];
 
-void readPipe(int pipeFd)
-{
-    GraphicsLayer::PipeProtocol::Header header;
-    ssize_t bytesRead = 0;
-    while((bytesRead = read(pipeFd, &header, sizeof(GraphicsLayer::PipeProtocol::Header))) > 0)
-    {
-//                std::cout << "Read " << bytesRead << " bytes from pipe: " << std::endl;
-
-        if(header.type == GraphicsLayer::PipeProtocol::Type::PIXEL_DATA)
-        {
-            GraphicsLayer::PipeProtocol::PixelData* pixelPackets = new GraphicsLayer::PipeProtocol::PixelData[header.packetCount];
-            size_t numBytes = sizeof(GraphicsLayer::PipeProtocol::PixelData) * header.packetCount;
-            bytesRead = read(pipeFd, pixelPackets, numBytes);
-            if(bytesRead != numBytes)
-            {
-                std::stringstream sstream;
-                sstream << "ERROR READING PIXEL PACKET. EXPECTED " << numBytes << "bytes, got " << bytesRead << ".";
-                throw std::runtime_error(sstream.str());
-            }
-            else
-            {
-//                        for(size_t i = 0; i < header.packetCount; i++)
-//                        {
-//                            for(size_t j = 0; j < sizeof(GraphicsLayer::PipeProtocol::PixelData::pixels); j++)
-//                                std::cout << (int)pixelPackets[i].pixels[j] << " ";
-//
-//                            std::cout << std::endl << "--------------" << std::endl;
-//                        }
-
-                for(size_t i = 0; i < header.packetCount; i++)
-                {
-                    tileBuffers[pixelPackets[i].textureId - 1].setTile(pixelPackets[i]);
-//                            tileBuffers[0].setTile(pixelPackets[i]);
-
-//                            std::stringstream sstream;
-//                            sstream << "pixelPackets/" << numPixelPackets;
-//                            unsigned char* rgb = rgbaToRgb(pixelPackets[i].pixels, 32, 32);
-//
-//                            writePixelsToFile(sstream.str(), rgb, 32, 32);
-//                            delete[] rgb;
-                }
-
-
-
-            }
-
-//                    for(size_t i = 0; i < header.packetCount; i++)
-//                    {
-//                        delete[] pixelPackets[i].pixels;
-//
-//                    }
-            delete[] pixelPackets;
-        }
-        else if(header.type == GraphicsLayer::PipeProtocol::Type::DRAW_CALL)
-        {
-            GraphicsLayer::PipeProtocol::DrawCall* drawCalls = new GraphicsLayer::PipeProtocol::DrawCall[header.packetCount];
-            size_t numBytes = sizeof(GraphicsLayer::PipeProtocol::DrawCall) * header.packetCount;
-            bytesRead = read(pipeFd, drawCalls, numBytes);
-
-            if(bytesRead != numBytes)
-            {
-                std::stringstream sstream;
-                sstream << "ERROR READING DRAW CALL PACKET. EXPECTED " << numBytes << "bytes, got " << bytesRead << ".";
-                throw std::runtime_error(sstream.str());
-            }
-            else
-            {
-//                        for(size_t i = 0; i < header.packetCount; i++)
-//                        {
-//                            std::cout   << "DRAW CALL" << std::endl
-//                                        << "\t" << (int)drawCalls[i].textureId << std::endl
-//                                        << "\t" << drawCalls[i].texX << std::endl
-//                                        << "\t" << drawCalls[i].texY << std::endl
-//                                        << "\t" << drawCalls[i].screenX << std::endl
-//                                        << "\t" << drawCalls[i].screenY << std::endl;
-//                        }
-
-                for(size_t i = 0; i < header.packetCount; i++)
-                {
-                    if(drawCalls[i].textureId > 5)
-                    {
-                        std::cout << "Reading: \t" << drawCalls[i].texX << "x" << drawCalls[i].texY << std::endl;
-                        unsigned char* pixels = tileBuffers[drawCalls[i].textureId - 1].getPixels(drawCalls[i].texX, drawCalls[i].texY, drawCalls[i].width, drawCalls[i].height);
-                        unsigned char* rgb = rgbaToRgb(pixels, drawCalls[i].width, drawCalls[i].height);
-                        delete[] pixels;
-                        std::stringstream sstream;
-                        sstream << "drawnTiles/" << drawCalls[i].texY << "x" << drawCalls[i].texX;
-
-                        writePixelsToFile(sstream.str(), rgb, drawCalls[i].width, drawCalls[i].height);
-                        delete[] rgb;
-                    }
-
-                }
-
-            }
-
-            delete[] drawCalls;
-        }
-
-    }
-    if(errno != EWOULDBLOCK) // If errno == EWOULDBLOCK, it means the pipe is just empty.
-    {
-        std::stringstream sstream;
-        sstream << "Error " << errno << " when reading pipe.";
-        throw std::runtime_error(sstream.str());
-    }
-
-}
-
+#include <sys/mman.h>
+#include "SharedMemoryProtocol.hpp"
 
 int main(int argc, char *args[])
 {
+    int shmFd = shm_open("shared_memory", O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
+    int flags = fcntl(shmFd, F_GETFD);
+    flags &= ~FD_CLOEXEC;
+    fcntl(shmFd, F_SETFD, flags);
+
+    if(shmFd == -1)
+        throw std::runtime_error("Could not open shared memory.");
+
+    if(ftruncate(shmFd, SharedMemoryProtocol::NUM_BYTES) == -1)
+        throw std::runtime_error("Could not set shared memory size.");
+
 //    std::string TIBIA_DIR = "/home/vendrii/Documents/programming/projects/test/tibia";
 //
 //    setEnvironmentVar("HOME", TIBIA_DIR);
@@ -170,38 +71,29 @@ int main(int argc, char *args[])
 //
 //    writePixelsToFile("achadYO.ppm", rgb, png.width, png.height);
 
-    //SpriteDatabase db("spriteDatabase");
+    SpriteDatabase db("spriteDatabase");
 
     putenv((char*)"HOME=./");
-    putenv((char*)"LD_PRELOAD=../bin/Debug/GraphicsMonitor.so");
+    putenv((char*)"LD_PRELOAD=../bin/Debug/libGraphicsMonitor.so");
 
-    int pipeFd[2];
-    pipe2(pipeFd, O_NONBLOCK);
-    int pipeFdRead = pipeFd[0];
-    int pipeFdWrite = pipeFd[1];
-
-
-    std::cout << fcntl(pipeFdRead, F_SETPIPE_SZ, 1048576) << std::endl;
-    std::cout << fcntl(pipeFdWrite, F_SETPIPE_SZ, 1048576) << std::endl;
-
-
-//    setEnvironmentVar("LD_PRELOAD", "/home/vendrii/Documents/programming/projects/InjectTest/bin/Debug/libInjectTest.so");
     for(char** env = environ; *env != 0; env++)
         std::cout << *env << std::endl;
 
-//    char* argv[] = {"/home/vendrii/programs/Tibia/Tibia", 0};
     char* argv[] = {(char*)"./Tibia", 0};
-//    char* argv[] = {"./herpderp", 0};
     pid_t pid = fork();
 
     if(pid == 0)
     {
         chdir("./tibia");
         std::stringstream sstream;
-        sstream << pipeFdWrite;
-        std::string pipeWriteEnvVar = std::string("SHANKBOT_PIPE_WRITE=");
-        pipeWriteEnvVar += sstream.str();
-        putenv((char*)pipeWriteEnvVar.c_str());
+
+        sstream.str(std::string());
+        sstream << "SHANKBOT_SHARED_MEMORY_FD=" << shmFd;
+        std::string strShmFd = sstream.str();
+        putenv((char*)strShmFd.c_str());
+
+        for(char** env = environ; *env != 0; env++)
+            std::cout << *env << std::endl;
 
         std::cout << "Hello from Child!" << std::endl;
         execve(argv[0], &argv[0], environ);
@@ -209,27 +101,105 @@ int main(int argc, char *args[])
     }
     else if(pid > 0)
     {
-        char* buffer = new char[500];
-        memset(buffer, '\0', 500);
+        using namespace GraphicsLayer::SharedMemoryProtocol;
 
-        size_t numPixelPackets = 0;
+        SharedMemorySegment* shm = (SharedMemorySegment*)mmap(nullptr, SharedMemoryProtocol::NUM_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, shmFd, 0);
+        if(shm == MAP_FAILED)
+            throw std::runtime_error("Could not map shared memory.");
+
         while(true)
         {
-            unsigned int ms = 10;
+            unsigned int ms = 100;
 //            usleep(1000 * ms);
-//                std::cout << "Going to work... " << std::endl;
+
+            std::cout << "Pending changes? : " << (shm->hasPendingChanges == true ? "true" : "false") << std::endl;
+            std::cout << "Num pixel data: " << shm->numPixelData << std::endl;
+
+            if(shm->hasPendingChanges)
+            {
+//                for(size_t i = 0; i < 5; i++)
+//                {
+//                    GraphicsLayer::SharedMemoryProtocol::PixelData p = shm->pixelData[i];
+//                    std::cout   << "PixelData: " << std::endl
+//                                << "\t" << p.textureId << " - " << p.texX << "x" << p.texY << std::endl;
+//
+//
+//                    GraphicsLayer::SharedMemoryProtocol::DrawCall d = shm->drawCall[i];
+//                    std::cout   << "DrawCall: " << std::endl
+//                                << "\t" << d.textureId << " - " << d.texX << "x" << d.texY << std::endl;
+//                }
+
+                if(shm->numPixelData > MAX_NUM_PIXEL_DATA)
+                {
+                    std::stringstream sstream;
+                    sstream << "PIXEL DATA BUFFER OVERFLOW. (" << shm->numPixelData << " of max " << MAX_NUM_PIXEL_DATA << ")";
+                    throw std::runtime_error(sstream.str());
+                }
 
 
-                readPipe(pipeFdRead);
+                if(shm->numDrawCall > MAX_NUM_DRAW_CALL)
+                {
+                    std::stringstream sstream;
+                    sstream << "DRAW CALL BUFFER OVERFLOW. (" << shm->numDrawCall << " of max " << MAX_NUM_DRAW_CALL << ")";
+                    throw std::runtime_error(sstream.str());
+                }
 
 
-            for(size_t i = 0; i < 20; i++)
+                for(size_t i = 0; i < shm->numPixelData; i++)
+                    tileBuffers[shm->pixelData[i].textureId - 1].setTile(shm->pixelData[i]);
+
+
+                for(size_t i = 0; i < shm->numDrawCall; i++)
+                {
+                    const DrawCall& d = shm->drawCall[i];
+
+                    if(d.textureId > 5)
+                    {
+//                        std::cout << "Reading: \t" << d.texX << "x" << d.texY << std::endl;
+//                        unsigned char* pixels = tileBuffers[d.textureId - 1].getPixels(d.texX, d.texY, d.width, d.height);
+//                        unsigned char* rgb = rgbaToRgb(pixels, d.width, d.height);
+//                        delete[] pixels;
+//                        std::stringstream sstream;
+//                        sstream << "drawnTiles/" << d.texY << "x" << d.texX;
+//
+//                        writePixelsToFile(sstream.str(), rgb, d.width, d.height);
+//                        delete[] rgb;
+
+                        unsigned char* pixels = tileBuffers[d.textureId - 1].getPixels(d.texX, d.texY, d.width, d.height);
+                        std::cout << "Searching... " << i << std::endl;
+                        std::string name;
+                        if(db.getName(d.width, d.height, pixels, name))
+                        {
+                            std::cout << "FOUND NAME!!!!: " << name << std::endl;
+
+                            unsigned char* rgb = rgbaToRgb(pixels, d.width, d.height);
+                            delete[] pixels;
+                            std::stringstream sstream;
+                            sstream << "foundSprites/" << name;
+
+                            writePixelsToFile(sstream.str(), rgb, d.width, d.height);
+                            delete[] rgb;
+                        }
+
+
+                    }
+
+
+
+                }
+
+                shm->numPixelData = 0;
+                shm->numDrawCall = 0;
+                shm->hasPendingChanges = false;
+            }
+
+            for(size_t i = 15; i < 20; i++)
             {
 //                std::cout << "Going to work... " << std::endl;
 //                readPipe(pipeFdRead);
 
 
-
+//
 //                std::stringstream sstream;
 //                sstream << "tileBuffers/" << i;
 //                unsigned char* rgb = rgbaToRgb(tileBuffers[i].getPixels(), TileBuffer::WIDTH, TileBuffer::HEIGHT);
@@ -237,10 +207,6 @@ int main(int argc, char *args[])
             }
 
         }
-        int status;
-        waitpid(pid, &status, 0);
-        std::cout << "Hello from Parent!" << std::endl;
-        std::cout << "Status: " << status << std::endl;
     }
     else
     {

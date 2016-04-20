@@ -21,7 +21,7 @@ TileBuffer::TileBuffer()
 
 ///////////////////////////////////
 
-void TileBuffer::setTile(PipeProtocol::PixelData pixels)
+void TileBuffer::setTile(SharedMemoryProtocol::PixelData pixels)
 {
     size_t x = pixels.texX * TileBuffer::BYTES_PER_PIXEL;
     size_t y = pixels.texY * TileBuffer::BYTES_PER_PIXEL;

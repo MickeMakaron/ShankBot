@@ -6,21 +6,21 @@
 WRKDIR = `pwd`
 MAKE = make
 
-all: graphicsmonitor graphicslayer
+all: libgraphicsmonitor graphicslayer
 
-graphicsmonitor: 
-	$(MAKE) all -f GraphicsMonitor.cbp.mak
+libgraphicsmonitor: 
+	$(MAKE) all -f libGraphicsMonitor.cbp.mak
 
-graphicslayer: graphicsmonitor
+graphicslayer: libgraphicsmonitor
 	$(MAKE) all -f GraphicsLayer.cbp.mak
 
-clean: clean_graphicsmonitor clean_graphicslayer
+clean: clean_libgraphicsmonitor clean_graphicslayer
 
-clean_graphicsmonitor: 
-	$(MAKE) clean -f GraphicsMonitor.cbp.mak
+clean_libgraphicsmonitor: 
+	$(MAKE) clean -f libGraphicsMonitor.cbp.mak
 
 clean_graphicslayer: 
 	$(MAKE) clean -f GraphicsLayer.cbp.mak
 
-.PHONY: clean_graphicsmonitor clean_graphicslayer
+.PHONY: clean_libgraphicsmonitor clean_graphicslayer
 
