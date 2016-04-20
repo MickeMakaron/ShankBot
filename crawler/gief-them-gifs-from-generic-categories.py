@@ -12,7 +12,7 @@ import re
 # http://tibia.wikia.com/wiki/Category:Items
 
 # Edit this to include more top level categories present in the image page root: http://tibia.wikia.com/wiki/Category:Images
-top_level_categories = ["Creatures", "Objects", "Items"];
+top_level_categories = ["Items"];
 save_dir = "./downloads"
 
 mech = Browser()
@@ -30,8 +30,11 @@ def download_giefs(soup):
         specific_html = specific_page.read()
         specific_soup = BeautifulSoup(specific_html)
         image_box = specific_soup.find('div', id='twbox-image')
+
         if not image_box:
             print "Found a non-standard page (" + page['href'] + "). It does not contain an image."
+        elif not image_box.find('a'):
+            print "Did not find any image link. " + page['href']
         elif "Special:Upload" in image_box.a['href']:
             print "No image available for " + image_box.a.string.replace("File:","").replace(".gif","")
         else:
