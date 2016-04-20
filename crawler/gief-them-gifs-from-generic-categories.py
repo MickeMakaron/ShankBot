@@ -47,11 +47,15 @@ def download_giefs(soup):
             print "No image available for " + image_box.a.string.replace("File:","").replace(".gif","")
         else:
             gif_url = image_box.a['href']
+            gif_name = image_box.a.img['data-image-name']
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             save_as = os.path.join(save_dir, gif_name)
-            urllib.urlretrieve(gif_url, save_as)
-            print "Downloaded %s to %s" % (gif_name, save_dir)
+            if os.path.isfile(save_as):
+                print gif_name + " is already downloaded"
+            else:
+                urllib.urlretrieve(gif_url, save_as)
+                print "Downloaded %s to %s" % (gif_name, save_dir)
 
 for top_level_category in top_level_categories:
     print "In category " + top_level_category
