@@ -7,25 +7,9 @@
 
 
 import sys, getopt
-import binascii
-import struct
 from PIL import Image
 
 import os.path
-
-def readBytesFromFile(fileName):
-	with open(fileName, "rb") as f:
-		
-		b = bytes()
-		#while True:
-		chunk = f.read()
-		b += chunk
-			#if chunk:
-				#for b in chunk:
-					#yield b
-			#else:
-				#break
-	return b
 
 
 def bit16ToInt(byte1, byte2):
