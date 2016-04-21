@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 # ShankBot project
 # Mikael Hernvall 2016
 # Extract sprites from Tibia.spr
