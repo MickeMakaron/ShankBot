@@ -31,6 +31,7 @@ void setEnvironmentVar(std::string name, std::string value)
 TileBuffer* tileBuffers = new TileBuffer[20];
 
 #include <sys/mman.h>
+#include <set>
 #include "SharedMemoryProtocol.hpp"
 
 int main(int argc, char *args[])
@@ -46,32 +47,38 @@ int main(int argc, char *args[])
     if(ftruncate(shmFd, SharedMemoryProtocol::NUM_BYTES) == -1)
         throw std::runtime_error("Could not set shared memory size.");
 
-//    std::string TIBIA_DIR = "/home/vendrii/Documents/programming/projects/test/tibia";
 //
-//    setEnvironmentVar("HOME", TIBIA_DIR);
-////
-////    std::string environmentVar = "HOME=";
-////    putenv((char*)(environmentVar + TIBIA_DIR).c_str());
+//    std::list<PngImage> testImages;
+//    testLoadImages("spriteDatabase", testImages);
 
-//    PngImage png = readPng("Achad-0-0.png");
-//
-////    unsigned char* rgba = new unsigned char[pngWut::imgWidth * pngWut::imgHeight * 4];
-//////    memcpy(rgba, *row_pointers, imgWidth * imgHeight * 4);
-////    for(size_t y = 0; y < pngWut::imgHeight; y++)
-////        memcpy(&rgba[y * pngWut::imgWidth * 4], pngWut::row_pointers[y], pngWut::imgWidth * 4);
-////
-////    std::cout << "Pixels: " << std::endl << "\t" << "'";
-////    for(size_t i = 0; i < 20; i++)
-////        std::cout << (int)(rgba[i]) << " ";
-////    std::cout << "'" << std::endl;
-//
-//
-//    unsigned char* rgb = rgbaToRgb(png.pixelData, png.width, png.height);
-//
-//
-//    writePixelsToFile("achadYO.ppm", rgb, png.width, png.height);
 
     SpriteDatabase db("spriteDatabase");
+
+//    for(const PngImage& img : testImages)
+//    {
+//        std::string name;
+//        if(db.getName(img.width, img.height, img.pixelData, name))
+//        {
+////            if(found.second == true)
+//            {
+//                std::cout << "FOUND NAME!!!!: " << name << std::endl;
+//
+//                unsigned char* rgb = rgbaToRgb(img.pixelData, img.width, img.height);
+//                std::stringstream sstream;
+//                sstream << "foundSprites/" << name;
+//
+//                writePixelsToFile(sstream.str(), rgb, img.width, img.height);
+//                delete[] rgb;
+//            }
+//
+//
+//        }
+//        else
+//            std::cout << "Failed to find name." << std::endl;
+//
+//    }
+
+
 
     putenv((char*)"HOME=./");
     putenv((char*)"LD_PRELOAD=../bin/Debug/libGraphicsMonitor.so");
@@ -112,8 +119,8 @@ int main(int argc, char *args[])
             unsigned int ms = 100;
 //            usleep(1000 * ms);
 
-            std::cout << "Pending changes? : " << (shm->hasPendingChanges == true ? "true" : "false") << std::endl;
-            std::cout << "Num pixel data: " << shm->numPixelData << std::endl;
+//            std::cout << "Pending changes? : " << (shm->hasPendingChanges == true ? "true" : "false") << std::endl;
+//            std::cout << "Num pixel data: " << shm->numPixelData << std::endl;
 
             if(shm->hasPendingChanges)
             {
@@ -148,7 +155,7 @@ int main(int argc, char *args[])
                 for(size_t i = 0; i < shm->numPixelData; i++)
                     tileBuffers[shm->pixelData[i].textureId - 1].setTile(shm->pixelData[i]);
 
-
+                std::set<std::string> foundNames;
                 for(size_t i = 0; i < shm->numDrawCall; i++)
                 {
                     const DrawCall& d = shm->drawCall[i];
@@ -170,15 +177,21 @@ int main(int argc, char *args[])
                         std::string name;
                         if(db.getName(d.width, d.height, pixels, name))
                         {
-                            std::cout << "FOUND NAME!!!!: " << name << std::endl;
+                            auto found = foundNames.insert(name);
+                            if(found.second == true)
+                            {
+                                std::cout << "FOUND NAME!!!!: " << name << std::endl;
 
-                            unsigned char* rgb = rgbaToRgb(pixels, d.width, d.height);
-                            delete[] pixels;
-                            std::stringstream sstream;
-                            sstream << "foundSprites/" << name;
+                                unsigned char* rgb = rgbaToRgb(pixels, d.width, d.height);
+                                delete[] pixels;
+                                std::stringstream sstream;
+                                sstream << "foundSprites/" << name;
 
-                            writePixelsToFile(sstream.str(), rgb, d.width, d.height);
-                            delete[] rgb;
+                                writePixelsToFile(sstream.str(), rgb, d.width, d.height);
+                                delete[] rgb;
+                            }
+
+
                         }
 
 
@@ -187,6 +200,8 @@ int main(int argc, char *args[])
 
 
                 }
+                foundNames.clear();
+
 
                 shm->numPixelData = 0;
                 shm->numDrawCall = 0;

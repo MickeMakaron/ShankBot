@@ -10,6 +10,10 @@
 #include <cstring>
 #include <stdexcept>
 #include <sstream>
+#include <cassert>
+#include <limits>
+#include <cmath>
+#include <iostream>
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -20,6 +24,8 @@
 using namespace GraphicsLayer;
 
 ///////////////////////////////////
+constexpr unsigned char SpriteDatabase::BUCKET_RANGES[];
+
 
 SpriteDatabase::Sprite::Sprite(std::string name, unsigned char* pixels)
 : name(name)
@@ -37,29 +43,35 @@ SpriteDatabase::Sprite::~Sprite()
 
 ///////////////////////////////////
 
+
 SpriteDatabase::SpriteDatabase(std::string directory)
 : mSpriteMap()
 , mNames()
 {
     loadImages(directory);
+
+    for(const auto& i : mHistogramMap)
+        for(const auto& j : i.second)
+        {
+            float sum = 0.f;
+
+            for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
+            {
+                sum += j.red[i] + j.blue[i] + j.green[i];
+            }
+            assert(sum > 0.99999f && sum < 1.000001f);
+        }
 }
 
 ///////////////////////////////////
 
 bool SpriteDatabase::getName(size_t width, size_t height, unsigned char* pixels, std::string& name) const
 {
-    size_t size = width * height;
-    auto sprites = mSpriteMap.find(size);
-    if(sprites == mSpriteMap.end())
-        return false;
-
-    for(const SpritePtr& sprite : sprites->second)
+    HistogramEntry sprite;
+    if(findSimilarSprite(width * height, pixels, sprite))
     {
-        if(compareSprites(size, sprite->pixels, pixels))
-        {
-            name = sprite->name;
-            return true;
-        }
+        name = sprite.name;
+        return true;
     }
 
     return false;
@@ -67,93 +79,43 @@ bool SpriteDatabase::getName(size_t width, size_t height, unsigned char* pixels,
 
 ///////////////////////////////////
 
-bool SpriteDatabase::compareSprites(size_t size, unsigned char* s1, unsigned char* s2) const
+bool SpriteDatabase::findSimilarSprite(size_t size, unsigned char* pixels, HistogramEntry& similarSprite) const
 {
-    size_t halfIndex = (size / 2) * TileBuffer::BYTES_PER_PIXEL;
-    size_t numBytes = size * TileBuffer::BYTES_PER_PIXEL;
+    auto entries = mHistogramMap.find(size);
+    if(entries == mHistogramMap.end())
+        return false;
 
-    const int EPSILON = 100;
+    HistogramEntry sprite;
+    if(!createHistogramEntry("", size, pixels, sprite))
+        return false;
 
-    for(size_t i = halfIndex; i < numBytes; i += TileBuffer::BYTES_PER_PIXEL * 2)
+    HistogramEntry closestSprite;
+    float minDelta = std::numeric_limits<float>::max();
+    for(const HistogramEntry& e : entries->second)
     {
-        for(size_t j = i; j < i + 4; j++)
+        float delta = 0;
+        for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
         {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
-        }
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
-    }
-
-    for(int i = halfIndex; i >= 0; i -= TileBuffer::BYTES_PER_PIXEL * 2)
-    {
-
-        for(size_t j = i; j < i + 4; j++)
-        {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
-        }
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
-    }
-
-    for(size_t i = halfIndex + TileBuffer::BYTES_PER_PIXEL; i < numBytes; i += TileBuffer::BYTES_PER_PIXEL * 2)
-    {
-        for(size_t j = i; j < i + 4; j++)
-        {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
+            delta += std::fabs(sprite.red[i] - e.red[i]);
+            delta += std::fabs(sprite.green[i] - e.green[i]);
+            delta += std::fabs(sprite.blue[i] - e.blue[i]);
         }
 
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
-    }
-
-    for(int i = halfIndex - TileBuffer::BYTES_PER_PIXEL; i >= 0; i -= TileBuffer::BYTES_PER_PIXEL * 2)
-    {
-        for(size_t j = i; j < i + 4; j++)
+        if(delta < minDelta)
         {
-            int s2Max = s2[j];
-            s2Max += EPSILON;
-
-            int s2Min = s2[j];
-            s2Min -= EPSILON;
-            if(s1[j] > s2Max || s1[j] < s2Min)
-                return false;
-
+            minDelta = delta;
+            closestSprite = e;
         }
-
-//        if(s1[i] != s2[i] || s1[i + 1] != s2[i + 1] || s1[i + 2] != s2[i + 2] || s1[i + 3] != s2[i + 3])
-//        {
-//            return false;
-//        }
     }
 
-    return true;
+    if(minDelta < 0.01f)
+    {
+        std::cout << "Closest sprite is: " << closestSprite.name << " (delta=" << minDelta << ")" << std::endl;
+        similarSprite = closestSprite;
+        return true;
+    }
+
+    return false;
 }
 
 ///////////////////////////////////
@@ -213,4 +175,91 @@ void SpriteDatabase::insert(std::string name, size_t width, size_t height, unsig
     mNames.push_back(name);
     auto sprites = mSpriteMap.insert(std::make_pair(width * height, std::vector<SpritePtr>()));
     sprites.first->second.push_back(SpritePtr(new Sprite(name, pixels)));
+
+    insertHistogramEntry(name, width * height, pixels);
 }
+
+
+ void SpriteDatabase::insertHistogramEntry(std::string name, size_t size, unsigned char* pixels)
+ {
+    auto entries = mHistogramMap.insert(std::make_pair(size, std::vector<HistogramEntry>()));
+
+    HistogramEntry entry;
+    if(createHistogramEntry(name, size, pixels, entry))
+        entries.first->second.push_back(entry);
+ }
+
+
+bool SpriteDatabase::createHistogramEntry(std::string name, size_t size, unsigned char* pixels, HistogramEntry& entry) const
+{
+    const size_t NUM_BYTES = size * TileBuffer::BYTES_PER_PIXEL;
+    float red[NUM_BUCKETS_PER_BYTE];
+    float green[NUM_BUCKETS_PER_BYTE];
+    float blue[NUM_BUCKETS_PER_BYTE];
+    size_t numTransparentPixels = 0;
+
+    for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
+        red[i] = green[i] = blue[i] = 0.f;
+
+    for(size_t i = 0; i < NUM_BYTES;)
+    {
+        if(pixels[i + 3] < 50)
+        {
+            numTransparentPixels++;
+            i += TileBuffer::BYTES_PER_PIXEL;
+        }
+        else
+        {
+            for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
+            {
+                if(pixels[i] <= BUCKET_RANGES[iBucket])
+                {
+                    red[iBucket]++;
+                    break;
+                }
+            }
+
+            i++;
+            for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
+            {
+                if(pixels[i] <= BUCKET_RANGES[iBucket])
+                {
+                    green[iBucket]++;
+                    break;
+                }
+            }
+
+            i++;
+            for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
+            {
+                if(pixels[i] <= BUCKET_RANGES[iBucket])
+                {
+                    blue[iBucket]++;
+                    break;
+                }
+            }
+
+            i++;
+            i++;
+        }
+    }
+
+    if(size <= numTransparentPixels)
+        return false;
+
+    entry.name = name;
+    const float NUM_BYTES_FLOAT = (float)((size - numTransparentPixels) * (TileBuffer::BYTES_PER_PIXEL - 1));
+
+    for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
+    {
+        red[i] /= NUM_BYTES_FLOAT;
+        green[i] /= NUM_BYTES_FLOAT;
+        blue[i] /= NUM_BYTES_FLOAT;
+
+        entry.red[i] = red[i];
+        entry.green[i] = green[i];
+        entry.blue[i] = blue[i];
+    }
+
+    return true;
+ }

@@ -11,27 +11,12 @@ namespace GraphicsLayer
 {
     namespace SharedMemoryProtocol
     {
-
-
-        enum class Type : unsigned char
-        {
-            PIXEL_DATA,
-            DRAW_CALL
-        };
-
-        struct Header
-        {
-            unsigned int packetCount;
-            Type type;
-        };
-
         struct PixelData
         {
             unsigned short texX;
             unsigned short texY;
             unsigned char textureId;
             unsigned char pixels[32 * 32 * 4];
-
         };
 
         struct DrawCall
