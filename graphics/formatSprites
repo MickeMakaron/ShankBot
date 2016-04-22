@@ -14,8 +14,11 @@ function convertAndCrop()
 
 	mkdir "$imgF"
 
-	mogrify-im6 -format png -path "$imgF" "$imgPath"
-	mogrify-im6 -crop 32x32 "$imgF"/*.png
+	mogrify-im6 -crop 32x32 -format png32 -path "$imgF" "$imgPath"
+	mogrify-im6 -fx 'a==0 ? 0 : u' "$imgF"/*.png32
+
+	#mogrify-im6 -format png -path "$imgF" "$imgPath"
+	#mogrify-im6 -crop 32x32 "$imgF"/*.png
 
 	rm "$imgPath"
 }
