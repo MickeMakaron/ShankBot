@@ -8,9 +8,7 @@
 
 import sys, getopt
 from PIL import Image
-
 import os.path
-
 
 def bit16ToInt(byte1, byte2):
 	return int.from_bytes([byte1, byte2], byteorder='little', signed=False)
@@ -92,9 +90,10 @@ def writeSpriteAt(b, index, fileName):
 	return
 
 def extractSprites(tibiaSprPath, outDir):
-	index = 0
 	
-	b = readBytesFromFile(tibiaSprPath)
+	b = open(tibiaSprPath, "rb").read()
+	
+	index = 0
 	
 	version = bit32ToInt(b[index], b[index + 1], b[index + 2], b[index + 3])
 	index += 4
