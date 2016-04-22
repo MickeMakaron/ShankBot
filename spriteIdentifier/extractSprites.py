@@ -27,7 +27,8 @@ def incrementPixelCoordinates(x, y, width=32):
 	return [x, y]
 
 def writeSpriteAt(b, index, fileName):
-	transparentPixelColor = (b[index], b[index + 1], b[index + 2], 0)
+	#transparentPixelColor = (b[index], b[index + 1], b[index + 2], 0)
+	transparentPixelColor = (0, 0, 0, 0)
 	index += 3
 	
 	statedSize = bit16ToInt(b[index], b[index + 1])
@@ -106,7 +107,7 @@ def extractSprites(tibiaSprPath, outDir):
 		index += 4
 		
 		if(spriteIndex != 0):
-			writeSpriteAt(b, spriteIndex, outDir + "/" + str(i))
+			writeSpriteAt(b, spriteIndex, outDir + "/" + str(i + 1))
 			
 		
 

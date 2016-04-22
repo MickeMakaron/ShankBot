@@ -255,7 +255,7 @@ def main(argv):
 			outDir = arg
 			argCount += 1
 
-	if(argCount < 2):
+	if(argCount < 3):
 		printHelp()
 		sys.exit()
 
