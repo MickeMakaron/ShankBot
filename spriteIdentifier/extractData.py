@@ -18,15 +18,24 @@ def bit32ToInt(byte1, byte2, byte3, byte4):
 	return int.from_bytes([byte1, byte2, byte3, byte4], byteorder='little', signed=False)
 
 
+class Object:
+	objectId = 0
+	spriteIds = []
+	
+	def __init__(self, objId):
+		self.objectId = objId
+		self.spriteIds = []
+		
 class Sprite:
 	spriteId = 0
-	objectId = 0
+	objectIds = []
 	
-	def __init__(self, spriteId, objectId):
+	def __init__(self, spriteId):
 		self.spriteId = spriteId
-		self.objectId = [objectId]
+		self.objectIds = set()
 
-def readData(tibiaDatPath, tibiaSprites, outDir):
+
+def readData(tibiaDatPath, tibiaSprites, outDir):		
 	b = open(tibiaDatPath, "rb").read()
 
 	index = 0
@@ -48,8 +57,9 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 	
 	numObjects = numItems + numOutfits + numEffects + numDistances
 
-	occurringSprites = []
+	objects = []
 	itemId = 100
+	maxSpriteId = 0
 	for i in range(0, numObjects):
 		if(itemId + i > numObjects):
 			break;
@@ -189,7 +199,7 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 				index += 4
 				
 
-		
+		o = Object(itemId + i)
 		for sprite in sprites:
 			if(sprite != 0):
 				folder = outDir + "/" + str(itemId + i)
@@ -202,28 +212,61 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 				if(os.path.isfile(spriteDest) == False):
 					print(spriteDest)
 					copyfile(spriteFile, spriteDest)
-			
-			
-		
-		
-		for x in sprites:
-			found = False
-			
-			for y in occurringSprites:
-				if(x == y.spriteId):
-					y.objectId.append(itemId + i)
-					found = True
-					break
 					
-			if(found == False):
-				occurringSprites.append(Sprite(x, itemId + i))
-				break
-
+				o.spriteIds.append(sprite);
+				if(sprite > maxSpriteId):
+					maxSpriteId = sprite
+				
+				
+				
+		objects.append(o)
+				
 	
-	for x in occurringSprites:
-		if(len(x.objectId) > 1):
-			print("Sprite ", str(x.spriteId), " has the following objects:")
-			print(x.objectId)
+	duplicateSprites = []
+	spritesPerList = 1000
+	numLists = int(maxSpriteId / spritesPerList) + 1
+	for i in range(0, numLists):
+		duplicateSprites.append([])
+	
+	
+	print("Searching for duplicates...")
+	for o in objects:
+		for s in o.spriteIds:
+			duplicateAlreadyRegistered = False
+			dupes = duplicateSprites[int(s / spritesPerList)]
+			for d in dupes:
+				if(d.spriteId == s):
+					duplicateAlreadyRegistered = True
+					d.objectIds.add(o.objectId)
+					break
+				
+			if(duplicateAlreadyRegistered == False):
+				duplicateSprite = Sprite(s)
+				duplicateSprite.objectIds.add(o.objectId)
+				dupes.append(duplicateSprite)
+	
+
+	outStr = ""
+	for d in duplicateSprites:
+		
+		for s in d:
+			if(len(s.objectIds) > 1):
+				outStr += str(s.spriteId)
+				for o in s.objectIds:
+					outStr += " " + str(o)
+					
+				outStr += "\n"
+
+	dupeBindingsPath = outDir + "/duplicateBindings.txt"
+	print("Writing duplicate bindings to '" + dupeBindingsPath + "'.")
+	f = open(dupeBindingsPath, 'w')
+	f.write(outStr)
+	f.close()
+	
+	
+			
+		
+
 
 def printHelp():
 	print("This script is used in conjunction with the extractSprites script.")
@@ -258,7 +301,6 @@ def main(argv):
 	if(argCount < 3):
 		printHelp()
 		sys.exit()
-
 
 	if(os.path.isfile(tibiaDat) == False):
 		print("Could not find file '", tibiaDat, "'.")
