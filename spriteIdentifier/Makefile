@@ -11,11 +11,11 @@ AR = ar
 LD = g++
 WINDRES = windres
 
-INC = 
-CFLAGS = -Wall
+INC = -I../graphics/incl
+CFLAGS = -Wall -std=c++14
 RESINC = 
 LIBDIR = 
-LIB = 
+LIB = -lpng
 LDFLAGS = 
 
 INC_DEBUG = $(INC)
@@ -40,9 +40,9 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/spriteIdentifier
 
-OBJ_DEBUG = 
+OBJ_DEBUG = $(OBJDIR_DEBUG)/__/graphics/src/PngImage.o $(OBJDIR_DEBUG)/main.o
 
-OBJ_RELEASE = 
+OBJ_RELEASE = $(OBJDIR_RELEASE)/__/graphics/src/PngImage.o $(OBJDIR_RELEASE)/main.o
 
 all: debug release
 
@@ -50,6 +50,8 @@ clean: clean_debug clean_release
 
 before_debug: 
 	test -d bin/Debug || mkdir -p bin/Debug
+	test -d $(OBJDIR_DEBUG)/__/graphics/src || mkdir -p $(OBJDIR_DEBUG)/__/graphics/src
+	test -d $(OBJDIR_DEBUG) || mkdir -p $(OBJDIR_DEBUG)
 
 after_debug: 
 
@@ -58,12 +60,22 @@ debug: before_debug out_debug after_debug
 out_debug: before_debug $(OBJ_DEBUG) $(DEP_DEBUG)
 	$(LD) $(LIBDIR_DEBUG) -o $(OUT_DEBUG) $(OBJ_DEBUG)  $(LDFLAGS_DEBUG) $(LIB_DEBUG)
 
+$(OBJDIR_DEBUG)/__/graphics/src/PngImage.o: ../graphics/src/PngImage.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../graphics/src/PngImage.cpp -o $(OBJDIR_DEBUG)/__/graphics/src/PngImage.o
+
+$(OBJDIR_DEBUG)/main.o: main.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c main.cpp -o $(OBJDIR_DEBUG)/main.o
+
 clean_debug: 
 	rm -f $(OBJ_DEBUG) $(OUT_DEBUG)
 	rm -rf bin/Debug
+	rm -rf $(OBJDIR_DEBUG)/__/graphics/src
+	rm -rf $(OBJDIR_DEBUG)
 
 before_release: 
 	test -d bin/Release || mkdir -p bin/Release
+	test -d $(OBJDIR_RELEASE)/__/graphics/src || mkdir -p $(OBJDIR_RELEASE)/__/graphics/src
+	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
 
 after_release: 
 
@@ -72,9 +84,17 @@ release: before_release out_release after_release
 out_release: before_release $(OBJ_RELEASE) $(DEP_RELEASE)
 	$(LD) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE)  $(LDFLAGS_RELEASE) $(LIB_RELEASE)
 
+$(OBJDIR_RELEASE)/__/graphics/src/PngImage.o: ../graphics/src/PngImage.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../graphics/src/PngImage.cpp -o $(OBJDIR_RELEASE)/__/graphics/src/PngImage.o
+
+$(OBJDIR_RELEASE)/main.o: main.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c main.cpp -o $(OBJDIR_RELEASE)/main.o
+
 clean_release: 
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
 	rm -rf bin/Release
+	rm -rf $(OBJDIR_RELEASE)/__/graphics/src
+	rm -rf $(OBJDIR_RELEASE)
 
 .PHONY: before_debug after_debug clean_debug before_release after_release clean_release
 
