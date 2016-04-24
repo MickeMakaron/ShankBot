@@ -8,9 +8,7 @@
 
 import sys, getopt
 from PIL import Image
-
 import os.path
-
 
 def bit16ToInt(byte1, byte2):
 	return int.from_bytes([byte1, byte2], byteorder='little', signed=False)
@@ -29,7 +27,8 @@ def incrementPixelCoordinates(x, y, width=32):
 	return [x, y]
 
 def writeSpriteAt(b, index, fileName):
-	transparentPixelColor = (b[index], b[index + 1], b[index + 2], 0)
+	#transparentPixelColor = (b[index], b[index + 1], b[index + 2], 0)
+	transparentPixelColor = (0, 0, 0, 0)
 	index += 3
 	
 	statedSize = bit16ToInt(b[index], b[index + 1])
@@ -92,9 +91,10 @@ def writeSpriteAt(b, index, fileName):
 	return
 
 def extractSprites(tibiaSprPath, outDir):
-	index = 0
 	
-	b = readBytesFromFile(tibiaSprPath)
+	b = open(tibiaSprPath, "rb").read()
+	
+	index = 0
 	
 	version = bit32ToInt(b[index], b[index + 1], b[index + 2], b[index + 3])
 	index += 4
@@ -107,7 +107,7 @@ def extractSprites(tibiaSprPath, outDir):
 		index += 4
 		
 		if(spriteIndex != 0):
-			writeSpriteAt(b, spriteIndex, outDir + "/" + str(i))
+			writeSpriteAt(b, spriteIndex, outDir + "/" + str(i + 1))
 			
 		
 

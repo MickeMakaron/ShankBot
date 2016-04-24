@@ -18,6 +18,7 @@ namespace GraphicsLayer
     };
 
     PngImage readPng(std::string filePath);
+    void writePng(std::string filePath, unsigned char* pixels, size_t width, size_t height);
 }
 
 
