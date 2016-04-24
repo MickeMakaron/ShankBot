@@ -260,25 +260,46 @@ void decrementSprite(std::list<ImagePtr>& haystack, size_t spriteId)
 //    }
 }
 
+void printHelp()
+{
+    std::cout   << "Usage: " << std::endl
+                << "spriteIdentifier <haystack> <bindings> <inDir> <outDir>" << std::endl
+                << "<haystack>: The output directory of the extractSprites script." << std::endl
+                << "<bindings>: The path to the bindings file created by extractData script." << std::endl
+                << "<inDir>: The output directory of the formatSprites script." << std::endl
+                << "<outDir>: The directory where this program is to put the identified sprites." << std::endl;
+}
 
-
-int main()
+int main(int argc, char** argv)
 {
     Object* objectMap = new Object[24573 + 1];
 
+    if(argc != 5)
+    {
+         printHelp();
+         return 1;
+    }
 
+    std::string haystack = argv[1];
+    std::string spriteToObjectBindingsPath = argv[2];
+    std::string inDir = argv[3];
+    std::string outDir = argv[4];
 
-    std::string haystack = "/home/vendrii/Desktop/pythonSpr/out/";
-    std::string inDir = "/home/vendrii/Desktop/ShankBot/crawler/out/";
-    std::string outDir = "/home/vendrii/Desktop/compare/out/";
-    std::string duplicateBindingsPath = "/home/vendrii/Desktop/pythonDat/out/duplicateBindings.txt";
-
-    std::string delta1Dir = outDir + "/0-0.0001";
-    std::string delta2Dir = outDir + "/0.0001f-0.5";
-    std::string delta3Dir = outDir + "/0.5-1";
-    std::string delta4Dir = outDir + "/1-inf";
+//    std::string haystack = "/home/vendrii/Desktop/pythonSpr/out/";
+//    std::string inDir = "/home/vendrii/Desktop/ShankBot/crawler/out/";
+//    std::string outDir = "/home/vendrii/Desktop/compare/out/";
+//    std::string spriteToObjectBindingsPath = "/home/vendrii/Desktop/pythonDat/out/duplicateBindings.txt";
 
     struct stat st = {0};
+    if(stat(haystack.c_str(), &st) == -1)
+        throw std::runtime_error("Could not find haystack directory at '" + haystack + "'.");
+
+    if(stat(spriteToObjectBindingsPath.c_str(), &st) == -1)
+        throw std::runtime_error("Could not find sprite-object bindings directory at '" + spriteToObjectBindingsPath + "'.");
+
+    if(stat(inDir.c_str(), &st) == -1)
+        throw std::runtime_error("Could not input directory at '" + inDir + "'.");
+
     if(stat(outDir.c_str(), &st) == -1)
     {
         std::cout << "Output directory does not exist. Creating it at '" + outDir + "'." << std::endl;
@@ -286,6 +307,11 @@ int main()
     }
 
     std::cout << "Creating range directories." << std::endl;
+
+    std::string delta1Dir = outDir + "/0-0.0001";
+    std::string delta2Dir = outDir + "/0.0001f-0.5";
+    std::string delta3Dir = outDir + "/0.5-1";
+    std::string delta4Dir = outDir + "/1-inf";
 
     if(stat(delta1Dir.c_str(), &st))
         mkdir(delta1Dir.c_str(), 0700);
@@ -301,7 +327,7 @@ int main()
 
 
     IdMap  spriteToObjectMap;
-    getDuplicateBindings(duplicateBindingsPath, spriteToObjectMap);
+    getDuplicateBindings(spriteToObjectBindingsPath, spriteToObjectMap);
 
     std::list<std::string> files;
     getFileNames(haystack, files);
@@ -354,13 +380,13 @@ int main()
             processedSpriteIds.push_back(spriteIdInt);
         }
     }
-    std::cout << "Number of processed sprites: " << processedSpriteIds.size() << std::endl;
+    std::cout << "Number of processed sprites already processed: " << processedSpriteIds.size() << std::endl;
 
     for(size_t id : processedSpriteIds)
         decrementSprite(haystackImages, id);
-    std::cout << "numRemovedObjects: " << numRemovedObjects << std::endl;
-    std::cout << "numRemovedSprites: " << numRemovedSprites << std::endl;
-    std::cout << "numRemovedFromHaystack: " << numRemovedFromHaystack << std::endl;
+//    std::cout << "numRemovedObjects: " << numRemovedObjects << std::endl;
+//    std::cout << "numRemovedSprites: " << numRemovedSprites << std::endl;
+    std::cout << "Removed " << numRemovedFromHaystack << " items from haystack since they have already been processed." << std::endl;
 
     std::cout << "Loading input sprites..." << std::endl;
     std::list<ImagePtr> inSprites;
