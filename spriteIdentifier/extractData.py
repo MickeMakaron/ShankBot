@@ -35,7 +35,7 @@ class Sprite:
 		self.objectIds = set()
 
 
-def readData(tibiaDatPath, tibiaSprites, outDir):		
+def readData(tibiaDatPath, tibiaSprites, outPath):		
 	b = open(tibiaDatPath, "rb").read()
 
 	index = 0
@@ -60,6 +60,7 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 	objects = []
 	itemId = 100
 	maxSpriteId = 0
+	print("Reading Tibia.dat...")
 	for i in range(0, numObjects):
 		if(itemId + i > numObjects):
 			break;
@@ -202,16 +203,16 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 		o = Object(itemId + i)
 		for sprite in sprites:
 			if(sprite != 0):
-				folder = outDir + "/" + str(itemId + i)
-				spriteFile = tibiaSprites + "/" + str(sprite) + ".png"
+				#folder = outDir + "/" + str(itemId + i)
+				#spriteFile = tibiaSprites + "/" + str(sprite) + ".png"
 				
-				if(os.path.isdir(folder) == False):		
-					os.makedirs(folder) 
+				#if(os.path.isdir(folder) == False):		
+					#os.makedirs(folder) 
 				
-				spriteDest = folder + "/" + str(sprite) + ".png"
-				if(os.path.isfile(spriteDest) == False):
-					print(spriteDest)
-					copyfile(spriteFile, spriteDest)
+				#spriteDest = folder + "/" + str(sprite) + ".png"
+				#if(os.path.isfile(spriteDest) == False):
+					#print(spriteDest)
+					#copyfile(spriteFile, spriteDest)
 					
 				o.spriteIds.append(sprite);
 				if(sprite > maxSpriteId):
@@ -222,18 +223,18 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 		objects.append(o)
 				
 	
-	duplicateSprites = []
+	spriteObjectBindings = []
 	spritesPerList = 1000
 	numLists = int(maxSpriteId / spritesPerList) + 1
 	for i in range(0, numLists):
-		duplicateSprites.append([])
+		spriteObjectBindings.append([])
 	
 	
-	print("Searching for duplicates...")
+	print("Creating bindings...")
 	for o in objects:
 		for s in o.spriteIds:
 			duplicateAlreadyRegistered = False
-			dupes = duplicateSprites[int(s / spritesPerList)]
+			dupes = spriteObjectBindings[int(s / spritesPerList)]
 			for d in dupes:
 				if(d.spriteId == s):
 					duplicateAlreadyRegistered = True
@@ -247,7 +248,7 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 	
 
 	outStr = ""
-	for d in duplicateSprites:
+	for d in spriteObjectBindings:
 		
 		for s in d:
 			#if(len(s.objectIds) > 1):
@@ -258,9 +259,8 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 				
 			outStr += "\n"
 
-	dupeBindingsPath = outDir + "/duplicateBindings.txt"
-	print("Writing duplicate bindings to '" + dupeBindingsPath + "'.")
-	f = open(dupeBindingsPath, 'w')
+	print("Writing bindings to '" + outPath + "'.")
+	f = open(outPath, 'w')
 	f.write(outStr)
 	f.close()
 	
@@ -277,7 +277,7 @@ def printHelp():
 def main(argv):
 	tibiaDat = '';
 	tibiaSprites = '';
-	outDir = '';
+	outPath = '';
 	try:
 		opts, args = getopt.getopt(argv,"hi:s:o:")
 	except getopt.GetoptError:
@@ -296,7 +296,7 @@ def main(argv):
 			tibiaSprites = arg
 			argCount += 1
 		elif opt in ("-o"):
-			outDir = arg
+			outPath = arg
 			argCount += 1
 
 	if(argCount < 3):
@@ -310,11 +310,8 @@ def main(argv):
 	if(os.path.isdir(tibiaSprites) == False):
 		print("Could not find directory '", tibiaSprites, "'.")
 		sys.exit(2)
-		
-	if(os.path.isdir(outDir) == False):
-		os.makedirs(outDir)
 
-	readData(tibiaDat, tibiaSprites, outDir)
+	readData(tibiaDat, tibiaSprites, outPath)
 
 
 
