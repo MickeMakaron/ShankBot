@@ -1,0 +1,27 @@
+#!/bin/bash
+
+srcPath=$1
+destPath=$2
+
+cp -r "$srcPath" "$destPath"
+
+function convertAndCrop()
+{
+	imgPath="$1"
+	echo "$imgPath"
+
+	imgF="${imgPath%.*}"
+
+	mkdir "$imgF"
+
+	mogrify-im6 -crop 32x32 -format png32 -path "$imgF" "$imgPath"
+	mogrify-im6 -fx 'a==0 ? 0 : u' "$imgF"/*.png32
+
+	#mogrify-im6 -format png -path "$imgF" "$imgPath"
+	#mogrify-im6 -crop 32x32 "$imgF"/*.png
+
+	rm "$imgPath"
+}
+
+export -f convertAndCrop
+find "$destPath" -type f -exec bash -c 'convertAndCrop "$0"' {} \;
