@@ -250,12 +250,13 @@ def readData(tibiaDatPath, tibiaSprites, outDir):
 	for d in duplicateSprites:
 		
 		for s in d:
-			if(len(s.objectIds) > 1):
-				outStr += str(s.spriteId)
-				for o in s.objectIds:
-					outStr += " " + str(o)
-					
-				outStr += "\n"
+			#if(len(s.objectIds) > 1):
+			assert(len(s.objectIds) > 0)
+			outStr += str(s.spriteId)
+			for o in s.objectIds:
+				outStr += " " + str(o)
+				
+			outStr += "\n"
 
 	dupeBindingsPath = outDir + "/duplicateBindings.txt"
 	print("Writing duplicate bindings to '" + dupeBindingsPath + "'.")
