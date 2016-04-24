@@ -1,15 +1,9 @@
 #!/bin/bash
 
-#function smerp
-#{
-	#echo "derp"
-#}
-
-
 CRAWLER_OUT_PATH="./downloads"
 FORMAT_OUT_PATH="./formatOut"
 EXTRACT_SPRITE_OUT_PATH="./extractSpriteOut"
-EXTRACT_BINDINGS_OUT_PATH="./"
+EXTRACT_BINDINGS_OUT_PATH="./spriteObjectBindings.txt"
 TIBIA_SPR_PATH=""
 TIBIA_DAT_PATH=""
 IDENTIFY_EXECUTABLE_PATH="./bin/Release/spriteIdentifier"
@@ -80,17 +74,13 @@ function buildIdentifierMenu
 	fi
 }
 
-CRAWLER_OUT_PATH="./downloads"
-FORMAT_OUT_PATH="./formatOut"
-EXTRACT_SPRITE_OUT_PATH="./extractSpriteOut"
-EXTRACT_BINDINGS_OUT_PATH="./spriteObjectBindings.txt"
-TIBIA_SPR_PATH=""
-TIBIA_DAT_PATH=""
-IDENTIFY_EXECUTABLE_PATH="./bin/Release/spriteIdentifier"
-IDENTIFY_OUT_PATH="./identifyOut"
-
 function doIdentifySprites
 {
+	if [ ! -f "$IDENTIFY_EXECUTABLE_PATH" ]
+	then
+		buildIdentifierMenu
+	fi
+	
 	echo "Identifying sprites from tibia.wikia.com at '$CRAWLER_OUT_PATH' with "
 	echo "sprites from Tibia.spr at '$EXTRACT_SPRITE_OUT_PATH'."
 	echo "Using bindings file at '$EXTRACT_BINDINGS_OUT_PATH'."
@@ -126,22 +116,25 @@ function optionsMenu
 			extractBindingsMenu
 			doExtractBindings
 			;;
-		"5")
-			if [ ! -f "$IDENTIFY_EXECUTABLE_PATH" ]
-			then
-				buildIdentifierMenu
-			fi
-			
+		"5")		
 			doIdentifySprites
 			;;
 		"6")
-			
+			doDownload
+			doFormat
+			extractSpritesMenu
+			doExtractSprites
+			extractBindingsMenu
+			doExtractBindings
+			doIdentifySprites
 			;;
 		"7")
-		
-			;;
-		*)
-			optionsMenu
+			doFormat
+			extractSpritesMenu
+			doExtractSprites
+			extractBindingsMenu
+			doExtractBindings
+			doIdentifySprites
 			;;
 	esac
 	
