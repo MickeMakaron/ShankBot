@@ -110,6 +110,8 @@ void writePng(std::string filePath, unsigned char* pixels, size_t width, size_t 
     png_write_end(png, nullptr);
 
     delete[] rows;
+    png_destroy_write_struct(&png, &info);
+    png_destroy_info_struct(png, &info);
 
     fclose(file);
 }

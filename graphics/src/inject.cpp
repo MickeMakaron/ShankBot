@@ -16,7 +16,7 @@
 #include <sys/mman.h>
 
 #include "SharedMemoryProtocol.hpp"
-
+#include <list>
 
 namespace GraphicsMonitor
 {
@@ -41,6 +41,7 @@ namespace GraphicsMonitor
 
     GLuint current2dTexture = 0;
     GLuint currentFramebuffer = 0;
+    GLuint currentDrawTexture = 0;
 
     size_t swapCount = 0;
 
@@ -55,7 +56,11 @@ namespace GraphicsMonitor
     std::vector<GraphicsLayer::SharedMemoryProtocol::DrawCall> drawCallPackets;
 
     bool updateDrawCalls = false;
+
+    size_t drawsPerFrame = 0;
 }
+
+void writeBoundTextureToFile();
 
 ///////////////////////////////////
 
@@ -65,6 +70,7 @@ void glXSwapBuffers(Display* dpy, GLXDrawable drawable)
 
     if(shm == nullptr)
     {
+
         shm = (GraphicsLayer::SharedMemoryProtocol::SharedMemorySegment*)mmap(nullptr, GraphicsLayer::SharedMemoryProtocol::NUM_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, shmFd, 0);
         if(shm == MAP_FAILED)
         {
@@ -76,11 +82,29 @@ void glXSwapBuffers(Display* dpy, GLXDrawable drawable)
     }
     void (*originalFunc)(Display*, GLXDrawable) = (void (*)(Display*, GLXDrawable))dlsym(RTLD_NEXT, "glXSwapBuffers");
 
+    std::cout << "Swapping draw buffers..." << swapCount++ << std::endl;
+//    std::cout << "DrawsPerFrame: " << drawsPerFrame << std::endl;
+    drawsPerFrame = 0;
     originalFunc(dpy, drawable);
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glXSwapBuffers 1"<< std::endl;
 
+//    GLuint previousId = current2dTexture;
+//
+//    glBindTexture(GL_TEXTURE_2D, 1);
+//    writeBoundTextureToFile();
+//    glBindTexture(GL_TEXTURE_2D, previousId);
+
+//    for(size_t i = 2; i < 20; i++)
+//    {
+//        glBindTexture(GL_TEXTURE_2D, i);
+//        writeBoundTextureToFile();
+//    }
+//    glBindTexture(GL_TEXTURE_2D, previousId);
+
+
     updateDrawCalls = false;
+//    std::cout << "NUM DRAW CALLS WAITING: " << drawCallPackets.size() << std::endl;
     if(!shm->hasPendingChanges)
     {
         memcpy(shm->pixelData, pixelPackets.data(), pixelPackets.size() * sizeof(GraphicsLayer::SharedMemoryProtocol::PixelData));
@@ -127,6 +151,24 @@ void glBegin(GLenum mode)
     GraphicsMonitor::vertices.clear();
     GraphicsMonitor::texCoords.clear();
 
+//    if(GraphicsMonitor::currentFramebuffer != 0)
+//    {
+//    //    if(GraphicsMonitor::currentDrawTexture == 1 && GraphicsMonitor::current2dTexture >= 5 && GraphicsMonitor::current2dTexture <= 19)
+//    //    if(GraphicsMonitor::currentDrawTexture == 3 && GraphicsMonitor::current2dTexture >= 5 && GraphicsMonitor::current2dTexture <= 19)
+//        if(GraphicsMonitor::currentDrawTexture == 3)
+//            return;
+//
+//        if(GraphicsMonitor::currentDrawTexture == 1 && GraphicsMonitor::current2dTexture < 5)
+//            return;
+//    }
+//    else
+//    {
+//        if(GraphicsMonitor::current2dTexture >= 5 && GraphicsMonitor::current2dTexture <= 19)
+//            return;
+//    }
+
+
+
     if(mode == GL_QUADS)
     {
 
@@ -136,6 +178,57 @@ void glBegin(GLenum mode)
 }
 
 ///////////////////////////////////
+
+#include <fstream>
+void writePixelsToFile(std::string fileName, const unsigned char* pixels, size_t width, size_t height)
+{
+    std::ofstream file;
+    file.open(fileName.c_str(), std::ios::trunc);
+    file    << "P3" << std::endl
+            << width << " " << height << std::endl
+            << "255" << std::endl;
+
+    for(size_t i = 0; i < width * height * 3; i++)
+        file << (int)pixels[i] << " ";
+}
+
+// COORDINATES IN OPENGL COORDINATES
+void writeBoundTextureAreaToFile(std::string fileName, size_t x, size_t y, size_t width, size_t height)
+{
+    GraphicsMonitor::Texture texture = GraphicsMonitor::textures[GraphicsMonitor::current2dTexture];
+
+    size_t destSize = width * height * 3;
+    unsigned char* pixels = new unsigned char[destSize];
+
+    size_t srcSize = texture.width * texture.height * 3;
+    unsigned char* textureData = new unsigned char[srcSize];
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+
+    for(size_t iSrc = (x + y * texture.width) * 3, iDest = 0; iSrc < srcSize && iDest < destSize; iSrc += texture.width * 3, iDest += width * 3)
+        memcpy(&pixels[iDest], &textureData[iSrc], width * 3);
+
+    writePixelsToFile(fileName, pixels, width, height);
+
+    delete[] pixels;
+    delete[] textureData;
+}
+
+#include <sstream>
+
+void writeBoundTextureToFile()
+{
+    GLint id = GraphicsMonitor::current2dTexture;
+    GraphicsMonitor::Texture texture = GraphicsMonitor::textures[id];
+    unsigned char* pixels = new unsigned char[texture.width * texture.height * 3];
+
+    std::stringstream sstream;
+    sstream << "tileBuffers/" << id;
+
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    writePixelsToFile(sstream.str(), pixels, texture.width, texture.height);
+
+    delete[] pixels;
+}
 
 void glEnd()
 {
@@ -150,11 +243,63 @@ void glEnd()
     void (*originalFunc)() = (void (*)())dlsym(RTLD_NEXT, "glEnd");
     originalFunc();
 
+
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glEnd" << std::endl;
 
+
+    /*
+     ********************************************************
+     ** INFO ABOUT TIBIA'S USAGE OF TEXTURES
+     ********************************************************
+     * At the time of writing, Tibia uses 19 textures as buffers before drawing.
+     * The roles of these are as follows:
+     *
+     * 1: This texture represents the final drawing of the game world, including lighting.
+     * No HUDs or other UI elements are drawn to this texture.
+     *
+     * 2: Seems to be only used for storing the main menu texture.
+     *
+     * 3: This texture contains the drawing of the game world, without lighting and animated
+     * objects. It is the step before texture 1.
+     *
+     * 4: The minimap.
+     *
+     * 5-19: Sprites. These textures contain the sprites that may currently be drawn.
+     *
+     ********************************************************
+     * Below is some info about how the textures are used.
+     *
+     * The textures 5-19 are always used as source textures. The target is always
+     * another texture.
+     *
+     * 3 is used as target texture from 5-19. It is then used as source texture to 1.
+     *
+     * 1 is used as target texture from 3 and any animated objects in textures 5-19.
+     *
+     * The only textures that are used as source texture to be drawn to the screen are
+     * 1 and 4. EXCEPT for UI elements in 5-19.
+     *
+     ********************************************************
+     * What does this mean?
+     *
+     * If Tibia is rendering to screen (framebuffer == 0), it means the following:
+     * 1. Is source texture 1? Then the game world is being drawn (without UI elements like text).
+     * 2. Is source texture 4? Then the minimap is being drawn.
+     * 3. Is source texture 5-19? Then UI elements are being drawn.
+     *
+     * If Tibia is rendering to another texture, it means the following:
+     * 1. Is target 3? Then non-animated objects are being drawn.
+     * 2. Is target 1? Then animated objects are being drawn.
+     *
+     *
+    */
+
+
     if(vertices.size() != 4)
     {
+//        std::cout << "Drawing non-rect primitive" << std::endl;
+
     }
     else if(texCoords.size() == 4)
     {
@@ -192,15 +337,21 @@ void glEnd()
 
         if(texCoordMin.x > 0.99f || texCoordMin.y > 0.99f)
         {
-
+//            std::cout << "Drawing mysterious things... " << std::endl;
         }
         else if(updateDrawCalls)
         {
+//            if(currentFramebuffer != 0 && current2dTexture > 3 && (currentDrawTexture == 1/* || currentDrawTexture == 3*/))
+            {
+
             size_t width = (texCoordMax.x - texCoordMin.x) * texture.width;
             size_t height = (texCoordMax.y - texCoordMin.y) * texture.height;
+            float widthFloat = texCoordMax.x - texCoordMin.x;
+            float heightFloat = texCoordMax.y - texCoordMin.y;
 
             DrawCall packet;
-            packet.textureId = current2dTexture;
+            packet.sourceTextureId = current2dTexture;
+            packet.targetTextureId = (currentFramebuffer == 0) ? 0 : currentDrawTexture;
             packet.texX = texCoordMin.x * texture.width;
             packet.texY = texCoordMin.y * texture.height;
             packet.screenX = vertexMin.x;
@@ -209,6 +360,40 @@ void glEnd()
             packet.height = height;
 
             drawCallPackets.push_back(packet);
+
+
+
+//                std::stringstream sstream;
+//                sstream << "monDrawCalls/" << currentDrawTexture << "-" << current2dTexture << "-" << packet.texX << "x" << packet.texY;
+//                drawsPerFrame++;
+//                writeBoundTextureAreaToFile(sstream.str(), packet.texX, packet.texY, packet.width, packet.height);
+            }
+//            else if(currentFramebuffer == 0 && current2dTexture > 3)
+//            {
+//
+//                size_t width = (texCoordMax.x - texCoordMin.x) * texture.width;
+//                size_t height = (texCoordMax.y - texCoordMin.y) * texture.height;
+//                float widthFloat = texCoordMax.x - texCoordMin.x;
+//                float heightFloat = texCoordMax.y - texCoordMin.y;
+//
+//                DrawCall packet;
+//                packet.sourceTextureId = current2dTexture;
+//                packet.targetTextureId = (currentFramebuffer == 0) ? 0 : currentDrawTexture;
+//                packet.texX = texCoordMin.x * texture.width;
+//                packet.texY = texCoordMin.y * texture.height;
+//                packet.screenX = vertexMin.x;
+//                packet.screenY = vertexMin.y;
+//                packet.width = width;
+//                packet.height = height;
+//
+////                std::stringstream sstream;
+////                sstream << "monDrawCalls/" << currentDrawTexture << "-" << current2dTexture << "-" << packet.texX << "x" << packet.texY;
+////                drawsPerFrame++;
+////                writeBoundTextureAreaToFile(sstream.str(), packet.texX, packet.texY, packet.width, packet.height);
+//
+//            }
+
+
         }
     }
 }
@@ -257,8 +442,23 @@ void glTexImage2D
     originalFunc(target, level, internalFormat, width, height, border, format, type, data);
 }
 
-///////////////////////////////////
+unsigned char* rgbaToRgb(const unsigned char* rgba, size_t width, size_t height)
+{
+    unsigned char* rgb = new unsigned char[width * height * 3];
+    for(size_t iDest = 0, iSrc = 0; iSrc < width * height * 4; iSrc++)
+    {
+        if((iSrc + 1) % 4 != 0)
+        {
+            rgb[iDest] = ((unsigned char*)rgba)[iSrc];
+            iDest++;
+        }
+    }
 
+    return rgb;
+}
+
+///////////////////////////////////
+size_t herpderp = 0;
 void glTexSubImage2D( 	GLenum target,
   	GLint level,
   	GLint xoffset,
@@ -279,11 +479,18 @@ void glTexSubImage2D( 	GLenum target,
         {
             PixelData packet;
             memcpy(packet.pixels, pixels, 32 * 32 * 4);
-            packet.textureId = current2dTexture;
+            packet.targetTextureId = current2dTexture;
             packet.texX = xoffset;
             packet.texY = yoffset;
 
             pixelPackets.push_back(packet);
+//            herpderp++;
+//
+//            std::stringstream sstream;
+//            sstream << "subTex/" << herpderp;
+//            unsigned char* rgb = rgbaToRgb((unsigned char*)pixels, width, height);
+//            writePixelsToFile(sstream.str(), rgb, width, height);
+//            delete[] rgb;
         }
     }
 
@@ -300,9 +507,25 @@ void glBindFramebufferEXT(GLenum target, GLuint framebuffer)
     originalFunc(target, framebuffer);
 
     GraphicsMonitor::currentFramebuffer = framebuffer;
+//    std::cout << "TARGET: ------------- " << target << std::endl;
 
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glBindFramebufferEXT" << std::endl;
+}
+
+
+void glFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+{
+    void (*originalFunc)(GLenum, GLenum, GLenum, GLuint, GLint) = (void(*)(GLenum, GLenum, GLenum, GLuint, GLint))dlsym(RTLD_NEXT, "glFramebufferTexture2DEXT");
+//    std::cout << GL_COLOR_ATTACHMENT0_EXT << std::endl;
+//    std::cout   << "Attaching tex to framebuffer" << std::endl
+//                << "\t" << "target: " << target << std::endl
+//                << "\t" << "attachment: " << attachment << std::endl
+//                << "\t" << "texture: " << texture << std::endl;
+
+    GraphicsMonitor::currentDrawTexture = texture;
+
+    originalFunc(target, attachment, textarget, texture, level);
 }
 
 ///////////////////////////////////

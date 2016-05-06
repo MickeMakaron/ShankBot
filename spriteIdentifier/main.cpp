@@ -136,12 +136,22 @@ void getFileNames(std::string directory, std::list<std::string>& fileNames)
     closedir(dir);
 }
 
+//template<typename T>
+//float computeDifference(const T* p1, const T* p2, size_t numElements)
+//{
+//    float difference = 0.f;
+//    for(size_t i = 0; i < numElements; i++)
+//        difference += std::fabs(p1[i] - p2[i]);
+//
+//    return difference;
+//}
+
 template<typename T>
-float computeDifference(const T* p1, const T* p2, size_t numElements)
+long long computeDifference(const T* p1, const T* p2, size_t numElements)
 {
-    float difference = 0.f;
+    long long difference = 0;
     for(size_t i = 0; i < numElements; i++)
-        difference += std::fabs(p1[i] - p2[i]);
+        difference += std::abs(p1[i] - p2[i]);
 
     return difference;
 }
@@ -274,21 +284,21 @@ int main(int argc, char** argv)
 {
     Object* objectMap = new Object[24573 + 1];
 
-    if(argc != 5)
-    {
-         printHelp();
-         return 1;
-    }
+//    if(argc != 5)
+//    {
+//         printHelp();
+//         return 1;
+//    }
+//
+//    std::string haystack = argv[1];
+//    std::string spriteToObjectBindingsPath = argv[2];
+//    std::string inDir = argv[3];
+//    std::string outDir = argv[4];
 
-    std::string haystack = argv[1];
-    std::string spriteToObjectBindingsPath = argv[2];
-    std::string inDir = argv[3];
-    std::string outDir = argv[4];
-
-//    std::string haystack = "/home/vendrii/Desktop/pythonSpr/out/";
-//    std::string inDir = "/home/vendrii/Desktop/ShankBot/crawler/out/";
-//    std::string outDir = "/home/vendrii/Desktop/compare/out/";
-//    std::string spriteToObjectBindingsPath = "/home/vendrii/Desktop/pythonDat/out/duplicateBindings.txt";
+    std::string haystack = "/home/vendrii/Desktop/pythonSpr/out/";
+    std::string inDir = "/home/vendrii/Desktop/ShankBot/crawler/out/";
+    std::string outDir = "/home/vendrii/Desktop/compare/out/";
+    std::string spriteToObjectBindingsPath = "/home/vendrii/Desktop/pythonDat/out/duplicateBindings.txt";
 
     struct stat st = {0};
     if(stat(haystack.c_str(), &st) == -1)
@@ -308,8 +318,8 @@ int main(int argc, char** argv)
 
     std::cout << "Creating range directories." << std::endl;
 
-    std::string delta1Dir = outDir + "/0-0.0001";
-    std::string delta2Dir = outDir + "/0.0001f-0.5";
+    std::string delta1Dir = outDir + "/0-0.06";
+    std::string delta2Dir = outDir + "/0.06-0.5";
     std::string delta3Dir = outDir + "/0.5-1";
     std::string delta4Dir = outDir + "/1-inf";
 
@@ -394,21 +404,25 @@ int main(int argc, char** argv)
         loadImage(file, inSprites);
     std::cout << "Loaded " << inSprites.size() << " images." << std::endl;
 
-    const size_t MAX_HISTOGRAM_SUM = IMAGE_WIDTH * IMAGE_HEIGHT * 4;
-    const size_t MAX_DIFFERENCE_SUM = 104448;
+    const float MAX_HISTOGRAM_SUM = IMAGE_WIDTH * IMAGE_HEIGHT * 4;
+    const float MAX_DIFFERENCE_SUM = 104448.f;
     std::list<Object*> relatedObjects;
+    clock_t start = clock();
+    size_t imagesProcessed = 0;
     for(const ImagePtr& inSprite : inSprites)
     {
         float minDelta = 100.f;
         auto needleIterator = haystackImages.end();
 
-        float definitiveThreshold = 0.0001f;
+        float definitiveThreshold = 0.06f;//0.0001f;
         float isResultDefinitive = false;
         for(Object* object : relatedObjects)
         {
             std::cout << "Trying our luck at a related object..." << std::endl;
+
             for(auto imgIterator : object->spriteIterators)
             {
+
                 float difference = computeDifference(inSprite->pixels, (*imgIterator)->pixels, IMAGE_NUM_BYTES);
                 float histogramDifference = computeDifference(inSprite->histogram, inSprite->histogram, HISTOGRAM_SIZE);
 
@@ -442,17 +456,17 @@ int main(int argc, char** argv)
 
 
         if(!isResultDefinitive)
+        {
+            clock_t start = clock();
             for(auto imgIterator = haystackImages.begin(); imgIterator != haystackImages.end(); imgIterator++)
             {
+                long long difference = computeDifference(inSprite->pixels, (*imgIterator)->pixels, IMAGE_NUM_BYTES);
+                long long histogramDifference = computeDifference(inSprite->histogram, inSprite->histogram, HISTOGRAM_SIZE);
 
-
-                float difference = computeDifference(inSprite->pixels, (*imgIterator)->pixels, IMAGE_NUM_BYTES);
-                float histogramDifference = computeDifference(inSprite->histogram, inSprite->histogram, HISTOGRAM_SIZE);
-
-                difference /= MAX_DIFFERENCE_SUM;
-                histogramDifference /= MAX_HISTOGRAM_SUM;
-
-                float delta = difference + histogramDifference;
+//                difference /= MAX_DIFFERENCE_SUM;
+//                histogramDifference /= MAX_HISTOGRAM_SUM;
+                float delta = (float)difference / MAX_DIFFERENCE_SUM + (float)histogramDifference / MAX_HISTOGRAM_SUM;
+//                float delta = difference + histogramDifference;
                 if(delta < minDelta)
                 {
                     minDelta = delta;
@@ -465,7 +479,12 @@ int main(int argc, char** argv)
                     break;
 
             }
+            if(minDelta > definitiveThreshold)
+                std::cout << "Cycles to compute difference: " << clock() - start << std::endl;
+        }
 
+        imagesProcessed++;
+        std::cout << "Images per second: " << ((float)imagesProcessed) / ((float)(clock() - start) / ((float)CLOCKS_PER_SEC))  << std::endl;
         relatedObjects = (*needleIterator)->objects;
 
         assert(needleIterator != haystackImages.end()); // Just in case

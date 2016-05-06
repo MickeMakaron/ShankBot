@@ -34,12 +34,42 @@ namespace GraphicsLayer
                 255
             };
 
+//            static const size_t NUM_BUCKETS_PER_BYTE = 10;
+//            static constexpr unsigned char BUCKET_RANGES[NUM_BUCKETS_PER_BYTE] =
+//            {
+//                25,
+//                50,
+//                75,
+//                100,
+//                125,
+//                150,
+//                175,
+//                200,
+//                225,
+//                255
+//            };
+
+//            static const size_t NUM_BUCKETS_PER_BYTE = 8;
+//            static constexpr short BUCKET_RANGES[NUM_BUCKETS_PER_BYTE] =
+//            {
+//                -120,
+//                -50,
+//                -5,
+//                0,
+//                5,
+//                50,
+//                120,
+//                255
+//            };
+
+
             struct HistogramEntry
             {
                 std::string name;
                 float red[NUM_BUCKETS_PER_BYTE];
                 float green[NUM_BUCKETS_PER_BYTE];
                 float blue[NUM_BUCKETS_PER_BYTE];
+                float alpha;
             };
 
 
@@ -61,6 +91,7 @@ namespace GraphicsLayer
 
             void insertHistogramEntry(std::string name, size_t size, unsigned char* pixels);
             bool createHistogramEntry(std::string name, size_t size, unsigned char* pixels, HistogramEntry& entry) const;
+            bool createHistogramEntry2(std::string name, size_t size, unsigned char* pixels, HistogramEntry& entry) const;
 
         private:
             std::map<size_t, std::vector<SpritePtr>> mSpriteMap;
