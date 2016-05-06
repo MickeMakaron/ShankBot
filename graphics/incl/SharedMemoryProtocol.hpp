@@ -15,13 +15,14 @@ namespace GraphicsLayer
         {
             unsigned short texX;
             unsigned short texY;
-            unsigned char textureId;
+            unsigned char targetTextureId;
             unsigned char pixels[32 * 32 * 4];
         };
 
         struct DrawCall
         {
-            unsigned char textureId;
+            unsigned char sourceTextureId;
+            unsigned char targetTextureId;
             unsigned short screenX;
             unsigned short screenY;
             unsigned short texX;
@@ -30,7 +31,7 @@ namespace GraphicsLayer
             unsigned short height;
         };
 
-        const size_t MAX_NUM_PIXEL_DATA = 500;
+        const size_t MAX_NUM_PIXEL_DATA = 1000;
         const size_t MAX_NUM_DRAW_CALL = 3000;
 
         struct SharedMemorySegment
