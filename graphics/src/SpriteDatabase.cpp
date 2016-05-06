@@ -24,6 +24,7 @@
 using namespace GraphicsLayer;
 
 ///////////////////////////////////
+//constexpr short SpriteDatabase::BUCKET_RANGES[];
 constexpr unsigned char SpriteDatabase::BUCKET_RANGES[];
 
 
@@ -60,7 +61,17 @@ SpriteDatabase::SpriteDatabase(std::string directory)
                 sum += j.red[i] + j.blue[i] + j.green[i];
             }
             assert(sum > 0.99999f && sum < 1.000001f);
+            assert(j.alpha < 1.f);
         }
+
+    size_t numNot32x32 = 0;
+    for(auto& pair : mHistogramMap)
+    {
+        if(pair.first != 32 * 32)
+            numNot32x32 += pair.second.size();
+    }
+
+    std::cout << "Num not 32x32: " << numNot32x32 << std::endl;
 }
 
 ///////////////////////////////////
@@ -81,9 +92,9 @@ bool SpriteDatabase::getName(size_t width, size_t height, unsigned char* pixels,
 
 bool SpriteDatabase::findSimilarSprite(size_t size, unsigned char* pixels, HistogramEntry& similarSprite) const
 {
-    auto entries = mHistogramMap.find(size);
-    if(entries == mHistogramMap.end())
-        return false;
+//    auto entries = mHistogramMap.find(size);
+//    if(entries == mHistogramMap.end())
+//        return false;
 
     HistogramEntry sprite;
     if(!createHistogramEntry("", size, pixels, sprite))
@@ -91,26 +102,35 @@ bool SpriteDatabase::findSimilarSprite(size_t size, unsigned char* pixels, Histo
 
     HistogramEntry closestSprite;
     float minDelta = std::numeric_limits<float>::max();
-    for(const HistogramEntry& e : entries->second)
+    for(const auto& pair : mHistogramMap)
+    for(const HistogramEntry& e : pair.second)//entries->second)
     {
-        float delta = 0;
-        for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
+//        if(std::fabs(sprite.alpha - e.alpha) < 0.01f)
         {
-            delta += std::fabs(sprite.red[i] - e.red[i]);
-            delta += std::fabs(sprite.green[i] - e.green[i]);
-            delta += std::fabs(sprite.blue[i] - e.blue[i]);
-        }
+            float delta = 0;
+            for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
+            {
+                delta += std::fabs(sprite.red[i] - e.red[i]);
+                delta += std::fabs(sprite.green[i] - e.green[i]);
+                delta += std::fabs(sprite.blue[i] - e.blue[i]);
+            }
 
-        if(delta < minDelta)
-        {
-            minDelta = delta;
-            closestSprite = e;
+//            delta += std::fabs(sprite.alpha - e.alpha);
+
+            if(delta < minDelta)
+            {
+                minDelta = delta;
+                closestSprite = e;
+
+                if(minDelta < 0.0000000001f)
+                    break;
+            }
         }
     }
 
-    if(minDelta < 0.01f)
+    if(minDelta < 0.1f)
     {
-        std::cout << "Closest sprite is: " << closestSprite.name << " (delta=" << minDelta << ")" << std::endl;
+//        std::cout << "Closest sprite is: " << closestSprite.name << " (delta=" << minDelta << ")" << std::endl;
         similarSprite = closestSprite;
         return true;
     }
@@ -248,18 +268,101 @@ bool SpriteDatabase::createHistogramEntry(std::string name, size_t size, unsigne
         return false;
 
     entry.name = name;
-    const float NUM_BYTES_FLOAT = (float)((size - numTransparentPixels) * (TileBuffer::BYTES_PER_PIXEL - 1));
+    const float NUM_OPAQUE_BYTES_FLOAT = (float)((size - numTransparentPixels) * (TileBuffer::BYTES_PER_PIXEL - 1));
 
     for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
     {
-        red[i] /= NUM_BYTES_FLOAT;
-        green[i] /= NUM_BYTES_FLOAT;
-        blue[i] /= NUM_BYTES_FLOAT;
+        red[i] /= NUM_OPAQUE_BYTES_FLOAT;
+        green[i] /= NUM_OPAQUE_BYTES_FLOAT;
+        blue[i] /= NUM_OPAQUE_BYTES_FLOAT;
 
         entry.red[i] = red[i];
         entry.green[i] = green[i];
         entry.blue[i] = blue[i];
+        entry.alpha = ((float)(numTransparentPixels)) / ((float)size);
     }
 
     return true;
  }
+
+
+
+bool SpriteDatabase::createHistogramEntry2(std::string name, size_t size, unsigned char* pixels, HistogramEntry& entry) const
+{
+    size -= 1;
+    const size_t NUM_BYTES = size * TileBuffer::BYTES_PER_PIXEL;
+    float red[NUM_BUCKETS_PER_BYTE];
+    float green[NUM_BUCKETS_PER_BYTE];
+    float blue[NUM_BUCKETS_PER_BYTE];
+    size_t numTransparentPixels = 0;
+
+    for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
+        red[i] = green[i] = blue[i] = 0.f;
+
+    for(size_t i = 0; i < NUM_BYTES;)
+    {
+        if(pixels[i + 3] < 50)
+        {
+            numTransparentPixels++;
+            i += TileBuffer::BYTES_PER_PIXEL;
+        }
+        else
+        {
+            for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
+            {
+                short delta = pixels[i] - pixels[i + TileBuffer::BYTES_PER_PIXEL];
+                if(delta <= BUCKET_RANGES[iBucket])
+                {
+                    red[iBucket]++;
+                    break;
+                }
+            }
+
+            i++;
+            for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
+            {
+                short delta = pixels[i] - pixels[i + TileBuffer::BYTES_PER_PIXEL];
+                if(delta <= BUCKET_RANGES[iBucket])
+                {
+                    green[iBucket]++;
+                    break;
+                }
+            }
+
+            i++;
+            for(size_t iBucket = 0; iBucket < NUM_BUCKETS_PER_BYTE; iBucket++)
+            {
+                short delta = pixels[i] - pixels[i + TileBuffer::BYTES_PER_PIXEL];
+                if(delta <= BUCKET_RANGES[iBucket])
+                {
+                    blue[iBucket]++;
+                    break;
+                }
+            }
+
+            i++;
+            i++;
+        }
+    }
+
+    if(size <= numTransparentPixels)
+        return false;
+
+    entry.name = name;
+    const float NUM_OPAQUE_BYTES_FLOAT = (float)((size - numTransparentPixels) * (TileBuffer::BYTES_PER_PIXEL - 1));
+
+    for(size_t i = 0; i < NUM_BUCKETS_PER_BYTE; i++)
+    {
+        red[i] /= NUM_OPAQUE_BYTES_FLOAT;
+        green[i] /= NUM_OPAQUE_BYTES_FLOAT;
+        blue[i] /= NUM_OPAQUE_BYTES_FLOAT;
+
+        entry.red[i] = red[i];
+        entry.green[i] = green[i];
+        entry.blue[i] = blue[i];
+        entry.alpha = ((float)(numTransparentPixels)) / ((float)size);
+    }
+
+    return true;
+ }
+
