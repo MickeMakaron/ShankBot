@@ -40,9 +40,9 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/GraphicsLayer
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/src/utility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteCache.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/ImageTree.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/src/utility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/TibiaClient.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteCache.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/ImageTree.o
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/utility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteCache.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/ImageTree.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/src/utility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/TibiaClient.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteCache.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/ImageTree.o
 
 all: debug release
 
@@ -73,6 +73,9 @@ $(OBJDIR_DEBUG)/src/TibiaSpr.o: src/TibiaSpr.cpp
 
 $(OBJDIR_DEBUG)/src/TibiaDat.o: src/TibiaDat.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaDat.cpp -o $(OBJDIR_DEBUG)/src/TibiaDat.o
+
+$(OBJDIR_DEBUG)/src/TibiaClient.o: src/TibiaClient.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaClient.cpp -o $(OBJDIR_DEBUG)/src/TibiaClient.o
 
 $(OBJDIR_DEBUG)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteDatabase.cpp -o $(OBJDIR_DEBUG)/src/SpriteDatabase.o
@@ -116,6 +119,9 @@ $(OBJDIR_RELEASE)/src/TibiaSpr.o: src/TibiaSpr.cpp
 
 $(OBJDIR_RELEASE)/src/TibiaDat.o: src/TibiaDat.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaDat.cpp -o $(OBJDIR_RELEASE)/src/TibiaDat.o
+
+$(OBJDIR_RELEASE)/src/TibiaClient.o: src/TibiaClient.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaClient.cpp -o $(OBJDIR_RELEASE)/src/TibiaClient.o
 
 $(OBJDIR_RELEASE)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteDatabase.cpp -o $(OBJDIR_RELEASE)/src/SpriteDatabase.o
