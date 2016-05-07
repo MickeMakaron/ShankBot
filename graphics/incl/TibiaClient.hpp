@@ -6,10 +6,6 @@
 // Internal ShankBot headers
 #include "SharedMemoryProtocol.hpp"
 #include "TileBuffer.hpp"
-namespace GraphicsLayer
-{
-    class ImageTree;
-}
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -24,7 +20,7 @@ namespace GraphicsLayer
     class TibiaClient
     {
         public:
-            TibiaClient(std::string clientDirectory, const ImageTree& imageTree);
+            TibiaClient(std::string clientDirectory);
 
             void update();
 
@@ -47,7 +43,6 @@ namespace GraphicsLayer
         private:
             SharedMemoryProtocol::SharedMemorySegment* mShm;
             std::map<unsigned char, TileBuffer> mTileBuffers;
-            const ImageTree& mImageTree;
             std::list<std::list<size_t>> mDrawnSprites;
     };
 }

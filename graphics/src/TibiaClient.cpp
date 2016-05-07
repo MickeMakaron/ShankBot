@@ -1,6 +1,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "TibiaClient.hpp"
+#include "ImageTrees.hpp"
 #include "PngImage.hpp"
 #include "ImageTree.hpp"
 using namespace GraphicsLayer;
@@ -23,8 +24,7 @@ using namespace SharedMemoryProtocol;
 ///////////////////////////////////
 
 
-TibiaClient::TibiaClient(std::string clientDirectory, const ImageTree& imageTree)
-: mImageTree(imageTree)
+TibiaClient::TibiaClient(std::string clientDirectory)
 {
     int shmFd = prepareSharedMemory();
     char** tibiaEnv = prepareEnvironment(shmFd);
@@ -114,31 +114,36 @@ void TibiaClient::handleDrawCalls()
                 }
             }
 
-            if(d.targetTextureId != 0 && d.targetTextureId != 2) // Do not capture UI stuff. Only capture things from the Tibia.spr.
+            if(opaquePixels.size() > 0)
             {
-                std::list<size_t> ids;
-                if(!mImageTree.find(opaquePixels, ids))
+                if(d.targetTextureId != 0 && d.targetTextureId != 2 && d.sourceTextureId >= 5 && d.sourceTextureId <= 19) // Do not capture UI stuff. Only capture things from the Tibia.spr.
                 {
-//                    std::stringstream sstream;
-//                    sstream << "out/notFound/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
-//                    writePng(sstream.str(), pixels, 32, 32);
-                }
-                else
-                {
-//                    std::stringstream sstream;
-//                    sstream << "out/found/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
-//
-//                    sstream << "(";
-//                    for(size_t id : ids)
-//                        sstream << id << ",";
-//                    sstream << ")";
-//
-//                    writePng(sstream.str(), pixels, 32, 32);
+                    std::list<size_t> ids;
+                    if(!ImageTrees::getSpriteColorTree().find(opaquePixels, ids))
+                    {
+    //                    std::stringstream sstream;
+    //                    sstream << "out/notFound/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
+    //                    writePng(sstream.str(), pixels, 32, 32);
+                    }
+                    else
+                    {
+    //                    std::stringstream sstream;
+    //                    sstream << "out/found/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
+    //
+    //                    sstream << "(";
+    //                    for(size_t id : ids)
+    //                        sstream << id << ",";
+    //                    sstream << ")";
+    //
+    //                    writePng(sstream.str(), pixels, 32, 32);
 
 
-                    mDrawnSprites.push_back(ids);
+                        mDrawnSprites.push_back(ids);
+                    }
                 }
+
             }
+
 
 
             delete[] pixels;
@@ -220,8 +225,7 @@ char** TibiaClient::prepareEnvironment(int shmFd) const
             tibiaEnv[i] = strdup(environ[i]);
     }
 
-    tibiaEnv[envSize] = strdup("LD_PRELOAD=../bin/Debug/libGraphicsMonitor.so");
-//    tibiaEnv[envSize] = strdup("LD_PRELOAD=../bin/Release/libGraphicsMonitor.so");
+    tibiaEnv[envSize] = strdup("LD_PRELOAD=../bin/Release/libGraphicsMonitor.so");
 
     std::stringstream sstream;
     sstream << "SHANKBOT_SHARED_MEMORY_FD=" << shmFd;
