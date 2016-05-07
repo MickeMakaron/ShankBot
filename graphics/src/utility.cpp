@@ -2,6 +2,7 @@
 // Internal ShankBot headers
 #include "utility.hpp"
 #include "TileBuffer.hpp"
+#include "PngImage.hpp"
 ///////////////////////////////////
 
 
@@ -110,6 +111,24 @@ void readPpm(std::string filePath, unsigned char** data, size_t* width, size_t* 
         (*data)[i] = byte;
     }
 }
+
+///////////////////////////////////
+
+std::string getDateTime()
+{
+    time_t t = time(0);
+    struct tm* now = localtime( & t );
+    std::stringstream sstream;
+    sstream     << now->tm_year + 1900 << "-"
+                << now->tm_mon + 1 << "-"
+                << now->tm_mday << "-"
+                << now->tm_hour << "-"
+                << now->tm_min << "-"
+                << now->tm_sec;
+
+    return sstream.str();
+}
+
 
 ///////////////////////////////////
 

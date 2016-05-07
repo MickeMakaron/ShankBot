@@ -7,7 +7,7 @@
 #include <string>
 #include <list>
 #include <istream>
-#include "PngImage.hpp"
+class PngImage;
 ///////////////////////////////////
 
 
@@ -23,6 +23,8 @@ namespace GraphicsLayer
     {
         stream.read((char*)&out, sizeof(T));
     }
+
+    std::string getDateTime();
 }
 
 #endif // GRAPHICS_LAYER_UTILITY
