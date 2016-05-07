@@ -3,8 +3,6 @@
 # ShankBot project
 # Mikael Hernvall 2016
 # Connect sprites with Tibia objects.
-# The script creates a folder for every
-# object and copies that object's sprites into that folder.
 
 import sys, getopt
 import os.path

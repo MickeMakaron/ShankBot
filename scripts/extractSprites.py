@@ -3,7 +3,6 @@
 # ShankBot project
 # Mikael Hernvall 2016
 # Extract sprites from Tibia.spr
-# Run the script with the "-h" flag for usage instructions.
 
 
 import sys, getopt
