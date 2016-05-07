@@ -63,6 +63,8 @@ namespace GraphicsLayer
             std::map<size_t, std::set<size_t>> getSpriteEffectBindings() const;
             std::map<size_t, std::set<size_t>> getSpriteDistanceBindings() const;
 
+            static unsigned int getVersion(std::string datFilePath);
+
         private:
             void readDat(std::string filePath);
             void readItems(std::istream& dat);

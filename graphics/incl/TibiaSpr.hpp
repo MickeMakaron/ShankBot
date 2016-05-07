@@ -15,6 +15,8 @@ namespace GraphicsLayer
         public:
             TibiaSpr(std::string sprFilePath);
 
+            static unsigned int getVersion(std::string sprFilePath);
+
             const std::vector<std::vector<unsigned char>>& getSprites() const;
             const std::vector<size_t>& getSpriteIds() const;
 

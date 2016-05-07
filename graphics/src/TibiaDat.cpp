@@ -11,6 +11,18 @@ TibiaDat::TibiaDat(std::string filePath)
     readDat(filePath);
 }
 
+unsigned int TibiaDat::getVersion(std::string datFilePath)
+{
+    std::ifstream dat(datFilePath, std::ios::binary);
+
+    unsigned int version;
+    readStream(version, dat);
+
+    dat.close();
+
+    return version;
+}
+
 void TibiaDat::readDat(std::string filePath)
 {
     std::ifstream dat(filePath, std::ios::binary);

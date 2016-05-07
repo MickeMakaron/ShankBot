@@ -17,6 +17,18 @@ TibiaSpr::TibiaSpr(std::string sprFilePath)
     readSprites(sprFilePath);
 }
 
+unsigned int TibiaSpr::getVersion(std::string sprFilePath)
+{
+    std::ifstream spr(sprFilePath, std::ios::binary);
+
+    unsigned int version;
+    readStream(version, spr);
+
+    spr.close();
+
+    return version;
+}
+
 const std::vector<std::vector<unsigned char>>& TibiaSpr::getSprites() const
 {
     return mSprites;
