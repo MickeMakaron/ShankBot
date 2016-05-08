@@ -40,9 +40,9 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/GraphicsLayer
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/src/utility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/fileUtility.o $(OBJDIR_DEBUG)/src/VersionControl.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/TibiaClient.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteCache.o $(OBJDIR_DEBUG)/src/ShankBot.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/ImageTrees.o $(OBJDIR_DEBUG)/src/ImageTree.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/src/TibiaClient.o $(OBJDIR_DEBUG)/src/ImageTree.o $(OBJDIR_DEBUG)/src/ImageTrees.o $(OBJDIR_DEBUG)/src/ObjectParser.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/ShankBot.o $(OBJDIR_DEBUG)/src/SpriteCache.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteObjectBindings.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/VersionControl.o $(OBJDIR_DEBUG)/src/fileUtility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/utility.o
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/utility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/fileUtility.o $(OBJDIR_RELEASE)/src/VersionControl.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/TibiaClient.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteCache.o $(OBJDIR_RELEASE)/src/ShankBot.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/ImageTrees.o $(OBJDIR_RELEASE)/src/ImageTree.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/src/TibiaClient.o $(OBJDIR_RELEASE)/src/ImageTree.o $(OBJDIR_RELEASE)/src/ImageTrees.o $(OBJDIR_RELEASE)/src/ObjectParser.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/ShankBot.o $(OBJDIR_RELEASE)/src/SpriteCache.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteObjectBindings.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/VersionControl.o $(OBJDIR_RELEASE)/src/fileUtility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/utility.o
 
 all: debug release
 
@@ -59,47 +59,53 @@ debug: before_debug out_debug after_debug
 out_debug: before_debug $(OBJ_DEBUG) $(DEP_DEBUG)
 	$(LD) $(LIBDIR_DEBUG) -o $(OUT_DEBUG) $(OBJ_DEBUG)  $(LDFLAGS_DEBUG) $(LIB_DEBUG)
 
-$(OBJDIR_DEBUG)/src/utility.o: src/utility.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/utility.cpp -o $(OBJDIR_DEBUG)/src/utility.o
-
-$(OBJDIR_DEBUG)/src/main.o: src/main.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/main.cpp -o $(OBJDIR_DEBUG)/src/main.o
-
-$(OBJDIR_DEBUG)/src/fileUtility.o: src/fileUtility.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/fileUtility.cpp -o $(OBJDIR_DEBUG)/src/fileUtility.o
-
-$(OBJDIR_DEBUG)/src/VersionControl.o: src/VersionControl.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/VersionControl.cpp -o $(OBJDIR_DEBUG)/src/VersionControl.o
-
-$(OBJDIR_DEBUG)/src/TileBuffer.o: src/TileBuffer.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TileBuffer.cpp -o $(OBJDIR_DEBUG)/src/TileBuffer.o
-
-$(OBJDIR_DEBUG)/src/TibiaSpr.o: src/TibiaSpr.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaSpr.cpp -o $(OBJDIR_DEBUG)/src/TibiaSpr.o
-
-$(OBJDIR_DEBUG)/src/TibiaDat.o: src/TibiaDat.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaDat.cpp -o $(OBJDIR_DEBUG)/src/TibiaDat.o
-
 $(OBJDIR_DEBUG)/src/TibiaClient.o: src/TibiaClient.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaClient.cpp -o $(OBJDIR_DEBUG)/src/TibiaClient.o
 
-$(OBJDIR_DEBUG)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteDatabase.cpp -o $(OBJDIR_DEBUG)/src/SpriteDatabase.o
-
-$(OBJDIR_DEBUG)/src/SpriteCache.o: src/SpriteCache.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteCache.cpp -o $(OBJDIR_DEBUG)/src/SpriteCache.o
-
-$(OBJDIR_DEBUG)/src/ShankBot.o: src/ShankBot.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ShankBot.cpp -o $(OBJDIR_DEBUG)/src/ShankBot.o
-
-$(OBJDIR_DEBUG)/src/PngImage.o: src/PngImage.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/PngImage.cpp -o $(OBJDIR_DEBUG)/src/PngImage.o
+$(OBJDIR_DEBUG)/src/ImageTree.o: src/ImageTree.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ImageTree.cpp -o $(OBJDIR_DEBUG)/src/ImageTree.o
 
 $(OBJDIR_DEBUG)/src/ImageTrees.o: src/ImageTrees.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ImageTrees.cpp -o $(OBJDIR_DEBUG)/src/ImageTrees.o
 
-$(OBJDIR_DEBUG)/src/ImageTree.o: src/ImageTree.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ImageTree.cpp -o $(OBJDIR_DEBUG)/src/ImageTree.o
+$(OBJDIR_DEBUG)/src/ObjectParser.o: src/ObjectParser.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ObjectParser.cpp -o $(OBJDIR_DEBUG)/src/ObjectParser.o
+
+$(OBJDIR_DEBUG)/src/PngImage.o: src/PngImage.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/PngImage.cpp -o $(OBJDIR_DEBUG)/src/PngImage.o
+
+$(OBJDIR_DEBUG)/src/ShankBot.o: src/ShankBot.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ShankBot.cpp -o $(OBJDIR_DEBUG)/src/ShankBot.o
+
+$(OBJDIR_DEBUG)/src/SpriteCache.o: src/SpriteCache.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteCache.cpp -o $(OBJDIR_DEBUG)/src/SpriteCache.o
+
+$(OBJDIR_DEBUG)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteDatabase.cpp -o $(OBJDIR_DEBUG)/src/SpriteDatabase.o
+
+$(OBJDIR_DEBUG)/src/SpriteObjectBindings.o: src/SpriteObjectBindings.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteObjectBindings.cpp -o $(OBJDIR_DEBUG)/src/SpriteObjectBindings.o
+
+$(OBJDIR_DEBUG)/src/TibiaDat.o: src/TibiaDat.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaDat.cpp -o $(OBJDIR_DEBUG)/src/TibiaDat.o
+
+$(OBJDIR_DEBUG)/src/TibiaSpr.o: src/TibiaSpr.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaSpr.cpp -o $(OBJDIR_DEBUG)/src/TibiaSpr.o
+
+$(OBJDIR_DEBUG)/src/TileBuffer.o: src/TileBuffer.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TileBuffer.cpp -o $(OBJDIR_DEBUG)/src/TileBuffer.o
+
+$(OBJDIR_DEBUG)/src/VersionControl.o: src/VersionControl.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/VersionControl.cpp -o $(OBJDIR_DEBUG)/src/VersionControl.o
+
+$(OBJDIR_DEBUG)/src/fileUtility.o: src/fileUtility.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/fileUtility.cpp -o $(OBJDIR_DEBUG)/src/fileUtility.o
+
+$(OBJDIR_DEBUG)/src/main.o: src/main.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/main.cpp -o $(OBJDIR_DEBUG)/src/main.o
+
+$(OBJDIR_DEBUG)/src/utility.o: src/utility.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/utility.cpp -o $(OBJDIR_DEBUG)/src/utility.o
 
 clean_debug: 
 	rm -f $(OBJ_DEBUG) $(OUT_DEBUG)
@@ -117,47 +123,53 @@ release: before_release out_release after_release
 out_release: before_release $(OBJ_RELEASE) $(DEP_RELEASE)
 	$(LD) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE)  $(LDFLAGS_RELEASE) $(LIB_RELEASE)
 
-$(OBJDIR_RELEASE)/src/utility.o: src/utility.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/utility.cpp -o $(OBJDIR_RELEASE)/src/utility.o
-
-$(OBJDIR_RELEASE)/src/main.o: src/main.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/main.cpp -o $(OBJDIR_RELEASE)/src/main.o
-
-$(OBJDIR_RELEASE)/src/fileUtility.o: src/fileUtility.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/fileUtility.cpp -o $(OBJDIR_RELEASE)/src/fileUtility.o
-
-$(OBJDIR_RELEASE)/src/VersionControl.o: src/VersionControl.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/VersionControl.cpp -o $(OBJDIR_RELEASE)/src/VersionControl.o
-
-$(OBJDIR_RELEASE)/src/TileBuffer.o: src/TileBuffer.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TileBuffer.cpp -o $(OBJDIR_RELEASE)/src/TileBuffer.o
-
-$(OBJDIR_RELEASE)/src/TibiaSpr.o: src/TibiaSpr.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaSpr.cpp -o $(OBJDIR_RELEASE)/src/TibiaSpr.o
-
-$(OBJDIR_RELEASE)/src/TibiaDat.o: src/TibiaDat.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaDat.cpp -o $(OBJDIR_RELEASE)/src/TibiaDat.o
-
 $(OBJDIR_RELEASE)/src/TibiaClient.o: src/TibiaClient.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaClient.cpp -o $(OBJDIR_RELEASE)/src/TibiaClient.o
 
-$(OBJDIR_RELEASE)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteDatabase.cpp -o $(OBJDIR_RELEASE)/src/SpriteDatabase.o
-
-$(OBJDIR_RELEASE)/src/SpriteCache.o: src/SpriteCache.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteCache.cpp -o $(OBJDIR_RELEASE)/src/SpriteCache.o
-
-$(OBJDIR_RELEASE)/src/ShankBot.o: src/ShankBot.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ShankBot.cpp -o $(OBJDIR_RELEASE)/src/ShankBot.o
-
-$(OBJDIR_RELEASE)/src/PngImage.o: src/PngImage.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/PngImage.cpp -o $(OBJDIR_RELEASE)/src/PngImage.o
+$(OBJDIR_RELEASE)/src/ImageTree.o: src/ImageTree.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ImageTree.cpp -o $(OBJDIR_RELEASE)/src/ImageTree.o
 
 $(OBJDIR_RELEASE)/src/ImageTrees.o: src/ImageTrees.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ImageTrees.cpp -o $(OBJDIR_RELEASE)/src/ImageTrees.o
 
-$(OBJDIR_RELEASE)/src/ImageTree.o: src/ImageTree.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ImageTree.cpp -o $(OBJDIR_RELEASE)/src/ImageTree.o
+$(OBJDIR_RELEASE)/src/ObjectParser.o: src/ObjectParser.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ObjectParser.cpp -o $(OBJDIR_RELEASE)/src/ObjectParser.o
+
+$(OBJDIR_RELEASE)/src/PngImage.o: src/PngImage.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/PngImage.cpp -o $(OBJDIR_RELEASE)/src/PngImage.o
+
+$(OBJDIR_RELEASE)/src/ShankBot.o: src/ShankBot.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ShankBot.cpp -o $(OBJDIR_RELEASE)/src/ShankBot.o
+
+$(OBJDIR_RELEASE)/src/SpriteCache.o: src/SpriteCache.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteCache.cpp -o $(OBJDIR_RELEASE)/src/SpriteCache.o
+
+$(OBJDIR_RELEASE)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteDatabase.cpp -o $(OBJDIR_RELEASE)/src/SpriteDatabase.o
+
+$(OBJDIR_RELEASE)/src/SpriteObjectBindings.o: src/SpriteObjectBindings.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteObjectBindings.cpp -o $(OBJDIR_RELEASE)/src/SpriteObjectBindings.o
+
+$(OBJDIR_RELEASE)/src/TibiaDat.o: src/TibiaDat.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaDat.cpp -o $(OBJDIR_RELEASE)/src/TibiaDat.o
+
+$(OBJDIR_RELEASE)/src/TibiaSpr.o: src/TibiaSpr.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaSpr.cpp -o $(OBJDIR_RELEASE)/src/TibiaSpr.o
+
+$(OBJDIR_RELEASE)/src/TileBuffer.o: src/TileBuffer.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TileBuffer.cpp -o $(OBJDIR_RELEASE)/src/TileBuffer.o
+
+$(OBJDIR_RELEASE)/src/VersionControl.o: src/VersionControl.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/VersionControl.cpp -o $(OBJDIR_RELEASE)/src/VersionControl.o
+
+$(OBJDIR_RELEASE)/src/fileUtility.o: src/fileUtility.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/fileUtility.cpp -o $(OBJDIR_RELEASE)/src/fileUtility.o
+
+$(OBJDIR_RELEASE)/src/main.o: src/main.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/main.cpp -o $(OBJDIR_RELEASE)/src/main.o
+
+$(OBJDIR_RELEASE)/src/utility.o: src/utility.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/utility.cpp -o $(OBJDIR_RELEASE)/src/utility.o
 
 clean_release: 
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
