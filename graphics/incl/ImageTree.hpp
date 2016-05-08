@@ -13,7 +13,7 @@ namespace GraphicsLayer
 {
     class ImageTree
     {
-        private:
+        public:
             struct Sprite
             {
                 Sprite(const std::vector<unsigned char>* pixels, size_t id) : pixels(pixels), id(id){};
@@ -26,8 +26,11 @@ namespace GraphicsLayer
             typedef std::unique_ptr<Node> NodePtr;
             struct Node
             {
+                Node(size_t level) : level(level){};
+
                 std::unordered_map<unsigned char, NodePtr> children;
                 std::list<Sprite> sprites;
+                size_t level;
             };
 
         public:
@@ -41,12 +44,18 @@ namespace GraphicsLayer
             void writeToBinaryFile(std::string filePath) const;
             std::list<unsigned char> trace(size_t id) const;
 
+
+
         private:
             size_t getSize(const NodePtr& node) const;
-            void insert(NodePtr& node, Sprite sprite, size_t level = 0);
+            void insert(NodePtr& node, Sprite sprite);
             void writeToTextFile(const NodePtr& node, std::ostream& file) const;
             void writeToBinaryFile(const NodePtr& node, std::ostream& file) const;
             void trace(const NodePtr& node, size_t id, bool& isFound, std::list<unsigned char>& breadcrumbs) const;
+
+            void forEachNode(NodePtr& node, std::function<void(NodePtr& node)> function);
+
+            void removeEmptyNodes();
 
 
             void loadFromTextFile(std::string filePath);
