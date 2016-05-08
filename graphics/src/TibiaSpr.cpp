@@ -9,6 +9,7 @@ using namespace GraphicsLayer;
 ///////////////////////////////////
 // STD C++
 #include <fstream>
+#include <cassert>
 ///////////////////////////////////
 
 
@@ -52,9 +53,9 @@ void TibiaSpr::readSprites(std::string sprFilePath)
         readStream(spriteIndex, spr);
         if(spriteIndex != 0)
         {
-            size_t currentPos = spr.tellg();
+            int currentPos = spr.tellg();
             spr.seekg(spriteIndex);
-            std::vector<unsigned char> sprite = readOpaqueSpritePixels(spr);
+            std::vector<unsigned char> sprite = readSpritePixels(spr);
             mSprites.push_back(sprite);
             mIds.push_back(i + 1);
             spr.seekg(currentPos);
@@ -64,7 +65,7 @@ void TibiaSpr::readSprites(std::string sprFilePath)
     spr.close();
 }
 
-std::vector<unsigned char> TibiaSpr::readOpaqueSpritePixels(std::istream& spr) const
+std::vector<unsigned char> TibiaSpr::readSpritePixels(std::istream& spr) const
 {
     char transparentPixelColor[3];
     spr.read(transparentPixelColor, 3);
@@ -74,12 +75,19 @@ std::vector<unsigned char> TibiaSpr::readOpaqueSpritePixels(std::istream& spr) c
     unsigned short numBytes;
     readStream(numBytes, spr);
 
-    size_t endPos = (size_t)spr.tellg() + numBytes;
-    size_t pixelIndex = 0;
+    int endPos = (int)spr.tellg() + numBytes;
     while(spr.tellg() < endPos)
     {
         unsigned short numTransparentPixels;
         readStream(numTransparentPixels, spr);
+
+        for(size_t i = 0; i < numTransparentPixels; i++)
+        {
+            pixels.push_back(0);
+            pixels.push_back(0);
+            pixels.push_back(0);
+            pixels.push_back(0);
+        }
 
         unsigned short numOpaquePixels;
         readStream(numOpaquePixels, spr);
@@ -97,8 +105,19 @@ std::vector<unsigned char> TibiaSpr::readOpaqueSpritePixels(std::istream& spr) c
             pixels.push_back(red);
             pixels.push_back(green);
             pixels.push_back(blue);
+            pixels.push_back(255);
         }
     }
+
+    for(size_t i = pixels.size(); i < 32 * 32 * 4; i += 4)
+    {
+        pixels.push_back(0);
+        pixels.push_back(0);
+        pixels.push_back(0);
+        pixels.push_back(0);
+    }
+
+    assert(pixels.size() == 32 * 32 * 4);
 
     return pixels;
 }
