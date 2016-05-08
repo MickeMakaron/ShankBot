@@ -4,6 +4,7 @@
 #include "ImageTrees.hpp"
 #include "PngImage.hpp"
 #include "ImageTree.hpp"
+#include "SpriteObjectBindings.hpp"
 using namespace GraphicsLayer;
 using namespace SharedMemoryProtocol;
 ///////////////////////////////////
@@ -14,6 +15,8 @@ using namespace SharedMemoryProtocol;
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <cassert>
+#include <algorithm>
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -66,8 +69,12 @@ void TibiaClient::updateTileBuffers()
     }
 }
 
+
+
+
 void TibiaClient::handleDrawCalls()
 {
+    mObjectParser.clear();
     for(size_t i = 0; i < mShm->numDrawCall; i++)
     {
         const DrawCall& d = mShm->drawCall[i];
@@ -76,32 +83,6 @@ void TibiaClient::handleDrawCalls()
         if(tileBufferIt != mTileBuffers.end())
         {
             unsigned char* pixels = tileBufferIt->second.getPixels(d.texX - d.texX % 32, d.texY - d.texY % 32, 32, 32);
-//
-//            if(d.targetTextureId == 0)
-//            {
-//                if(d.sourceTextureId >= 5 && d.sourceTextureId <= 19) // UI
-//                {
-//                    std::stringstream sstream;
-//                    sstream << "out/ui/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
-//                    writePng(sstream.str(), pixels, 32, 32);
-//                }
-//            }
-//            else
-//            {
-//                if(d.targetTextureId == 3) // non-animated
-//                {
-//                    std::stringstream sstream;
-//                    sstream << "out/nonanimated/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
-//                    writePng(sstream.str(), pixels, 32, 32);
-//                }
-//                else if(d.targetTextureId == 1 && d.sourceTextureId >= 5 && d.sourceTextureId <= 19) // animated
-//                {
-//                    std::stringstream sstream;
-//                    sstream << "out/animated/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
-//                    writePng(sstream.str(), pixels, 32, 32);
-//                }
-//            }
-
 
             std::vector<unsigned char> opaquePixels;
             for(size_t i = 0; i < 32 * 32 * 4; i += 4)
@@ -119,26 +100,60 @@ void TibiaClient::handleDrawCalls()
                 if(d.targetTextureId != 0 && d.targetTextureId != 2 && d.sourceTextureId >= 5 && d.sourceTextureId <= 19) // Do not capture UI stuff. Only capture things from the Tibia.spr.
                 {
                     std::list<size_t> ids;
-                    if(!ImageTrees::getSpriteColorTree().find(opaquePixels, ids))
+                    if(ImageTrees::getSpriteColorTree().find(opaquePixels, ids))
                     {
-    //                    std::stringstream sstream;
-    //                    sstream << "out/notFound/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
-    //                    writePng(sstream.str(), pixels, 32, 32);
-                    }
-                    else
-                    {
-    //                    std::stringstream sstream;
-    //                    sstream << "out/found/" << (int)d.sourceTextureId << "-" << d.texX << "x" << d.texY;
-    //
-    //                    sstream << "(";
-    //                    for(size_t id : ids)
-    //                        sstream << id << ",";
-    //                    sstream << ")";
-    //
-    //                    writePng(sstream.str(), pixels, 32, 32);
+                        std::vector<unsigned char> transparency;
+                        for(size_t i = 0; i < 32 * 32 * 4; i += 4)
+                        {
+                            if(pixels[i + 3] != 0)
+                            {
+                                unsigned char x = i % 32;
+                                unsigned char y = i / 32;
+
+                                transparency.push_back(x);
+                                transparency.push_back(y);
+                            }
+                        }
+
+                        std::list<size_t> tIds;
+
+                        ImageTrees::getSpriteTransparencyTree().find(transparency, tIds);
+
+                        std::list<size_t> matchingIds;
+                        for(size_t id : ids)
+                            if(std::find(tIds.begin(), tIds.end(), id) != tIds.end())
+                                matchingIds.push_back(id);
+
+                        ids = matchingIds;
+
+                        std::set<const SpriteObjectBindings::Object*> possibleObjects;
+                        for(size_t spriteId : ids)
+                        {
+                            std::list<const SpriteObjectBindings::Object*> objects = SpriteObjectBindings::getObjects(spriteId);
+                            for(auto object : objects)
+                            {
+                                possibleObjects.insert(object);
+                            }
+                        }
+
+                        if(!possibleObjects.empty())
+                        {
+                            size_t numHits = 0;
+                            for(auto object : possibleObjects)
+                                if(object->type == SpriteObjectBindings::Object::Type::OUTFIT)
+                                    if(object->spritesInfo->blendFrames > 1)
+                                    {
+                                        std::cout << object->id << " ";
+                                        numHits++;
+                                    }
+
+                            if(numHits > 0)
+                                std::cout << std::endl;
+                        }
 
 
                         mDrawnSprites.push_back(ids);
+                        mObjectParser.parse(possibleObjects, d.screenX, d.screenY, d.width, d.height);
                     }
                 }
 

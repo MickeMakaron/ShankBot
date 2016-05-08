@@ -6,6 +6,7 @@
 // Internal ShankBot headers
 #include "SharedMemoryProtocol.hpp"
 #include "TileBuffer.hpp"
+#include "ObjectParser.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -44,6 +45,7 @@ namespace GraphicsLayer
             SharedMemoryProtocol::SharedMemorySegment* mShm;
             std::map<unsigned char, TileBuffer> mTileBuffers;
             std::list<std::list<size_t>> mDrawnSprites;
+            ObjectParser mObjectParser;
     };
 }
 
