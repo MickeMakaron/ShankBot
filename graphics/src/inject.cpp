@@ -330,8 +330,29 @@ void glEnd()
 
 
         Vector2f vertexMin;
-        vertexMin.x = std::min(vertices[2].x, vertices[0].x);
-        vertexMin.y = std::min(vertices[2].y, vertices[0].y);
+        Vector2f vertexMax;
+
+        if(vertices[2].x > vertices[0].x)
+        {
+            vertexMax.x = vertices[2].x;
+            vertexMin.x = vertices[0].x;
+        }
+        else
+        {
+            vertexMax.x = vertices[0].x;
+            vertexMin.x = vertices[2].x;
+        }
+
+        if(vertices[2].y > vertices[0].y)
+        {
+            vertexMax.y = vertices[2].y;
+            vertexMin.y = vertices[0].y;
+        }
+        else
+        {
+            vertexMax.y = vertices[0].y;
+            vertexMin.y = vertices[2].y;
+        }
 
         Texture texture = textures[current2dTexture];
 
@@ -344,8 +365,13 @@ void glEnd()
 //            if(currentFramebuffer != 0 && current2dTexture > 3 && (currentDrawTexture == 1/* || currentDrawTexture == 3*/))
             {
 
-            size_t width = (texCoordMax.x - texCoordMin.x) * texture.width;
-            size_t height = (texCoordMax.y - texCoordMin.y) * texture.height;
+
+
+            size_t width = (vertexMax.x - vertexMin.x) * texture.width;
+            size_t height = (vertexMax.y - vertexMin.y) * texture.height;
+
+            size_t texWidth = (texCoordMax.x - texCoordMin.x) * texture.width;
+            size_t texHeight = (texCoordMax.y - texCoordMin.y) * texture.height;
             float widthFloat = texCoordMax.x - texCoordMin.x;
             float heightFloat = texCoordMax.y - texCoordMin.y;
 
@@ -358,6 +384,8 @@ void glEnd()
             packet.screenY = vertexMin.y;
             packet.width = width;
             packet.height = height;
+            packet.texWidth = texWidth;
+            packet.texHeight = texHeight;
 
             drawCallPackets.push_back(packet);
 
