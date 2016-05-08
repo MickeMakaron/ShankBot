@@ -18,11 +18,22 @@ namespace GraphicsLayer
             {
                 size_t id;
                 std::set<size_t> spriteIds;
-
             };
 
-            struct Item : public Object
+            struct SpritesInfo
             {
+                unsigned char width;
+                unsigned char height;
+                unsigned char blendFrames;
+                unsigned char divX;
+                unsigned char divY;
+                unsigned char divZ;
+                unsigned char animationLength;
+            };
+
+            struct ItemInfo
+            {
+                static const int MAX_NAME_LENGTH = 64;
                 unsigned short walkSpeed;
                 unsigned char topOrder;
                 bool isContainer;
@@ -49,7 +60,7 @@ namespace GraphicsLayer
                 unsigned short category;
                 unsigned short marketId1;
                 unsigned short marketId2;
-                std::string name;
+                char name[MAX_NAME_LENGTH];
                 unsigned short profession;
                 unsigned short level;
                 unsigned short defaultAction;
@@ -58,12 +69,17 @@ namespace GraphicsLayer
         public:
             TibiaDat(std::string filePath);
 
-            std::map<size_t, std::set<size_t>> getSpriteItemBindings() const;
-            std::map<size_t, std::set<size_t>> getSpriteOutfitBindings() const;
-            std::map<size_t, std::set<size_t>> getSpriteEffectBindings() const;
-            std::map<size_t, std::set<size_t>> getSpriteDistanceBindings() const;
-
             static unsigned int getVersion(std::string datFilePath);
+
+            const std::vector<Object>& getItems() const;
+            const std::vector<ItemInfo>& getItemInfos() const;
+            const std::vector<Object>& getOutfits() const;
+            const std::vector<Object>& getEffects() const;
+            const std::vector<Object>& getDistances() const;
+
+            const std::vector<SpritesInfo>& getSpritesInfos() const;
+
+
 
         private:
             void readDat(std::string filePath);
@@ -71,37 +87,21 @@ namespace GraphicsLayer
             void readOutfits(std::istream& dat);
             void readEffectsAndDistances(std::istream& dat);
 
-            void readItemInfo(Item& out, std::istream& dat) const;
+            void readItemInfo(ItemInfo& out, std::istream& dat) const;
             void skipItemInfo(std::istream& dat) const;
-            void readObjectSprites(Object& out, std::istream& dat) const;
-
-            template<typename ObjectType>
-            std::map<size_t, std::set<size_t>> getSpriteObjectBindings(const std::vector<ObjectType>& objects) const
-            {
-                std::map<size_t, std::set<size_t>> bindings;
-                for(const ObjectType& object : objects)
-                {
-                    for(size_t spriteId : object.spriteIds)
-                    {
-                        if(spriteId != 0)
-                        {
-                            auto it = bindings.insert(std::make_pair(spriteId, std::set<size_t>()));
-                            it.first->second.insert(object.id);
-                        }
-                    }
-                }
-
-                return bindings;
-            }
+            SpritesInfo readObjectSprites(Object& out, std::istream& dat) const;
 
 
         private:
             unsigned int mVersion;
 
-            std::vector<Item> mItems;
+            std::vector<Object> mItems;
+            std::vector<ItemInfo> mItemInfos;
             std::vector<Object> mOutfits;
             std::vector<Object> mEffects;
             std::vector<Object> mDistances;
+
+            std::vector<SpritesInfo> mSpritesInfos;
     };
 }
 

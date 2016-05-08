@@ -5,6 +5,11 @@
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
+///////////////////////////////////
+// STD C++
+#include <sstream>
+///////////////////////////////////
+
 
 TibiaDat::TibiaDat(std::string filePath)
 {
@@ -32,6 +37,7 @@ void TibiaDat::readDat(std::string filePath)
     unsigned short numItems;
     readStream(numItems, dat);
     mItems.resize(numItems - 99);
+    mItemInfos.resize(numItems - 99);
 
     unsigned short numOutfits;
     readStream(numOutfits, dat);
@@ -45,14 +51,16 @@ void TibiaDat::readDat(std::string filePath)
     readStream(numDistances, dat);
     mDistances.resize(numDistances);
 
+    mSpritesInfos.resize(mItems.size() + mOutfits.size() + mEffects.size() + mDistances.size());
+
     readItems(dat);
     readOutfits(dat);
     readEffectsAndDistances(dat);
 
     dat.close();
 }
-
-void TibiaDat::readItemInfo(Item& out, std::istream& dat) const
+#include <iostream>
+void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
 {
     unsigned char option;
     readStream(option, dat);
@@ -210,9 +218,16 @@ void TibiaDat::readItemInfo(Item& out, std::istream& dat) const
                     unsigned short nameLength;
                     readStream(nameLength, dat);
 
-                    char* name = new char[nameLength];
-                    dat.read(name, nameLength);
-                    out.name.assign(name, nameLength);
+                    if(nameLength + 1 > ItemInfo::MAX_NAME_LENGTH)
+                    {
+                        std::stringstream sstream;
+                        sstream << "Error reading Tibia.dat: The name length of an item (" << nameLength << ") exceeds the "
+                                << "preset buffer size (" << ItemInfo::MAX_NAME_LENGTH << "). This means the buffer size should be increased.";
+
+                        throw std::runtime_error(sstream.str());
+                    }
+                    dat.read(out.name, nameLength);
+                    out.name[nameLength] = '\0';
                 }
 
                 readStream(out.profession, dat);
@@ -232,59 +247,48 @@ void TibiaDat::readItemInfo(Item& out, std::istream& dat) const
     }
 }
 
-void TibiaDat::readObjectSprites(Object& out, std::istream& dat) const
+TibiaDat::SpritesInfo TibiaDat::readObjectSprites(Object& out, std::istream& dat) const
 {
-    unsigned char width;
-    readStream(width, dat);
+    SpritesInfo info;
 
-    unsigned char height;
-    readStream(height, dat);
+    readStream(info.width, dat);
+    readStream(info.height, dat);
 
-    if(width != 1 || height != 1)
+    if(info.width != 1 || info.height != 1)
     {
         unsigned char garbage;
         readStream(garbage, dat);
     }
 
-    unsigned char blendFrames;
-    readStream(blendFrames, dat);
+    readStream(info.blendFrames, dat);
+    readStream(info.divX, dat);
+    readStream(info.divY, dat);
+    readStream(info.divZ, dat);
+    readStream(info.animationLength, dat);
 
-    unsigned char divX;
-    readStream(divX, dat);
-
-    unsigned char divY;
-    readStream(divY, dat);
-
-    unsigned char divZ;
-    readStream(divZ, dat);
-
-    unsigned char animationLength;
-    readStream(animationLength, dat);
-
-    if(animationLength > 1)
+    if(info.animationLength > 1)
     {
-        dat.seekg((size_t)dat.tellg() + 6 + animationLength * 2 * 4);
+        dat.seekg((int)dat.tellg() + 6 + info.animationLength * 2 * 4);
     }
 
-    size_t numSprites = width * height * blendFrames * divX * divY * divZ * animationLength;
+    size_t numSprites = info.width * info.height * info.blendFrames * info.divX * info.divY * info.divZ * info.animationLength;
     for(size_t j = 0; j < numSprites; j++)
     {
         unsigned int spriteId;
         readStream(spriteId, dat);
         out.spriteIds.insert(spriteId);
     }
+
+    return info;
 }
 
 void TibiaDat::readItems(std::istream& dat)
 {
     for(size_t i = 0; i < mItems.size(); i++)
     {
-        Item item;
-        item.id = i + 100;
-        readItemInfo(item, dat);
-        readObjectSprites(item, dat);
-
-        mItems[i] = item;
+        mItems[i].id = i + 100;
+        readItemInfo(mItemInfos[i], dat);
+        mSpritesInfos[i] = readObjectSprites(mItems[i], dat);
     }
 }
 
@@ -300,24 +304,23 @@ void TibiaDat::readOutfits(std::istream& dat)
 {
     for(size_t i = 0; i < mOutfits.size(); i++)
     {
-        Object object;
-        object.id = i + 1;
+        mOutfits[i].id = i + 1;
+
         skipItemInfo(dat);
 
         unsigned short op;
         readStream(op, dat);
         bool hasOutfitThingy = (op == 2);
 
-        readObjectSprites(object, dat);
+        mSpritesInfos[i + mItems.size()] = readObjectSprites(mOutfits[i], dat);
+
 
         if(hasOutfitThingy)
         {
             unsigned char unknown;
             readStream(unknown, dat);
-            readObjectSprites(object, dat);
+            readObjectSprites(mOutfits[i], dat);
         }
-
-        mOutfits[i] = object;
     }
 }
 
@@ -325,44 +328,45 @@ void TibiaDat::readEffectsAndDistances(std::istream& dat)
 {
     for(size_t i = 0; i < mEffects.size(); i++)
     {
-        Object object;
-        object.id = i + 1;
+        mEffects[i].id = i + 1;
         skipItemInfo(dat);
-        readObjectSprites(object, dat);
-
-        mEffects[i] = object;
+        mSpritesInfos[i + mItems.size() + mOutfits.size()] = readObjectSprites(mEffects[i], dat);
     }
 
     for(size_t i = 0; i < mDistances.size(); i++)
     {
-        Object object;
-        object.id = i + 1;
+        mDistances[i].id = i + 1;
         skipItemInfo(dat);
-        readObjectSprites(object, dat);
-
-
-
-        mDistances[i] = object;
+        mSpritesInfos[i + mItems.size() + mOutfits.size() + mEffects.size()] = readObjectSprites(mDistances[i], dat);
     }
 }
 
-
-std::map<size_t, std::set<size_t>> TibiaDat::getSpriteItemBindings() const
+const std::vector<TibiaDat::Object>& TibiaDat::getItems() const
 {
-    return getSpriteObjectBindings(mItems);
+    return mItems;
 }
 
-std::map<size_t, std::set<size_t>> TibiaDat::getSpriteOutfitBindings() const
+const std::vector<TibiaDat::Object>& TibiaDat::getOutfits() const
 {
-    return getSpriteObjectBindings(mOutfits);
+    return mOutfits;
 }
 
-std::map<size_t, std::set<size_t>> TibiaDat::getSpriteEffectBindings() const
+const std::vector<TibiaDat::Object>& TibiaDat::getEffects() const
 {
-    return getSpriteObjectBindings(mEffects);
+    return mEffects;
 }
 
-std::map<size_t, std::set<size_t>> TibiaDat::getSpriteDistanceBindings() const
+const std::vector<TibiaDat::Object>& TibiaDat::getDistances() const
 {
-    return getSpriteObjectBindings(mDistances);
+    return mDistances;
+}
+
+const std::vector<TibiaDat::ItemInfo>& TibiaDat::getItemInfos() const
+{
+    return mItemInfos;
+}
+
+const std::vector<TibiaDat::SpritesInfo>& TibiaDat::getSpritesInfos() const
+{
+    return mSpritesInfos;
 }
