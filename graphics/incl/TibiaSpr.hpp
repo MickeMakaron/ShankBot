@@ -22,7 +22,7 @@ namespace GraphicsLayer
 
         private:
             void readSprites(std::string sprFilePath);
-            std::vector<unsigned char> readOpaqueSpritePixels(std::istream& spr) const;
+            std::vector<unsigned char> readSpritePixels(std::istream& spr) const;
 
 
         private:
