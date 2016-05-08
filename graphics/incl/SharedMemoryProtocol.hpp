@@ -25,10 +25,12 @@ namespace GraphicsLayer
             unsigned char targetTextureId;
             unsigned short screenX;
             unsigned short screenY;
-            unsigned short texX;
-            unsigned short texY;
             unsigned short width;
             unsigned short height;
+            unsigned short texX;
+            unsigned short texY;
+            unsigned short texWidth;
+            unsigned short texHeight;
         };
 
         const size_t MAX_NUM_PIXEL_DATA = 1000;
