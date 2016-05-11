@@ -8,6 +8,7 @@ using namespace GraphicsLayer;
 ///////////////////////////////////
 // STD C++
 #include <sstream>
+#include <cstring>
 ///////////////////////////////////
 
 
@@ -126,6 +127,10 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
                 out.isMovable = false;
                 break;
 
+            case 0x0e: // Blocks ranged attacks
+                out.isBlockingRangedAttack = true;
+                break;
+
             case 0x0f: // The pathfinding will not walk on this (fire fields, for example)
                 out.isPathBlocking = true;
                 break;
@@ -133,7 +138,8 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
             case 0x10: // No mode animation ???
                 break;
 
-            case 0x11: // BLocks path of creatures ???
+            case 0x11: // Pickupable
+                out.isPickupable = true;
                 break;
 
             case 0x12: // Hangable on a wall
@@ -226,8 +232,8 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
 
                         throw std::runtime_error(sstream.str());
                     }
+                    memset(&out.name, '\0', ItemInfo::MAX_NAME_LENGTH);
                     dat.read(out.name, nameLength);
-                    out.name[nameLength] = '\0';
                 }
 
                 readStream(out.profession, dat);
