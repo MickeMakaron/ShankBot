@@ -17,7 +17,7 @@ namespace GraphicsLayer
         private:
             struct Sprite
             {
-                Sprite(std::string name, unsigned char* pixels);
+                explicit Sprite(std::string name, unsigned char* pixels);
                 ~Sprite();
 
                 std::string name;
@@ -76,7 +76,7 @@ namespace GraphicsLayer
             typedef std::unique_ptr<Sprite> SpritePtr;
 
         public:
-            SpriteDatabase(std::string directory);
+            explicit SpriteDatabase(std::string directory);
 
             bool getName(size_t width, size_t height, unsigned char* pixels, std::string& name) const;
 

@@ -22,7 +22,7 @@ namespace GraphicsLayer
             static const size_t NUM_BYTES = WIDTH * HEIGHT * BYTES_PER_PIXEL;
 
         public:
-            TileBuffer();
+            explicit TileBuffer();
 
             void setTile(SharedMemoryProtocol::PixelData pixels);
             unsigned char* getTile(size_t x, size_t y) const;

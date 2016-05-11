@@ -13,7 +13,7 @@ namespace GraphicsLayer
     class TibiaSpr
     {
         public:
-            TibiaSpr(std::string sprFilePath);
+            explicit TibiaSpr(std::string sprFilePath);
 
             static unsigned int getVersion(std::string sprFilePath);
 
