@@ -68,30 +68,18 @@ void glXSwapBuffers(Display* dpy, GLXDrawable drawable)
 {
     using namespace GraphicsMonitor;
 
-    if(shm == nullptr)
-    {
-
-        shm = (GraphicsLayer::SharedMemoryProtocol::SharedMemorySegment*)mmap(nullptr, GraphicsLayer::SharedMemoryProtocol::NUM_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, shmFd, 0);
-        if(shm == MAP_FAILED)
-        {
-            std::cout << "Could not map shared memory." << std::endl;
-            std::cout << errno << std::endl;
-        }
-
-        shm->hasPendingChanges = false;
-    }
     void (*originalFunc)(Display*, GLXDrawable) = (void (*)(Display*, GLXDrawable))dlsym(RTLD_NEXT, "glXSwapBuffers");
 
-    std::cout << "Swapping draw buffers..." << swapCount++ << std::endl;
+//    std::cout << "Swapping draw buffers..." << swapCount++ << std::endl;
 //    std::cout << "DrawsPerFrame: " << drawsPerFrame << std::endl;
     drawsPerFrame = 0;
     originalFunc(dpy, drawable);
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glXSwapBuffers 1"<< std::endl;
 
-//    GLuint previousId = current2dTexture;
-//
-//    glBindTexture(GL_TEXTURE_2D, 1);
+    GLuint previousId = current2dTexture;
+
+//    glBindTexture(GL_TEXTURE_2D, 3);
 //    writeBoundTextureToFile();
 //    glBindTexture(GL_TEXTURE_2D, previousId);
 
@@ -360,15 +348,11 @@ void glEnd()
         {
 //            std::cout << "Drawing mysterious things... " << std::endl;
         }
-        else if(updateDrawCalls)
+        else //if(updateDrawCalls)
         {
 //            if(currentFramebuffer != 0 && current2dTexture > 3 && (currentDrawTexture == 1/* || currentDrawTexture == 3*/))
             {
 
-
-
-            size_t width = (vertexMax.x - vertexMin.x) * texture.width;
-            size_t height = (vertexMax.y - vertexMin.y) * texture.height;
 
             size_t texWidth = (texCoordMax.x - texCoordMin.x) * texture.width;
             size_t texHeight = (texCoordMax.y - texCoordMin.y) * texture.height;
@@ -382,10 +366,15 @@ void glEnd()
             packet.texY = texCoordMin.y * texture.height;
             packet.screenX = vertexMin.x;
             packet.screenY = vertexMin.y;
-            packet.width = width;
-            packet.height = height;
+            packet.width = vertexMax.x - vertexMin.x;
+            packet.height = vertexMax.y - vertexMin.y;
             packet.texWidth = texWidth;
             packet.texHeight = texHeight;
+
+            if(drawCallPackets.size() >= MAX_NUM_DRAW_CALL)
+            {
+                 std::cout << "ShankBot is too slow to handle incoming draw calls. Tibia client will crash" << std::endl;
+            }
 
             drawCallPackets.push_back(packet);
 
@@ -581,3 +570,53 @@ Atom XInternAtom(Display* d, const char* name, int ifExists)
     return atom;
 
 }
+
+
+
+
+Window XCreateWindow
+(
+    Display* display,
+    Window parent,
+    int x,
+    int y,
+    unsigned int width,
+    unsigned int height,
+    unsigned int borderWidth,
+    int depth,
+    unsigned int xClass,
+    Visual* visual,
+    unsigned long valueMask,
+    XSetWindowAttributes* attributes
+)
+{
+
+    Window (*originalFunc)(Display*, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual*, unsigned long, XSetWindowAttributes*) =
+    (Window (*)(Display*, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual*, unsigned long, XSetWindowAttributes*))dlsym(RTLD_NEXT, "XCreateWindow");
+
+    using namespace GraphicsMonitor;
+    shm = (GraphicsLayer::SharedMemoryProtocol::SharedMemorySegment*)mmap(nullptr, GraphicsLayer::SharedMemoryProtocol::NUM_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, shmFd, 0);
+    if(shm == MAP_FAILED)
+    {
+        std::cout << "Could not map shared memory." << std::endl;
+        std::cout << errno << std::endl;
+    }
+
+    shm->hasPendingChanges = false;
+
+    Window xWinId = originalFunc(display, parent, x, y, width, height, borderWidth, depth, xClass, visual, valueMask, attributes);
+    shm->xWindowId = xWinId;
+
+    return xWinId;
+}
+
+
+//Display* XOpenDisplay(const char* name)
+//{
+//    Display* (*originalFunc)(const char*) = (Display* (*)(const char*))dlsym(RTLD_NEXT, "XOpenDisplay");
+//
+//    std::cout << name[0] << std::endl;
+//    std::cout << "Name:" << name << std::endl;
+//
+//    return originalFunc(name);
+//}
