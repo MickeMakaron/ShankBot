@@ -12,10 +12,10 @@ LD = g++
 WINDRES = windres
 
 INC = -Iincl
-CFLAGS = -Wall -std=c++14
+CFLAGS = -pedantic-errors -pedantic -Wall -std=c++14
 RESINC = 
 LIBDIR = 
-LIB = -lpng -lrt
+LIB = -lpng -lrt -lX11
 LDFLAGS = 
 
 INC_DEBUG = $(INC)
@@ -40,9 +40,9 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/GraphicsLayer
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/src/TibiaClient.o $(OBJDIR_DEBUG)/src/ImageTree.o $(OBJDIR_DEBUG)/src/ImageTrees.o $(OBJDIR_DEBUG)/src/ObjectParser.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/ShankBot.o $(OBJDIR_DEBUG)/src/SpriteCache.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteObjectBindings.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/VersionControl.o $(OBJDIR_DEBUG)/src/fileUtility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/utility.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/src/TibiaClient.o $(OBJDIR_DEBUG)/src/ImageTree.o $(OBJDIR_DEBUG)/src/ImageTrees.o $(OBJDIR_DEBUG)/src/ObjectCache.o $(OBJDIR_DEBUG)/src/ObjectParser.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/ShankBot.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteObjectBindings.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/VersionControl.o $(OBJDIR_DEBUG)/src/fileUtility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/utility.o
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/TibiaClient.o $(OBJDIR_RELEASE)/src/ImageTree.o $(OBJDIR_RELEASE)/src/ImageTrees.o $(OBJDIR_RELEASE)/src/ObjectParser.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/ShankBot.o $(OBJDIR_RELEASE)/src/SpriteCache.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteObjectBindings.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/VersionControl.o $(OBJDIR_RELEASE)/src/fileUtility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/utility.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/src/TibiaClient.o $(OBJDIR_RELEASE)/src/ImageTree.o $(OBJDIR_RELEASE)/src/ImageTrees.o $(OBJDIR_RELEASE)/src/ObjectCache.o $(OBJDIR_RELEASE)/src/ObjectParser.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/ShankBot.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteObjectBindings.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/VersionControl.o $(OBJDIR_RELEASE)/src/fileUtility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/utility.o
 
 all: debug release
 
@@ -68,6 +68,9 @@ $(OBJDIR_DEBUG)/src/ImageTree.o: src/ImageTree.cpp
 $(OBJDIR_DEBUG)/src/ImageTrees.o: src/ImageTrees.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ImageTrees.cpp -o $(OBJDIR_DEBUG)/src/ImageTrees.o
 
+$(OBJDIR_DEBUG)/src/ObjectCache.o: src/ObjectCache.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ObjectCache.cpp -o $(OBJDIR_DEBUG)/src/ObjectCache.o
+
 $(OBJDIR_DEBUG)/src/ObjectParser.o: src/ObjectParser.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ObjectParser.cpp -o $(OBJDIR_DEBUG)/src/ObjectParser.o
 
@@ -76,9 +79,6 @@ $(OBJDIR_DEBUG)/src/PngImage.o: src/PngImage.cpp
 
 $(OBJDIR_DEBUG)/src/ShankBot.o: src/ShankBot.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ShankBot.cpp -o $(OBJDIR_DEBUG)/src/ShankBot.o
-
-$(OBJDIR_DEBUG)/src/SpriteCache.o: src/SpriteCache.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteCache.cpp -o $(OBJDIR_DEBUG)/src/SpriteCache.o
 
 $(OBJDIR_DEBUG)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/SpriteDatabase.cpp -o $(OBJDIR_DEBUG)/src/SpriteDatabase.o
@@ -132,6 +132,9 @@ $(OBJDIR_RELEASE)/src/ImageTree.o: src/ImageTree.cpp
 $(OBJDIR_RELEASE)/src/ImageTrees.o: src/ImageTrees.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ImageTrees.cpp -o $(OBJDIR_RELEASE)/src/ImageTrees.o
 
+$(OBJDIR_RELEASE)/src/ObjectCache.o: src/ObjectCache.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ObjectCache.cpp -o $(OBJDIR_RELEASE)/src/ObjectCache.o
+
 $(OBJDIR_RELEASE)/src/ObjectParser.o: src/ObjectParser.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ObjectParser.cpp -o $(OBJDIR_RELEASE)/src/ObjectParser.o
 
@@ -140,9 +143,6 @@ $(OBJDIR_RELEASE)/src/PngImage.o: src/PngImage.cpp
 
 $(OBJDIR_RELEASE)/src/ShankBot.o: src/ShankBot.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ShankBot.cpp -o $(OBJDIR_RELEASE)/src/ShankBot.o
-
-$(OBJDIR_RELEASE)/src/SpriteCache.o: src/SpriteCache.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteCache.cpp -o $(OBJDIR_RELEASE)/src/SpriteCache.o
 
 $(OBJDIR_RELEASE)/src/SpriteDatabase.o: src/SpriteDatabase.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/SpriteDatabase.cpp -o $(OBJDIR_RELEASE)/src/SpriteDatabase.o
