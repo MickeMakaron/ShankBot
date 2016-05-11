@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_LAYER_SHARED_MEMORY_PROTOCOL
 #define GRAPHICS_LAYER_SHARED_MEMORY_PROTOCOL
 
-
 ///////////////////////////////////
 // STD C++
 #include <cstdlib>
@@ -34,7 +33,7 @@ namespace GraphicsLayer
         };
 
         const size_t MAX_NUM_PIXEL_DATA = 1000;
-        const size_t MAX_NUM_DRAW_CALL = 3000;
+        const size_t MAX_NUM_DRAW_CALL = 30000;
 
         struct SharedMemorySegment
         {
@@ -43,6 +42,7 @@ namespace GraphicsLayer
             unsigned int numDrawCall = 0;
             PixelData pixelData[MAX_NUM_PIXEL_DATA];
             DrawCall drawCall[MAX_NUM_DRAW_CALL];
+            unsigned int xWindowId;
         };
 
         const size_t NUM_BYTES = sizeof(SharedMemorySegment);
