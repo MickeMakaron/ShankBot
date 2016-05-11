@@ -16,7 +16,7 @@ namespace GraphicsLayer
         public:
             struct Sprite
             {
-                Sprite(const std::vector<unsigned char>* pixels, size_t id) : pixels(pixels), id(id){};
+                explicit Sprite(const std::vector<unsigned char>* pixels, size_t id) : pixels(pixels), id(id){};
 
                 const std::vector<unsigned char>* pixels;
                 const size_t id;
@@ -26,7 +26,7 @@ namespace GraphicsLayer
             typedef std::unique_ptr<Node> NodePtr;
             struct Node
             {
-                Node(size_t level) : level(level){};
+                explicit Node(size_t level) : level(level){};
 
                 std::unordered_map<unsigned char, NodePtr> children;
                 std::list<Sprite> sprites;
@@ -34,13 +34,12 @@ namespace GraphicsLayer
             };
 
         public:
-            ImageTree(const std::vector<std::vector<unsigned char>>& sprites, const std::vector<size_t>& ids);
-            ImageTree(std::string filePath);
+            explicit ImageTree(const std::vector<std::vector<unsigned char>>& sprites, const std::vector<size_t>& ids);
+            explicit ImageTree(std::string filePath);
 
 
             bool find(const std::vector<unsigned char>& pixels, std::list<size_t>& ids) const;
             size_t getSize() const;
-            void writeToTextFile(std::string filePath) const;
             void writeToBinaryFile(std::string filePath) const;
             std::list<unsigned char> trace(size_t id) const;
 
@@ -49,7 +48,6 @@ namespace GraphicsLayer
         private:
             size_t getSize(const NodePtr& node) const;
             void insert(NodePtr& node, Sprite sprite);
-            void writeToTextFile(const NodePtr& node, std::ostream& file) const;
             void writeToBinaryFile(const NodePtr& node, std::ostream& file) const;
             void trace(const NodePtr& node, size_t id, bool& isFound, std::list<unsigned char>& breadcrumbs) const;
 
@@ -58,10 +56,7 @@ namespace GraphicsLayer
             void removeEmptyNodes();
 
 
-            void loadFromTextFile(std::string filePath);
             void loadFromBinaryFile(std::string filePath);
-
-            void loadFromTextFile(NodePtr& node, std::istream& file);
             void loadFromBinaryFile(NodePtr& node, std::istream& file);
 
         private:

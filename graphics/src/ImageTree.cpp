@@ -11,6 +11,7 @@ using namespace GraphicsLayer;
 #include <sstream>
 ///////////////////////////////////
 #include <iostream>
+
 ImageTree::ImageTree(const std::vector<std::vector<unsigned char>>& sprites, const std::vector<size_t>& ids)
 : mRoot(new Node(0))
 {
@@ -55,48 +56,6 @@ ImageTree::ImageTree(std::string filePath)
     loadFromBinaryFile(filePath);
 }
 
-void ImageTree::loadFromTextFile(std::string filePath)
-{
-    std::ifstream file(filePath);
-
-    loadFromTextFile(mRoot, file);
-
-    file.close();
-}
-
-void ImageTree::loadFromTextFile(NodePtr& node, std::istream& file)
-{
-//    std::string sprites;
-//    std::getline(file, sprites);
-//
-//    std::string children;
-//    std::getline(file, children);
-//
-//    std::istringstream istream(sprites);
-//    unsigned int spriteId;
-//    istream >> spriteId;
-//    while(istream.good())
-//    {
-//        node->sprites.push_back(Sprite(nullptr, spriteId));
-//        istream >> spriteId;
-//    }
-//
-//    istream.str(std::string());
-//    istream.clear();
-//
-//    istream.str(children);
-//    unsigned int pixelValue;
-//    istream >> pixelValue;
-//    while(istream.good())
-//    {
-//        auto it = node->children.insert(std::make_pair(pixelValue, NodePtr(new Node())));
-//        loadFromTextFile(it.first->second, file);
-//
-//        istream >> pixelValue;
-//    }
-}
-
-
 void ImageTree::loadFromBinaryFile(std::string filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
@@ -108,7 +67,7 @@ void ImageTree::loadFromBinaryFile(std::string filePath)
 
 void ImageTree::loadFromBinaryFile(NodePtr& node, std::istream& file)
 {
-    unsigned char numSprites;
+    unsigned int numSprites;
     file.read((char*)&numSprites, sizeof(numSprites));
     if(numSprites > 0)
     {
@@ -120,10 +79,13 @@ void ImageTree::loadFromBinaryFile(NodePtr& node, std::istream& file)
         delete[] sprites;
     }
 
-    file.read((char*)&node->level, sizeof(node->level));
+    unsigned int level;
+    file.read((char*)&level, sizeof(level));
+    node->level = level;
 
     unsigned short numChildren;
     file.read((char*)&numChildren, sizeof(numChildren));
+
     if(numChildren > 0)
     {
         unsigned char* children = new unsigned char[numChildren];
@@ -137,6 +99,40 @@ void ImageTree::loadFromBinaryFile(NodePtr& node, std::istream& file)
         delete[] children;
     }
 }
+
+
+void ImageTree::writeToBinaryFile(const NodePtr& node, std::ostream& file) const
+{
+    unsigned int* sprites = new unsigned int[node->sprites.size()];
+    size_t i = 0;
+    for(const Sprite& sprite : node->sprites)
+        sprites[i++] = sprite.id;
+
+    unsigned int numSprites = node->sprites.size();
+
+
+    file.write((char*)&numSprites, sizeof(numSprites));
+    file.write((char*)sprites, sizeof(unsigned int) * (node->sprites.size()));
+    delete[] sprites;
+
+    unsigned int level = node->level;
+    file.write((char*)&level, sizeof(level));
+
+    unsigned short numChildren = node->children.size();
+    file.write((char*)&numChildren, sizeof(numChildren));
+
+    unsigned char* children = new unsigned char[node->children.size()];
+    i = 0;
+    for(const auto& pair : node->children)
+        children[i++] = pair.first;
+
+    file.write((char*)children, sizeof(unsigned char) * node->children.size());
+    delete[] children;
+
+    for(const auto& pair : node->children)
+        writeToBinaryFile(pair.second, file);
+}
+
 
 
 void ImageTree::insert(NodePtr& node, Sprite sprite)
@@ -211,20 +207,6 @@ bool ImageTree::find(const std::vector<unsigned char>& pixels, std::list<size_t>
         node = it->second.get();
     }
 
-
-//    for(size_t i = 0; i < pixels.size(); i++)
-//    {
-//
-//        auto it = node->children.find(pixels[i]);
-//
-//        if(it == node->children.end())
-//        {
-//            break;
-//        }
-//
-//        node = it->second.get();
-//    }
-
     if(node->sprites.empty())
         return false;
 
@@ -233,65 +215,12 @@ bool ImageTree::find(const std::vector<unsigned char>& pixels, std::list<size_t>
     return true;
 }
 
-void ImageTree::writeToTextFile(std::string filePath) const
-{
-    std::ofstream file(filePath);
-    writeToTextFile(mRoot, file);
-    file.close();
-}
-
-void ImageTree::writeToTextFile(const NodePtr& node, std::ostream& file) const
-{
-    for(const Sprite& sprite : node->sprites)
-        file << sprite.id << " ";
-
-    file << std::endl;
-
-    for(const auto& pair : node->children)
-        file << (int)pair.first << " ";
-
-    file << std::endl;
-
-    for(const auto& pair : node->children)
-        writeToTextFile(pair.second, file);
-}
-
 
 void ImageTree::writeToBinaryFile(std::string filePath) const
 {
     std::ofstream file(filePath, std::ios::binary);
     writeToBinaryFile(mRoot, file);
     file.close();
-}
-
-void ImageTree::writeToBinaryFile(const NodePtr& node, std::ostream& file) const
-{
-    unsigned int* sprites = new unsigned int[node->sprites.size()];
-    size_t i = 0;
-    for(const Sprite& sprite : node->sprites)
-        sprites[i++] = sprite.id;
-
-    unsigned char numSprites = node->sprites.size();
-    file.write((char*)&numSprites, sizeof(numSprites));
-    file.write((char*)sprites, sizeof(unsigned int) * (node->sprites.size()));
-    delete[] sprites;
-
-    file.write((char*)&node->level, sizeof(node->level));
-
-    unsigned short numChildren = node->children.size();
-    file.write((char*)&numChildren, sizeof(numChildren));
-
-
-    unsigned char* children = new unsigned char[node->children.size()];
-    i = 0;
-    for(const auto& pair : node->children)
-        children[i++] = pair.first;
-
-    file.write((char*)children, sizeof(unsigned char) * node->children.size());
-    delete[] children;
-
-    for(const auto& pair : node->children)
-        writeToBinaryFile(pair.second, file);
 }
 
 std::list<unsigned char> ImageTree::trace(size_t id) const
@@ -322,5 +251,3 @@ void ImageTree::trace(const NodePtr& node, size_t id, bool& isFound, std::list<u
         }
     }
 }
-
-
