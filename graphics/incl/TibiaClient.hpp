@@ -7,6 +7,12 @@
 #include "SharedMemoryProtocol.hpp"
 #include "TileBuffer.hpp"
 #include "ObjectParser.hpp"
+#include "ObjectCache.hpp"
+///////////////////////////////////
+
+///////////////////////////////////
+// Xlib
+typedef struct _XDisplay Display;
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -21,7 +27,7 @@ namespace GraphicsLayer
     class TibiaClient
     {
         public:
-            TibiaClient(std::string clientDirectory);
+            explicit TibiaClient(std::string clientDirectory);
 
             void update();
 
@@ -46,6 +52,11 @@ namespace GraphicsLayer
             std::map<unsigned char, TileBuffer> mTileBuffers;
             std::list<std::list<size_t>> mDrawnSprites;
             ObjectParser mObjectParser;
+            ObjectCache mObjectCache;
+            ObjectCache mGuiObjectCache;
+            size_t mGameViewWidth;
+            size_t mGameViewHeight;
+            Display* mXDisplay;
     };
 }
 

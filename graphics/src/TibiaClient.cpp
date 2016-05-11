@@ -9,6 +9,9 @@ using namespace GraphicsLayer;
 using namespace SharedMemoryProtocol;
 ///////////////////////////////////
 
+#include "X11/Xlib.h"
+#include "X11/keysym.h"
+
 ///////////////////////////////////
 // STD C++
 #include <sstream>
@@ -26,16 +29,172 @@ using namespace SharedMemoryProtocol;
 #include <unistd.h>
 ///////////////////////////////////
 
+void sendKey(Display* display, Window window, char keySym)
+{
+    KeySym sym;
+    if(keySym >= 8 && keySym <= '\r')
+        sym = (int)keySym - 8 + XK_BackSpace;
+    else if(keySym >= 32)
+        sym = keySym;
+    else
+    {
+        std::stringstream sstream;
+        sstream << "ASCII character '" << (int)keySym << "' not implemented for sendKey.";
+        throw std::runtime_error(sstream.str());
+    }
+
+    XKeyEvent event;
+    event.display = display;
+    event.keycode = XKeysymToKeycode(display, sym);
+    event.root = XDefaultRootWindow(display);
+    event.window = window;
+    event.subwindow = None;
+    event.time = CurrentTime;
+    event.x = event.y = event.x_root = event.y_root = 1;
+    event.same_screen = True;
+    event.state = 0;
+    event.send_event = false;
+
+    event.type = KeyPress;
+    XSendEvent(display, window, True, KeyPressMask, (XEvent*)&event);
+
+    event.type = KeyRelease;
+    XSendEvent(display, window, True, KeyReleaseMask, (XEvent*)&event);
+
+//    XFlush(display);
+//    usleep(1000 * 100);
+}
+
+void sendString(Display* display, Window window, const char* str)
+{
+    for(size_t i = 0; str[i] != '\0'; i++)
+    {
+        sendKey(display, window, str[i]);
+//        XFlush(display);
+//        usleep(1000 * 100);
+    }
+}
 
 TibiaClient::TibiaClient(std::string clientDirectory)
 {
     int shmFd = prepareSharedMemory();
+    mapSharedMemory(shmFd);
+
     char** tibiaEnv = prepareEnvironment(shmFd);
+
 
     launchClient(tibiaEnv, clientDirectory);
     deleteEnvironment(tibiaEnv);
 
-    mapSharedMemory(shmFd);
+    size_t ms = 10;
+    while(mShm->xWindowId == 0)
+        usleep(ms * 1000);
+
+//    usleep(ms * 1000);
+
+    mXDisplay = XOpenDisplay(nullptr);
+
+    std::cout << mShm->xWindowId << std::endl;
+
+    XWindowAttributes attributes;
+    XGetWindowAttributes(mXDisplay, mShm->xWindowId, &attributes);
+    std::cout << attributes.width << "x" << attributes.height << std::endl;
+    std::cout << attributes.x << "x" << attributes.y << std::endl;
+
+    Window root;
+    Window parent;
+    Window* children;
+    unsigned int numChildren;
+    XQueryTree(mXDisplay, mShm->xWindowId, &root, &parent, &children, &numChildren);
+
+
+
+    XKeyEvent event;
+    event.display = mXDisplay;
+    event.keycode = XKeysymToKeycode(mXDisplay, XK_0);
+    event.root = root;
+    event.window = mShm->xWindowId;
+    event.subwindow = None;
+    event.time = CurrentTime;
+    event.x = event.y = event.x_root = event.y_root = 1;
+    event.same_screen = True;
+    event.state = 0;
+    event.type = KeyPress;
+    event.send_event = false;
+
+//    XSendEvent(mXDisplay, mShm->xWindowId, True, KeyPressMask, (XEvent*)&event);
+//    event.type = KeyRelease;
+//    XSendEvent(mXDisplay, mShm->xWindowId, True, KeyReleaseMask, (XEvent*)&event);
+
+
+    Window w;
+    int winX;
+    int winY;
+    int rootX;
+    int rootY;
+    unsigned int width;
+    unsigned int height;
+    unsigned int borderWidth;
+    unsigned int depth;
+    Window c;
+    unsigned int mask;
+
+//    XGetGeometry(mXDisplay, mShm->xWindowId, &w, &winX, &winY, &width, &height, &borderWidth, &depth);
+//    XTranslateCoordinates(mXDisplay, mShm->xWindowId, root, winX, winY, &winX, &winY, &c);
+
+    XGetGeometry(mXDisplay, mShm->xWindowId, &w, &winX, &winY, &width, &height, &borderWidth, &depth);
+
+    std::cout << winX << "x" << winY << std::endl;
+
+//    XQueryPointer(mXDisplay, mShm->xWindowId, &w, &w, &rootX, &rootY, &winX, &winY, &mask);
+
+    XButtonEvent mouseEvent;
+    mouseEvent.display = event.display;
+    mouseEvent.button = 1;
+    mouseEvent.root = root;
+    mouseEvent.window = mShm->xWindowId;
+    mouseEvent.subwindow = None;
+    mouseEvent.time = CurrentTime;
+    mouseEvent.x = 84;
+    mouseEvent.x_root = winX + mouseEvent.x;
+    mouseEvent.y = 297;
+    mouseEvent.y_root = winY + mouseEvent.y;
+
+//    mouseEvent.x = winX;
+//    mouseEvent.y = winY;
+//    mouseEvent.x_root = rootX;
+//    mouseEvent.y_root = rootY;
+
+    mouseEvent.same_screen = True;
+    mouseEvent.state = Button1Mask;
+    mouseEvent.type = ButtonPress;
+    mouseEvent.send_event = false;
+
+    std::cout << mouseEvent.x_root << "x" << mouseEvent.y_root << std::endl;
+
+    XSendEvent(mXDisplay, mShm->xWindowId, True, ButtonPressMask, (XEvent*)&mouseEvent);
+    mouseEvent.type = ButtonRelease;
+    XSendEvent(mXDisplay, mShm->xWindowId, True, ButtonReleaseMask, (XEvent*)&mouseEvent);
+
+    XFlush(mXDisplay);
+    usleep(1000 * 3000);
+
+    update();
+
+    sendString(mXDisplay, mShm->xWindowId, "kakapapa\tpapakaka1\r");
+
+    XFlush(mXDisplay);
+    usleep(1000 * 1000);
+
+    sendKey(mXDisplay, mShm->xWindowId, '\r');
+
+    update();
+
+    XFlush(mXDisplay);
+    usleep(1000 * 1000);
+
+    sendKey(mXDisplay, mShm->xWindowId, '\r');
+    XFlush(mXDisplay);
 }
 
 void TibiaClient::checkBufferOverflow() const
@@ -55,35 +214,18 @@ void TibiaClient::checkBufferOverflow() const
     }
 }
 
+
+
 void TibiaClient::updateTileBuffers()
 {
     for(size_t i = 0; i < mShm->numPixelData; i++)
     {
         const PixelData& data = mShm->pixelData[i];
-
-        auto it = mTileBuffers.find(data.targetTextureId);
-        if(it == mTileBuffers.end())
-            it = mTileBuffers.insert(std::make_pair(data.targetTextureId, TileBuffer())).first;
-
-        it->second.setTile(data);
-    }
-}
-
-
-
-
-void TibiaClient::handleDrawCalls()
-{
-    mObjectParser.clear();
-    for(size_t i = 0; i < mShm->numDrawCall; i++)
-    {
-        const DrawCall& d = mShm->drawCall[i];
-
-        auto tileBufferIt = mTileBuffers.find(d.sourceTextureId);
-        if(tileBufferIt != mTileBuffers.end())
+        const unsigned char* pixels = data.pixels;
+        if(data.targetTextureId == 0)
+            mGuiObjectCache.remove(data.targetTextureId, data.texX, data.texX);
+        else
         {
-            unsigned char* pixels = tileBufferIt->second.getPixels(d.texX - d.texX % 32, d.texY - d.texY % 32, 32, 32);
-
             std::vector<unsigned char> opaquePixels;
             for(size_t i = 0; i < 32 * 32 * 4; i += 4)
             {
@@ -95,75 +237,144 @@ void TibiaClient::handleDrawCalls()
                 }
             }
 
+            std::set<const SpriteObjectBindings::Object*> objects;
             if(opaquePixels.size() > 0)
             {
-                if(d.targetTextureId != 0 && d.targetTextureId != 2 && d.sourceTextureId >= 5 && d.sourceTextureId <= 19) // Do not capture UI stuff. Only capture things from the Tibia.spr.
+                std::list<size_t> ids;
+                if(ImageTrees::getSpriteColorTree().find(opaquePixels, ids))
                 {
-                    std::list<size_t> ids;
-                    if(ImageTrees::getSpriteColorTree().find(opaquePixels, ids))
+                    std::vector<unsigned char> transparency;
+                    for(size_t i = 0; i < 32 * 32 * 4; i += 4)
                     {
-                        std::vector<unsigned char> transparency;
-                        for(size_t i = 0; i < 32 * 32 * 4; i += 4)
+                        if(pixels[i + 3] != 0)
                         {
-                            if(pixels[i + 3] != 0)
-                            {
-                                unsigned char x = i % 32;
-                                unsigned char y = i / 32;
+                            unsigned char x = i % 32;
+                            unsigned char y = i / 32;
 
-                                transparency.push_back(x);
-                                transparency.push_back(y);
-                            }
+                            transparency.push_back(x);
+                            transparency.push_back(y);
                         }
-
-                        std::list<size_t> tIds;
-
-                        ImageTrees::getSpriteTransparencyTree().find(transparency, tIds);
-
-                        std::list<size_t> matchingIds;
-                        for(size_t id : ids)
-                            if(std::find(tIds.begin(), tIds.end(), id) != tIds.end())
-                                matchingIds.push_back(id);
-
-                        ids = matchingIds;
-
-                        std::set<const SpriteObjectBindings::Object*> possibleObjects;
-                        for(size_t spriteId : ids)
-                        {
-                            std::list<const SpriteObjectBindings::Object*> objects = SpriteObjectBindings::getObjects(spriteId);
-                            for(auto object : objects)
-                            {
-                                possibleObjects.insert(object);
-                            }
-                        }
-
-                        if(!possibleObjects.empty())
-                        {
-                            size_t numHits = 0;
-                            for(auto object : possibleObjects)
-                                if(object->type == SpriteObjectBindings::Object::Type::OUTFIT)
-                                    if(object->spritesInfo->blendFrames > 1)
-                                    {
-                                        std::cout << object->id << " ";
-                                        numHits++;
-                                    }
-
-                            if(numHits > 0)
-                                std::cout << std::endl;
-                        }
-
-
-                        mDrawnSprites.push_back(ids);
-                        mObjectParser.parse(possibleObjects, d.screenX, d.screenY, d.width, d.height);
                     }
-                }
 
+                    std::list<size_t> tIds;
+
+                    ImageTrees::getSpriteTransparencyTree().find(transparency, tIds);
+
+                    std::list<size_t> matchingIds;
+                    for(size_t id : ids)
+                        if(std::find(tIds.begin(), tIds.end(), id) != tIds.end())
+                            matchingIds.push_back(id);
+
+                    ids = matchingIds;
+
+                    for(size_t spriteId : ids)
+                    {
+                        std::list<const SpriteObjectBindings::Object*> objs = SpriteObjectBindings::getObjects(spriteId);
+                        for(auto object : objs)
+                            objects.insert(object);
+                    }
+
+                }
             }
 
 
-
-            delete[] pixels;
+            size_t texX = data.texX - data.texX % 32;
+            size_t texY = data.texY - data.texY % 32;
+            mObjectCache.set(data.targetTextureId, texX, texY, objects);
         }
     }
+}
+
+size_t coordinateUnscrambler[16 * 16];
+
+void TibiaClient::handleDrawCalls()
+{
+
+
+
+
+    Window w;
+    int winX;
+    int winY;
+    unsigned int width;
+    unsigned int height;
+    unsigned int borderWidth;
+    unsigned int depth;
+    int rootX;
+    int rootY;
+
+    unsigned int mask;
+    XQueryPointer(mXDisplay, mShm->xWindowId, &w, &w, &rootX, &rootY, &winX, &winY, &mask);
+    std::cout << winX << "x" << winY << std::endl;
+    std::cout << rootX << "x" << rootY << std::endl;
+
+    mObjectParser.clear();
+    for(size_t i = 0; i < mShm->numDrawCall; i++)
+    {
+        const DrawCall& d = mShm->drawCall[i];
+
+        unsigned short texTileX = d.texX / 32;
+        unsigned short texTileY = d.texY / 32;
+        unsigned short screenTileX = d.screenX / 32;
+        unsigned short screenTileY = d.screenY / 32;
+
+        if(d.targetTextureId == 1 && d.sourceTextureId == 3)
+        {
+            size_t screenIndex = screenTileX + screenTileY * 16;
+            size_t texIndex = texTileX + texTileY * 16;
+            coordinateUnscrambler[texIndex] = screenIndex;
+        }
+
+        if(d.targetTextureId == 0) // GUI
+        {
+            if(d.sourceTextureId == 1)
+            {
+                mGameViewWidth = d.texWidth;
+                mGameViewHeight = d.texHeight;
+            }
+        }
+        else
+        {
+            size_t texX = d.texX - d.texX % 32;
+            size_t texY = d.texY - d.texY % 32;
+
+            std::set<const SpriteObjectBindings::Object*> objects;
+            mObjectCache.get(d.sourceTextureId, texX, texY, objects);
+
+//            size_t numItems = 0;
+//            for(auto o : objects)
+//            {
+//                if(o->type == SpriteObjectBindings::Object::Type::ITEM)
+//                    if(o->itemInfo->name[0] != 0)
+//                    {
+//                        std::cout << o->itemInfo->name << " ";
+//                        numItems++;
+//                    }
+//            }
+//
+//            if(numItems > 0)
+//                std::cout << std::endl;
+            if(d.targetTextureId == 1)
+                mObjectParser.parse(objects, texTileX, texTileY, d.width, d.height);
+            else
+                mObjectParser.parse(objects, screenTileX, screenTileY, d.width, d.height);
+
+        }
+
+
+    }
+//
+//    for(GroundTile tile : mObjectParser.getGroundTiles())
+//        std::cout << tile.x / 32 << "x" << tile.y / 32 << " - " << tile.id << std::endl;
+
+    for(Item item : mObjectParser.getItems())
+    {
+//        std::cout << item.x / mGameViewWidth << "x" << item.y / mGameViewHeight << " - " << item.id << std::endl;
+//        size_t index = coordinateUnscrambler[item.x / 32 + 16 * (item.y / 32)];
+        size_t index = coordinateUnscrambler[item.x + item.y * 16];
+         std::cout << index % 16 << "x" << index / 16 << " - " << item.id << " - " << item.object->itemInfo->name << std::endl;
+    }
+
 }
 
 void TibiaClient::update()
