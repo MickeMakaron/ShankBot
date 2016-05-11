@@ -6,6 +6,8 @@
 #include "ImageTree.hpp"
 #include "ImageTrees.hpp"
 #include "SpriteObjectBindings.hpp"
+#include "fileUtility.hpp"
+#include "TibiaDat.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -16,80 +18,93 @@ using namespace GraphicsLayer;
 
 ///////////////////////////////////
 // STD C
+#include <unistd.h>
 ///////////////////////////////////
 
-ShankBot::ShankBot(std::string clientDir, std::string versionControlDir)
+void ShankBot::initializeData(std::string clientDir, std::string versionControlDir) const
 {
     std::string storagePath = VersionControl::getPath(versionControlDir);
     std::string spriteColorTreePath = storagePath + "/tree-sprite-color";
     std::string spriteTransparencyTreePath = storagePath + "/tree-sprite-transparency";
     std::string spriteObjectBindingsPath = storagePath + "/sprite-object-bindings";
+    std::string datPath = clientDir + "/Tibia.dat";
+    std::string sprPath = clientDir + "/Tibia.spr";
+    std::string picPath = clientDir + "/Tibia.pic";
+
     if(VersionControl::hasNewVersion(clientDir, versionControlDir))
     {
         std::cout << "Has new version" << std::endl;
+
+        TibiaSpr* spr = new TibiaSpr(sprPath);
+        std::vector<std::vector<unsigned char>> sprites;
+        for(auto pixels : spr->getSprites())
         {
-            TibiaSpr spr(clientDir + "/Tibia.spr");
-            std::vector<std::vector<unsigned char>> sprites;
-            for(auto pixels : spr.getSprites())
+            std::vector<unsigned char> sprite;
+            for(size_t i = 0; i < pixels.size(); i += 4)
             {
-                std::vector<unsigned char> sprite;
-                for(size_t i = 0; i < pixels.size(); i += 4)
+                if(pixels[i + 3] != 0)
                 {
-                    if(pixels[i + 3] != 0)
-                    {
-                        sprite.push_back(pixels[i]);
-                        sprite.push_back(pixels[i + 1]);
-                        sprite.push_back(pixels[i + 2]);
-                    }
+                    sprite.push_back(pixels[i]);
+                    sprite.push_back(pixels[i + 1]);
+                    sprite.push_back(pixels[i + 2]);
                 }
-                sprites.push_back(sprite);
             }
-
-            {
-                ImageTree spriteColor(sprites, spr.getSpriteIds());
-                spriteColor.writeToBinaryFile(spriteColorTreePath);
-            }
-
-            sprites.clear();
-            for(auto pixels : spr.getSprites())
-            {
-                std::vector<unsigned char> sprite;
-                for(size_t i = 0; i < pixels.size(); i += 4)
-                {
-                    if(pixels[i + 3] != 0)
-                    {
-                        unsigned char x = i % 32;
-                        unsigned char y = i / 32;
-
-                        sprite.push_back(x);
-                        sprite.push_back(y);
-                    }
-                }
-
-                sprites.push_back(sprite);
-            }
-
-            {
-                ImageTree spriteTransparency(sprites, spr.getSpriteIds());
-                spriteTransparency.writeToBinaryFile(spriteTransparencyTreePath);
-            }
+            sprites.push_back(sprite);
         }
 
+        ImageTree* spriteColor = new ImageTree(sprites, spr->getSpriteIds());
+        spriteColor->writeToBinaryFile(spriteColorTreePath);
+        delete spriteColor;
+
+        sprites.clear();
+        for(auto pixels : spr->getSprites())
         {
-            TibiaDat dat(clientDir + "/Tibia.dat");
-            SpriteObjectBindings::initialize(dat);
+            std::vector<unsigned char> sprite;
+            for(size_t i = 0; i < pixels.size(); i += 4)
+            {
+                if(pixels[i + 3] != 0)
+                {
+                    unsigned char x = i % 32;
+                    unsigned char y = i / 32;
+
+                    sprite.push_back(x);
+                    sprite.push_back(y);
+                }
+            }
+
+            sprites.push_back(sprite);
         }
+
+        ImageTree* spriteTransparency = new ImageTree(sprites, spr->getSpriteIds());
+        spriteTransparency->writeToBinaryFile(spriteTransparencyTreePath);
+        delete spriteTransparency;
+
+        delete spr;
+
+        TibiaDat* dat = new TibiaDat(datPath);
+        SpriteObjectBindings::initialize(*dat);
+        delete dat;
 
         SpriteObjectBindings::writeToBinaryFile(spriteObjectBindingsPath);
+
+        copyFile(sprPath, storagePath);
+        copyFile(datPath, storagePath);
+        copyFile(picPath, storagePath);
     }
     else
     {
         SpriteObjectBindings::initialize(spriteObjectBindingsPath);
+//        SpriteObjectBindings::initialize()
     }
 
-    std::cout << "Constructing tree..." << std::endl;
+    std::cout << "Constructing trees..." << std::endl;
     ImageTrees::initializeSpriteColorTree(spriteColorTreePath);
     ImageTrees::initializeSpriteTransparencyTree(spriteTransparencyTreePath);
+}
+
+ShankBot::ShankBot(std::string clientDir, std::string versionControlDir)
+{
+    initializeData(clientDir, versionControlDir);
 
     std::cout << "Starting client" << std::endl;
     mTibiaClient = std::unique_ptr<TibiaClient>(new TibiaClient(clientDir));
@@ -99,7 +114,10 @@ void ShankBot::run()
 {
     while(true)
     {
+
         mTibiaClient->update();
+        size_t ms = 40;
+        usleep(ms * 1000);
 //
 //        for(const std::list<size_t> ids : client.getDrawnSprites())
 //        {

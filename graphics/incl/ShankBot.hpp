@@ -18,9 +18,12 @@ namespace GraphicsLayer
     class ShankBot
     {
         public:
-            ShankBot(std::string clientDir, std::string versionControlDir);
+            explicit ShankBot(std::string clientDir, std::string versionControlDir);
 
             void run();
+
+        private:
+            void initializeData(std::string clientDir, std::string versionControlDir) const;
 
         private:
             std::unique_ptr<TibiaClient> mTibiaClient;
