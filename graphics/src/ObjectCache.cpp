@@ -1,6 +1,6 @@
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "SpriteCache.hpp"
+#include "ObjectCache.hpp"
 #include "TileBuffer.hpp"
 ///////////////////////////////////
 
@@ -8,13 +8,13 @@ using namespace GraphicsLayer;
 
 ///////////////////////////////////
 
-bool SpriteCache::getSprite(unsigned int textureId, size_t x, size_t y, Sprite& sprite) const
+bool ObjectCache::get(unsigned int textureId, size_t x, size_t y, std::set<Object>& sprite) const
 {
     auto indexMap = getIndexMap(textureId);
     if(indexMap == mSprites.end())
         return false;
 
-    auto s = getSprite(indexMap->second, x, y);
+    auto s = get(indexMap->second, x, y);
     if(s == indexMap->second.end())
         return false;
 
@@ -24,7 +24,7 @@ bool SpriteCache::getSprite(unsigned int textureId, size_t x, size_t y, Sprite& 
 
 ///////////////////////////////////
 
-void SpriteCache::setSprite(unsigned int textureId, size_t x, size_t y, Sprite sprite)
+void ObjectCache::set(unsigned int textureId, size_t x, size_t y, std::set<Object> sprite)
 {
     auto indexMap = getIndexMap(textureId);
     if(indexMap == mSprites.end())
@@ -33,12 +33,12 @@ void SpriteCache::setSprite(unsigned int textureId, size_t x, size_t y, Sprite s
         indexMap = insertion.first;
     }
 
-    setSprite(indexMap->second, x, y, sprite);
+    set(indexMap->second, x, y, sprite);
 }
 
 ///////////////////////////////////
 
-void SpriteCache::deleteSprite(unsigned int textureId, size_t x, size_t y)
+void ObjectCache::remove(unsigned int textureId, size_t x, size_t y)
 {
     auto indexMap = getIndexMap(textureId);
     if(indexMap == mSprites.end())
@@ -49,14 +49,14 @@ void SpriteCache::deleteSprite(unsigned int textureId, size_t x, size_t y)
 
 ///////////////////////////////////
 
-SpriteCache::SpriteMap::const_iterator SpriteCache::getIndexMap(unsigned int textureId) const
+ObjectCache::SpriteMap::const_iterator ObjectCache::getIndexMap(unsigned int textureId) const
 {
     return mSprites.find(textureId);
 }
 
 ///////////////////////////////////
 
-SpriteCache::SpriteMap::iterator SpriteCache::getIndexMap(unsigned int textureId)
+ObjectCache::SpriteMap::iterator ObjectCache::getIndexMap(unsigned int textureId)
 {
     return mSprites.find(textureId);
 }
@@ -64,14 +64,14 @@ SpriteCache::SpriteMap::iterator SpriteCache::getIndexMap(unsigned int textureId
 
 ///////////////////////////////////
 
-SpriteCache::SpriteIndexMap::const_iterator SpriteCache::getSprite(const SpriteIndexMap& indexMap, size_t x, size_t y) const
+ObjectCache::SpriteIndexMap::const_iterator ObjectCache::get(const SpriteIndexMap& indexMap, size_t x, size_t y) const
 {
     return indexMap.find(TileBuffer::coordsToIndex(x, y));
 }
 
 ///////////////////////////////////
 
-void SpriteCache::setSprite(SpriteIndexMap& indexMap, size_t x, size_t y, Sprite sprite)
+void ObjectCache::set(SpriteIndexMap& indexMap, size_t x, size_t y, std::set<Object> sprite)
 {
     indexMap[TileBuffer::coordsToIndex(x, y)] = sprite;
 }
