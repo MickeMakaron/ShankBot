@@ -124,7 +124,7 @@ void copyFile(std::string src, std::string dest)
         makeDirIfNotExists(dest);
     else if(isFile(src))
     {
-        if(isDir(dest))
+        if(fileExists(dest) && isDir(dest))
             dest += "/" + basename(src);
         std::ifstream in(src, std::ios::binary);
         std::ofstream out(dest, std::ios::binary);
