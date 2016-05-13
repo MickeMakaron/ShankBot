@@ -422,7 +422,7 @@ void glVertex2i(GLint x,  GLint y)
     void (*originalFunc)(GLint, GLint) = (void (*)(GLint, GLint))dlsym(RTLD_NEXT, "glVertex2i");
     originalFunc(x, y);
 
-    GraphicsMonitor::vertices.push_back({x, y});
+    GraphicsMonitor::vertices.push_back({(float)x, (float)y});
 }
 
 ///////////////////////////////////
@@ -432,7 +432,7 @@ void glTexCoord2d(GLdouble  s,  GLdouble  t)
     void (*originalFunc)(GLdouble, GLdouble) = (void (*)(GLdouble, GLdouble))dlsym(RTLD_NEXT, "glTexCoord2d");
     originalFunc(s, t);
 
-    GraphicsMonitor::texCoords.push_back({s, t});
+    GraphicsMonitor::texCoords.push_back({(float)s, (float)t});
 }
 
 ///////////////////////////////////
