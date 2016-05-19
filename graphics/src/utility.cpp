@@ -132,4 +132,56 @@ std::string getDateTime()
 
 ///////////////////////////////////
 
+std::vector<unsigned char> rgbaToColorTreeSprite(const std::vector<unsigned char>& rgba)
+{
+    return rgbaToColorTreeSprite(rgba.data(), rgba.size());
+}
+
+///////////////////////////////////
+
+std::vector<unsigned char> rgbaToTransparencyTreeSprite(const std::vector<unsigned char>& rgba)
+{
+    return rgbaToTransparencyTreeSprite(rgba.data(), rgba.size());
+}
+
+///////////////////////////////////
+
+std::vector<unsigned char> rgbaToColorTreeSprite(const unsigned char* rgba, size_t numPixels)
+{
+    std::vector<unsigned char> sprite;
+    for(size_t i = 0; i + 3 < numPixels; i += 4)
+    {
+        if(rgba[i + 3] != 0)
+        {
+            sprite.push_back(rgba[i]);
+            sprite.push_back(rgba[i + 1]);
+            sprite.push_back(rgba[i + 2]);
+        }
+    }
+
+    return sprite;
+}
+
+///////////////////////////////////
+
+std::vector<unsigned char> rgbaToTransparencyTreeSprite(const unsigned char* rgba, size_t numPixels)
+{
+    std::vector<unsigned char> sprite;
+    for(size_t i = 0; i + 3< numPixels; i += 4)
+    {
+        if(rgba[i + 3] != 0)
+        {
+            unsigned char x = i % 32;
+            unsigned char y = i / 32;
+
+            sprite.push_back(x);
+            sprite.push_back(y);
+        }
+    }
+
+    return sprite;
+}
+
+///////////////////////////////////
+
 }
