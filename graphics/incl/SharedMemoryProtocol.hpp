@@ -10,12 +10,16 @@ namespace GraphicsLayer
 {
     namespace SharedMemoryProtocol
     {
+        const unsigned int TILE_WIDTH = 32;
+        const unsigned int TILE_HEIGHT = 32;
+        const unsigned int TILE_SIZE = TILE_WIDTH * TILE_HEIGHT * 4;
+
         struct PixelData
         {
             unsigned short texX;
             unsigned short texY;
             unsigned char targetTextureId;
-            unsigned char pixels[32 * 32 * 4];
+            unsigned char pixels[TILE_SIZE];
         };
 
         struct DrawCall
@@ -32,8 +36,8 @@ namespace GraphicsLayer
             unsigned short texHeight;
         };
 
-        const size_t MAX_NUM_PIXEL_DATA = 1000;
-        const size_t MAX_NUM_DRAW_CALL = 30000;
+        const unsigned int MAX_NUM_PIXEL_DATA = 1000;
+        const unsigned int MAX_NUM_DRAW_CALL = 30000;
 
         struct SharedMemorySegment
         {
@@ -45,7 +49,7 @@ namespace GraphicsLayer
             unsigned int xWindowId;
         };
 
-        const size_t NUM_BYTES = sizeof(SharedMemorySegment);
+        const unsigned int NUM_BYTES = sizeof(SharedMemorySegment);
 
     }
 }
