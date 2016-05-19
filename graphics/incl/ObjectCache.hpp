@@ -17,7 +17,7 @@ namespace GraphicsLayer
     class ObjectCache
     {
         private:
-            typedef const SpriteObjectBindings::Object* Object;
+            typedef const TibiaDat::Object* Object;
 
         public:
             bool get(unsigned int textureId, size_t x, size_t y, std::set<Object>& sprite) const;

@@ -16,7 +16,7 @@ namespace GraphicsLayer
 {
     struct Object
     {
-        const SpriteObjectBindings::Object* object;
+        const TibiaDat::Object* object;
         unsigned int id;
         unsigned short x;
         unsigned short y;
@@ -36,16 +36,16 @@ namespace GraphicsLayer
     {
         public:
             void clear();
-            void parse(const std::set<const SpriteObjectBindings::Object*>& objects, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
+            void parse(const std::set<const TibiaDat::Object*>& objects, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
 
             const std::list<GroundTile>& getGroundTiles() const;
             const std::list<Item>& getItems() const;
 
         private:
-            void parseItem(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
-            void parseOutfit(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
-            void parseEffect(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
-            void parseDistance(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
+            void parseItem(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
+            void parseOutfit(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
+            void parseEffect(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
+            void parseDistance(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
 
         private:
             std::list<GroundTile> mGroundTiles;

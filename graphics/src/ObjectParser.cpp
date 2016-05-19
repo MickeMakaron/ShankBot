@@ -14,25 +14,25 @@ using namespace GraphicsLayer;
 
 ///////////////////////////////////
 
-void ObjectParser::parse(const std::set<const SpriteObjectBindings::Object*>& objects, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parse(const std::set<const TibiaDat::Object*>& objects, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
-    for(const SpriteObjectBindings::Object* o : objects)
+    for(const TibiaDat::Object* o : objects)
     {
         switch(o->type)
         {
-        case SpriteObjectBindings::Object::Type::ITEM:
+        case TibiaDat::Object::Type::ITEM:
             parseItem(*o, x, y, width, height);
             break;
 
-        case SpriteObjectBindings::Object::Type::OUTFIT:
+        case TibiaDat::Object::Type::OUTFIT:
             parseOutfit(*o, x, y, width, height);
             break;
 
-        case SpriteObjectBindings::Object::Type::EFFECT:
+        case TibiaDat::Object::Type::EFFECT:
             parseEffect(*o, x, y, width, height);
             break;
 
-        case SpriteObjectBindings::Object::Type::DISTANCE:
+        case TibiaDat::Object::Type::DISTANCE:
             parseDistance(*o, x, y, width, height);
             break;
 
@@ -43,7 +43,7 @@ void ObjectParser::parse(const std::set<const SpriteObjectBindings::Object*>& ob
     }
 }
 
-void ObjectParser::parseItem(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseItem(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
     TibiaDat::ItemInfo item = *object.itemInfo;
     if(item.walkSpeed > 0 && !item.isBlocking)
@@ -92,17 +92,17 @@ void ObjectParser::parseItem(const SpriteObjectBindings::Object& object, unsigne
 
 }
 
-void ObjectParser::parseOutfit(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseOutfit(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
 
 }
 
-void ObjectParser::parseEffect(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseEffect(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
 
 }
 
-void ObjectParser::parseDistance(const SpriteObjectBindings::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseDistance(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
 
 }
