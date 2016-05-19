@@ -5,6 +5,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "TibiaClient.hpp"
+#include "TibiaContext.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -23,10 +24,11 @@ namespace GraphicsLayer
             void run();
 
         private:
-            void initializeData(std::string clientDir, std::string versionControlDir) const;
+            void initializeData(std::string clientDir, std::string versionControlDir);
 
         private:
             std::unique_ptr<TibiaClient> mTibiaClient;
+            std::unique_ptr<TibiaContext> mTibiaContext;
     };
 }
 

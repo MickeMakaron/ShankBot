@@ -4,7 +4,6 @@
 #include "VersionControl.hpp"
 #include "TibiaSpr.hpp"
 #include "ImageTree.hpp"
-#include "ImageTrees.hpp"
 #include "SpriteObjectBindings.hpp"
 #include "fileUtility.hpp"
 #include "TibiaDat.hpp"
@@ -21,7 +20,7 @@ using namespace GraphicsLayer;
 #include <unistd.h>
 ///////////////////////////////////
 
-void ShankBot::initializeData(std::string clientDir, std::string versionControlDir) const
+void ShankBot::initializeData(std::string clientDir, std::string versionControlDir)
 {
     std::string storagePath = VersionControl::getPath(versionControlDir);
     std::string spriteColorTreePath = storagePath + "/tree-sprite-color";
@@ -78,28 +77,26 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
         ImageTree* spriteTransparency = new ImageTree(sprites, spr->getSpriteIds());
         spriteTransparency->writeToBinaryFile(spriteTransparencyTreePath);
         delete spriteTransparency;
-
         delete spr;
 
-        TibiaDat* dat = new TibiaDat(datPath);
-        SpriteObjectBindings::initialize(*dat);
-        delete dat;
-
-        SpriteObjectBindings::writeToBinaryFile(spriteObjectBindingsPath);
+        TibiaDat dat(datPath);
+        SpriteObjectBindings bindings(dat);
+        bindings.writeToBinaryFile(spriteObjectBindingsPath);
 
         copyFile(sprPath, storagePath);
         copyFile(datPath, storagePath);
         copyFile(picPath, storagePath);
     }
-    else
-    {
-        SpriteObjectBindings::initialize(spriteObjectBindingsPath);
-//        SpriteObjectBindings::initialize()
-    }
+
+    auto dat = std::make_unique<TibiaDat>(datPath);
+    auto bindings = std::make_unique<SpriteObjectBindings>(*dat, spriteObjectBindingsPath);
+
 
     std::cout << "Constructing trees..." << std::endl;
-    ImageTrees::initializeSpriteColorTree(spriteColorTreePath);
-    ImageTrees::initializeSpriteTransparencyTree(spriteTransparencyTreePath);
+    auto spriteColorTree = std::make_unique<ImageTree>(spriteColorTreePath);
+    auto spriteTransparencyTree = std::make_unique<ImageTree>(spriteTransparencyTreePath);
+
+    mTibiaContext = std::make_unique<TibiaContext>(dat, bindings, spriteColorTree, spriteTransparencyTree);
 }
 
 ShankBot::ShankBot(std::string clientDir, std::string versionControlDir)
@@ -107,7 +104,7 @@ ShankBot::ShankBot(std::string clientDir, std::string versionControlDir)
     initializeData(clientDir, versionControlDir);
 
     std::cout << "Starting client" << std::endl;
-    mTibiaClient = std::unique_ptr<TibiaClient>(new TibiaClient(clientDir));
+    mTibiaClient = std::unique_ptr<TibiaClient>(new TibiaClient(clientDir, *mTibiaContext));
 }
 
 void ShankBot::run()
