@@ -5,14 +5,8 @@
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
-///////////////////////////////////
-// STD C++
-#include <sstream>
-#include <cstring>
-///////////////////////////////////
-
-
 TibiaDat::TibiaDat(std::string filePath)
+: mPath(filePath)
 {
     readDat(filePath);
 }
@@ -34,26 +28,14 @@ void TibiaDat::readDat(std::string filePath)
     std::ifstream dat(filePath, std::ios::binary);
 
     readStream(mVersion, dat);
+    readStream(mNumItems, dat);
+    mNumItems -= 99;
+    readStream(mNumOutfits, dat);
+    readStream(mNumEffects, dat);
+    readStream(mNumDistances, dat);
 
-    unsigned short numItems;
-    readStream(numItems, dat);
-    mItems.resize(numItems - 99);
-    mItemInfos.resize(numItems - 99);
 
-    unsigned short numOutfits;
-    readStream(numOutfits, dat);
-    mOutfits.resize(numOutfits);
-
-    unsigned short numEffects;
-    readStream(numEffects, dat);
-    mEffects.resize(numEffects);
-
-    unsigned short numDistances;
-    readStream(numDistances, dat);
-    mDistances.resize(numDistances);
-
-    mSpritesInfos.resize(mItems.size() + mOutfits.size() + mEffects.size() + mDistances.size());
-
+    mObjects.resize(mNumItems + mNumOutfits + mNumEffects + mNumDistances);
     readItems(dat);
     readOutfits(dat);
     readEffectsAndDistances(dat);
@@ -224,16 +206,9 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
                     unsigned short nameLength;
                     readStream(nameLength, dat);
 
-                    if(nameLength + 1 > ItemInfo::MAX_NAME_LENGTH)
-                    {
-                        std::stringstream sstream;
-                        sstream << "Error reading Tibia.dat: The name length of an item (" << nameLength << ") exceeds the "
-                                << "preset buffer size (" << ItemInfo::MAX_NAME_LENGTH << "). This means the buffer size should be increased.";
-
-                        throw std::runtime_error(sstream.str());
-                    }
-                    memset(&out.name, '\0', ItemInfo::MAX_NAME_LENGTH);
-                    dat.read(out.name, nameLength);
+                    char* name = new char[nameLength];
+                    dat.read(name, nameLength);
+                    out.name.assign(name, nameLength);
                 }
 
                 readStream(out.profession, dat);
@@ -253,7 +228,7 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
     }
 }
 
-TibiaDat::SpritesInfo TibiaDat::readObjectSprites(Object& out, std::istream& dat) const
+void TibiaDat::readObjectSprites(Object& out, std::istream& dat) const
 {
     SpritesInfo info;
 
@@ -282,19 +257,35 @@ TibiaDat::SpritesInfo TibiaDat::readObjectSprites(Object& out, std::istream& dat
     {
         unsigned int spriteId;
         readStream(spriteId, dat);
-        out.spriteIds.insert(spriteId);
+        info.spriteIds.push_back(spriteId);
     }
 
-    return info;
+    out.spritesInfos.push_back(info);
+}
+
+std::string TibiaDat::getPath() const
+{
+    return mPath;
+}
+
+unsigned int TibiaDat::getVersion() const
+{
+    return mVersion;
 }
 
 void TibiaDat::readItems(std::istream& dat)
 {
-    for(size_t i = 0; i < mItems.size(); i++)
+    for(size_t i = 0, itemId = 100; i < mNumItems; i++, itemId++)
     {
-        mItems[i].id = i + 100;
-        readItemInfo(mItemInfos[i], dat);
-        mSpritesInfos[i] = readObjectSprites(mItems[i], dat);
+        Object& item = mObjects[i];
+
+        item.id = itemId;
+        item.type = Object::Type::ITEM;
+
+        item.itemInfo = std::unique_ptr<ItemInfo>(new ItemInfo());
+        readItemInfo(*item.itemInfo.get(), dat);
+
+        readObjectSprites(item, dat);
     }
 }
 
@@ -308,9 +299,12 @@ void TibiaDat::skipItemInfo(std::istream& dat) const
 
 void TibiaDat::readOutfits(std::istream& dat)
 {
-    for(size_t i = 0; i < mOutfits.size(); i++)
+    for(size_t i = mNumItems, outfitId = 1; i < mNumItems + mNumOutfits; i++, outfitId++)
     {
-        mOutfits[i].id = i + 1;
+        Object& outfit = mObjects[i];
+
+        outfit.id = outfitId;
+        outfit.type = Object::Type::OUTFIT;
 
         skipItemInfo(dat);
 
@@ -318,61 +312,42 @@ void TibiaDat::readOutfits(std::istream& dat)
         readStream(op, dat);
         bool hasOutfitThingy = (op == 2);
 
-        mSpritesInfos[i + mItems.size()] = readObjectSprites(mOutfits[i], dat);
-
+        readObjectSprites(outfit, dat);
 
         if(hasOutfitThingy)
         {
             unsigned char unknown;
             readStream(unknown, dat);
-            readObjectSprites(mOutfits[i], dat);
+            readObjectSprites(outfit, dat);
         }
     }
+
 }
 
 void TibiaDat::readEffectsAndDistances(std::istream& dat)
 {
-    for(size_t i = 0; i < mEffects.size(); i++)
+    for(size_t i = mNumItems + mNumOutfits, effectId = 1; i <  mNumItems + mNumOutfits + mNumEffects; i++, effectId++)
     {
-        mEffects[i].id = i + 1;
+        Object& effect = mObjects[i];
+        effect.id = effectId;
+        effect.type = Object::Type::EFFECT;
+
         skipItemInfo(dat);
-        mSpritesInfos[i + mItems.size() + mOutfits.size()] = readObjectSprites(mEffects[i], dat);
+        readObjectSprites(effect, dat);
     }
 
-    for(size_t i = 0; i < mDistances.size(); i++)
+    for(size_t i = mNumItems + mNumOutfits + mNumEffects, distanceId = 1; i <  mNumItems + mNumOutfits + mNumEffects + mNumDistances; i++, distanceId++)
     {
-        mDistances[i].id = i + 1;
+        Object& distance = mObjects[i];
+        distance.id = distanceId;
+        distance.type = Object::Type::DISTANCE;
+
         skipItemInfo(dat);
-        mSpritesInfos[i + mItems.size() + mOutfits.size() + mEffects.size()] = readObjectSprites(mDistances[i], dat);
+        readObjectSprites(distance, dat);
     }
 }
 
-const std::vector<TibiaDat::Object>& TibiaDat::getItems() const
+const std::vector<TibiaDat::Object>& TibiaDat::getObjects() const
 {
-    return mItems;
-}
-
-const std::vector<TibiaDat::Object>& TibiaDat::getOutfits() const
-{
-    return mOutfits;
-}
-
-const std::vector<TibiaDat::Object>& TibiaDat::getEffects() const
-{
-    return mEffects;
-}
-
-const std::vector<TibiaDat::Object>& TibiaDat::getDistances() const
-{
-    return mDistances;
-}
-
-const std::vector<TibiaDat::ItemInfo>& TibiaDat::getItemInfos() const
-{
-    return mItemInfos;
-}
-
-const std::vector<TibiaDat::SpritesInfo>& TibiaDat::getSpritesInfos() const
-{
-    return mSpritesInfos;
+    return mObjects;
 }
