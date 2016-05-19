@@ -1,7 +1,6 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "TibiaClient.hpp"
-#include "ImageTrees.hpp"
 #include "PngImage.hpp"
 #include "ImageTree.hpp"
 #include "SpriteObjectBindings.hpp"
@@ -75,7 +74,8 @@ void sendString(Display* display, Window window, const char* str)
     }
 }
 
-TibiaClient::TibiaClient(std::string clientDirectory)
+TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& context)
+: mContext(context)
 {
     int shmFd = prepareSharedMemory();
     mapSharedMemory(shmFd);
@@ -237,11 +237,11 @@ void TibiaClient::updateTileBuffers()
                 }
             }
 
-            std::set<const SpriteObjectBindings::Object*> objects;
+            std::set<const TibiaDat::Object*> objects;
             if(opaquePixels.size() > 0)
             {
                 std::list<size_t> ids;
-                if(ImageTrees::getSpriteColorTree().find(opaquePixels, ids))
+                if(mContext.getSpriteColorTree().find(opaquePixels, ids))
                 {
                     std::vector<unsigned char> transparency;
                     for(size_t i = 0; i < 32 * 32 * 4; i += 4)
@@ -258,7 +258,7 @@ void TibiaClient::updateTileBuffers()
 
                     std::list<size_t> tIds;
 
-                    ImageTrees::getSpriteTransparencyTree().find(transparency, tIds);
+                    mContext.getSpriteTransparencyTree().find(transparency, tIds);
 
                     std::list<size_t> matchingIds;
                     for(size_t id : ids)
@@ -269,7 +269,7 @@ void TibiaClient::updateTileBuffers()
 
                     for(size_t spriteId : ids)
                     {
-                        std::list<const SpriteObjectBindings::Object*> objs = SpriteObjectBindings::getObjects(spriteId);
+                        std::list<const TibiaDat::Object*> objs = mContext.getSpriteObjectBindings().getObjects(spriteId);
                         for(auto object : objs)
                             objects.insert(object);
                     }
@@ -338,13 +338,13 @@ void TibiaClient::handleDrawCalls()
             size_t texX = d.texX - d.texX % 32;
             size_t texY = d.texY - d.texY % 32;
 
-            std::set<const SpriteObjectBindings::Object*> objects;
+            std::set<const TibiaDat::Object*> objects;
             mObjectCache.get(d.sourceTextureId, texX, texY, objects);
 
 //            size_t numItems = 0;
 //            for(auto o : objects)
 //            {
-//                if(o->type == SpriteObjectBindings::Object::Type::ITEM)
+//                if(o->type == TibiaDat::Object::Type::ITEM)
 //                    if(o->itemInfo->name[0] != 0)
 //                    {
 //                        std::cout << o->itemInfo->name << " ";

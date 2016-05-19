@@ -8,6 +8,7 @@
 #include "TileBuffer.hpp"
 #include "ObjectParser.hpp"
 #include "ObjectCache.hpp"
+#include "TibiaContext.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -27,7 +28,7 @@ namespace GraphicsLayer
     class TibiaClient
     {
         public:
-            explicit TibiaClient(std::string clientDirectory);
+            explicit TibiaClient(std::string clientDirectory, const TibiaContext& context);
 
             void update();
 
@@ -48,6 +49,7 @@ namespace GraphicsLayer
             void handleDrawCalls();
 
         private:
+            const TibiaContext& mContext;
             SharedMemoryProtocol::SharedMemorySegment* mShm;
             std::map<unsigned char, TileBuffer> mTileBuffers;
             std::list<std::list<size_t>> mDrawnSprites;
