@@ -71,7 +71,7 @@ void ObjectParser::parseItem(const TibiaDat::Object& object, unsigned short x, u
             return i.id == object.id;
         });
 
-        if(it == mItems.end())
+//        if(it == mItems.end())
         {
             Item i;
             i.object = &object;
@@ -80,14 +80,14 @@ void ObjectParser::parseItem(const TibiaDat::Object& object, unsigned short x, u
             i.y = y;
             mItems.push_back(i);
         }
-        else
-        {
-            if(x >= it->x && y >= it->y)
-            {
-                it->x = x;
-                it->y = y;
-            }
-        }
+//        else
+//        {
+//            if(x >= it->x && y >= it->y)
+//            {
+//                it->x = x;
+//                it->y = y;
+//            }
+//        }
     }
 
 }
