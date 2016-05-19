@@ -21,39 +21,41 @@ namespace GraphicsLayer
     class SpriteObjectBindings
     {
         public:
-            struct Object
-            {
-                enum class Type : char
-                {
-                    ITEM,
-                    OUTFIT,
-                    EFFECT,
-                    DISTANCE
-                };
-
-                Type type;
-                size_t id;
-                std::unique_ptr<TibiaDat::SpritesInfo> spritesInfo;
-                std::unique_ptr<TibiaDat::ItemInfo> itemInfo;
-            };
+//            struct Object
+//            {
+//                enum class Type : char
+//                {
+//                    ITEM,
+//                    OUTFIT,
+//                    EFFECT,
+//                    DISTANCE
+//                };
+//
+//                Type type;
+//                size_t id;
+//                std::unique_ptr<TibiaDat::SpritesInfo> spritesInfo;
+//                std::unique_ptr<TibiaDat::ItemInfo> itemInfo;
+//            };
 
         public:
-            static void initialize(const TibiaDat& dat);
-            static std::list<const SpriteObjectBindings::Object*> getObjects(size_t spriteId);
+            explicit SpriteObjectBindings(const TibiaDat& dat);
+            explicit SpriteObjectBindings(const TibiaDat& dat, std::string binPath);
 
-            static void initialize(std::string binPath);
-            static void writeToBinaryFile(std::string path);
+            std::list<const TibiaDat::Object*> getObjects(size_t spriteId) const;
 
-        private:
-            static void readFromBinaryFile(std::string binPath);
-
-            static void parseObjects(const TibiaDat& dat);
-            static void createBindings(const TibiaDat::Object& o, size_t globalId);
+            void writeToBinaryFile(std::string path) const;
 
         private:
-            static std::vector<Object> mObjects;
-            static size_t mNumItems;
-            static std::map<size_t, std::set<size_t>> mBindings;
+            void readFromBinaryFile(std::string binPath);
+
+            void parseObjects();
+            void createBindings(const TibiaDat::Object& o, size_t globalId);
+
+        private:
+//            static std::vector<Object> mObjects;
+//            static size_t mNumItems;
+            const TibiaDat& mDat;
+            std::map<size_t, std::set<size_t>> mBindings;
     };
 }
 
