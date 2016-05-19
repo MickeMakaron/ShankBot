@@ -83,7 +83,7 @@ void glXSwapBuffers(Display* dpy, GLXDrawable drawable)
 //    writeBoundTextureToFile();
 //    glBindTexture(GL_TEXTURE_2D, previousId);
 
-//    for(size_t i = 2; i < 20; i++)
+//    for(size_t i = 1; i < 5; i++)
 //    {
 //        glBindTexture(GL_TEXTURE_2D, i);
 //        writeBoundTextureToFile();
