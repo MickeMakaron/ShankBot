@@ -7,8 +7,9 @@
 #include "SharedMemoryProtocol.hpp"
 #include "TileBuffer.hpp"
 #include "ObjectParser.hpp"
-#include "ObjectCache.hpp"
+#include "TileBufferCache.hpp"
 #include "TibiaContext.hpp"
+#include "FrameParser.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -32,8 +33,6 @@ namespace GraphicsLayer
 
             void update();
 
-            std::list<std::list<size_t>> getDrawnSprites() const;
-
             SharedMemoryProtocol::SharedMemorySegment* getSharedMemory() const; // Should not be needed unless for debugging.
 
         private:
@@ -45,19 +44,10 @@ namespace GraphicsLayer
 
             void checkBufferOverflow() const;
 
-            void updateTileBuffers();
-            void handleDrawCalls();
-
         private:
             const TibiaContext& mContext;
             SharedMemoryProtocol::SharedMemorySegment* mShm;
-            std::map<unsigned char, TileBuffer> mTileBuffers;
-            std::list<std::list<size_t>> mDrawnSprites;
-            ObjectParser mObjectParser;
-            ObjectCache mObjectCache;
-            ObjectCache mGuiObjectCache;
-            size_t mGameViewWidth;
-            size_t mGameViewHeight;
+            FrameParser mFrameParser;
             Display* mXDisplay;
     };
 }

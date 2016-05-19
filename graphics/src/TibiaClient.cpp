@@ -4,6 +4,7 @@
 #include "PngImage.hpp"
 #include "ImageTree.hpp"
 #include "SpriteObjectBindings.hpp"
+#include "utility.hpp"
 using namespace GraphicsLayer;
 using namespace SharedMemoryProtocol;
 ///////////////////////////////////
@@ -76,6 +77,7 @@ void sendString(Display* display, Window window, const char* str)
 
 TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& context)
 : mContext(context)
+, mFrameParser(context)
 {
     int shmFd = prepareSharedMemory();
     mapSharedMemory(shmFd);
@@ -192,9 +194,9 @@ TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& contex
 
     XFlush(mXDisplay);
     usleep(1000 * 1000);
-
-    sendKey(mXDisplay, mShm->xWindowId, '\r');
-    XFlush(mXDisplay);
+//
+//    sendKey(mXDisplay, mShm->xWindowId, '\r');
+//    XFlush(mXDisplay);
 }
 
 void TibiaClient::checkBufferOverflow() const
@@ -216,80 +218,19 @@ void TibiaClient::checkBufferOverflow() const
 
 
 
-void TibiaClient::updateTileBuffers()
+void TibiaClient::update()
 {
-    for(size_t i = 0; i < mShm->numPixelData; i++)
-    {
-        const PixelData& data = mShm->pixelData[i];
-        const unsigned char* pixels = data.pixels;
-        if(data.targetTextureId == 0)
-            mGuiObjectCache.remove(data.targetTextureId, data.texX, data.texX);
-        else
-        {
-            std::vector<unsigned char> opaquePixels;
-            for(size_t i = 0; i < 32 * 32 * 4; i += 4)
-            {
-                if(pixels[i + 3] != 0)
-                {
-                    opaquePixels.push_back(pixels[i]);
-                    opaquePixels.push_back(pixels[i + 1]);
-                    opaquePixels.push_back(pixels[i + 2]);
-                }
-            }
+    if(!mShm->hasPendingChanges)
+        return;
 
-            std::set<const TibiaDat::Object*> objects;
-            if(opaquePixels.size() > 0)
-            {
-                std::list<size_t> ids;
-                if(mContext.getSpriteColorTree().find(opaquePixels, ids))
-                {
-                    std::vector<unsigned char> transparency;
-                    for(size_t i = 0; i < 32 * 32 * 4; i += 4)
-                    {
-                        if(pixels[i + 3] != 0)
-                        {
-                            unsigned char x = i % 32;
-                            unsigned char y = i / 32;
+    checkBufferOverflow();
 
-                            transparency.push_back(x);
-                            transparency.push_back(y);
-                        }
-                    }
+    mFrameParser.updateTileBuffers(mShm->pixelData, mShm->numPixelData);
+    mFrameParser.parse(mShm->drawCall, mShm->numDrawCall);
 
-                    std::list<size_t> tIds;
-
-                    mContext.getSpriteTransparencyTree().find(transparency, tIds);
-
-                    std::list<size_t> matchingIds;
-                    for(size_t id : ids)
-                        if(std::find(tIds.begin(), tIds.end(), id) != tIds.end())
-                            matchingIds.push_back(id);
-
-                    ids = matchingIds;
-
-                    for(size_t spriteId : ids)
-                    {
-                        std::list<const TibiaDat::Object*> objs = mContext.getSpriteObjectBindings().getObjects(spriteId);
-                        for(auto object : objs)
-                            objects.insert(object);
-                    }
-
-                }
-            }
-
-
-            size_t texX = data.texX - data.texX % 32;
-            size_t texY = data.texY - data.texY % 32;
-            mObjectCache.set(data.targetTextureId, texX, texY, objects);
-        }
-    }
-}
-
-size_t coordinateUnscrambler[16 * 16];
-
-void TibiaClient::handleDrawCalls()
-{
-
+    mShm->numPixelData = 0;
+    mShm->numDrawCall = 0;
+    mShm->hasPendingChanges = false;
 
 
 
@@ -305,95 +246,8 @@ void TibiaClient::handleDrawCalls()
 
     unsigned int mask;
     XQueryPointer(mXDisplay, mShm->xWindowId, &w, &w, &rootX, &rootY, &winX, &winY, &mask);
-    std::cout << winX << "x" << winY << std::endl;
-    std::cout << rootX << "x" << rootY << std::endl;
-
-    mObjectParser.clear();
-    for(size_t i = 0; i < mShm->numDrawCall; i++)
-    {
-        const DrawCall& d = mShm->drawCall[i];
-
-        unsigned short texTileX = d.texX / 32;
-        unsigned short texTileY = d.texY / 32;
-        unsigned short screenTileX = d.screenX / 32;
-        unsigned short screenTileY = d.screenY / 32;
-
-        if(d.targetTextureId == 1 && d.sourceTextureId == 3)
-        {
-            size_t screenIndex = screenTileX + screenTileY * 16;
-            size_t texIndex = texTileX + texTileY * 16;
-            coordinateUnscrambler[texIndex] = screenIndex;
-        }
-
-        if(d.targetTextureId == 0) // GUI
-        {
-            if(d.sourceTextureId == 1)
-            {
-                mGameViewWidth = d.texWidth;
-                mGameViewHeight = d.texHeight;
-            }
-        }
-        else
-        {
-            size_t texX = d.texX - d.texX % 32;
-            size_t texY = d.texY - d.texY % 32;
-
-            std::set<const TibiaDat::Object*> objects;
-            mObjectCache.get(d.sourceTextureId, texX, texY, objects);
-
-//            size_t numItems = 0;
-//            for(auto o : objects)
-//            {
-//                if(o->type == TibiaDat::Object::Type::ITEM)
-//                    if(o->itemInfo->name[0] != 0)
-//                    {
-//                        std::cout << o->itemInfo->name << " ";
-//                        numItems++;
-//                    }
-//            }
-//
-//            if(numItems > 0)
-//                std::cout << std::endl;
-            if(d.targetTextureId == 1)
-                mObjectParser.parse(objects, texTileX, texTileY, d.width, d.height);
-            else
-                mObjectParser.parse(objects, screenTileX, screenTileY, d.width, d.height);
-
-        }
-
-
-    }
-//
-//    for(GroundTile tile : mObjectParser.getGroundTiles())
-//        std::cout << tile.x / 32 << "x" << tile.y / 32 << " - " << tile.id << std::endl;
-
-    for(Item item : mObjectParser.getItems())
-    {
-//        std::cout << item.x / mGameViewWidth << "x" << item.y / mGameViewHeight << " - " << item.id << std::endl;
-//        size_t index = coordinateUnscrambler[item.x / 32 + 16 * (item.y / 32)];
-        size_t index = coordinateUnscrambler[item.x + item.y * 16];
-         std::cout << index % 16 << "x" << index / 16 << " - " << item.id << " - " << item.object->itemInfo->name << std::endl;
-    }
-
-}
-
-void TibiaClient::update()
-{
-    mDrawnSprites.clear();
-
-    if(!mShm->hasPendingChanges)
-        return;
-
-    checkBufferOverflow();
-
-    std::cout << "Num draw calls this frame: " << mShm->numDrawCall << std::endl;
-
-    updateTileBuffers();
-    handleDrawCalls();
-
-    mShm->numPixelData = 0;
-    mShm->numDrawCall = 0;
-    mShm->hasPendingChanges = false;
+//    std::cout << winX << "x" << winY << std::endl;
+//    std::cout << rootX << "x" << rootY << std::endl;
 }
 
 int TibiaClient::prepareSharedMemory() const
@@ -468,10 +322,10 @@ void TibiaClient::deleteEnvironment(char** environment) const
     delete[] environment;
 }
 
-std::list<std::list<size_t>> TibiaClient::getDrawnSprites() const
-{
-    return mDrawnSprites;
-}
+//std::list<std::list<size_t>> TibiaClient::getDrawnSprites() const
+//{
+//    return mDrawnSprites;
+//}
 
 
 SharedMemorySegment* TibiaClient::getSharedMemory() const
