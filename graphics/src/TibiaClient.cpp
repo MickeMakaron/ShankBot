@@ -179,11 +179,16 @@ TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& contex
     XSendEvent(mXDisplay, mShm->xWindowId, True, ButtonReleaseMask, (XEvent*)&mouseEvent);
 
     XFlush(mXDisplay);
-    usleep(1000 * 3000);
-
+    usleep(1000 * 1000);
+    update();
+    usleep(1000 * 1000);
+    update();
+    usleep(1000 * 1000);
+    update();
+    usleep(1000 * 1000);
     update();
 
-    sendString(mXDisplay, mShm->xWindowId, "kakapapa\tpapakaka1\r");
+    sendString(mXDisplay, mShm->xWindowId, "pepebobo\tbobopepe1\r");
 
     XFlush(mXDisplay);
     usleep(1000 * 1000);
@@ -214,6 +219,13 @@ void TibiaClient::checkBufferOverflow() const
         sstream << "DRAW CALL BUFFER OVERFLOW. (" << mShm->numDrawCall << " of max " << MAX_NUM_DRAW_CALL << ")";
         throw std::runtime_error(sstream.str());
     }
+
+    if(mShm->numFrames > MAX_NUM_FRAMES)
+    {
+        std::stringstream sstream;
+        sstream << "FRAME DRAW COUNT OVERFLOW. (" << mShm->numFrames << " of max " << MAX_NUM_FRAMES << ")";
+        throw std::runtime_error(sstream.str());
+    }
 }
 
 
@@ -226,10 +238,22 @@ void TibiaClient::update()
     checkBufferOverflow();
 
     mFrameParser.updateTileBuffers(mShm->pixelData, mShm->numPixelData);
-    mFrameParser.parse(mShm->drawCall, mShm->numDrawCall);
+
+
+
+
+    size_t numDraws = 0;
+    for(size_t i = 0; i < mShm->numFrames; i++)
+    {
+        mFrameParser.parse(&mShm->drawCall[numDraws], mShm->numDrawCallsPerFrame[i]);
+        numDraws += mShm->numDrawCallsPerFrame[i];
+    }
+
+    assert(numDraws == mShm->numDrawCall);
 
     mShm->numPixelData = 0;
     mShm->numDrawCall = 0;
+    mShm->numFrames = 0;
     mShm->hasPendingChanges = false;
 
 

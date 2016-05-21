@@ -54,6 +54,7 @@ namespace GraphicsMonitor
 
     std::vector<GraphicsLayer::SharedMemoryProtocol::PixelData> pixelPackets;
     std::vector<GraphicsLayer::SharedMemoryProtocol::DrawCall> drawCallPackets;
+    std::vector<unsigned int> numDrawCallsPerFrame;
 
     bool updateDrawCalls = false;
 
@@ -72,7 +73,9 @@ void glXSwapBuffers(Display* dpy, GLXDrawable drawable)
 
 //    std::cout << "Swapping draw buffers..." << swapCount++ << std::endl;
 //    std::cout << "DrawsPerFrame: " << drawsPerFrame << std::endl;
+    numDrawCallsPerFrame.push_back(drawsPerFrame);
     drawsPerFrame = 0;
+
     originalFunc(dpy, drawable);
     if(glGetError() != GL_NO_ERROR)
         std::cout << "ERROR: glXSwapBuffers 1"<< std::endl;
@@ -101,11 +104,15 @@ void glXSwapBuffers(Display* dpy, GLXDrawable drawable)
         memcpy(shm->drawCall, drawCallPackets.data(), drawCallPackets.size() * sizeof(GraphicsLayer::SharedMemoryProtocol::DrawCall));
         shm->numDrawCall = drawCallPackets.size();
 
+        memcpy(shm->numDrawCallsPerFrame, numDrawCallsPerFrame.data(), numDrawCallsPerFrame.size() * sizeof(unsigned int));
+        shm->numFrames = numDrawCallsPerFrame.size();
+
         shm->hasPendingChanges = true;
         updateDrawCalls = true;
 
         pixelPackets.clear();
         drawCallPackets.clear();
+        numDrawCallsPerFrame.clear();
     }
 
     if(glGetError() != GL_NO_ERROR)
@@ -376,6 +383,7 @@ void glEnd()
                  std::cout << "ShankBot is too slow to handle incoming draw calls. Tibia client will crash" << std::endl;
             }
 
+            drawsPerFrame++;
             drawCallPackets.push_back(packet);
 
 

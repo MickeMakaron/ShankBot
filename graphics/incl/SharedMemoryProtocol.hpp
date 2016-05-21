@@ -38,14 +38,17 @@ namespace GraphicsLayer
 
         const unsigned int MAX_NUM_PIXEL_DATA = 1000;
         const unsigned int MAX_NUM_DRAW_CALL = 30000;
+        const unsigned int MAX_NUM_FRAMES = 1000;
 
         struct SharedMemorySegment
         {
             bool hasPendingChanges = false;
             unsigned int numPixelData = 0;
             unsigned int numDrawCall = 0;
+            unsigned int numFrames = 0;
             PixelData pixelData[MAX_NUM_PIXEL_DATA];
             DrawCall drawCall[MAX_NUM_DRAW_CALL];
+            unsigned int numDrawCallsPerFrame[MAX_NUM_FRAMES];
             unsigned int xWindowId;
         };
 
