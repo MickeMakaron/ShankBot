@@ -27,6 +27,9 @@ namespace GraphicsLayer
             int getLastStepX() const;
             int getLastStepY() const;
 
+            int getDeltaX() const;
+            int getDeltaY() const;
+
         private:
             void updateAxis(int coord, int& lastCoord, int& numSteps, int& delta) const;
 

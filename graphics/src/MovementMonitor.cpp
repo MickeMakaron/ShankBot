@@ -116,3 +116,14 @@ int MovementMonitor::getLastStepY() const
 {
     return mLastStepY;
 }
+
+int MovementMonitor::getDeltaX() const
+{
+    return mDeltaX;
+}
+
+int MovementMonitor::getDeltaY() const
+{
+    return mDeltaY;
+}
+
