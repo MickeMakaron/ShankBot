@@ -9,8 +9,6 @@ using namespace SharedMemoryProtocol;
 ///////////////////////////////////
 // STD C++
 #include <algorithm>
-#include <iostream>
-#include <sstream>
 ///////////////////////////////////
 
 
@@ -77,239 +75,254 @@ void FrameParser::updateTileBuffers(const PixelData* texxes, size_t numTexxes)
 }
 
 
-void FrameParser::parse(const DrawCall* drawCalls, size_t numDrawCalls)
+void FrameParser::handleMovement(const std::list<const DrawCall*>& tex3ToTex1DrawCalls, Frame& frame)
 {
-    mObjectParser.clear();
+    if(tex3ToTex1DrawCalls.empty())
+        return;
+
+    std::list<std::pair<size_t, size_t>> newMappings;
     int newMiddleTexIndex = mCenterTexIndex;
-    for(size_t i = 0; i < numDrawCalls; i++)
+    for(const DrawCall* drawCall : tex3ToTex1DrawCalls)
     {
-        const DrawCall& d = drawCalls[i];
-        if(d.targetTextureId == 1 && d.sourceTextureId == 3)
-        {
-            unsigned short texTileX = d.texX / TILE_SIZE;
-            unsigned short texTileY = d.texY / TILE_SIZE;
-            unsigned short screenTileX = d.screenX / TILE_SIZE;
-            unsigned short screenTileY = d.screenY / TILE_SIZE;
+        const DrawCall& d = *drawCall;
 
-            size_t screenIndex = screenTileX + screenTileY * NUM_TILES_X;
-            size_t texIndex = texTileX + texTileY * NUM_TILES_X;
+        unsigned short texTileX = d.texX / TILE_SIZE;
+        unsigned short texTileY = d.texY / TILE_SIZE;
 
-            if(texIndex == mCenterTexIndex)
-                mMovementMonitor.update(d.screenX, d.screenY);
+        size_t texIndex = texTileX + texTileY * NUM_TILES_X;
 
-            if(d.screenX == MIDDLE_SCREEN_X && d.screenY == MIDDLE_SCREEN_Y)
-                newMiddleTexIndex = texIndex;
+        if(texIndex == mCenterTexIndex)
+            mMovementMonitor.update(d.screenX, d.screenY);
 
-            mTex3TileIndexToTex1TileIndexMap[texIndex] = screenIndex;
-        }
+        if(d.screenX == MIDDLE_SCREEN_X && d.screenY == MIDDLE_SCREEN_Y)
+            newMiddleTexIndex = texIndex;
+
+        newMappings.emplace(newMappings.end(), texTileX, texTileY);
     }
 
     int movementX = mMovementMonitor.getNumStepsX();
     int movementY = mMovementMonitor.getNumStepsY();
 
     if(mCenterTexIndex != newMiddleTexIndex)
+    {
+        auto itMapping = newMappings.begin();
+        auto itDrawCall = tex3ToTex1DrawCalls.begin();
+
+        while(itMapping != newMappings.end())
+        {
+            auto texCoords = *itMapping;
+            const DrawCall& d = **itDrawCall;
+
+            int screenTileX = d.screenX / TILE_SIZE;
+            int screenTileY = d.screenY / TILE_SIZE;
+
+            mTex3TileIndexToTex1TileIndexMap[texCoords.first][texCoords.second] = std::make_pair(screenTileX, screenTileY);
+
+            itMapping++;
+            itDrawCall++;
+        }
+    }
+    else if(movementX != 0 || movementY != 0)
+    {
+        int snapDistanceX;
+        int snapDistanceY;
+        int edgeAdjustX;
+        int edgeAdjustY;
+        getTileAdjustmentData(snapDistanceX, snapDistanceY, edgeAdjustX, edgeAdjustY);
+
+        auto itMapping = newMappings.begin();
+        auto itDrawCall = tex3ToTex1DrawCalls.begin();
+        while(itMapping != newMappings.end())
+        {
+            int screenTileX;
+            int screenTileY;
+            getAdjustedScreenTileCoordinates
+            (
+                snapDistanceX,
+                snapDistanceY,
+                edgeAdjustX,
+                edgeAdjustY,
+                **itDrawCall,
+                screenTileX,
+                screenTileY
+            );
+
+            auto texCoords = *itMapping;
+            mTex3TileIndexToTex1TileIndexMap[texCoords.first][texCoords.second] = std::make_pair(screenTileX, screenTileY);
+
+            itMapping++;
+            itDrawCall++;
+        }
+    }
+
+    frame.isMoving = mMovementMonitor.getDeltaX() != 0 || mMovementMonitor.getDeltaY() != 0;
+    frame.numStepsX = movementX;
+    frame.numStepsY = movementY;
+
+    if(mCenterTexIndex != newMiddleTexIndex)
         mMovementMonitor.reset();
     mCenterTexIndex = newMiddleTexIndex;
 
-    if(movementX != 0 || movementY != 0)
-        std::cout << "Moved (" << movementX << "x" << movementY << ")" << std::endl;
+}
 
+void FrameParser::getTileAdjustmentData(int& snapDistanceX, int& snapDistanceY, int& edgeAdjustX, int& edgeAdjustY) const
+{
+    snapDistanceX = 0;
+    snapDistanceY = 0;
+    edgeAdjustX = 0;
+    edgeAdjustY = 0;
+
+    if(mMovementMonitor.getDeltaX() != 0)
+    {
+        snapDistanceX = TILE_SIZE - std::abs(mMovementMonitor.getDeltaX());
+
+        if(mMovementMonitor.getDeltaX() < 0)
+            snapDistanceX = -snapDistanceX;
+        else
+            edgeAdjustX = -TILE_SIZE;
+    }
+
+    if(mMovementMonitor.getDeltaY() != 0)
+    {
+        snapDistanceY = TILE_SIZE - std::abs(mMovementMonitor.getDeltaY());
+
+        if(mMovementMonitor.getDeltaY() < 0)
+            snapDistanceY = -snapDistanceY;
+        else
+            edgeAdjustY = -TILE_SIZE;
+    }
+}
+
+void FrameParser::getAdjustedScreenTileCoordinates(int snapDistanceX, int snapDistanceY, int edgeAdjustX, int edgeAdjustY, const DrawCall& d, int& x, int& y) const
+{
+    int screenTileX = (int)d.screenX + snapDistanceX;
+    int screenTileY = (int)d.screenY + snapDistanceY;
+
+    if(d.screenX == 0)
+        screenTileX += edgeAdjustX + mMovementMonitor.getDeltaX();
+
+    if(d.screenY == 0)
+        screenTileY += edgeAdjustY + mMovementMonitor.getDeltaY();
+
+    screenTileX /= TILE_SIZE;
+    screenTileY /= TILE_SIZE;
+
+    x = screenTileX;
+    y = screenTileY;
+}
+
+
+
+FrameParser::Frame FrameParser::parse(const DrawCall* drawCalls, size_t numDrawCalls)
+{
+    std::list<const DrawCall*> tex3ToTex1DrawCalls;
+    std::list<const DrawCall*> uiDrawCalls;
+    std::list<const DrawCall*> sceneDrawCalls;
+    std::list<const DrawCall*> tex3DrawCalls;
+    std::list<const DrawCall*> minimapDrawCalls;
 
     for(size_t i = 0; i < numDrawCalls; i++)
     {
         const DrawCall& d = drawCalls[i];
-
-        if(d.targetTextureId == 0) // GUI
+        switch(d.targetTextureId)
         {
-            if(d.sourceTextureId == 1)
-            {
-//                mGameViewWidth = d.texWidth;
-//                mGameViewHeight = d.texHeight;
-            }
-        }
-        else if(d.sourceTextureId != 3)
-        {
-            size_t texX = d.texX - d.texX % TILE_SIZE;
-            size_t texY = d.texY - d.texY % TILE_SIZE;
+            case 0:
+                if(d.sourceTextureId == 4)
+                    minimapDrawCalls.push_back(&d);
+                else if(d.sourceTextureId > 4)
+                    uiDrawCalls.push_back(&d);
+                break;
 
-            if(d.screenX % TILE_SIZE != 0 || d.screenY % TILE_SIZE != 0)
-            {
-                // Sprites that are not aligned with the tile grid.
-                // By what is known at the moment, the only case where this happens
-                // is when objects are stacked (crates, barrels etc) and
-                // when a creature is moving or facing a certain direction.
+            case 1:
+                if(d.sourceTextureId == 3)
+                    tex3ToTex1DrawCalls.push_back(&d);
+                else if(d.sourceTextureId > 4)
+                    sceneDrawCalls.push_back(&d);
+                break;
 
-                // Ignore these for now.
+            case 3:
+                if(d.sourceTextureId > 4)
+                    tex3DrawCalls.push_back(&d);
+                break;
 
-                std::list<SpriteObjectPairing> pairings;
-                mSpriteCache.get(d.sourceTextureId, texX, texY, pairings);
-//
-//                for(auto pair : pairings)
-//                    std::cout << pair.spriteId << " ";
-//
-//                if(!pairings.empty())
-//                {
-//                    std::cout   << " - " << (int)d.targetTextureId << "<-" << (int)d.sourceTextureId
-//                                << " - " << d.screenX << "x" << d.screenY << "<-" << d.texX << "x" << d.texY
-//                                << " - " << d.width << "x" << d.height << "<-" << d.texWidth << "x" << d.texHeight << std::endl;
-//                }
-
-            }
-            else if(d.targetTextureId == 1 || d.targetTextureId == 3)
-            {
-                std::list<SpriteObjectPairing> pairings;
-                mSpriteCache.get(d.sourceTextureId, texX, texY, pairings);
-
-                unsigned short screenTileX = d.screenX / TILE_SIZE;
-                unsigned short screenTileY = d.screenY / TILE_SIZE;
-
-                unsigned short tileX;
-                unsigned short tileY;
-
-                if(d.targetTextureId == 1)
-                {
-                    tileX = screenTileX;
-                    tileY = screenTileY;
-                }
-                else if(d.targetTextureId == 3)
-                {
-                    size_t index = mTex3TileIndexToTex1TileIndexMap[screenTileX + screenTileY * NUM_TILES_X];
-                    tileX = index % NUM_TILES_X;
-                    tileY = index / NUM_TILES_X;
-                }
-
-                mPairingsMap[tileX][tileY].push_back(pairings);
-
-                if(pairings.size() == 1)
-                {
-                    const SpriteObjectPairing& pairing = pairings.front();
-
-                    if(pairing.objects.size() == 1)
-                    {
-                        const TibiaDat::Object* object = *pairings.front().objects.begin();
-                    }
-                }
-            }
+            default:
+                break;
 
         }
     }
 
-    std::list<std::set<const TibiaDat::Object*>> parsedFrame[NUM_TILES_X][NUM_TILES_Y];
-    for(size_t x = 0; x < NUM_TILES_X; x++)
-        for(size_t y = 0; y < NUM_TILES_Y; y++)
-        {
-            std::list<std::list<SpriteObjectPairing>>& drawCalls = mPairingsMap[x][y];
+    Frame frame;
+    handleMovement(tex3ToTex1DrawCalls, frame);
 
-            for(auto it = drawCalls.begin(); it != drawCalls.end();)
-            {
-                std::set<const TibiaDat::Object*> completeObjects;
-                std::set<std::list<std::list<SpriteObjectPairing>>::iterator> completeObjectParts;
-                for(const SpriteObjectPairing& pair : *it)
-                {
-                    for(const TibiaDat::Object* object : pair.objects)
-                    {
-                        if(object->spritesInfos.size() == 1)
-                        {
-                            const TibiaDat::SpritesInfo& info = object->spritesInfos.front();
-                            size_t numSprites = info.width * info.height * info.blendFrames * info.divX * info.divY * info.divZ * info.animationLength;
-                            if(info.width == 1 && info.height == 1)
-                            {
-//                                std::cout << object->id << std::endl;
-                                completeObjects.insert(object);
-                            }
-                        }
-                    }
-                }
+    parseTex3(tex3DrawCalls, frame.tex3);
+    parseTex1(sceneDrawCalls, frame.tex1);
 
+    return frame;
+}
 
-                if(completeObjects.empty())
-                    it++;
-                else
-                {
-                    parsedFrame[x][y].push_back(completeObjects);
-                    drawCalls.erase(it++);
-                }
+std::list<FrameParser::SpriteObjectPairing> FrameParser::getPairings(const DrawCall& d) const
+{
+    size_t texX = d.texX - d.texX % TILE_SIZE;
+    size_t texY = d.texY - d.texY % TILE_SIZE;
 
-            }
+    std::list<SpriteObjectPairing> pairings;
+    mSpriteCache.get(d.sourceTextureId, texX, texY, pairings);
 
-        }
+    return pairings;
+}
 
-
-    if(movementX < 0)
+void FrameParser::parseTex3(const std::list<const DrawCall*>& drawCalls, Layer& layer) const
+{
+    for(const DrawCall* drawCall : drawCalls)
     {
-        int numClears = -movementX;
-        if(mMovementMonitor.getLastStepX() > 0)
-            numClears -= 1;
+        const DrawCall& d = *drawCall;
 
-        for(size_t x = NUM_TILES_SCENE_X - numClears; x < NUM_TILES_SCENE_X; x++)
-            for(size_t y = 0; y < NUM_TILES_SCENE_Y; y++)
-                mCurrentScene[x][y].clear();
+        unsigned short screenTileX = d.screenX / TILE_SIZE;
+        unsigned short screenTileY = d.screenY / TILE_SIZE;
+        auto screenCoords = mTex3TileIndexToTex1TileIndexMap[screenTileX][screenTileY];
+        short tileX = screenCoords.first;
+        short tileY = screenCoords.second;
 
-        for(size_t i = 0; i < -movementX; i++)
-            for(size_t x = 1; x < NUM_TILES_SCENE_X; x++)
-                    std::swap(mCurrentScene[x - 1], mCurrentScene[x]);
+        auto pairings = getPairings(d);
+
+        if(tileX == -1 || tileX == Layer::NUM_TILES_VIEW_X)
+            layer.previousX[tileY].push_back(pairings);
+        else if(tileY == -1 || tileY == Layer::NUM_TILES_VIEW_Y)
+            layer.previousY[tileX].push_back(pairings);
+        else
+            layer.view[tileX][tileY].push_back(pairings);
     }
-    else if(movementX > 0)
+}
+
+void FrameParser::parseTex1(const std::list<const DrawCall*>& drawCalls, Layer& layer) const
+{
+    int snapDistanceX;
+    int snapDistanceY;
+    int edgeAdjustX;
+    int edgeAdjustY;
+    getTileAdjustmentData(snapDistanceX, snapDistanceY, edgeAdjustX, edgeAdjustY);
+
+    for(const DrawCall* d : drawCalls)
     {
-        int numClears = movementX;
-        if(mMovementMonitor.getLastStepX() < 0)
-            numClears -= 1;
+        int tileX;
+        int tileY;
+        getAdjustedScreenTileCoordinates
+        (
+            snapDistanceX,
+            snapDistanceY,
+            edgeAdjustX,
+            edgeAdjustY,
+            *d,
+            tileX,
+            tileY
+        );
 
-        for(size_t x = NUM_TILES_SCENE_X - numClears; x < NUM_TILES_SCENE_X; x++)
-            for(size_t y = 0; y < NUM_TILES_SCENE_Y; y++)
-                mCurrentScene[x][y].clear();
-
-        for(size_t i = 0; i < movementX; i++)
-            for(int x = (int)NUM_TILES_SCENE_X - 1; x > 0; x--)
-                    std::swap(mCurrentScene[x - 1], mCurrentScene[x]);
-    }
-
-    if(movementY < 0)
-    {
-        int numClears = -movementY;
-        if(mMovementMonitor.getLastStepY() > 0)
-            numClears -= 1;
-
-        for(size_t y = NUM_TILES_SCENE_Y - numClears; y < NUM_TILES_SCENE_Y; y++)
-            for(size_t x = 0; x < NUM_TILES_SCENE_X; x++)
-                mCurrentScene[x][y].clear();
-
-        for(size_t i = 0; i < -movementY; i++)
-            for(size_t y = 1; y < NUM_TILES_SCENE_Y; y++)
-                for(size_t x = 0; x < NUM_TILES_SCENE_X; x++)
-                    std::swap(mCurrentScene[x][y - 1], mCurrentScene[x][y]);
-    }
-    else if(movementY > 0)
-    {
-        int numClears = movementY;
-        if(mMovementMonitor.getLastStepY() < 0)
-            numClears -= 1;
-
-        for(size_t y = NUM_TILES_SCENE_Y - numClears; y < NUM_TILES_SCENE_Y; y++)
-            for(size_t x = 0; x < NUM_TILES_SCENE_X; x++)
-                mCurrentScene[x][y].clear();
-
-        for(size_t i = 0; i < movementY; i++)
-            for(int y = (int)NUM_TILES_SCENE_Y - 1; y > 0; y--)
-                for(size_t x = 0; x < NUM_TILES_SCENE_X; x++)
-                    std::swap(mCurrentScene[x][y - 1], mCurrentScene[x][y]);
-    }
-
-
-    for(size_t x = 0; x < NUM_TILES_SCENE_X; x++)
-        for(size_t y = 0; y < NUM_TILES_SCENE_Y; y++)
-            mCurrentScene[x][y].insert(mCurrentScene[x][y].end(), parsedFrame[x][y].begin(), parsedFrame[x][y].end());
-
-    if(movementX != 0 || movementY != 0)
-    {
-        std::list<std::set<const TibiaDat::Object*>>& objectsInMiddle = mCurrentScene[NUM_TILES_VIEW_X / 2][NUM_TILES_VIEW_Y / 2];
-        for(auto objects : objectsInMiddle)
-        {
-            for(auto object : objects)
-                std::cout << object->id << " ";
-
-            if(!objects.empty())
-                std::cout << std::endl;
-        }
+        auto pairings = getPairings(*d);
+        if(tileX == -1 || tileX == Layer::NUM_TILES_VIEW_X)
+            layer.previousX[tileY].push_back(pairings);
+        else if(tileY == -1 || tileY == Layer::NUM_TILES_VIEW_Y)
+            layer.previousY[tileX].push_back(pairings);
+        else
+            layer.view[tileX][tileY].push_back(pairings);
     }
 }
