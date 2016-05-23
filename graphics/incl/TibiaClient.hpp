@@ -10,6 +10,7 @@
 #include "TileBufferCache.hpp"
 #include "TibiaContext.hpp"
 #include "FrameParser.hpp"
+#include "Scene.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -49,6 +50,7 @@ namespace GraphicsLayer
             SharedMemoryProtocol::SharedMemorySegment* mShm;
             FrameParser mFrameParser;
             Display* mXDisplay;
+            Scene mScene;
     };
 }
 

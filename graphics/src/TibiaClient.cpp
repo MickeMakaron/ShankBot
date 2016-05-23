@@ -185,13 +185,14 @@ TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& contex
     update();
     usleep(1000 * 1000);
     update();
-    usleep(1000 * 1000);
-    update();
 
-    sendString(mXDisplay, mShm->xWindowId, "pepebobo\tbobopepe1\r");
+    sendString(mXDisplay, mShm->xWindowId, "RalanoLibu\tblippblopp1\r");
 
     XFlush(mXDisplay);
     usleep(1000 * 1000);
+    update();
+    usleep(1000 * 1000);
+
 
     sendKey(mXDisplay, mShm->xWindowId, '\r');
 
@@ -228,8 +229,6 @@ void TibiaClient::checkBufferOverflow() const
     }
 }
 
-
-
 void TibiaClient::update()
 {
     if(!mShm->hasPendingChanges)
@@ -239,13 +238,12 @@ void TibiaClient::update()
 
     mFrameParser.updateTileBuffers(mShm->pixelData, mShm->numPixelData);
 
-
-
-
     size_t numDraws = 0;
     for(size_t i = 0; i < mShm->numFrames; i++)
     {
-        mFrameParser.parse(&mShm->drawCall[numDraws], mShm->numDrawCallsPerFrame[i]);
+        FrameParser::Frame frame = mFrameParser.parse(&mShm->drawCall[numDraws], mShm->numDrawCallsPerFrame[i]);
+        mScene.update(frame);
+
         numDraws += mShm->numDrawCallsPerFrame[i];
     }
 
@@ -255,7 +253,6 @@ void TibiaClient::update()
     mShm->numDrawCall = 0;
     mShm->numFrames = 0;
     mShm->hasPendingChanges = false;
-
 
 
     Window w;
@@ -345,12 +342,6 @@ void TibiaClient::deleteEnvironment(char** environment) const
 
     delete[] environment;
 }
-
-//std::list<std::list<size_t>> TibiaClient::getDrawnSprites() const
-//{
-//    return mDrawnSprites;
-//}
-
 
 SharedMemorySegment* TibiaClient::getSharedMemory() const
 {
