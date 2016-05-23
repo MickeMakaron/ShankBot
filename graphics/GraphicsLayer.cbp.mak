@@ -40,9 +40,9 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/GraphicsLayer
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/src/TibiaClient.o $(OBJDIR_DEBUG)/src/FrameParser.o $(OBJDIR_DEBUG)/src/ImageTree.o $(OBJDIR_DEBUG)/src/MovementMonitor.o $(OBJDIR_DEBUG)/src/ObjectParser.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/ShankBot.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteObjectBindings.o $(OBJDIR_DEBUG)/src/TibiaContext.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/VersionControl.o $(OBJDIR_DEBUG)/src/fileUtility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/utility.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/src/TibiaClient.o $(OBJDIR_DEBUG)/src/FrameParser.o $(OBJDIR_DEBUG)/src/ImageTree.o $(OBJDIR_DEBUG)/src/MovementMonitor.o $(OBJDIR_DEBUG)/src/ObjectParser.o $(OBJDIR_DEBUG)/src/PngImage.o $(OBJDIR_DEBUG)/src/Scene.o $(OBJDIR_DEBUG)/src/ShankBot.o $(OBJDIR_DEBUG)/src/SpriteDatabase.o $(OBJDIR_DEBUG)/src/SpriteObjectBindings.o $(OBJDIR_DEBUG)/src/TibiaContext.o $(OBJDIR_DEBUG)/src/TibiaDat.o $(OBJDIR_DEBUG)/src/TibiaPic.o $(OBJDIR_DEBUG)/src/TibiaSpr.o $(OBJDIR_DEBUG)/src/TileBuffer.o $(OBJDIR_DEBUG)/src/VersionControl.o $(OBJDIR_DEBUG)/src/fileUtility.o $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/utility.o
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/TibiaClient.o $(OBJDIR_RELEASE)/src/FrameParser.o $(OBJDIR_RELEASE)/src/ImageTree.o $(OBJDIR_RELEASE)/src/MovementMonitor.o $(OBJDIR_RELEASE)/src/ObjectParser.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/ShankBot.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteObjectBindings.o $(OBJDIR_RELEASE)/src/TibiaContext.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/VersionControl.o $(OBJDIR_RELEASE)/src/fileUtility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/utility.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/src/TibiaClient.o $(OBJDIR_RELEASE)/src/FrameParser.o $(OBJDIR_RELEASE)/src/ImageTree.o $(OBJDIR_RELEASE)/src/MovementMonitor.o $(OBJDIR_RELEASE)/src/ObjectParser.o $(OBJDIR_RELEASE)/src/PngImage.o $(OBJDIR_RELEASE)/src/Scene.o $(OBJDIR_RELEASE)/src/ShankBot.o $(OBJDIR_RELEASE)/src/SpriteDatabase.o $(OBJDIR_RELEASE)/src/SpriteObjectBindings.o $(OBJDIR_RELEASE)/src/TibiaContext.o $(OBJDIR_RELEASE)/src/TibiaDat.o $(OBJDIR_RELEASE)/src/TibiaPic.o $(OBJDIR_RELEASE)/src/TibiaSpr.o $(OBJDIR_RELEASE)/src/TileBuffer.o $(OBJDIR_RELEASE)/src/VersionControl.o $(OBJDIR_RELEASE)/src/fileUtility.o $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/utility.o
 
 all: debug release
 
@@ -77,6 +77,9 @@ $(OBJDIR_DEBUG)/src/ObjectParser.o: src/ObjectParser.cpp
 $(OBJDIR_DEBUG)/src/PngImage.o: src/PngImage.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/PngImage.cpp -o $(OBJDIR_DEBUG)/src/PngImage.o
 
+$(OBJDIR_DEBUG)/src/Scene.o: src/Scene.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/Scene.cpp -o $(OBJDIR_DEBUG)/src/Scene.o
+
 $(OBJDIR_DEBUG)/src/ShankBot.o: src/ShankBot.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/ShankBot.cpp -o $(OBJDIR_DEBUG)/src/ShankBot.o
 
@@ -91,6 +94,9 @@ $(OBJDIR_DEBUG)/src/TibiaContext.o: src/TibiaContext.cpp
 
 $(OBJDIR_DEBUG)/src/TibiaDat.o: src/TibiaDat.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaDat.cpp -o $(OBJDIR_DEBUG)/src/TibiaDat.o
+
+$(OBJDIR_DEBUG)/src/TibiaPic.o: src/TibiaPic.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaPic.cpp -o $(OBJDIR_DEBUG)/src/TibiaPic.o
 
 $(OBJDIR_DEBUG)/src/TibiaSpr.o: src/TibiaSpr.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/TibiaSpr.cpp -o $(OBJDIR_DEBUG)/src/TibiaSpr.o
@@ -144,6 +150,9 @@ $(OBJDIR_RELEASE)/src/ObjectParser.o: src/ObjectParser.cpp
 $(OBJDIR_RELEASE)/src/PngImage.o: src/PngImage.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/PngImage.cpp -o $(OBJDIR_RELEASE)/src/PngImage.o
 
+$(OBJDIR_RELEASE)/src/Scene.o: src/Scene.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/Scene.cpp -o $(OBJDIR_RELEASE)/src/Scene.o
+
 $(OBJDIR_RELEASE)/src/ShankBot.o: src/ShankBot.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/ShankBot.cpp -o $(OBJDIR_RELEASE)/src/ShankBot.o
 
@@ -158,6 +167,9 @@ $(OBJDIR_RELEASE)/src/TibiaContext.o: src/TibiaContext.cpp
 
 $(OBJDIR_RELEASE)/src/TibiaDat.o: src/TibiaDat.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaDat.cpp -o $(OBJDIR_RELEASE)/src/TibiaDat.o
+
+$(OBJDIR_RELEASE)/src/TibiaPic.o: src/TibiaPic.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaPic.cpp -o $(OBJDIR_RELEASE)/src/TibiaPic.o
 
 $(OBJDIR_RELEASE)/src/TibiaSpr.o: src/TibiaSpr.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/TibiaSpr.cpp -o $(OBJDIR_RELEASE)/src/TibiaSpr.o
