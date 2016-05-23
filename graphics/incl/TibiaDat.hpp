@@ -31,6 +31,7 @@ class TibiaDat
 
         struct ItemInfo
         {
+            bool isGround = false;
             unsigned short walkSpeed = 0;
             unsigned char topOrder = 0;
             bool isContainer = false;

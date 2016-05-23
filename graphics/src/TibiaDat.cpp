@@ -52,6 +52,7 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
         switch(option)
         {
             case 0x00: // Ground tile
+                out.isGround = true;
                 readStream(out.walkSpeed, dat);
                 break;
 
