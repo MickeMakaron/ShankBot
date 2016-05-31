@@ -8,7 +8,10 @@
 #include <list>
 #include <istream>
 #include <vector>
-class PngImage;
+namespace GraphicsLayer
+{
+    struct PngImage;
+}
 ///////////////////////////////////
 
 
