@@ -43,7 +43,7 @@ class TibiaDat
             bool isFluid = false;
             bool isSplash = false;
             bool isBlocking = false;
-            bool isMovable = false;
+            bool isMovable = true;
             bool isBlockingRangedAttack = false;
             bool isPathBlocking = false;
             bool isPickupable = false;
@@ -51,6 +51,7 @@ class TibiaDat
             bool isWall = false;
             bool isRotatable = false;
             bool isFloorChange = false;
+            bool hasIdleAnimation = false;
             unsigned short lightBrightness = 0;
             unsigned short lightColor = 0;
             unsigned short height = 0;
@@ -64,6 +65,8 @@ class TibiaDat
             unsigned short profession = 0;
             unsigned short level = 0;
             unsigned short defaultAction = 0;
+            unsigned short offsetX = 0;
+            unsigned short offsetY = 0;
         };
 
         struct Object
@@ -103,7 +106,7 @@ class TibiaDat
         void readEffectsAndDistances(std::istream& dat);
 
         void readItemInfo(ItemInfo& out, std::istream& dat) const;
-        void skipItemInfo(std::istream& dat) const;
+//        void skipItemInfo(std::istream& dat) const;
         void readObjectSprites(Object& out, std::istream& dat) const;
 
 

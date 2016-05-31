@@ -118,7 +118,8 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
                 out.isPathBlocking = true;
                 break;
 
-            case 0x10: // No mode animation ???
+            case 0x10: // Blocking 10.00
+                out.isBlockingRangedAttack = true;
                 break;
 
             case 0x11: // Pickupable
@@ -153,10 +154,10 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
                 out.isFloorChange = true;
                 break;
 
-            case 0x19: // N/A
+            case 0x19: // Offset
                 {
-                    unsigned int unknown;
-                    readStream(unknown, dat);
+                    readStream(out.offsetX, dat);
+                    readStream(out.offsetY, dat);
                 }
                 break;
 
@@ -167,7 +168,8 @@ void TibiaDat::readItemInfo(ItemInfo& out, std::istream& dat) const
             case 0x1b: // N/A
                 break;
 
-            case 0x1c: // N/A
+            case 0x1c: // Idle animation
+                out.hasIdleAnimation = true;
                 break;
 
             case 0x1d: // Color on the minimap
@@ -290,13 +292,13 @@ void TibiaDat::readItems(std::istream& dat)
     }
 }
 
-void TibiaDat::skipItemInfo(std::istream& dat) const
-{
-    unsigned char option;
-    readStream(option, dat);
-    while(option != 0xff)
-        readStream(option, dat);
-}
+//void TibiaDat::skipItemInfo(std::istream& dat) const
+//{
+//    unsigned char option;
+//    readStream(option, dat);
+//    while(option != 0xff)
+//        readStream(option, dat);
+//}
 
 void TibiaDat::readOutfits(std::istream& dat)
 {
@@ -307,7 +309,8 @@ void TibiaDat::readOutfits(std::istream& dat)
         outfit.id = outfitId;
         outfit.type = Object::Type::OUTFIT;
 
-        skipItemInfo(dat);
+        outfit.itemInfo = std::unique_ptr<ItemInfo>(new ItemInfo());
+        readItemInfo(*outfit.itemInfo.get(), dat);
 
         unsigned short op;
         readStream(op, dat);
@@ -333,7 +336,8 @@ void TibiaDat::readEffectsAndDistances(std::istream& dat)
         effect.id = effectId;
         effect.type = Object::Type::EFFECT;
 
-        skipItemInfo(dat);
+        effect.itemInfo = std::unique_ptr<ItemInfo>(new ItemInfo());
+        readItemInfo(*effect.itemInfo.get(), dat);
         readObjectSprites(effect, dat);
     }
 
@@ -343,7 +347,8 @@ void TibiaDat::readEffectsAndDistances(std::istream& dat)
         distance.id = distanceId;
         distance.type = Object::Type::DISTANCE;
 
-        skipItemInfo(dat);
+        distance.itemInfo = std::unique_ptr<ItemInfo>(new ItemInfo());
+        readItemInfo(*distance.itemInfo.get(), dat);
         readObjectSprites(distance, dat);
     }
 }
