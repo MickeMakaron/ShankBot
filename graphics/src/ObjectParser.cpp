@@ -113,12 +113,12 @@ void ObjectParser::clear()
     mItems.clear();
 }
 
-const std::list<GroundTile>& ObjectParser::getGroundTiles() const
+const std::list<ObjectParser::GroundTile>& ObjectParser::getGroundTiles() const
 {
     return mGroundTiles;
 }
 
-const std::list<Item>& ObjectParser::getItems() const
+const std::list<ObjectParser::Item>& ObjectParser::getItems() const
 {
     return mItems;
 }

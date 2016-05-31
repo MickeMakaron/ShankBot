@@ -14,26 +14,30 @@
 
 namespace GraphicsLayer
 {
-    struct Object
-    {
-        const TibiaDat::Object* object;
-        unsigned int id;
-        unsigned short x;
-        unsigned short y;
-    };
 
-    struct GroundTile : public Object
-    {
-
-    };
-
-    struct Item : public Object
-    {
-
-    };
 
     class ObjectParser
     {
+        public:
+
+            struct Object
+            {
+                const TibiaDat::Object* object;
+                unsigned int id;
+                unsigned short x;
+                unsigned short y;
+            };
+
+            struct GroundTile : public Object
+            {
+
+            };
+
+            struct Item : public Object
+            {
+
+            };
+
         public:
             void clear();
             void parse(const std::set<const TibiaDat::Object*>& objects, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
