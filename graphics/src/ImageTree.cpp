@@ -25,6 +25,15 @@ ImageTree::ImageTree(const std::vector<std::vector<unsigned char>>& sprites, con
     }
 
     removeEmptyNodes();
+//    computeIgnoredValues();
+    forEachNode(mRoot, [](NodePtr& node)
+    {
+        for(Sprite& sprite : node->sprites)
+        {
+            sprite.numValuesIgnored = sprite.pixels->size() - node->level;
+            std::cout << "values ignored " << sprite.id << ": " << sprite.numValuesIgnored << std::endl;
+        }
+    });
 }
 
 void ImageTree::removeEmptyNodes()
@@ -72,11 +81,18 @@ void ImageTree::loadFromBinaryFile(NodePtr& node, std::istream& file)
     if(numSprites > 0)
     {
         unsigned int* sprites = new unsigned int[numSprites];
+        int* numValuesIgnored = new int[numSprites];
         file.read((char*)sprites, sizeof(unsigned int) * numSprites);
+        file.read((char*)numValuesIgnored, sizeof(int) * numSprites);
         for(size_t i = 0; i < numSprites; i++)
+        {
             node->sprites.push_back(Sprite(nullptr, sprites[i]));
+            node->sprites.back().numValuesIgnored = numValuesIgnored[i];
+        }
+
 
         delete[] sprites;
+        delete[] numValuesIgnored;
     }
 
     unsigned int level;
@@ -104,16 +120,24 @@ void ImageTree::loadFromBinaryFile(NodePtr& node, std::istream& file)
 void ImageTree::writeToBinaryFile(const NodePtr& node, std::ostream& file) const
 {
     unsigned int* sprites = new unsigned int[node->sprites.size()];
+    int* numValuesIgnored = new int[node->sprites.size()];
     size_t i = 0;
     for(const Sprite& sprite : node->sprites)
-        sprites[i++] = sprite.id;
+    {
+        sprites[i] = sprite.id;
+        numValuesIgnored[i] = sprite.numValuesIgnored;
+
+        i++;
+    }
 
     unsigned int numSprites = node->sprites.size();
 
 
     file.write((char*)&numSprites, sizeof(numSprites));
-    file.write((char*)sprites, sizeof(unsigned int) * (node->sprites.size()));
+    file.write((char*)sprites, sizeof(unsigned int) * node->sprites.size());
+    file.write((char*)numValuesIgnored, sizeof(int) * node->sprites.size());
     delete[] sprites;
+    delete[] numValuesIgnored;
 
     unsigned int level = node->level;
     file.write((char*)&level, sizeof(level));
@@ -207,11 +231,21 @@ bool ImageTree::find(const std::vector<unsigned char>& pixels, std::list<size_t>
         node = it->second.get();
     }
 
-    if(node->sprites.empty())
+    bool foundMatch = false;
+    for(const Sprite& sprite : node->sprites)
+    {
+        const int numValuesIgnored = pixels.size() - node->level;
+
+        if(sprite.numValuesIgnored == numValuesIgnored)
+        {
+            ids.push_back(sprite.id);
+            foundMatch = true;
+        }
+    }
+
+    if(!foundMatch)
         return false;
 
-    for(const Sprite& sprite : node->sprites)
-        ids.push_back(sprite.id);
     return true;
 }
 

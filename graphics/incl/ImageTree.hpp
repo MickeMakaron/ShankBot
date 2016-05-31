@@ -20,6 +20,7 @@ namespace GraphicsLayer
 
                 const std::vector<unsigned char>* pixels;
                 const size_t id;
+                int numValuesIgnored;
             };
 
             struct Node;
