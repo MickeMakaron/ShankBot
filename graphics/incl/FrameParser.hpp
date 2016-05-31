@@ -22,14 +22,40 @@ namespace GraphicsLayer
                 std::set<const TibiaDat::Object*> objects;
             };
 
+            struct DrawCallInfo
+            {
+                enum class Region : char
+                {
+                    FULL,
+                    TOP_LEFT,
+                    TOP_RIGHT,
+                    BOTTOM_LEFT,
+                    BOTTOM_RIGHT
+                };
+
+                std::list<SpriteObjectPairing> pairings;
+                short x;
+                short y;
+                short width;
+                short height;
+                short texX;
+                short texY;
+                Region region;
+
+
+                // DEBUG
+                SharedMemoryProtocol::DrawCall drawCall;
+
+            };
+
             struct Layer
             {
                 static const int NUM_TILES_VIEW_X = 15;
                 static const int NUM_TILES_VIEW_Y = 11;
-                std::list<std::list<SpriteObjectPairing>> view[NUM_TILES_VIEW_X][NUM_TILES_VIEW_Y];
+                std::list<DrawCallInfo> view[NUM_TILES_VIEW_X][NUM_TILES_VIEW_Y];
 
-                std::list<std::list<SpriteObjectPairing>> previousX[NUM_TILES_VIEW_Y];
-                std::list<std::list<SpriteObjectPairing>> previousY[NUM_TILES_VIEW_X];
+                std::list<DrawCallInfo> previousX[NUM_TILES_VIEW_Y];
+                std::list<DrawCallInfo> previousY[NUM_TILES_VIEW_X];
             };
 
             struct Frame
@@ -37,9 +63,10 @@ namespace GraphicsLayer
                 Layer tex3;
                 Layer tex1;
 
-                int numStepsX = 0;
-                int numStepsY = 0;
-                bool isMoving = false;
+                int numStepsX = 0; // Number of X steps INITIATED since last update.
+                int numStepsY = 0; // Number of y steps INITIATED since last update.
+                int movementDirectionX = 0; // X direction of current ONGOING movement.
+                int movementDirectionY = 0; // Y direction of current ONGOING movement.
             };
 
         public:
@@ -54,11 +81,13 @@ namespace GraphicsLayer
             void parseTex3(const std::list<const SharedMemoryProtocol::DrawCall*>& drawCalls, Layer& layer) const;
             void parseTex1(const std::list<const SharedMemoryProtocol::DrawCall*>& drawCalls, Layer& layer) const;
             void getTileAdjustmentData(int& snapDistanceX, int& snapDistanceY, int& edgeAdjustX, int& edgeAdjustY) const;
-            void getAdjustedScreenTileCoordinates(int snapDistanceX, int snapDistanceY, int edgeAdjustX, int edgeAdjustY, const SharedMemoryProtocol::DrawCall& d, int& x, int& y) const;
+            void getAdjustedScreenTileCoordinates(int snapDistanceX, int snapDistanceY, int edgeAdjustX, int edgeAdjustY, const SharedMemoryProtocol::DrawCall& d, int& tileX, int& tileY, int* x = nullptr, int* y = nullptr) const;
+            DrawCallInfo getDrawCallInfo(const SharedMemoryProtocol::DrawCall& d) const;
 
+        public:
+            static const int TILE_SIZE = 32;
 
         private:
-            static const int TILE_SIZE = 32;
             static const int NUM_TILES_X = 16;
             static const int NUM_TILES_Y = 16;
             static const int NUM_TILES_VIEW_X = 15;
