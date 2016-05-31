@@ -186,7 +186,7 @@ TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& contex
     usleep(1000 * 1000);
     update();
 
-    sendString(mXDisplay, mShm->xWindowId, "RalanoLibu\tblippblopp1\r");
+    sendString(mXDisplay, mShm->xWindowId, "EleriaRenth\teleleria1\r");
 
     XFlush(mXDisplay);
     usleep(1000 * 1000);
@@ -245,6 +245,46 @@ void TibiaClient::update()
         mScene.update(frame);
 
         numDraws += mShm->numDrawCallsPerFrame[i];
+    }
+
+    std::list<Scene::Tile> pickupables = mScene.getPickupables();
+    for(Scene::Tile tile : pickupables)
+    {
+//        std::cout << (int)tile.tileX << "x" << (int)tile.tileY << std::endl;
+//
+//        for(Scene::Object object : tile.knownLayerObjects)
+//        {
+//            std::cout << "\tl: " << (int)object.layer << " " << object.object->id << "-" << (int)object.tileX << "x" << (int)object.tileY << " - " << (size_t)object.object << std::endl;
+//        }
+//
+//        std::cout << std::endl;
+
+//        if(tile.tileX <= 8 && tile.tileX > 5 && tile.tileY <= 6 && tile.tileY > 3)
+//        if(tile.tileX <= 10 && tile.tileX > 10 - 3 && tile.tileY <= 6 && tile.tileY > 6 - 3)
+//        if(tile.tileX == 10 && tile.tileY == 6)
+        {
+            size_t numMatches = 0;
+
+            std::stringstream sstream;
+            sstream << (int)tile.tileX << "x" << (int)tile.tileY;
+            for(Scene::Object object : tile.knownLayerObjects)
+            {
+                if(object.object->type == TibiaDat::Object::Type::OUTFIT)
+//                if(object.object->itemInfo->isPickupable)
+//                if(object.object->itemInfo->isMovable)
+                {
+                    sstream << " " << (int)object.layer << "-" << object.object->id;
+                    numMatches++;
+                }
+
+
+            }
+
+            if(numMatches > 0)
+                std::cout << sstream.str() << std::endl;
+
+        }
+
     }
 
     assert(numDraws == mShm->numDrawCall);
