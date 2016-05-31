@@ -9,6 +9,8 @@ using namespace SharedMemoryProtocol;
 ///////////////////////////////////
 // STD C++
 #include <algorithm>
+#include <cassert>
+#include <iostream>
 ///////////////////////////////////
 
 
@@ -18,7 +20,9 @@ FrameParser::FrameParser(const TibiaContext& context)
 {
 
 }
-
+#include <sstream>
+#include "PngImage.hpp"
+size_t herpaherpa = 0;
 void FrameParser::updateTileBuffers(const PixelData* texxes, size_t numTexxes)
 {
     for(size_t i = 0; i < numTexxes; i++)
@@ -29,12 +33,78 @@ void FrameParser::updateTileBuffers(const PixelData* texxes, size_t numTexxes)
             mGuiCache.remove(data.targetTextureId, data.texX, data.texX);
         else
         {
+//            if(data.targetTextureId > 16)
+//            {
+//                std::stringstream sstream;
+//                sstream << "texxes/" << herpaherpa++;
+//                writePng(sstream.str(), (unsigned char*)pixels, 32, 32);
+//            }
+
+
             std::vector<unsigned char> opaquePixels = rgbaToColorTreeSprite(pixels, SharedMemoryProtocol::TILE_SIZE);
 
             std::list<SpriteObjectPairing> pairings;
             if(opaquePixels.size() > 0)
             {
+                std::vector<unsigned char> transparency = rgbaToTransparencyTreeSprite(pixels, SharedMemoryProtocol::TILE_SIZE);
+
                 std::list<size_t> ids;
+//                std::list<size_t> tIds;
+//                mContext.getSpriteColorTree().find(opaquePixels, ids);
+//                mContext.getSpriteTransparencyTree().find(transparency, tIds);
+//
+//                if(!ids.empty() && !tIds.empty())
+//                {
+////                    std::vector<unsigned char> transparency = rgbaToTransparencyTreeSprite(pixels, SharedMemoryProtocol::TILE_SIZE);
+//
+////                    std::list<size_t> tIds;
+////                    mContext.getSpriteTransparencyTree().find(transparency, tIds);
+//
+//                    std::list<size_t> matchingIds;
+//                    for(size_t id : ids)
+//                        if(std::find(tIds.begin(), tIds.end(), id) != tIds.end())
+//                            matchingIds.push_back(id);
+//
+//                    if(matchingIds.empty())
+//                    {
+//
+//                    }
+//
+//                    ids = matchingIds;
+//                    ids.unique();
+//                    for(size_t spriteId : ids)
+//                    {
+//                        SpriteObjectPairing pairing;
+//                        pairing.spriteId = spriteId;
+//
+//                        std::list<const TibiaDat::Object*> objects = mContext.getSpriteObjectBindings().getObjects(spriteId);
+//                        if(!objects.empty())
+//                        {
+//                            for(auto object : objects)
+//                                pairing.objects.insert(object);
+//
+//                            pairings.push_back(pairing);
+//                        }
+//                    }
+//
+//                }
+//                else // should only happen for sprites using blending
+//                {
+//                    std::vector<unsigned char> transparency = rgbaToTransparencyTreeSprite(pixels, SharedMemoryProtocol::TILE_SIZE);
+//                    ids.clear();
+//                    if(mContext.getSpriteTransparencyTree().find(transparency, ids) && ids.size() < 10)
+//                    {
+//                        std::cout << "blend?-" << (int)data.targetTextureId << "-" << data.texX - data.texX % TILE_SIZE << "x" << data.texY - data.texY % TILE_SIZE;
+//                        for(size_t id : ids)
+//                        {
+//                            std::cout << " " << id;
+//                        }
+////                        std::cout << ids.size() << " num";
+//                        std::cout << std::endl;
+//                    }
+//                }
+
+
                 if(mContext.getSpriteColorTree().find(opaquePixels, ids))
                 {
                     std::vector<unsigned char> transparency = rgbaToTransparencyTreeSprite(pixels, SharedMemoryProtocol::TILE_SIZE);
@@ -64,6 +134,69 @@ void FrameParser::updateTileBuffers(const PixelData* texxes, size_t numTexxes)
                         }
                     }
 
+                }
+                else // should only happen for sprites using blending (outfits)
+                {
+                    std::vector<unsigned char> transparency = rgbaToTransparencyTreeSprite(pixels, SharedMemoryProtocol::TILE_SIZE);
+                    ids.clear();
+                    if(mContext.getSpriteTransparencyTree().find(transparency, ids) && ids.size() < 10)
+                    {
+//                        std::cout << "blend?-" << (int)data.targetTextureId << "-" << data.texX - data.texX % TILE_SIZE << "x" << data.texY - data.texY % TILE_SIZE;
+                        bool isBlend = true;
+
+
+                        std::list<SpriteObjectPairing> tmpPairings;
+
+                        for(size_t spriteId : ids)
+                        {
+//                            std::cout << " " << id;
+                            SpriteObjectPairing pairing;
+                            pairing.spriteId = spriteId;
+
+
+                            std::list<const TibiaDat::Object*> objects = mContext.getSpriteObjectBindings().getObjects(spriteId);
+                            if(!objects.empty())
+                            {
+                                for(auto object : objects)
+                                    pairing.objects.insert(object);
+
+                                tmpPairings.push_back(pairing);
+                            }
+
+                            if(pairing.objects.empty())
+                            {
+                                isBlend = false;
+                                break;
+                            }
+
+                            for(auto object : pairing.objects)
+                            {
+                                if(object->type != TibiaDat::Object::Type::OUTFIT)
+                                {
+                                    isBlend = false;
+                                    break;
+                                }
+                            }
+
+                            if(!isBlend)
+                                break;
+                        }
+
+                        if(isBlend)
+                        {
+//                            std::cout << "blend?-" << (int)data.targetTextureId << "-" << data.texX - data.texX % TILE_SIZE << "x" << data.texY - data.texY % TILE_SIZE;
+//                            for(size_t id : ids)
+//                            {
+//                                std::cout << " " << id;
+//                            }
+//
+//                            std::cout << std::endl;
+
+                            pairings.insert(pairings.end(), tmpPairings.begin(), tmpPairings.end());
+                        }
+//                        std::cout << ids.size() << " num";
+//                        std::cout << std::endl;
+                    }
                 }
             }
 
@@ -155,7 +288,17 @@ void FrameParser::handleMovement(const std::list<const DrawCall*>& tex3ToTex1Dra
         }
     }
 
-    frame.isMoving = mMovementMonitor.getDeltaX() != 0 || mMovementMonitor.getDeltaY() != 0;
+
+    if(mMovementMonitor.getDeltaX() < 0)
+        frame.movementDirectionX = -1;
+    else if(mMovementMonitor.getDeltaX() > 0)
+        frame.movementDirectionX = 1;
+
+    if(mMovementMonitor.getDeltaY() < 0)
+        frame.movementDirectionY = -1;
+    else if(mMovementMonitor.getDeltaY() > 0)
+        frame.movementDirectionY = 1;
+
     frame.numStepsX = movementX;
     frame.numStepsY = movementY;
 
@@ -193,22 +336,47 @@ void FrameParser::getTileAdjustmentData(int& snapDistanceX, int& snapDistanceY, 
     }
 }
 
-void FrameParser::getAdjustedScreenTileCoordinates(int snapDistanceX, int snapDistanceY, int edgeAdjustX, int edgeAdjustY, const DrawCall& d, int& x, int& y) const
+void FrameParser::getAdjustedScreenTileCoordinates(int snapDistanceX, int snapDistanceY, int edgeAdjustX, int edgeAdjustY, const DrawCall& d, int& tileX, int& tileY, int* x, int* y) const
 {
     int screenTileX = (int)d.screenX + snapDistanceX;
     int screenTileY = (int)d.screenY + snapDistanceY;
 
-    if(d.screenX == 0)
-        screenTileX += edgeAdjustX + mMovementMonitor.getDeltaX();
 
-    if(d.screenY == 0)
-        screenTileY += edgeAdjustY + mMovementMonitor.getDeltaY();
 
-    screenTileX /= TILE_SIZE;
-    screenTileY /= TILE_SIZE;
+    int newScreenTileX = screenTileX;
+    int newScreenTileY = screenTileY;
 
-    x = screenTileX;
-    y = screenTileY;
+    if(newScreenTileX < 0 && newScreenTileX > -TILE_SIZE)
+        newScreenTileX = (newScreenTileX - TILE_SIZE) / TILE_SIZE;
+    else
+        newScreenTileX /= TILE_SIZE;
+
+    if(newScreenTileY < 0 && newScreenTileY > -TILE_SIZE)
+        newScreenTileY = (newScreenTileY - TILE_SIZE) / TILE_SIZE;
+    else
+        newScreenTileY /= TILE_SIZE;
+
+
+//    if(d.screenX == 0)
+//        screenTileX += edgeAdjustX + mMovementMonitor.getDeltaX();
+//
+//    if(d.screenY == 0)
+//        screenTileY += edgeAdjustY + mMovementMonitor.getDeltaY();
+//
+
+
+    if(x)
+        *x = screenTileX;
+
+    if(y)
+        *y = screenTileY;
+
+//    screenTileX /= TILE_SIZE;
+//    screenTileY /= TILE_SIZE;
+
+
+    tileX = newScreenTileX;
+    tileY = newScreenTileY;
 }
 
 
@@ -271,26 +439,71 @@ std::list<FrameParser::SpriteObjectPairing> FrameParser::getPairings(const DrawC
     return pairings;
 }
 
+FrameParser::DrawCallInfo FrameParser::getDrawCallInfo(const DrawCall& d) const
+{
+    DrawCallInfo drawInfo;
+    drawInfo.pairings = getPairings(d);
+    drawInfo.x = d.screenX;
+    drawInfo.y = d.screenY;
+    drawInfo.width = d.width;
+    drawInfo.height = d.height;
+    drawInfo.texX = d.texX;
+    drawInfo.texY = d.texY;
+
+
+    char region;
+    char full = 0;
+    char topLeft = 1;
+    char topRight = 2;
+    char bottomRight = 3;
+    char bottomLeft = 4;
+    if(d.texWidth == TILE_SIZE && d.texHeight == TILE_SIZE)
+    {
+        drawInfo.region = DrawCallInfo::Region::FULL;
+    }
+    else
+    {
+        if(d.texX % TILE_SIZE == 0)
+        {
+            if(d.texY % TILE_SIZE == 0)
+            {
+                drawInfo.region = DrawCallInfo::Region::TOP_LEFT;
+            }
+            else
+            {
+                drawInfo.region = DrawCallInfo::Region::BOTTOM_LEFT;
+            }
+        }
+        else if(d.texY % TILE_SIZE == 0)
+        {
+            drawInfo.region = DrawCallInfo::Region::TOP_RIGHT;
+        }
+        else
+            drawInfo.region = DrawCallInfo::Region::BOTTOM_RIGHT;
+    }
+
+    drawInfo.drawCall = d;
+
+    return drawInfo;
+}
+
 void FrameParser::parseTex3(const std::list<const DrawCall*>& drawCalls, Layer& layer) const
 {
-    for(const DrawCall* drawCall : drawCalls)
+    for(const DrawCall* d : drawCalls)
     {
-        const DrawCall& d = *drawCall;
-
-        unsigned short screenTileX = d.screenX / TILE_SIZE;
-        unsigned short screenTileY = d.screenY / TILE_SIZE;
+        unsigned short screenTileX = d->screenX / TILE_SIZE;
+        unsigned short screenTileY = d->screenY / TILE_SIZE;
         auto screenCoords = mTex3TileIndexToTex1TileIndexMap[screenTileX][screenTileY];
         short tileX = screenCoords.first;
         short tileY = screenCoords.second;
 
-        auto pairings = getPairings(d);
-
+        DrawCallInfo drawInfo = getDrawCallInfo(*d);
         if(tileX == -1 || tileX == Layer::NUM_TILES_VIEW_X)
-            layer.previousX[tileY].push_back(pairings);
+            layer.previousX[tileY].push_back(drawInfo);
         else if(tileY == -1 || tileY == Layer::NUM_TILES_VIEW_Y)
-            layer.previousY[tileX].push_back(pairings);
+            layer.previousY[tileX].push_back(drawInfo);
         else
-            layer.view[tileX][tileY].push_back(pairings);
+            layer.view[tileX][tileY].push_back(drawInfo);
     }
 }
 
@@ -306,6 +519,8 @@ void FrameParser::parseTex1(const std::list<const DrawCall*>& drawCalls, Layer& 
     {
         int tileX;
         int tileY;
+        int x;
+        int y;
         getAdjustedScreenTileCoordinates
         (
             snapDistanceX,
@@ -314,15 +529,19 @@ void FrameParser::parseTex1(const std::list<const DrawCall*>& drawCalls, Layer& 
             edgeAdjustY,
             *d,
             tileX,
-            tileY
+            tileY,
+            &x,
+            &y
         );
 
-        auto pairings = getPairings(*d);
+        DrawCallInfo drawInfo = getDrawCallInfo(*d);
+        drawInfo.x = x;
+        drawInfo.y = y;
         if(tileX == -1 || tileX == Layer::NUM_TILES_VIEW_X)
-            layer.previousX[tileY].push_back(pairings);
+            layer.previousX[tileY].push_back(drawInfo);
         else if(tileY == -1 || tileY == Layer::NUM_TILES_VIEW_Y)
-            layer.previousY[tileX].push_back(pairings);
+            layer.previousY[tileX].push_back(drawInfo);
         else
-            layer.view[tileX][tileY].push_back(pairings);
+            layer.view[tileX][tileY].push_back(drawInfo);
     }
 }
