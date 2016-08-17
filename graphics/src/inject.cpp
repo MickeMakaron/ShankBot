@@ -619,6 +619,7 @@ Window XCreateWindow
 }
 
 
+
 //Display* XOpenDisplay(const char* name)
 //{
 //    Display* (*originalFunc)(const char*) = (Display* (*)(const char*))dlsym(RTLD_NEXT, "XOpenDisplay");
