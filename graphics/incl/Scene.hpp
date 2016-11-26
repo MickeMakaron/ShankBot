@@ -1,15 +1,49 @@
-#ifndef GRAPHICS_LAYER_SCENE
-#define GRAPHICS_LAYER_SCENE
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
+#ifndef GRAPHICS_LAYER_SCENE_HPP
+#define GRAPHICS_LAYER_SCENE_HPP
 
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "FrameParser.hpp"
+#include "Constants.hpp"
+#include "Draw.hpp"
+namespace GraphicsLayer
+{
+    class SpriteInfo;
+    struct Object;
+    struct Frame;
+}
 ///////////////////////////////////
 
 ///////////////////////////////////
 // STD C++
 #include <list>
+#include <functional>
 ///////////////////////////////////
 
 namespace GraphicsLayer
@@ -23,7 +57,9 @@ namespace GraphicsLayer
                 char tileY;
                 char layer;
                 bool isOnStack = false;
-                const TibiaDat::Object* object;
+                float screenX;
+                float screenY;
+                const GraphicsLayer::Object* object;
 
 //                bool operator<(const Object& other) const
 //                {
@@ -48,12 +84,13 @@ namespace GraphicsLayer
                 }
             };
 
+
             struct Tile
             {
                 std::list<Object> knownLayerObjects;
                 char tileX;
                 char tileY;
-                char numLayers;
+                char numLayers = 0;
                 char height = 0;
                 char stackStartLayer = -1;
 
@@ -62,38 +99,48 @@ namespace GraphicsLayer
 
 
         public:
+            explicit Scene(const SpriteInfo& spriteInfo);
 
-            void update(const FrameParser::Frame& frame);
+            void update(const Frame& frame);
 
-            std::list<Tile> getPickupables() const;
+            std::list<Object> get(const std::function<bool(const Object& object)>& func) const;
+            void forEach(const std::function<void(const Object& object)>& func) const;
+            void forEach(const std::function<void(const Tile& tile)>& func) const;
+            const Tile& getTile(char tileX, char tileY) const;
+            char resetMovementX();
+            char resetMovementY();
+
+            float getTileWidth() const;
+            float getTileHeight() const;
+
 
         private:
-            void handleMovement(const FrameParser::Frame& frame);
-            void clearOldTilesX(int numClears);
-            void clearOldTilesY(int numClears);
-            void move(int movementX, int movementY);
-            void updateTex3(const FrameParser::Frame& frame);
-            void updateTex1(const FrameParser::Frame& frame);
-            Object parseObjectTile(const TibiaDat::Object* object, size_t spriteId, const FrameParser::DrawCallInfo& drawInfo, char tileX, char tileY, char layer) const;
+            void updateMovement(short x, short y);
+            void parseCurrentFrame();
 
         private:
-            static const int NUM_TILES_VIEW_X = FrameParser::Layer::NUM_TILES_VIEW_X;
-            static const int NUM_TILES_VIEW_Y = FrameParser::Layer::NUM_TILES_VIEW_Y;
-            static const int NUM_TILES_SCENE_X = NUM_TILES_VIEW_X + 1;
-            static const int NUM_TILES_SCENE_Y = NUM_TILES_VIEW_Y + 1;
-            static const int MAX_VISIBLE_TILES_X = NUM_TILES_VIEW_X + 3;
-            static const int MAX_VISIBLE_TILES_Y = NUM_TILES_VIEW_Y + 3;
-            static const int MAX_STACK_TILE_HEIGHT = 3;
+            static const int VISIBILITY_OFFSET_LOW = 2;
+            static const int VISIBILITY_OFFSET_HIGH = 3;
+            static const int MAX_VISIBLE_TILES_X = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_X + VISIBILITY_OFFSET_HIGH;
+            static const int MAX_VISIBLE_TILES_Y = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_Y + VISIBILITY_OFFSET_HIGH;
+            static const int MAX_MOVEMENT = 10;
 
-            std::list<FrameParser::DrawCallInfo> mTex3[NUM_TILES_SCENE_X][NUM_TILES_SCENE_Y];
-            std::list<FrameParser::DrawCallInfo> mTex1[NUM_TILES_SCENE_X][NUM_TILES_SCENE_Y];
+            std::shared_ptr<std::vector<SpriteDraw>> mCurrentDraws = std::make_shared<std::vector<SpriteDraw>>();
+            bool mIsCurrentFrameParsed = false;
 
-            int mLastStepX = 0;
-            int mLastStepY = 0;
-            int mMovementDirectionX = 0;
-            int mMovementDirectionY = 0;
+            Tile mParsedCurrentFrame[MAX_VISIBLE_TILES_X][MAX_VISIBLE_TILES_Y];
+            const SpriteInfo& mSpriteInfo;
+
+            short mPreviousMiniMapX = 0;
+            short mPreviousMiniMapY = 0;
+            char mMovementX = 0;
+            char mMovementY = 0;
+
+            float mSceneX = 0;
+            float mSceneY = 0;
+            float mSceneWidth = 0;
+            float mSceneHeight = 0;
     };
 }
 
-
-#endif // GRAPHICS_LAYER_SCENE
+#endif // GRAPHICS_LAYER_SCENE_HPP

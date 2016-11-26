@@ -1,6 +1,33 @@
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "ObjectParser.hpp"
+#include "exception.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -9,43 +36,38 @@ using namespace GraphicsLayer;
 #include <algorithm>
 ///////////////////////////////////
 
-///////////////////////////////////
-// STD C
-
-///////////////////////////////////
-
-void ObjectParser::parse(const std::set<const TibiaDat::Object*>& objects, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parse(const std::set<const Object*>& objects, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
-    for(const TibiaDat::Object* o : objects)
+    for(const Object* o : objects)
     {
         switch(o->type)
         {
-        case TibiaDat::Object::Type::ITEM:
+        case Object::Type::ITEM:
             parseItem(*o, x, y, width, height);
             break;
 
-        case TibiaDat::Object::Type::OUTFIT:
+        case Object::Type::OUTFIT:
             parseOutfit(*o, x, y, width, height);
             break;
 
-        case TibiaDat::Object::Type::EFFECT:
+        case Object::Type::EFFECT:
             parseEffect(*o, x, y, width, height);
             break;
 
-        case TibiaDat::Object::Type::DISTANCE:
-            parseDistance(*o, x, y, width, height);
+        case Object::Type::PROJECTILE:
+            parseProjectile(*o, x, y, width, height);
             break;
 
         default:
-            throw std::runtime_error("Failed to parse object. Invalid type.");
+            THROW_RUNTIME_ERROR("Failed to parse object. Invalid type.");
             break;
         }
     }
 }
 
-void ObjectParser::parseItem(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseItem(const Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
-    TibiaDat::ItemInfo item = *object.itemInfo;
+    AppearancesReader::ItemInfo item = object.itemInfo;
     if(item.walkSpeed > 0 && !item.isBlocking)
     {
         auto it = std::find_if(mGroundTiles.begin(), mGroundTiles.end(), [&](const GroundTile& tile)
@@ -92,17 +114,17 @@ void ObjectParser::parseItem(const TibiaDat::Object& object, unsigned short x, u
 
 }
 
-void ObjectParser::parseOutfit(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseOutfit(const Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
 
 }
 
-void ObjectParser::parseEffect(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseEffect(const Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
 
 }
 
-void ObjectParser::parseDistance(const TibiaDat::Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
+void ObjectParser::parseProjectile(const Object& object, unsigned short x, unsigned short y, unsigned short width, unsigned short height)
 {
 
 }

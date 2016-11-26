@@ -1,10 +1,36 @@
-#ifndef GRAPHICS_LAYER_SPRITE_OBJECT_BINDINGS
-#define GRAPHICS_LAYER_SPRITE_OBJECT_BINDINGS
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
+#ifndef GRAPHICS_LAYER_SPRITE_OBJECT_BINDINGS_HPP
+#define GRAPHICS_LAYER_SPRITE_OBJECT_BINDINGS_HPP
 
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "TibiaDat.hpp"
+#include "AppearancesReader.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -21,27 +47,10 @@ namespace GraphicsLayer
     class SpriteObjectBindings
     {
         public:
-//            struct Object
-//            {
-//                enum class Type : char
-//                {
-//                    ITEM,
-//                    OUTFIT,
-//                    EFFECT,
-//                    DISTANCE
-//                };
-//
-//                Type type;
-//                size_t id;
-//                std::unique_ptr<TibiaDat::SpritesInfo> spritesInfo;
-//                std::unique_ptr<TibiaDat::ItemInfo> itemInfo;
-//            };
+            explicit SpriteObjectBindings(const std::vector<Object>& objects);
+            explicit SpriteObjectBindings(const std::vector<Object>& objects, std::string binPath);
 
-        public:
-            explicit SpriteObjectBindings(const TibiaDat& dat);
-            explicit SpriteObjectBindings(const TibiaDat& dat, std::string binPath);
-
-            std::list<const TibiaDat::Object*> getObjects(size_t spriteId) const;
+            std::list<const Object*> getObjects(size_t spriteId) const;
 
             void writeToBinaryFile(std::string path) const;
 
@@ -49,15 +58,13 @@ namespace GraphicsLayer
             void readFromBinaryFile(std::string binPath);
 
             void parseObjects();
-            void createBindings(const TibiaDat::Object& o, size_t globalId);
+            void createBindings(const Object& o, size_t globalId);
 
         private:
-//            static std::vector<Object> mObjects;
-//            static size_t mNumItems;
-            const TibiaDat& mDat;
+            const std::vector<Object>& mObjects;
             std::map<size_t, std::set<size_t>> mBindings;
     };
 }
 
 
-#endif // GRAPHICS_LAYER_SPRITE_OBJECT_BINDINGS
+#endif // GRAPHICS_LAYER_SPRITE_OBJECT_BINDINGS_HPP

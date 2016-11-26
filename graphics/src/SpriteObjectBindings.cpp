@@ -1,23 +1,51 @@
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "SpriteObjectBindings.hpp"
+
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
 ///////////////////////////////////
 // STD C++
 #include <sstream>
+#include <fstream>
 ///////////////////////////////////
 
-SpriteObjectBindings::SpriteObjectBindings(const TibiaDat& dat)
-: mDat(dat)
+SpriteObjectBindings::SpriteObjectBindings(const std::vector<Object>& objects)
+: mObjects(objects)
 {
     mBindings.clear();
     parseObjects();
 }
 
-SpriteObjectBindings::SpriteObjectBindings(const TibiaDat& dat, std::string binPath)
-: mDat(dat)
+SpriteObjectBindings::SpriteObjectBindings(const std::vector<Object>& objects, std::string binPath)
+: mObjects(objects)
 {
     mBindings.clear();
     readFromBinaryFile(binPath);
@@ -26,19 +54,6 @@ SpriteObjectBindings::SpriteObjectBindings(const TibiaDat& dat, std::string binP
 void SpriteObjectBindings::readFromBinaryFile(std::string binPath)
 {
     std::ifstream file(binPath, std::ios::binary);
-
-    unsigned int datVersion;
-    file.read((char*)&datVersion, sizeof(datVersion));
-    if(datVersion != mDat.getVersion())
-    {
-        std::stringstream sstream;
-        sstream << "SpriteObjectBindings file and Tibia.dat file version do not match. "
-                << "SpriteObjectBindings file has " << datVersion << " while Tibia.dat has " << mDat.getVersion() << "." << std::endl
-                << "Path to SpriteObjectBindings file: " << binPath << "." << std::endl
-                << "Path to Tibia.dat file: " << mDat.getPath() << "." << std::endl;
-
-        throw std::runtime_error(sstream.str());
-    }
 
     unsigned int numSprites;
     file.read((char*)&numSprites, sizeof(numSprites));
@@ -67,9 +82,6 @@ void SpriteObjectBindings::writeToBinaryFile(std::string path) const
 {
     std::ofstream file(path, std::ios::binary);
 
-    unsigned int datVersion = mDat.getVersion();
-    file.write((char*)&datVersion, sizeof(datVersion));
-
     unsigned int numSprites = mBindings.size();
     file.write((char*)&numSprites, sizeof(numSprites));
     for(auto pair : mBindings)
@@ -88,17 +100,16 @@ void SpriteObjectBindings::writeToBinaryFile(std::string path) const
 
 void SpriteObjectBindings::parseObjects()
 {
-    const std::vector<TibiaDat::Object>& objects = mDat.getObjects();
-    for(size_t i = 0; i < objects.size(); i++)
+    for(size_t i = 0; i < mObjects.size(); i++)
     {
-        createBindings(objects[i], i);
+        createBindings(mObjects[i], i);
     }
 }
 
-void SpriteObjectBindings::createBindings(const TibiaDat::Object& o, size_t globalId)
+void SpriteObjectBindings::createBindings(const Object& o, size_t globalId)
 {
-    for(const TibiaDat::SpritesInfo& info : o.spritesInfos)
-        for(size_t spriteId : info.spriteIds)
+    for(const Object::SomeInfo& info : o.someInfos)
+        for(size_t spriteId : info.spriteInfo.spriteIds)
         {
             if(spriteId != 0)
             {
@@ -108,16 +119,16 @@ void SpriteObjectBindings::createBindings(const TibiaDat::Object& o, size_t glob
         }
 }
 
-std::list<const TibiaDat::Object*> SpriteObjectBindings::getObjects(size_t spriteId) const
+std::list<const Object*> SpriteObjectBindings::getObjects(size_t spriteId) const
 {
-    std::list<const TibiaDat::Object*> objects;
+    std::list<const Object*> objects;
 
     auto found = mBindings.find(spriteId);
     if(found == mBindings.end())
         return objects;
 
     for(size_t id : found->second)
-        objects.push_back(&mDat.getObjects()[id]);
+        objects.push_back(&mObjects[id]);
 
     return objects;
 }

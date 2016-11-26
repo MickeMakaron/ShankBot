@@ -1,0 +1,63 @@
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
+///////////////////////////////////
+// Internal ShankBot headers
+#include "Response.hpp"
+#include "utility.hpp"
+using namespace sb::utility;
+using namespace sb::messaging;
+///////////////////////////////////
+
+size_t Response::getSizeDerived() const
+{
+    return sizeof(mResult);
+}
+
+size_t Response::fromBinaryDerived(const char* data, size_t size)
+{
+    if(size < sizeof(mResult))
+        return -1;
+
+    readStream(mResult, data);
+
+    return sizeof(mResult);
+}
+
+void Response::toBinaryDerived(std::vector<char>& out) const
+{
+    writeStream(mResult, out);
+}
+
+void Response::set(Result result)
+{
+    mResult = result;
+}
+
+Response::Result Response::get() const
+{
+    return mResult;
+}

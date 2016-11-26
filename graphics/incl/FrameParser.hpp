@@ -1,109 +1,239 @@
-#ifndef GRAPHICS_LAYER_FRAME_PARSER
-#define GRAPHICS_LAYER_FRAME_PARSER
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
+#ifndef GRAPHICS_LAYER_FRAME_PARSER_HPP
+#define GRAPHICS_LAYER_FRAME_PARSER_HPP
 
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "TileBufferCache.hpp"
 #include "SharedMemoryProtocol.hpp"
-#include "TibiaContext.hpp"
-#include "MovementMonitor.hpp"
+#include "FontSample.hpp"
+#include "Frame.hpp"
+#include "GenericType.hpp"
+#include "CombatSquareSample.hpp"
+
+#include "utility.hpp" // REMOVE LATER
+ // REMOVE LATER
+#include <cassert> // REMOVE LATER
+
+namespace GraphicsLayer
+{
+    class TibiaContext;
+}
 ///////////////////////////////////
 
 
+///////////////////////////////////
+// STD C++
+#include <set>
+#include <memory>
+///////////////////////////////////
 
 namespace GraphicsLayer
 {
     class FrameParser
     {
         public:
-            struct SpriteObjectPairing
+            struct MiniMapData
             {
-                size_t spriteId;
-                std::set<const TibiaDat::Object*> objects;
+                static const size_t width = Constants::MINI_MAP_PIXEL_WIDTH;
+                static const size_t height = Constants::MINI_MAP_PIXEL_HEIGHT;
+                static const size_t bytesPerPixel = sb::utility::BYTES_PER_PIXEL_RGBA;
             };
 
-            struct DrawCallInfo
+        private:
+            struct VertexBuffer
             {
-                enum class Region : char
+                void* data = nullptr;
+                unsigned int numBytes = 0;
+
+                enum class VertexType : unsigned char
                 {
-                    FULL,
-                    TOP_LEFT,
-                    TOP_RIGHT,
-                    BOTTOM_LEFT,
-                    BOTTOM_RIGHT
+                    TEXTURED,
+                    COLORED,
+                    TEXT,
+                    TEXTURED_NO_ORDER,
+                    UNDEFINED
                 };
 
-                std::list<SpriteObjectPairing> pairings;
-                short x;
-                short y;
-                short width;
-                short height;
-                short texX;
-                short texY;
-                Region region;
+                unsigned int getVerticesOffset() const;
 
-
-                // DEBUG
-                SharedMemoryProtocol::DrawCall drawCall;
-
+                VertexType vertexType = VertexType::UNDEFINED;
+                std::map<unsigned char, SharedMemoryProtocol::VertexAttribPointer> attribPointers;
             };
 
-            struct Layer
+            struct Texture
             {
-                static const int NUM_TILES_VIEW_X = 15;
-                static const int NUM_TILES_VIEW_Y = 11;
-                std::list<DrawCallInfo> view[NUM_TILES_VIEW_X][NUM_TILES_VIEW_Y];
-
-                std::list<DrawCallInfo> previousX[NUM_TILES_VIEW_Y];
-                std::list<DrawCallInfo> previousY[NUM_TILES_VIEW_X];
+                short width = 0;
+                short height = 0;
             };
 
-            struct Frame
+            struct ShaderProgram
             {
-                Layer tex3;
-                Layer tex1;
-
-                int numStepsX = 0; // Number of X steps INITIATED since last update.
-                int numStepsY = 0; // Number of y steps INITIATED since last update.
-                int movementDirectionX = 0; // X direction of current ONGOING movement.
-                int movementDirectionY = 0; // Y direction of current ONGOING movement.
+                sb::utility::Matrix<float, 4, 4> transform;
+                std::map<unsigned int, float[4]> uniform4fs;
             };
+
+            struct TileNumber
+            {
+                enum class Type : unsigned char
+                {
+                    INVALID,
+                    ICE_DAMAGE,
+                    PHYSICAL_DAMAGE,
+                    POISON_DAMAGE,
+                    XP_GAIN,
+                    MANA_GAIN,
+                    HP_GAIN,
+                    FIRE_DAMAGE,
+                    ENERGY_DAMAGE,
+                };
+
+                unsigned int number = 0;
+                Type type = Type::INVALID;
+
+            };
+
+            class Tile
+            {
+                public:
+                    enum class Type : unsigned char
+                    {
+                        INVALID,
+                        GRAPHICS_RESOURCE_NAMES,
+                        SPRITE_OBJECT_PAIRINGS,
+                        TILE_NUMBER,
+                        BLANK,
+                        GLYPH,
+                        COMBAT_SQUARE,
+                        ENUM_END,
+                    };
+
+                public:
+                    Tile(size_t width, size_t height, Type type, const std::shared_ptr<GenericType>& data = nullptr);
+                    Tile();
+                    Tile(Type type, const std::shared_ptr<GenericType>& data = nullptr);
+
+                    Type getType() const;
+                    size_t getWidth() const;
+                    size_t getHeight() const;
+                    GenericType* getData() const;
+
+                    void setWidth(size_t width);
+                    void setHeight(size_t height);
+
+                private:
+                    size_t mWidth = 0;
+                    size_t mHeight = 0;
+                    Type mType = Type::INVALID;
+                    std::shared_ptr<GenericType> mData;
+            };
+
+            template<typename T, Tile::Type type>
+            struct TileData : public GenericType
+            {
+                TileData(const T& d) : data(d){};
+                TileData(){};
+
+                static T& fromTile(const Tile& t)
+                {
+                    assert(t.getType() == type);
+                    return ((TileData<T, type>*)t.getData())->data;
+                }
+
+                static Tile createTile(size_t width, size_t height, const T& d)
+                {
+                    return Tile(width, height, type, std::make_shared<TileData<T, type>>(d));
+                }
+
+                T data;
+            };
+
+            typedef TileData<std::list<std::string>, Tile::Type::GRAPHICS_RESOURCE_NAMES> GraphicsResourceNamesData;
+            typedef TileData<std::list<SpriteDraw::SpriteObjectPairing>, Tile::Type::SPRITE_OBJECT_PAIRINGS> SpriteObjectPairingsData;
+            typedef TileData<TileNumber, Tile::Type::TILE_NUMBER> TileNumberData;
+            typedef TileData<unsigned char, Tile::Type::GLYPH> GlyphData;
+            typedef TileData<CombatSquareSample::CombatSquare::Type, Tile::Type::COMBAT_SQUARE> CombatSquareData;
 
         public:
             explicit FrameParser(const TibiaContext& context);
-
-            void updateTileBuffers(const SharedMemoryProtocol::PixelData* texxes, size_t numTexxes);
-            Frame parse(const SharedMemoryProtocol::DrawCall* drawCalls, size_t numDrawCalls);
+            std::list<Frame> parse(const SharedMemoryProtocol::SharedMemorySegment* segment);
 
         private:
-            void handleMovement(const std::list<const SharedMemoryProtocol::DrawCall*>& tex3ToTex1DrawCalls, Frame& frame);
-            std::list<SpriteObjectPairing> getPairings(const SharedMemoryProtocol::DrawCall& drawCall) const;
-            void parseTex3(const std::list<const SharedMemoryProtocol::DrawCall*>& drawCalls, Layer& layer) const;
-            void parseTex1(const std::list<const SharedMemoryProtocol::DrawCall*>& drawCalls, Layer& layer) const;
-            void getTileAdjustmentData(int& snapDistanceX, int& snapDistanceY, int& edgeAdjustX, int& edgeAdjustY) const;
-            void getAdjustedScreenTileCoordinates(int snapDistanceX, int snapDistanceY, int edgeAdjustX, int edgeAdjustY, const SharedMemoryProtocol::DrawCall& d, int& tileX, int& tileY, int* x = nullptr, int* y = nullptr) const;
-            DrawCallInfo getDrawCallInfo(const SharedMemoryProtocol::DrawCall& d) const;
+            void updateTileBuffer(const SharedMemoryProtocol::PixelData& data, const unsigned char* pixels);
+            void updateMiniMapPixels(const SharedMemoryProtocol::PixelData& pixelData, const unsigned char* pixels);
 
-        public:
-            static const int TILE_SIZE = 32;
+            unsigned char getChar(unsigned textureId, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
+            TileNumber getTileNumber(const unsigned char* pixels, unsigned short width, unsigned short height, SharedMemoryProtocol::PixelData::PixelFormat format) const;
+            Tile getTile(unsigned int textureId, unsigned short x, unsigned short y);
+
+            unsigned char getChar(const unsigned char* pixels, unsigned short width, unsigned short height, std::list<unsigned char>* topTen = nullptr) const;
+            void copyGlyphs(unsigned int srcTexId, unsigned short srcX, unsigned short srcY, unsigned int tarTexId, unsigned short tarX, unsigned short tarY, unsigned short width, unsigned short height);
+            void copyGlyphs(const SharedMemoryProtocol::DrawCall& drawCall);
+
+            void parsePixelData(const SharedMemoryProtocol::PixelData& pixelData, const unsigned char* pixels);
+            void parseGlyphPixelData(const SharedMemoryProtocol::PixelData& pixelData, const unsigned char* pixels);
+            void parseCopyTexture(const SharedMemoryProtocol::CopyTexture& copy);
+            void parseTextureData(const SharedMemoryProtocol::TextureData& textureData);
+            void parseVertexBufferWrite(const SharedMemoryProtocol::VertexBufferWrite& bufferWrite, const char* bufferData);
+            void parseVertexAttribPointer(const SharedMemoryProtocol::VertexAttribPointer& bufferInfo);
+            void parseDrawCall(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseTransformationMatrix(const SharedMemoryProtocol::TransformationMatrix& transform);
+            void parseUniform4f(const SharedMemoryProtocol::Uniform4f& uniform);
+
+            void parseRectDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseGlyphDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseSpriteDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseGuiTileDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseTileDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseUnshadedViewDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseMiniMapDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseFileIo(const SharedMemoryProtocol::FileIo& io, const char* data, Frame& frame) const;
+
 
         private:
-            static const int NUM_TILES_X = 16;
-            static const int NUM_TILES_Y = 16;
-            static const int NUM_TILES_VIEW_X = 15;
-            static const int NUM_TILES_VIEW_Y = 11;
-            static const int MIDDLE_SCREEN_X = (NUM_TILES_VIEW_X / 2) * TILE_SIZE;
-            static const int MIDDLE_SCREEN_Y = (NUM_TILES_VIEW_Y / 2) * TILE_SIZE;
+            static const unsigned short VIEW_WIDTH = 480;
+            static const unsigned short VIEW_HEIGHT = 352;
 
-            std::pair<short, short> mTex3TileIndexToTex1TileIndexMap[NUM_TILES_X][NUM_TILES_Y];
             const TibiaContext& mContext;
-            TileBufferCache<std::list<SpriteObjectPairing>> mSpriteCache;
-            TileBufferCache<size_t> mGuiCache;
-            int mCenterTexIndex = -1;
-            MovementMonitor mMovementMonitor;
+            TileBufferCache<Tile> mTileCache;
+
+            std::map<unsigned short, VertexBuffer> mVertexBuffers;
+            std::map<unsigned int, Texture> mTextures;
+            std::map<unsigned int, ShaderProgram> mShaderPrograms;
+            unsigned int mTileBufferId = 0;
+            std::map<unsigned int, std::shared_ptr<std::vector<unsigned char>>> mMiniMapBuffers;
+
+            unsigned int mUnshadedViewBufferId = 0;
+            unsigned int mShadedViewBufferId = 0;
+            std::set<unsigned int> mGlyphBufferIds;
     };
 
 }
 
 
-#endif // GRAPHICS_LAYER_FRAME_PARSER
+#endif // GRAPHICS_LAYER_FRAME_PARSER_HPP

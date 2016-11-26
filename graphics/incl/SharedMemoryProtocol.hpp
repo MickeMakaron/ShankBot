@@ -1,23 +1,67 @@
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
 #ifndef GRAPHICS_LAYER_SHARED_MEMORY_PROTOCOL_HPP
 #define GRAPHICS_LAYER_SHARED_MEMORY_PROTOCOL_HPP
 
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#endif
+
+
 ///////////////////////////////////
 // Internal ShankBot headers
-namespace GraphicsLayer
-{
-    struct Vertex;
-}
+#include "Matrix.hpp"
+#include "Color.hpp"
 ///////////////////////////////////
 
 namespace GraphicsLayer
 {
     namespace SharedMemoryProtocol
     {
-        const unsigned int TILE_WIDTH = 32;
-        const unsigned int TILE_HEIGHT = 32;
-        const unsigned int TILE_SIZE = TILE_WIDTH * TILE_HEIGHT * 4;
+        struct Message
+        {
+            enum class MessageType : unsigned char
+            {
+                PIXEL_DATA,
+                TEXTURE_DATA,
+                VERTEX_BUFFER_WRITE,
+                VERTEX_ATTRIB_POINTER,
+                DRAW_CALL,
+                TRANSFORMATION_MATRIX,
+                UNIFORM_4_F,
+                COPY_TEXTURE,
+                FILE_IO
+            };
 
-        struct PixelData
+            MessageType messageType;
+        };
+
+        struct PixelData : public Message
         {
             enum class PixelFormat : unsigned char
             {
@@ -25,105 +69,142 @@ namespace GraphicsLayer
                 BGRA,
                 ALPHA
             };
+            unsigned char getBytesPerPixel() const;
 
             unsigned short texX;
             unsigned short texY;
             unsigned short width;
             unsigned short height;
-            unsigned char targetTextureId;
+            unsigned int targetTextureId;
             PixelFormat format;
         };
 
-        struct TextureData
+        struct CopyTexture : public Message
+        {
+            unsigned short srcX;
+            unsigned short srcY;
+            unsigned short targetX;
+            unsigned short targetY;
+            unsigned short width;
+            unsigned short height;
+            unsigned int sourceTextureId;
+            unsigned int targetTextureId;
+        };
+
+        struct TextureData : public Message
         {
             unsigned short width;
             unsigned short height;
-            unsigned char id;
+            unsigned int id;
         };
 
-        struct VertexBufferWrite
+        struct VertexBufferWrite : public Message
         {
-            unsigned short bufferId = 0;
+            unsigned int bufferId = 0;
             unsigned int numBytes = 0;
         };
 
-        struct VertexBufferInfo
+        struct VertexAttribPointer : public Message
         {
-            enum class VertexType : unsigned char
-            {
-                TEXTURED,
-                COLORED,
-            };
+//            enum class VertexType : unsigned char
+//            {
+//                TEXTURED,
+//                COLORED,
+//                TEXT,
+//                TEXTURED_NO_ORDER,
+//                TEXTURED_OFFSET,
+//            };
 
-            typedef float Unknown;
+            typedef float Order;
             typedef unsigned short Index;
 
 
-            unsigned int numVertices = 0;
-            unsigned int numUnknown = 0;
-            unsigned int numIndices = 0;
-            static const unsigned int VERTICES_OFFSET = 0;
-            unsigned int unknownOffset = 0;
-            unsigned int indicesOffset = 0;
+//            unsigned int numVertices = 0;
+//            unsigned int numUnknown = 0;
+//            unsigned int numIndices = 0;
+//            unsigned int verticesOffset = 0;
+//            unsigned int unknownOffset = 0;
+//            unsigned int indicesOffset = 0;
 
-            unsigned short bufferId = 0;
+            unsigned char index = 0;
+            unsigned int bufferId = 0;
+            unsigned int stride = 0;
+            unsigned int offset = 0;
 
-            VertexType vertexType = VertexType::TEXTURED;
+//            VertexType vertexType = VertexType::TEXTURED;
         };
 
-        struct DrawCall
+        struct DrawCall : public Message
         {
             enum class PrimitiveType : unsigned char
             {
                 TRIANGLE,
-                TRIANGLE_STRIP
+                TRIANGLE_STRIP,
+                TRIANGLE_FAN
             };
 
             unsigned short bufferId = 0;
-            unsigned char sourceTextureId = 0;
-            unsigned char targetTextureId = 0;
+            unsigned short programId = 0;
+            unsigned int sourceTextureId = 0;
+            unsigned int targetTextureId = 0;
+            unsigned int indicesOffset = 0;
+            unsigned int numIndices = 0;
+            Color blendColor;
             PrimitiveType type = PrimitiveType::TRIANGLE;
+        };
+
+        struct TransformationMatrix : public Message
+        {
+            unsigned short programId = 0;
+            sb::utility::Matrix<float, 4, 4> matrix;
+        };
+
+        struct Uniform4f : public Message
+        {
+            unsigned short programId = 0;
+            unsigned short location = 0;
+            float values[4];
+        };
+
+        struct FileIo : public Message
+        {
+            enum class Type : unsigned char
+            {
+                READ,
+                WRITE,
+                INVALID
+            };
+
+            Type type = Type::INVALID;
+            unsigned short pathSize = 0;
         };
 
         struct Frame
         {
-            unsigned short numPixelData = 0;
-            unsigned short numVertexBufferWrites = 0;
-            unsigned short numVertexBufferInfos = 0;
-            unsigned short numDrawCalls = 0;
-            unsigned int numPixelBytes = 0;
-            unsigned int numVertexBytes = 0;
-            unsigned short numTextureData = 0;
+            unsigned int size = sizeof(Frame);
+            unsigned short width = 0;
+            unsigned short height = 0;
         };
 
-        const unsigned int MAX_NUM_PIXEL_DATA = 1000 * 3;
-        const unsigned int MAX_NUM_VERTEX_BUFFERS = 1000;
-        const unsigned int MAX_NUM_VERTEX_BUFFER_INFOS = 1000 * 2;
-        const unsigned int MAX_NUM_DRAW_CALL = 1000 * 2;
-        const unsigned int MAX_NUM_FRAMES = 1000;
-        const unsigned int MAX_NUM_TEXTURE_DATA = 50;
-        const unsigned int VERTEX_BUFFER_SIZE = 1000 * 1000 * 3;
-        const unsigned int PIXEL_BUFFER_SIZE = 1000 * 1000 * 5;
 
+        const unsigned int DATA_BUFFER_SIZE = 1 << 24;//1 << 23;
+        const char* const SHARED_MEMORY_ENV_VAR_NAME = "SHANKBOT_SHARED_MEMORY_NAME";
+        const unsigned int SHARED_MEMORY_NAME_LENGTH = 128;
 
         struct SharedMemorySegment
         {
-            bool hasPendingChanges = false;
+            char data[DATA_BUFFER_SIZE];
+            unsigned int size;
 
-            PixelData pixelData[MAX_NUM_PIXEL_DATA];
-            unsigned char pixelBuffer[PIXEL_BUFFER_SIZE];
+            #if defined(_WIN32)
+            HWND window = NULL;
+            HANDLE parentSync = NULL;
+            HANDLE parentProcessHandle = NULL;
+            HANDLE semWrite = NULL;
+            HANDLE semRead = NULL;
+            #else
 
-            VertexBufferWrite vertexBufferWrites[MAX_NUM_VERTEX_BUFFERS];
-            char vertexBuffer[VERTEX_BUFFER_SIZE];
-
-            VertexBufferInfo vertexBufferInfos[MAX_NUM_VERTEX_BUFFER_INFOS];
-
-            DrawCall drawCalls[MAX_NUM_DRAW_CALL];
-
-            TextureData textureData[MAX_NUM_TEXTURE_DATA];
-
-            Frame frames[MAX_NUM_FRAMES];
-            unsigned int numFrames = 0;
+            #endif
 
         };
 

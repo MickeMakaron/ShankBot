@@ -1,10 +1,40 @@
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "VersionControl.hpp"
-#include "fileUtility.hpp"
+#include "file.hpp"
 #include "utility.hpp"
-#include "TibiaSpr.hpp"
-#include "TibiaDat.hpp"
+using namespace sb::utility::file;
+///////////////////////////////////
+
+///////////////////////////////////
+// Qt
+#include "QtCore/QtCore"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -13,11 +43,26 @@
 ///////////////////////////////////
 
 
+
+
 using namespace GraphicsLayer;
 
-std::string VersionControl::OLD_PATH = "/old";
-std::string VersionControl::CURRENT_PATH = "/current";
-std::string VersionControl::CURRENT_VERSION_PATH = VersionControl::CURRENT_PATH + "/version";
+const std::string VersionControl::OLD_PATH = "/old";
+const std::string VersionControl::CURRENT_PATH = "/current";
+const std::string VersionControl::CURRENT_VERSION_PATH = CURRENT_PATH + "/version";
+#if defined(_WIN32)
+const std::string VersionControl::CLIENT_MODULE_NAME = "/client.exe";
+#else
+const std::string VersionControl::CLIENT_MODULE_NAME = "/client";
+#endif // defined
+const std::string VersionControl::TIBIA_PACKAGE_PATH = "/packages/Tibia";
+const std::string VersionControl::BIN_PATH = TIBIA_PACKAGE_PATH + "/bin";
+const std::string VersionControl::ASSETS_PATH = TIBIA_PACKAGE_PATH + "/assets";
+const std::string VersionControl::TIBIA_PACKAGE_INFO_PATH = TIBIA_PACKAGE_PATH + "/package.json";
+
+const std::string VersionControl::CLIENT_MODULE_PATH = BIN_PATH + CLIENT_MODULE_NAME;
+
+VersionControl::VersionFile VersionControl::mVersionFile;
 
 std::string VersionControl::getPath(std::string versionControlDir)
 {
@@ -26,34 +71,14 @@ std::string VersionControl::getPath(std::string versionControlDir)
 
 bool VersionControl::hasNewVersion(std::string clientDir, std::string versionControlDir)
 {
-    prepareFiles(clientDir, versionControlDir);
+    checkClientFiles(clientDir);
+    prepareFiles(versionControlDir);
     return updateVersion(clientDir, versionControlDir);
 }
 
-void VersionControl::prepareFiles(std::string clientDir, std::string versionControlDir)
+void VersionControl::prepareFiles(std::string versionControlDir)
 {
-    if(!fileExists(clientDir))
-        throw std::runtime_error("Could not find Tibia client directory '" + clientDir + "'.");
-
-    std::string tibiaExecutable = clientDir + "/Tibia";
-    if(!fileExists(tibiaExecutable))
-        throw std::runtime_error("Could not find Tibia executable at '" + tibiaExecutable + "'.");
-
-    std::string tibiaSpr = clientDir + "/Tibia.spr";
-    if(!fileExists(tibiaSpr))
-        throw std::runtime_error("Could not find Tibia.spr at '" + tibiaExecutable + "'.");
-
-    std::string tibiaDat = clientDir + "/Tibia.dat";
-    if(!fileExists(tibiaDat))
-        throw std::runtime_error("Could not find Tibia.dat at '" + tibiaExecutable + "'.");
-
-    std::string tibiaPic = clientDir + "/Tibia.pic";
-    if(!fileExists(tibiaPic))
-        throw std::runtime_error("Could not find Tibia.pic at '" + tibiaExecutable + "'.");
-
-
     makeDirIfNotExists(versionControlDir);
-
 
     std::string oldVersionsDir = versionControlDir + OLD_PATH;
     makeDirIfNotExists(oldVersionsDir);
@@ -62,84 +87,90 @@ void VersionControl::prepareFiles(std::string clientDir, std::string versionCont
     makeDirIfNotExists(currentVersionDir);
 }
 
+void VersionControl::checkClientFiles(std::string clientDir)
+{
+    if(!fileExists(clientDir))
+        THROW_RUNTIME_ERROR("Could not find Tibia client directory '" + clientDir + "'.");
+
+    std::string tibiaExecutable = clientDir + CLIENT_MODULE_PATH;
+    if(!fileExists(tibiaExecutable))
+        THROW_RUNTIME_ERROR("Could not find Tibia executable at '" + tibiaExecutable + "'.");
+
+    std::string tibiaPackageInfo = clientDir + TIBIA_PACKAGE_INFO_PATH;
+    if(!fileExists(tibiaPackageInfo))
+        THROW_RUNTIME_ERROR("Could not find Tibia package info at '" + tibiaPackageInfo + "'.");
+}
+
+
+void VersionControl::checkout(std::string versionControlDir)
+{
+    prepareFiles(versionControlDir);
+    std::string currentVersionPath = versionControlDir + CURRENT_VERSION_PATH;
+
+    if(fileExists(currentVersionPath))
+        THROW_RUNTIME_ERROR("Already checked out.");
+
+    mVersionFile.toFile(currentVersionPath);
+}
+
 
 bool VersionControl::updateVersion(std::string clientDir, std::string versionControlDir)
 {
     std::string currentVersionPath = versionControlDir + CURRENT_VERSION_PATH;
     if(!fileExists(currentVersionPath))
     {
-        writeVersionFile(clientDir, currentVersionPath);
+        mVersionFile.version = getTibiaVersion(clientDir);
         return true;
     }
 
-
-    unsigned int sprVersion;
-    unsigned int datVersion;
-    unsigned int picVersion;
-    unsigned int tibiaSprVersion;
-    unsigned int tibiaDatVersion;
-    unsigned int tibiaPicVersion;
-
-    getVersion(currentVersionPath, sprVersion, datVersion, picVersion);
-    getTibiaVersion(clientDir, tibiaSprVersion, tibiaDatVersion, tibiaPicVersion);
-
-    if(sprVersion != tibiaSprVersion || datVersion != tibiaDatVersion || picVersion != tibiaPicVersion)
-    {
-        std::string currentVersionDir = GraphicsLayer::getPath(currentVersionPath);
-        std::string oldVersionsDir = versionControlDir + OLD_PATH;
-        backup(oldVersionsDir, currentVersionDir);
-        recursiveRemove(currentVersionDir, false);
-        writeVersionFile(currentVersionPath, tibiaSprVersion, tibiaDatVersion, tibiaPicVersion);
-
-        return true;
-    }
-    else
+    VersionFile versionFile = VersionFile::fromFile(currentVersionPath);
+    std::string tibiaVersion = getTibiaVersion(clientDir);
+    if(versionFile.version == tibiaVersion)
         return false;
+
+    mVersionFile.version = tibiaVersion;
+
+    std::string currentVersionDir = getPath(currentVersionPath);
+    std::string oldVersionsDir = versionControlDir + OLD_PATH;
+    backup(oldVersionsDir, currentVersionDir);
+    recursiveRemove(currentVersionDir, false);
+    return true;
 }
 
 void VersionControl::backup(std::string oldVersionsDir, std::string currentVersionDir)
 {
     std::string backupPath = recursiveCopy(currentVersionDir, oldVersionsDir);
-    renameFile(backupPath, getDateTime());
+    renameFile(backupPath, sb::utility::getDateTime());
 }
 
-void VersionControl::getVersion(std::string path, unsigned int& spr, unsigned int& dat, unsigned int& pic)
+std::string VersionControl::getTibiaVersion(std::string clientDir)
 {
+    std::string packageInfoFilePath = clientDir + TIBIA_PACKAGE_INFO_PATH;
+
+    QFile file(QString::fromStdString(packageInfoFilePath));
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString content = file.readAll();
+    file.close();
+    QJsonDocument package = QJsonDocument::fromJson(content.toUtf8());
+
+    if(package.isNull())
+        THROW_RUNTIME_ERROR("Failed to read Tibia package at '" + packageInfoFilePath + "'.");
+
+    QJsonObject obj = package.object();
+    return obj["version"].toString().toStdString();
+}
+
+void VersionControl::VersionFile::toFile(std::string path) const
+{
+    std::ofstream file(path);
+    file    << version << std::endl;
+    file.close();
+}
+
+VersionControl::VersionFile VersionControl::VersionFile::fromFile(std::string path)
+{
+    VersionFile versionFile;
     std::ifstream file(path);
-    file    >> spr
-            >> dat
-            >> pic;
-
-    file.close();
-}
-
-void VersionControl::getTibiaVersion(std::string clientDir, unsigned int& spr, unsigned int& dat, unsigned int& pic)
-{
-    spr = TibiaSpr::getVersion(clientDir + "/Tibia.spr");
-    dat = TibiaDat::getVersion(clientDir + "/Tibia.dat");
-    pic = 0;
-}
-
-void VersionControl::writeVersionFile(std::string path, unsigned int spr, unsigned int dat, unsigned int pic)
-{
-    std::ofstream file(path);
-    file    << spr << std::endl
-            << dat << std::endl
-            << pic << std::endl;
-
-    file.close();
-}
-
-void VersionControl::writeVersionFile(std::string clientDir, std::string path)
-{
-    unsigned int sprVersion = TibiaSpr::getVersion(clientDir + "/Tibia.spr");
-    unsigned int datVersion = TibiaDat::getVersion(clientDir + "/Tibia.dat");
-    unsigned int picVersion = 0;
-
-    std::ofstream file(path);
-    file    << sprVersion << std::endl
-            << datVersion << std::endl
-            << picVersion << std::endl;
-
-    file.close();
+    file >> versionFile.version;
+    return versionFile;
 }
