@@ -30,6 +30,7 @@
 #include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
+using namespace sb;
 ///////////////////////////////////
 
 size_t Response::getSizeDerived() const
@@ -55,12 +56,12 @@ void Response::toBinaryDerived(std::vector<char>& out) const
     writeStream(mResult, out);
 }
 
-void Response::set(Result result)
+void Response::set(RequestResult result)
 {
     mResult = result;
 }
 
-Response::Result Response::get() const
+RequestResult Response::getResult() const
 {
     return mResult;
 }

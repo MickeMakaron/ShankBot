@@ -24,28 +24,14 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef SB_MESSAGING_FRAME_REQUEST_HPP
-#define SB_MESSAGING_FRAME_REQUEST_HPP
+#ifndef SB_API_CONFIG_HPP
+#define SB_API_CONFIG_HPP
 
 
+#if defined(BUILD_SHANK_BOT_API)
+    #define SHANK_BOT_API_DECLSPEC __declspec(dllexport)
+#else
+    #define SHANK_BOT_API_DECLSPEC __declspec(dllimport)
+#endif
 
-///////////////////////////////////
-// Internal ShankBot headers
-#include "Message.hpp"
-#include "messaging/config.hpp"
-///////////////////////////////////
-
-namespace sb
-{
-namespace messaging
-{
-    class FrameRequest : public Message
-    {
-        public:
-            explicit FrameRequest() : Message(Message::Type::FRAME_REQUEST){};
-    };
-}
-}
-
-
-#endif // SB_MESSAGING_FRAME_REQUEST_HPP
+#endif // SB_API_CONFIG_HPP

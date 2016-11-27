@@ -31,6 +31,7 @@
 // Internal ShankBot headers
 #include "messaging/Response.hpp"
 #include "messaging/config.hpp"
+#include "api/Character.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -45,14 +46,7 @@ namespace messaging
     class SHANK_BOT_MESSAGING_DECLSPEC LoginResponse : public Response
     {
         public:
-            struct Character
-            {
-                std::string name;
-                std::string world;
-            };
-
-        public:
-            explicit LoginResponse(Response::Result result = Response::Result::FAIL) : Response(result, Message::Type::LOGIN_RESPONSE) {};
+            explicit LoginResponse(RequestResult result = RequestResult::FAIL) : Response(result, Message::Type::LOGIN_RESPONSE) {};
 
             void addCharacter(const std::string& character, const std::string& world);
             const std::vector<Character>& getCharacters() const;

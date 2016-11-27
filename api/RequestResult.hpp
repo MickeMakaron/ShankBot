@@ -24,28 +24,20 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef SB_MESSAGING_FRAME_REQUEST_HPP
-#define SB_MESSAGING_FRAME_REQUEST_HPP
-
-
-
-///////////////////////////////////
-// Internal ShankBot headers
-#include "Message.hpp"
-#include "messaging/config.hpp"
-///////////////////////////////////
+#ifndef SB_API_REQUEST_RESULT_HPP
+#define SB_API_REQUEST_RESULT_HPP
 
 namespace sb
 {
-namespace messaging
-{
-    class FrameRequest : public Message
+    enum class RequestResult : unsigned char
     {
-        public:
-            explicit FrameRequest() : Message(Message::Type::FRAME_REQUEST){};
+        SUCCESS,
+        FAIL,
+        INVALID_STATE,
+        CONNECTION_TIME_OUT,
+        CONNECTION_DROP,
     };
 }
-}
 
 
-#endif // SB_MESSAGING_FRAME_REQUEST_HPP
+#endif // SB_API_REQUEST_RESULT_HPP

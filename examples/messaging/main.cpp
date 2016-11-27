@@ -25,12 +25,8 @@
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
 
-#include "messaging/Message.hpp"
-#include "messaging/ConnectionManager.hpp"
-#include "messaging/Requester.hpp"
-#include "messaging/LoginResponse.hpp"
-using namespace GraphicsLayer;
-using namespace sb::messaging;
+#include "api/Requester.hpp"
+using namespace sb;
 
 #include <string>
 #include <iostream>
@@ -38,22 +34,22 @@ using namespace sb::messaging;
 #include <cassert>
 #include <sstream>
 
-void handleLoginResponse(const LoginResponse& r)
+void handleLoginResponse(RequestResult result, const std::vector<Character>& characters)
 {
-    std::cout << "Login response: " << std::endl;
-    for(const LoginResponse::Character& c : r.getCharacters())
+    std::cout << "Login result: " << (int)result << std::endl;
+    for(const Character& c : characters)
         std::cout << "\t" << c.name << "\t\t\t" << c.world << std::endl;
     std::cout << std::endl;
 }
 
-void handleRequestResult(const Response& r)
+void handleGoResult(RequestResult result)
 {
-    std::cout << "Response: " << (int)r.get() << std::endl;
+    std::cout << "Go result: " << (int)result << std::endl;
 }
 
-void handleFrameResponse(const FrameResponse& r)
+void handleFrameResponse(RequestResult result, const Frame& f)
 {
-    const FrameResponse::Frame& f = r.get();
+    std::cout << "Frame result: " << (int)result << std::endl;
 
     std::cout << ":::::::::::: FRAME :::::::::::::::" << std::endl;
     std::cout << "Object count: " << std::endl;
@@ -83,17 +79,17 @@ void handleFrameResponse(const FrameResponse& r)
 
 
     std::cout << "Players : " << std::endl;
-    for(const FrameResponse::Player& p : f.scene.players)
+    for(const Player& p : f.scene.players)
         std::cout << "\t" << p.name << ": " << p.x << "x" << p.y << " (" << p.hp * 100.f << "%)" << std::endl;
     std::cout << "---------" << std::endl;
 
     std::cout << "Creatures : " << std::endl;
-    for(const FrameResponse::Creature& p : f.scene.creatures)
+    for(const Creature& p : f.scene.creatures)
         std::cout << "\t" << p.name << "(" << p.id << "): " << p.x << "x" << p.y << " (" << p.hp * 100.f << "%)" << std::endl;
     std::cout << "---------" << std::endl;
 
     std::cout << "Npcs : " << std::endl;
-    for(const FrameResponse::Npc& p : f.scene.npcs)
+    for(const Npc& p : f.scene.npcs)
         std::cout << "\t" << p.name << ": " << p.x << "x" << p.y << std::endl;
     std::cout << "---------" << std::endl;
 
@@ -137,15 +133,14 @@ int main(int argc, char** argv)
         getline(std::cin, message);
         Command c = resolveCommand(message);
 
-        Requester::Status s;
+        RequestResult result;
         switch(c)
         {
             case Command::LOGIN:
             {
-                LoginResponse r = requester.login(s, "FrixaRael", "choochoo1");
-                if(s != Requester::Status::SUCCESS)
-                    throw std::runtime_error("Failed to request login.");
-                handleLoginResponse(r);
+                std::vector<Character> characters;
+                result = requester.login("FrixaRael", "choochoo1", characters);
+                handleLoginResponse(result, characters);
                 break;
             }
 
@@ -154,19 +149,16 @@ int main(int argc, char** argv)
                 short x;
                 short y;
                 parseGoCommand(message, x, y);
-                Response r = requester.go(s, x, y);
-                if(s != Requester::Status::SUCCESS)
-                    throw std::runtime_error("Failed to request go.");
-                handleRequestResult(r);
+                result = requester.go(x, y);
+                handleGoResult(result);
                 break;
             }
 
             case Command::FRAME:
             {
-                FrameResponse r = requester.frame(s);
-                if(s != Requester::Status::SUCCESS)
-                    throw std::runtime_error("Failed to request frame.");
-                handleFrameResponse(r);
+                Frame f;
+                result = requester.frame(f);
+                handleFrameResponse(result, f);
                 break;
             }
 

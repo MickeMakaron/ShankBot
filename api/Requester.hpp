@@ -24,44 +24,45 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef SB_MESSAGING_RESPONSE_HPP
-#define SB_MESSAGING_RESPONSE_HPP
-
+#ifndef SB_API_REQUESTER_HPP
+#define SB_API_REQUESTER_HPP
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "messaging/config.hpp"
-#include "Message.hpp"
+#include "api/config.hpp"
 #include "api/RequestResult.hpp"
-///////////////////////////////////
-
+#include "api/Frame.hpp"
+#include "api/Character.hpp"
 namespace sb
 {
 namespace messaging
 {
-    class SHANK_BOT_MESSAGING_DECLSPEC Response : public Message
-    {
-        public:
-            explicit Response(RequestResult result = RequestResult::FAIL, Message::Type type = Message::Type::INVALID) : Message(Message::Type::RESPONSE), mResponseType(type), mResult(result){};
-
-            void set(RequestResult result);
-            RequestResult getResult() const;
-
-            Message::Type getResponseType() const;
-
-            static Message::Type readResponseType(const char* data, size_t size);
-
-        protected:
-            size_t getSizeDerived() const override;
-            size_t fromBinaryDerived(const char* data, size_t size) override;
-            void toBinaryDerived(std::vector<char>& out) const override;
-
-        private:
-            Message::Type mResponseType;
-            RequestResult mResult;
-    };
+    class Requester;
 }
 }
+///////////////////////////////////
 
+///////////////////////////////////
+// STD C++
+#include <string>
+#include <vector>
+///////////////////////////////////
 
-#endif // SB_MESSAGING_RESPONSE_HPP
+namespace sb
+{
+class SHANK_BOT_API_DECLSPEC Requester
+{
+    public:
+        Requester();
+        ~Requester();
+
+        RequestResult frame(Frame& f);
+        RequestResult go(short x, short y);
+        RequestResult login(std::string accountName, std::string password, std::vector<Character>& characters);
+
+    private:
+        sb::messaging::Requester* mRequester = nullptr;
+};
+}
+
+#endif // SB_API_REQUESTER_HPP

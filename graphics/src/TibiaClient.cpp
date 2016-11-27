@@ -199,7 +199,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleGoRequest(const char*
     }
 
     std::cout << "Handling go request: " << g.getX() << "x" << g.getY() << std::endl;
-    auto response = std::make_shared<Response>(Response::Result::SUCCESS);
+    auto response = std::make_shared<Response>(sb::RequestResult::SUCCESS);
 
     Frame frame = mGraphicsMonitorReader->getNewFrame();
     mMiniMap->update(frame);
@@ -319,7 +319,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleLoginRequest(const ch
                     {
                         if(t.string == "Select Character")
                         {
-                            auto response = std::make_shared<LoginResponse>(Response::Result::SUCCESS);
+                            auto response = std::make_shared<LoginResponse>(sb::RequestResult::SUCCESS);
 
                             it++;
                             while(it != frame.textDraws->end())
@@ -365,7 +365,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
 
     GraphicsLayer::Frame frame = mGraphicsMonitorReader->getNewFrame();
     using namespace sb::messaging;;
-    FrameResponse::Frame f;
+    sb::Frame f;
 
     mGui.update(frame);
     if(mGui.getState() != Gui::State::GAME)
@@ -379,23 +379,23 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
     f.miniMap.y = mMiniMap->getY();
     f.miniMap.level = mMiniMap->getLevel();
 
-    const unsigned int GLOBAL_X_START = f.miniMap.x - FrameResponse::Scene::WIDTH / 2;
-    const unsigned int GLOBAL_Y_START = f.miniMap.y - FrameResponse::Scene::HEIGHT / 2;
-    for(size_t x = 0; x < FrameResponse::Scene::WIDTH; x++)
+    const unsigned int GLOBAL_X_START = f.miniMap.x - sb::Scene::WIDTH / 2;
+    const unsigned int GLOBAL_Y_START = f.miniMap.y - sb::Scene::HEIGHT / 2;
+    for(size_t x = 0; x < sb::Scene::WIDTH; x++)
     {
-        for(size_t y = 0; y < FrameResponse::Scene::HEIGHT; y++)
+        for(size_t y = 0; y < sb::Scene::HEIGHT; y++)
         {
             f.miniMap.colors[x][y] = mMiniMap->getColor(GLOBAL_X_START + x, GLOBAL_Y_START + y);
 
             const Scene::Tile& t = mScene.getTile(x, y);
             char currLayer = -1;
-            std::vector<FrameResponse::Object>& objects = f.scene.objects[x][y];
+            std::vector<sb::Object>& objects = f.scene.objects[x][y];
             for(const Scene::Object& o : t.knownLayerObjects)
             {
                 if(currLayer != o.layer)
                 {
                     currLayer = o.layer;
-                    FrameResponse::Object obj;
+                    sb::Object obj;
                     obj.type = o.object->type;
                     obj.id = o.object->id;
                     objects.push_back(obj);
@@ -410,7 +410,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
     for(const OutfitResolver::Npc& npc : mOutfitResolver.getNpcs())
     {
         f.scene.npcs.emplace_back();
-        FrameResponse::Npc& n = f.scene.npcs.back();
+        sb::Npc& n = f.scene.npcs.back();
         n.id = npc.object ? npc.object->id : 0;
         n.name = npc.name;
         n.x = npc.x;
@@ -420,7 +420,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
     for(const OutfitResolver::Creature& creature : mOutfitResolver.getCreatures())
     {
         f.scene.creatures.emplace_back();
-        FrameResponse::Creature& c = f.scene.creatures.back();
+        sb::Creature& c = f.scene.creatures.back();
         c.id = creature.object ? creature.object->id : 0;
         c.name = creature.name;
         c.x = creature.x;
@@ -431,7 +431,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
     for(const OutfitResolver::Player& player : mOutfitResolver.getPlayers())
     {
         f.scene.players.emplace_back();
-        FrameResponse::Player& p = f.scene.players.back();
+        sb::Player& p = f.scene.players.back();
         p.name = player.name;
         p.x = player.x;
         p.y = player.y;
@@ -439,7 +439,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
     }
 
     std::cout << "Frame request handled successfully." << std::endl;
-    auto response = std::make_shared<FrameResponse>(Response::Result::SUCCESS);
+    auto response = std::make_shared<FrameResponse>(sb::RequestResult::SUCCESS);
     response->set(f);
     return response;
 }
@@ -454,7 +454,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleAttackRequest(const c
     if(numBytesRead == 0)
     {
         std::cout << "Failed to handle attack request." << std::endl;
-        return std::make_shared<Response>(Response::Result::FAIL);
+        return std::make_shared<Response>(sb::RequestResult::FAIL);
     }
 
     std::cout << "Handling attack request." << std::endl;
@@ -479,10 +479,10 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleAttackRequest(const c
     if(closestOutfit)
     {
         mInput->sendMouseClick(VK_LBUTTON, closestOutfit->screenX + mScene.getTileWidth() / 2.f, closestOutfit->screenY + mScene.getTileHeight() / 2.f);
-        response.reset(new Response(Response::Result::SUCCESS));
+        response.reset(new Response(sb::RequestResult::SUCCESS));
     }
     else
-        response.reset(new Response(Response::Result::FAIL));
+        response.reset(new Response(sb::RequestResult::FAIL));
 
     return response;
 }
@@ -655,7 +655,7 @@ void TibiaClient::update()
 //
 //                            case T::ATTACK_REQUEST:
 ////                                handleAttackRequest(message.data(), message.size());
-//                                responses.push_back(std::make_unique<Response>(Response::Result::SUCCESS));
+//                                responses.push_back(std::make_unique<Response>(sb::RequestResult::SUCCESS));
 //                                break;
 //
 //                            default:
@@ -783,7 +783,7 @@ void TibiaClient::update()
             {
                 for(size_t x = currX - Constants::NUM_TILES_VIEW_X / 2; x <= currX + Constants::NUM_TILES_VIEW_X / 2; x++)
                 {
-                    std::cout << (int)(mMiniMap->getColor(x, y) == Object::MiniMapColor::YELLOW) << " ";
+                    std::cout << (int)(mMiniMap->getColor(x, y) == sb::tibiaassets::Object::MiniMapColor::YELLOW) << " ";
 //                    mMiniMap->isFloorChange(x, y);
 //                    std::cout << " ";
                 }
@@ -1192,7 +1192,7 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
 
     LoadLibAddy = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 
-    const char* DLL_NAME = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/graphics/bin/Release/GraphicsMonitor.dll";
+    const char* DLL_NAME = "GraphicsMonitor.dll";
 
     RemoteString = (LPVOID)VirtualAllocEx(mClientProcessHandle, NULL, strlen(DLL_NAME), MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
     WriteProcessMemory(mClientProcessHandle, (LPVOID)RemoteString, DLL_NAME,strlen(DLL_NAME), NULL);

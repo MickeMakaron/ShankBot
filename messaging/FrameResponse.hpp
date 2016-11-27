@@ -33,11 +33,7 @@
 #include "messaging/Response.hpp"
 #include "tibiaassets/Object.hpp"
 #include "messaging/config.hpp"
-///////////////////////////////////
-
-///////////////////////////////////
-// STD C++
-#include <string>
+#include "api/Frame.hpp"
 ///////////////////////////////////
 
 namespace sb
@@ -46,71 +42,11 @@ namespace messaging
 {
     class SHANK_BOT_MESSAGING_DECLSPEC FrameResponse : public Response
     {
-        public:
-            struct Outfit
-            {
-                std::string name;
-                unsigned short x;
-                unsigned short y;
-            };
-
-            struct Player : public Outfit
-            {
-                float hp;
-            };
-
-            struct Npc : public Outfit
-            {
-                unsigned short id;
-            };
-
-            struct Creature : public Outfit
-            {
-                float hp;
-                unsigned short id;
-            };
-
-            struct Object
-            {
-                sb::tibiaassets::Object::Type type;
-                unsigned short id;
-            };
-
-            struct Scene
-            {
-                static const size_t WIDTH = 15;
-                static const size_t HEIGHT = 11;
-                static const size_t SIZE = WIDTH * HEIGHT;
-                std::vector<Object> objects[WIDTH][HEIGHT];
-                std::vector<Player> players;
-                std::vector<Npc> npcs;
-                std::vector<Creature> creatures;
-            };
-
-            struct Gui
-            {
-
-            };
-
-            struct MiniMap
-            {
-                unsigned int x;
-                unsigned int y;
-                unsigned char level;
-                sb::tibiaassets::Object::MiniMapColor colors[Scene::WIDTH][Scene::HEIGHT];
-            };
-
-            struct Frame
-            {
-                Scene scene;
-                Gui gui;
-                MiniMap miniMap;
-            };
         private:
             typedef unsigned char SIZE_TYPE;
 
         public:
-            explicit FrameResponse(Response::Result result = Response::Result::FAIL) : Response(result, Message::Type::FRAME_RESPONSE){};
+            explicit FrameResponse(RequestResult result = RequestResult::FAIL) : Response(result, Message::Type::FRAME_RESPONSE){};
 
             void set(const Frame& frame);
             const Frame& get() const;

@@ -30,6 +30,7 @@
 #include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
+using namespace sb;
 ///////////////////////////////////
 
 size_t LoginResponse::getSizeDerived() const
@@ -104,7 +105,7 @@ void LoginResponse::toBinaryDerived(std::vector<char>& out) const
     }
 }
 
-const std::vector<LoginResponse::Character>& LoginResponse::getCharacters() const
+const std::vector<Character>& LoginResponse::getCharacters() const
 {
     return mCharacters;
 }

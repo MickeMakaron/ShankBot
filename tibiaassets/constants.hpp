@@ -27,11 +27,6 @@
 #ifndef SB_TIBIAASSETS_CONSTANTS_HPP
 #define SB_TIBIAASSETS_CONSTANTS_HPP
 
-///////////////////////////////////
-// Internal ShankBot headers
-#include "utility/Color.hpp"
-///////////////////////////////////
-
 
 namespace sb
 {

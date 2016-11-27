@@ -24,44 +24,23 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef SB_MESSAGING_RESPONSE_HPP
-#define SB_MESSAGING_RESPONSE_HPP
+#ifndef SB_API_CHARACTER_HPP
+#define SB_API_CHARACTER_HPP
 
 
 ///////////////////////////////////
-// Internal ShankBot headers
-#include "messaging/config.hpp"
-#include "Message.hpp"
-#include "api/RequestResult.hpp"
+// STD C++
+#include <string>
 ///////////////////////////////////
 
 namespace sb
 {
-namespace messaging
-{
-    class SHANK_BOT_MESSAGING_DECLSPEC Response : public Message
+    struct Character
     {
-        public:
-            explicit Response(RequestResult result = RequestResult::FAIL, Message::Type type = Message::Type::INVALID) : Message(Message::Type::RESPONSE), mResponseType(type), mResult(result){};
-
-            void set(RequestResult result);
-            RequestResult getResult() const;
-
-            Message::Type getResponseType() const;
-
-            static Message::Type readResponseType(const char* data, size_t size);
-
-        protected:
-            size_t getSizeDerived() const override;
-            size_t fromBinaryDerived(const char* data, size_t size) override;
-            void toBinaryDerived(std::vector<char>& out) const override;
-
-        private:
-            Message::Type mResponseType;
-            RequestResult mResult;
+        std::string name;
+        std::string world;
     };
 }
-}
 
 
-#endif // SB_MESSAGING_RESPONSE_HPP
+#endif // SB_API_CHARACTER_HPP

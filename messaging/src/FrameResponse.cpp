@@ -30,6 +30,7 @@
 #include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
+using namespace sb;
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -70,7 +71,7 @@ void FrameResponse::set(const Frame& frame)
     mFrame = frame;
 }
 
-const FrameResponse::Frame& FrameResponse::get() const
+const Frame& FrameResponse::get() const
 {
     return mFrame;
 }

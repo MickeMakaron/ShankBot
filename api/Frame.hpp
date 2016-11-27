@@ -24,40 +24,82 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef SB_MESSAGING_REQUESTER_HPP
-#define SB_MESSAGING_REQUESTER_HPP
+#ifndef SB_API_FRAME_HPP
+#define SB_API_FRAME_HPP
+
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "messaging/ConnectionManager.hpp"
-#include "messaging/Connection.hpp"
-#include "messaging/config.hpp"
-#include "api/RequestResult.hpp"
+#include "tibiaassets/Object.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
 // STD C++
-#include <memory>
+#include <string>
 ///////////////////////////////////
 
 namespace sb
 {
-namespace messaging
-{
+    struct Outfit
+    {
+        std::string name;
+        unsigned short x;
+        unsigned short y;
+    };
 
-class SHANK_BOT_MESSAGING_DECLSPEC Requester
-{
-    public:
-        Requester();
-        std::shared_ptr<std::vector<char>> request(RequestResult& result, const std::unique_ptr<Message>& message);
+    struct Player : public Outfit
+    {
+        float hp;
+    };
 
-    private:
-        ConnectionManager mManager;
-        Connection* mConnection = nullptr;
+    struct Npc : public Outfit
+    {
+        unsigned short id;
+    };
 
-        static const size_t M_WAIT_TIME_MS = 10000;
-};
+    struct Creature : public Outfit
+    {
+        float hp;
+        unsigned short id;
+    };
+
+    struct Object
+    {
+        sb::tibiaassets::Object::Type type;
+        unsigned short id;
+    };
+
+    struct Scene
+    {
+        static const size_t WIDTH = 15;
+        static const size_t HEIGHT = 11;
+        static const size_t SIZE = WIDTH * HEIGHT;
+        std::vector<Object> objects[WIDTH][HEIGHT];
+        std::vector<Player> players;
+        std::vector<Npc> npcs;
+        std::vector<Creature> creatures;
+    };
+
+    struct Gui
+    {
+
+    };
+
+    struct MiniMap
+    {
+        unsigned int x;
+        unsigned int y;
+        unsigned char level;
+        sb::tibiaassets::Object::MiniMapColor colors[Scene::WIDTH][Scene::HEIGHT];
+    };
+
+    struct Frame
+    {
+        Scene scene;
+        Gui gui;
+        MiniMap miniMap;
+    };
 }
-}
 
-#endif // SB_MESSAGING_REQUESTER_HPP
+
+#endif // SB_API_FRAME_HPP
