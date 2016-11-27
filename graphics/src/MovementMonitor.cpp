@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "MovementMonitor.hpp"
+#include "graphics/MovementMonitor.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 

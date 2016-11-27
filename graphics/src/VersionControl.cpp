@@ -26,9 +26,9 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "VersionControl.hpp"
-#include "file.hpp"
-#include "utility.hpp"
+#include "graphics/VersionControl.hpp"
+#include "utility/file.hpp"
+#include "utility/utility.hpp"
 using namespace sb::utility::file;
 ///////////////////////////////////
 
@@ -130,7 +130,7 @@ bool VersionControl::updateVersion(std::string clientDir, std::string versionCon
 
     mVersionFile.version = tibiaVersion;
 
-    std::string currentVersionDir = getPath(currentVersionPath);
+    std::string currentVersionDir = sb::utility::file::getPath(currentVersionPath);
     std::string oldVersionsDir = versionControlDir + OLD_PATH;
     backup(oldVersionsDir, currentVersionDir);
     recursiveRemove(currentVersionDir, false);

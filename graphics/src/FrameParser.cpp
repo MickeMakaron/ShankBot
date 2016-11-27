@@ -26,14 +26,15 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "FrameParser.hpp"
-#include "utility.hpp"
+#include "graphics/FrameParser.hpp"
+#include "utility/utility.hpp"
 
-#include "Constants.hpp"
-#include "TibiaContext.hpp"
+#include "graphics/Constants.hpp"
+#include "graphics/TibiaContext.hpp"
 using namespace GraphicsLayer;
 using namespace SharedMemoryProtocol;
 using namespace sb::utility;
+using namespace sb::tibiaassets;
 ///////////////////////////////////
 
 ///////////////////////////////////

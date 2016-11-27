@@ -26,8 +26,9 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "TibiaContext.hpp"
+#include "graphics/TibiaContext.hpp"
 using namespace GraphicsLayer;
+using namespace sb::tibiaassets;
 ///////////////////////////////////
 
 

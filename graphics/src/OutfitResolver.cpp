@@ -26,12 +26,12 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "OutfitResolver.hpp"
-#include "Frame.hpp"
-#include "Object.hpp"
-#include "TextBuilder.hpp"
-#include "tibiaIoUtility.hpp"
-
+#include "graphics/OutfitResolver.hpp"
+#include "graphics/Frame.hpp"
+#include "tibiaassets/Object.hpp"
+#include "graphics/TextBuilder.hpp"
+#include "graphics/tibiaIoUtility.hpp"
+using namespace sb::tibiaassets;
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -124,6 +124,7 @@ std::list<OutfitResolver::HpBar> OutfitResolver::getHpBars() const
 {
     std::list<HpBar> hpBars;
     std::list<HpBar> hpBarBackgrounds;
+//    std::cout << "get hp bars: " << std::endl;
     for(const RectDraw& rect : *mCurrentFrame->rectDraws)
     {
         typedef Constants::RectColor Color;
@@ -147,7 +148,8 @@ std::list<OutfitResolver::HpBar> OutfitResolver::getHpBars() const
             case Color::HP_LIGHT_RED:
             case Color::HP_RED:
             case Color::HP_DARK_RED:
-                if(screenX < mCurrentFrame->viewX + mCurrentFrame->viewWidth)
+//                if(screenX < mCurrentFrame->viewX + mCurrentFrame->viewWidth)
+                if((int)rectWidth == 21 && (int)rectHeight == 2)
                 {
                     HpBar b;
                     b.x = screenX;
@@ -155,11 +157,17 @@ std::list<OutfitResolver::HpBar> OutfitResolver::getHpBars() const
                     b.width = rectWidth;
                     b.height = rectHeight;
                     hpBars.push_back(b);
+
+//                    std::cout << "hp: " << screenX << "x" << screenY << " (" << rectWidth << "x" << rectHeight << ")" << "(" << (int)rect.color.r << ", " << (int)rect.color.g << ", " << (int)rect.color.b << ", " << (int)rect.color.a << ")" << std::endl;
                 }
+//                else
+//                    std::cout << "discarded hp: " << screenX << "x" << screenY << " (" << rectWidth << "x" << rectHeight << ")" << "(" << (int)rect.color.r << ", " << (int)rect.color.g << ", " << (int)rect.color.b << ", " << (int)rect.color.a << ")" << std::endl;
+
                 break;
 
             case Color::HP_BACKGROUND:
-                if(rectHeight * 4 < rectWidth)
+//                if(rectHeight * 4 < rectWidth)
+                if((int)rectWidth == 27 && (int)rectHeight == 4)
                 {
                     HpBar b;
                     b.x = screenX;
@@ -167,8 +175,13 @@ std::list<OutfitResolver::HpBar> OutfitResolver::getHpBars() const
                     b.width = rectWidth;
                     b.height = rectHeight;
                     hpBarBackgrounds.push_back(b);
+
+//                    std::cout << "bg: " << screenX << "x" << screenY << " (" << rectWidth << "x" << rectHeight << ")" << "(" << (int)rect.color.r << ", " << (int)rect.color.g << ", " << (int)rect.color.b << ", " << (int)rect.color.a << ")" << std::endl;
                 }
+//                else
+//                    std::cout << "discarded bg: " << screenX << "x" << screenY << " (" << rectWidth << "x" << rectHeight << ")" << "(" << (int)rect.color.r << ", " << (int)rect.color.g << ", " << (int)rect.color.b << ", " << (int)rect.color.a << ")" << std::endl;
                 break;
+
 
             default:
                 break;

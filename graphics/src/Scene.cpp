@@ -26,11 +26,11 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "Scene.hpp"
-#include "SpriteInfo.hpp"
-#include "utility.hpp"
-#include "Object.hpp"
-#include "Frame.hpp"
+#include "graphics/Scene.hpp"
+#include "graphics/SpriteInfo.hpp"
+#include "utility/utility.hpp"
+#include "tibiaassets/Object.hpp"
+#include "graphics/Frame.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -114,7 +114,7 @@ void Scene::parseCurrentFrame()
         {
             const SpriteInfo::Info& spriteInfo = mSpriteInfo.get(draw.pairings.front().spriteId);
 
-            const GraphicsLayer::Object* firstObject = *draw.pairings.front().objects.begin();
+            const sb::tibiaassets::Object* firstObject = *draw.pairings.front().objects.begin();
 
             short x = draw.topLeft.x + firstObject->itemInfo.offsetX;
             short y = draw.topLeft.y + firstObject->itemInfo.offsetY;
@@ -145,7 +145,7 @@ void Scene::parseCurrentFrame()
             for(const SpriteDraw::SpriteObjectPairing& pair : draw.pairings)
             {
                 assert(!pair.objects.empty());
-                for(const GraphicsLayer::Object* obj : pair.objects)
+                for(const sb::tibiaassets::Object* obj : pair.objects)
                 {
 //                    if(obj->itemInfo.isGround)
 //                    {

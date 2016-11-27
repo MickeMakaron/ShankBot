@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "LoginRequest.hpp"
-#include "utility.hpp"
+#include "messaging/LoginRequest.hpp"
+#include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
 ///////////////////////////////////

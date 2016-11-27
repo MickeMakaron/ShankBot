@@ -26,21 +26,22 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "ShankBot.hpp"
-#include "VersionControl.hpp"
-#include "SequenceTree.hpp"
-#include "SpriteObjectBindings.hpp"
-#include "file.hpp"
-#include "CatalogContent.hpp"
-#include "SpriteReader.hpp"
-#include "GraphicsResourceReader.hpp"
-#include "AppearancesReader.hpp"
-#include "Constants.hpp"
+#include "graphics/ShankBot.hpp"
+#include "graphics/VersionControl.hpp"
+#include "graphics/SequenceTree.hpp"
+#include "graphics/SpriteObjectBindings.hpp"
+#include "utility/file.hpp"
+#include "tibiaassets/CatalogContent.hpp"
+#include "tibiaassets/SpriteReader.hpp"
+#include "tibiaassets/GraphicsResourceReader.hpp"
+#include "tibiaassets/AppearancesReader.hpp"
+#include "graphics/Constants.hpp"
 
-#include "utility.hpp"
-#include "OutfitAddonMerger.hpp"
-#include "CombatSquareSample.hpp"
+#include "utility/utility.hpp"
+#include "graphics/OutfitAddonMerger.hpp"
+#include "graphics/CombatSquareSample.hpp"
 using namespace GraphicsLayer;
+using namespace sb::tibiaassets;
 ///////////////////////////////////
 
 ///////////////////////////////////

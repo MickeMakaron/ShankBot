@@ -26,12 +26,12 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "Gui.hpp"
-#include "TextBuilder.hpp"
-#include "utility.hpp"
-#include "Equipment.hpp"
-#include "file.hpp"
-
+#include "graphics/Gui.hpp"
+#include "graphics/TextBuilder.hpp"
+#include "utility/utility.hpp"
+#include "graphics/Equipment.hpp"
+#include "utility/file.hpp"
+using namespace sb::tibiaassets;
 using namespace GraphicsLayer;
 ///////////////////////////////////
 

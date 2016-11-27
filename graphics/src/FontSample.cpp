@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "FontSample.hpp"
-#include "FunctionDetour.hpp"
+#include "graphics/FontSample.hpp"
+#include "utility/FunctionDetour.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -45,8 +45,6 @@ using namespace GraphicsLayer;
 #include "QtGui/QOpenGLContext"
 #include "QtGui/QOffscreenSurface"
 #include "QtGui/QOpenGLPaintDevice"
-#include "QtGui/QStaticText"
-#include "QtGui/QTextCharFormat"
 #include "QtGui/QPainter"
 ///////////////////////////////////
 

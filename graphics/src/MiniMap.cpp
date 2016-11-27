@@ -26,15 +26,16 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "MiniMap.hpp"
-#include "Constants.hpp"
-#include "file.hpp"
-#include "utility.hpp"
-#include "Input.hpp"
-#include "GraphicsMonitorReader.hpp"
+#include "graphics/MiniMap.hpp"
+#include "graphics/Constants.hpp"
+#include "utility/file.hpp"
+#include "utility/utility.hpp"
+#include "graphics/Input.hpp"
+#include "graphics/GraphicsMonitorReader.hpp"
 using namespace GraphicsLayer;
 using namespace sb::utility;
 using namespace sb::utility::file;
+using namespace sb::tibiaassets;
 ///////////////////////////////////
 
 ///////////////////////////////////

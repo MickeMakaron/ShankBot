@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "file.hpp"
-#include "utility.hpp"
+#include "utility/file.hpp"
+#include "utility/utility.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -72,7 +72,7 @@ void makeDirIfNotExists(std::string dirPath)
     }
 }
 
-bool fileExists(std::string path)
+__declspec(dllexport) bool fileExists(std::string path)
 {
     struct stat st = {0};
     if(stat(path.c_str(), &st) == -1)

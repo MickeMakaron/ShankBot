@@ -28,9 +28,9 @@
 #include <windowsx.h>
 #include <iostream>
 #include <cstdio>
-#include "FunctionDetour.hpp"
-#include "SharedMemoryProtocol.hpp"
-#include "Vertex.hpp"
+#include "utility/FunctionDetour.hpp"
+#include "utility/Vertex.hpp"
+#include "graphics/SharedMemoryProtocol.hpp"
 //
 ////#include <GL/gl.h>
 ////#include <GL/glext.h>

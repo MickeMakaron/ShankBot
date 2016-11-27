@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "Connection.hpp"
-#include "utility.hpp"
+#include "messaging/Connection.hpp"
+#include "utility/utility.hpp"
 using namespace sb::messaging;
 using namespace sb::utility;
 ///////////////////////////////////
@@ -197,7 +197,7 @@ std::list<std::vector<char>> Connection::getMessages()
     return messages;
 }
 
-bool Connection::sendMessages(const std::list<std::unique_ptr<Message>>& messages)
+bool Connection::sendMessages(const std::list<std::shared_ptr<Message>>& messages)
 {
     if(mState != State::IDLE)
         return false;

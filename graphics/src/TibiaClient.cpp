@@ -26,22 +26,23 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "TibiaClient.hpp"
-#include "SharedMemoryProtocol.hpp"
-#include "utility.hpp"
-#include "Constants.hpp"
+#include "graphics/TibiaClient.hpp"
+#include "graphics/SharedMemoryProtocol.hpp"
+#include "utility/utility.hpp"
+#include "graphics/Constants.hpp"
 
-#include "TextBuilder.hpp"
-#include "OutfitResolver.hpp"
-#include "GoRequest.hpp"
-#include "Response.hpp"
-#include "AttackRequest.hpp"
-#include "FrameRequest.hpp"
-#include "FrameResponse.hpp"
-#include "LoginRequest.hpp"
-#include "LoginResponse.hpp"
+#include "graphics/TextBuilder.hpp"
+#include "graphics/OutfitResolver.hpp"
+#include "messaging/GoRequest.hpp"
+#include "messaging/Response.hpp"
+#include "messaging/AttackRequest.hpp"
+#include "messaging/FrameRequest.hpp"
+#include "messaging/FrameResponse.hpp"
+#include "messaging/LoginRequest.hpp"
+#include "messaging/LoginResponse.hpp"
 using namespace GraphicsLayer;
 using namespace SharedMemoryProtocol;
+using namespace sb::tibiaassets;
 ///////////////////////////////////
 
 
@@ -61,6 +62,7 @@ using namespace SharedMemoryProtocol;
 #include <cstring>
 #include <cassert>
 #include <algorithm>
+#include <chrono>
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -87,78 +89,7 @@ TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& contex
 
     mMiniMap.reset(new MiniMap(*mInput, *mGraphicsMonitorReader));
 
-    registerMessageCallbacks();
     mConnectionManager.addConnection(false);
-//    createNewConnection();
-//    launchMessageListener();
-}
-
-void TibiaClient::registerMessageCallbacks()
-{
-//    typedef ConnectionManager::Event E;
-//    typedef ConnectionManager::Connection C;
-//    mConnectionManager.registerEventCallback(E::CONNECT, [this](C c)
-//    {
-//        mConnectionManager.getConnection(c).read();
-//        mConnectionManager.addConnection(false);
-//        std::cout << "Connected" << std::endl;
-//    });
-//
-//
-//
-//    mConnectionManager.registerEventCallback(E::DROP, [this](C c)
-//    {
-//        mConnectionManager.removeConnection(c);
-//        std::cout << "Dropped" << std::endl;
-//    });
-//
-//    mConnectionManager.registerEventCallback(E::READ, [this](C c)
-//    {
-//        Connection& connection = mConnectionManager.getConnection(c);
-//        std::list<std::vector<char>> messages = connection.getMessages();
-//        std::cout << "Got " << messages.size() << " message(s)." << std::endl;
-//        assert(!messages.empty());
-//        std::list<std::unique_ptr<sb::messaging::Message>> responses;
-//        for(const std::vector<char>& message : messages)
-//        {
-//            sb::messaging::Message::Type t = sb::messaging::Message::readMessageType(message.data(), message.size());
-//            typedef sb::messaging::Message::Type T;
-//            switch(t)
-//            {
-//                case T::LOGIN_REQUEST:
-////                                handleLoginRequest(message.data(), message.size());
-////                                break;
-//
-//                case T::GO_REQUEST:
-////                                handleGoRequest(message.data(), message.size());
-////                                break;
-//
-//                case T::FRAME_REQUEST:
-////                                handleFrameRequest(message.data(), message.size());
-////                                break;
-//
-//                case T::ATTACK_REQUEST:
-////                                handleAttackRequest(message.data(), message.size());
-//                    responses.push_back(std::make_unique<sb::messaging::Response>(sb::messaging::Response::Result::SUCCESS));
-//                    break;
-//
-//                default:
-//                    std::cout << "Invalid message type: " << (int)t << std::endl;
-//            }
-//        }
-//
-//        if(responses.empty())
-//            connection.read();
-//        else
-//            connection.sendMessages(responses);
-//    });
-//
-//    mConnectionManager.registerEventCallback(E::WRITE, [this](C c)
-//    {
-//        std::cout << "Sent message." << std::endl;
-//        Connection& connection = mConnectionManager.getConnection(c);
-//        connection.read();
-//    });
 }
 
 TibiaClient::~TibiaClient()
@@ -197,9 +128,6 @@ void TibiaClient::close()
         mShm = nullptr;
         mShmHandle = NULL;
     }
-
-//    CloseHandle(mMessageListenerThread);
-//    CloseHandle(mMessageQueue.lock);
 }
 
 void TibiaClient::waitForWindow() const
@@ -216,144 +144,6 @@ void TibiaClient::initializeInput()
     mInput = std::make_unique<Input>(mShm->window);
 }
 
-class WalkState
-{
-    public:
-        explicit WalkState(const Input& input, short targetX, short targetY);
-
-        void update(char movementX, char movementY);
-        bool isFinished() const;
-
-    private:
-        void move();
-
-    private:
-        const Input& mInput;
-        short mTargetDistanceX = 0;
-        short mTargetDistanceY = 0;
-};
-
-
-WalkState::WalkState(const Input& input, short targetX, short targetY)
-: mInput(input)
-, mTargetDistanceX(targetX - Constants::MIDDLE_TILE_X)
-, mTargetDistanceY(targetY - Constants::MIDDLE_TILE_Y)
-{
-    move();
-}
-
-void WalkState::move()
-{
-}
-
-bool WalkState::isFinished() const
-{
-    return (mTargetDistanceX == 0 && mTargetDistanceY == 0);
-}
-
-void WalkState::update(char movementX, char movementY)
-{
-    mTargetDistanceX -= movementX;
-    mTargetDistanceY -= movementY;
-}
-
-
-
-//
-//class WalkState
-//{
-//    private:
-//        enum class Move : unsigned char
-//        {
-//            NONE,
-//            LEFT,
-//            RIGHT,
-//            UP,
-//            DOWN,
-//            LEFT_UP,
-//            RIGHT_UP,
-//            LEFT_DOWN,
-//            RIGHT_DOWN,
-//        };
-//
-//    public:
-//        explicit WalkState(const Input& input, short targetX, short targetY);
-//
-//        void update(char movementX, char movementY);
-//        bool isFinished() const;
-//
-//    private:
-//        void move();
-//        void move(Move direction, char key);
-//        bool hasMoveTimedOut() const;
-//
-//    private:
-//        const Input& mInput;
-//        short mTargetDistanceX = 0;
-//        short mTargetDistanceY = 0;
-//        bool mHasSentMoveCommand = false;
-//
-//        Move mPendingMove = Move::NONE;
-//        std::chrono::system_clock::time_point mLastMoveTime;
-//        const std::chrono::duration<int> mTimeOutInterval;
-//};
-//
-//WalkState::WalkState(const Input& input, short targetX, short targetY)
-//: mInput(input)
-//, mTargetDistanceX(targetX - Scene::MIDDLE_TILE_X)
-//, mTargetDistanceY(targetY - Scene::MIDDLE_TILE_Y)
-//, mTimeOutInterval(2)
-//{
-//    move();
-//}
-//
-//void WalkState::move(Move direction, char key)
-//{
-//    mPendingMove = direction;
-//    mInput.sendKey(key);
-//    mLastMoveTime = std::chrono::system_clock::now();
-//}
-//
-//void WalkState::move()
-//{
-//    if(mPendingMove != Move::NONE)
-//        return;
-//
-//    if(mTargetDistanceX > 0)
-//        move(Move::RIGHT, VK_RIGHT);
-//    else if(mTargetDistanceX < 0)
-//        move(Move::LEFT, VK_LEFT);
-//    else if(mTargetDistanceY > 0)
-//        move(Move::DOWN, VK_DOWN);
-//    else if(mTargetDistanceY < 0)
-//        move(Move::UP, VK_UP);
-//}
-//
-//bool WalkState::isFinished() const
-//{
-//    return (mTargetDistanceX == 0 && mTargetDistanceY == 0);
-//}
-//
-//bool WalkState::hasMoveTimedOut() const
-//{
-//    return (std::chrono::system_clock::now() - mLastMoveTime >= mTimeOutInterval);
-//}
-//
-//void WalkState::update(char movementX, char movementY)
-//{
-//    if(movementX || movementY || hasMoveTimedOut())
-//        mPendingMove = Move::NONE;
-//
-//    mTargetDistanceX -= movementX;
-//    mTargetDistanceY -= movementY;
-//    if(movementX || movementY)
-//    {
-//        std::cout   << "Moved: " << movementX << "x" << movementY
-//                    << " (" << mTargetDistanceX << "x" << mTargetDistanceY << " remaining)" << std::endl;
-//    }
-//    move();
-//}
-
 bool TibiaClient::isAlive() const
 {
     unsigned long code;
@@ -368,7 +158,7 @@ bool TibiaClient::isAlive() const
 }
 
 bool doStart = false;
-WalkState* moveState = nullptr;
+//WalkState* moveState = nullptr;
 bool isWalking = false;
 size_t updateCount = 0;
 bool isWaitingForGreenText = false;
@@ -388,60 +178,28 @@ bool doGetContextMenu = true;
 bool bubbabubba = true;
 size_t clearTextCount = 0;
 bool doGameStartup = true;
-#include "file.hpp"
+#include "utility/file.hpp"
 
 
-VOID CALLBACK readCallback(DWORD errorCode, DWORD numBytesRead, LPOVERLAPPED overlapped)
+std::shared_ptr<sb::messaging::Message> TibiaClient::handleGoRequest(const char* data, size_t size)
 {
-}
-
-struct WriteOverlapped
-{
-    OVERLAPPED overlapped;
-    std::vector<char> out;
-};
-
-VOID CALLBACK writeCallback(DWORD errorCode, DWORD numBytesRead, LPOVERLAPPED overlapped)
-{
-    WriteOverlapped* wo = (WriteOverlapped*)overlapped;
-    delete wo;
-}
-
-void TibiaClient::sendMessage(const sb::messaging::Message& m) const
-{
-    WriteOverlapped* overlapped = new WriteOverlapped();
-    *overlapped = {0};
-    overlapped->out = m.toBinary();
-//    WriteFileEx(mMessageQueue.pipe, overlapped->out.data(), overlapped->out.size(), (LPOVERLAPPED)overlapped, writeCallback);
-}
-
-size_t TibiaClient::handleGoRequest(const char* data, size_t size)
-{
-    sb::messaging::GoRequest g;
+    using namespace sb::messaging;
+    GoRequest g;
     size_t numBytesRead = g.fromBinary(data, size);
     if(numBytesRead == 0)
     {
         std::cout << "Failed to handle go request. " << std::endl;
-        return 0;
+        return std::make_shared<Response>();
     }
-
-    sb::messaging::Response result(sb::messaging::Response::Result::SUCCESS);
-    sendMessage(sb::messaging::Response(sb::messaging::Response::Result::SUCCESS));
-//
-//    OVERLAPPED* overlapped = new OVERLAPPED();
-//    *overlapped = {0};
-//    sb::messaging::Response result;
-//    result.set(sb::messaging::Response::Result::SUCCESS);
-//    std::vector<char> out = result.toBinary();
-//    WriteFileEx(mMessageQueue.pipe, out.data(), out.size(), overlapped, writeCallback);
-
-    std::cout << "Handling go request: " << g.getX() << "x" << g.getY() << std::endl;
 
     if(mGui.getState() != Gui::State::GAME)
     {
         std::cout << "Cannot go. Not in game." << std::endl;
-        return numBytesRead;
+        return std::make_shared<Response>();
     }
+
+    std::cout << "Handling go request: " << g.getX() << "x" << g.getY() << std::endl;
+    auto response = std::make_shared<Response>(Response::Result::SUCCESS);
 
     Frame frame = mGraphicsMonitorReader->getNewFrame();
     mMiniMap->update(frame);
@@ -454,9 +212,6 @@ size_t TibiaClient::handleGoRequest(const char* data, size_t size)
     unsigned short screenX;
     unsigned short screenY;
     mMiniMap->goTo(destinationX, destinationY);
-//    mMiniMap->getScreenCoords(destinationX, destinationY, screenX, screenY);
-//    mInput->sendMouseClick(VK_LBUTTON, screenX, screenY);
-
     std::cout << "Going to " << destinationX << "x" << destinationY << std::endl;
 
     size_t numFramesWithoutMovement = 0;
@@ -476,7 +231,7 @@ size_t TibiaClient::handleGoRequest(const char* data, size_t size)
                     if(t.string == "Sorry, not possible." || t.string == "There is no way." || t.string == "Destination is out of range.")
                     {
                         std::cout << "Cannot go to target. Aborting." << std::endl;
-                        return numBytesRead;
+                        return response;
                     }
                 }
             }
@@ -493,7 +248,7 @@ size_t TibiaClient::handleGoRequest(const char* data, size_t size)
         if(numFramesWithoutMovement > 20)
         {
             std::cout << "Not moving for some reason. Aborting." << std::endl;
-            return numBytesRead;
+            return response;
         }
         std::cout << "Current delta: " << int(destinationX - mMiniMap->getX()) << "x" << int(destinationY - mMiniMap->getY()) << std::endl;
     }
@@ -512,17 +267,19 @@ size_t TibiaClient::handleGoRequest(const char* data, size_t size)
 
 
 
-    return numBytesRead;
+    return response;
 }
 
-size_t TibiaClient::handleLoginRequest(const char* data, size_t size)
+std::shared_ptr<sb::messaging::Message> TibiaClient::handleLoginRequest(const char* data, size_t size)
 {
-    sb::messaging::LoginRequest l;
+    using namespace sb::messaging;
+
+    LoginRequest l;
     size_t numBytesRead = l.fromBinary(data, size);
     if(numBytesRead == 0)
     {
         std::cout << "Failed to handle login request." << std::endl;
-        return 0;
+        return std::make_shared<LoginResponse>();
     }
 
 
@@ -531,10 +288,11 @@ size_t TibiaClient::handleLoginRequest(const char* data, size_t size)
     std::cout << "\tAccount name: " << l.getAccountName() << std::endl;
     std::cout << "\tPassword: " << l.getPassword() << std::endl;
 
+    mGui.update(mGraphicsMonitorReader->getNewFrame());
     if(mGui.getState() != Gui::State::MAIN_MENU)
     {
         std::cout << "Cannot login. Not in main menu." << std::endl;
-        return numBytesRead;
+        return std::make_shared<LoginResponse>();
     }
 
     for(const Gui::Button& b : mGui.getButtons())
@@ -561,7 +319,7 @@ size_t TibiaClient::handleLoginRequest(const char* data, size_t size)
                     {
                         if(t.string == "Select Character")
                         {
-                            sb::messaging::LoginResponse r;
+                            auto response = std::make_shared<LoginResponse>(Response::Result::SUCCESS);
 
                             it++;
                             while(it != frame.textDraws->end())
@@ -572,38 +330,35 @@ size_t TibiaClient::handleLoginRequest(const char* data, size_t size)
                                 if(character.front().string == "Account Status:")
                                     break;
 
-                                r.addCharacter(character.front().string, character.back().string);
+                                response->addCharacter(character.front().string, character.back().string);
 
                                 it++;
                             }
-                            std::vector<char> out = r.toBinary();
-//                            WriteFileEx(mMessageQueue.pipe, out.data(), out.size(), overlapped, writeCallback);
-                            return numBytesRead;
+                            return response;
                         }
                     }
                 }
             }
 
-            sb::messaging::LoginResponse r;
-            std::vector<char> out = r.toBinary();
-//            WriteFileEx(mMessageQueue.pipe, out.data(), out.size(), overlapped, writeCallback);
-            return numBytesRead;
+            return std::make_shared<LoginResponse>();
         }
     }
 
     std::cout << "Failed to login. Login screen not visible." << std::endl;
-    return numBytesRead;
+    return std::make_shared<LoginResponse>();
 }
 
 
-size_t TibiaClient::handleFrameRequest(const char* data, size_t size)
+std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const char* data, size_t size)
 {
-    sb::messaging::FrameRequest request;
+    using namespace sb::messaging;
+
+    FrameRequest request;
     size_t numBytesRead = request.fromBinary(data, size);
-    if(numBytesRead == 0)
+    if(numBytesRead == 0 )
     {
         std::cout << "Failed to handle frame request." << std::endl;
-        return 0;
+        return std::make_shared<FrameResponse>();
     }
 
     std::cout << "Handling frame request." << std::endl;
@@ -612,6 +367,12 @@ size_t TibiaClient::handleFrameRequest(const char* data, size_t size)
     using namespace sb::messaging;;
     FrameResponse::Frame f;
 
+    mGui.update(frame);
+    if(mGui.getState() != Gui::State::GAME)
+    {
+        std::cout << "Cannot get frame. Not in game." << std::endl;
+        return std::make_shared<FrameResponse>();
+    }
     mScene.update(frame);
     mMiniMap->update(frame);
     f.miniMap.x = mMiniMap->getX();
@@ -649,7 +410,7 @@ size_t TibiaClient::handleFrameRequest(const char* data, size_t size)
     for(const OutfitResolver::Npc& npc : mOutfitResolver.getNpcs())
     {
         f.scene.npcs.emplace_back();
-        sb::messaging::FrameResponse::Npc& n = f.scene.npcs.back();
+        FrameResponse::Npc& n = f.scene.npcs.back();
         n.id = npc.object ? npc.object->id : 0;
         n.name = npc.name;
         n.x = npc.x;
@@ -659,7 +420,7 @@ size_t TibiaClient::handleFrameRequest(const char* data, size_t size)
     for(const OutfitResolver::Creature& creature : mOutfitResolver.getCreatures())
     {
         f.scene.creatures.emplace_back();
-        sb::messaging::FrameResponse::Creature& c = f.scene.creatures.back();
+        FrameResponse::Creature& c = f.scene.creatures.back();
         c.id = creature.object ? creature.object->id : 0;
         c.name = creature.name;
         c.x = creature.x;
@@ -670,29 +431,30 @@ size_t TibiaClient::handleFrameRequest(const char* data, size_t size)
     for(const OutfitResolver::Player& player : mOutfitResolver.getPlayers())
     {
         f.scene.players.emplace_back();
-        sb::messaging::FrameResponse::Player& p = f.scene.players.back();
+        FrameResponse::Player& p = f.scene.players.back();
         p.name = player.name;
         p.x = player.x;
         p.y = player.y;
         p.hp = player.hp;
     }
 
-
-    sb::messaging::FrameResponse r;
-    r.set(f);
-    sendMessage(r);
-    return numBytesRead;
+    std::cout << "Frame request handled successfully." << std::endl;
+    auto response = std::make_shared<FrameResponse>(Response::Result::SUCCESS);
+    response->set(f);
+    return response;
 }
 
 
-size_t TibiaClient::handleAttackRequest(const char* data, size_t size)
+std::shared_ptr<sb::messaging::Message> TibiaClient::handleAttackRequest(const char* data, size_t size)
 {
-    sb::messaging::AttackRequest request;
+    using namespace sb::messaging;
+
+    AttackRequest request;
     size_t numBytesRead = request.fromBinary(data, size);
     if(numBytesRead == 0)
     {
         std::cout << "Failed to handle attack request." << std::endl;
-        return 0;
+        return std::make_shared<Response>(Response::Result::FAIL);
     }
 
     std::cout << "Handling attack request." << std::endl;
@@ -712,160 +474,29 @@ size_t TibiaClient::handleAttackRequest(const char* data, size_t size)
             closestOutfit = &o;
         }
     });
+
+    std::shared_ptr<Response> response;
     if(closestOutfit)
     {
         mInput->sendMouseClick(VK_LBUTTON, closestOutfit->screenX + mScene.getTileWidth() / 2.f, closestOutfit->screenY + mScene.getTileHeight() / 2.f);
-        sendMessage(sb::messaging::Response(sb::messaging::Response::Result::SUCCESS));
+        response.reset(new Response(Response::Result::SUCCESS));
     }
     else
-        sendMessage(sb::messaging::Response(sb::messaging::Response::Result::FAIL));
+        response.reset(new Response(Response::Result::FAIL));
 
-    return numBytesRead;
+    return response;
 }
 
-
-DWORD WINAPI messageListenerProc(LPVOID lpParam)
-{
-//    static const char* const PIPE_NAME = "\\\\.\\pipe\\ShankBotMessagePipe";
-//
-//    static const size_t IN_BUFFER_SIZE = 1 << 16;
-//    static const size_t OUT_BUFFER_SIZE = 1 << 10;
-//
-//    sb::messaging::Queue& queue = *(sb::messaging::Queue*)lpParam;
-//    queue.pipe = CreateNamedPipe
-//    (
-//        PIPE_NAME,
-//        PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-//        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
-//        PIPE_UNLIMITED_INSTANCES,
-//        OUT_BUFFER_SIZE,
-//        IN_BUFFER_SIZE,
-//        0,
-//        NULL
-//    );
-//    if(queue.pipe == INVALID_HANDLE_VALUE)
-//        THROW_RUNTIME_ERROR(stringify("Invalid pipe handle value. Error: ", GetLastError()));
-//
-//    char inBuffer[IN_BUFFER_SIZE];
-//    char outBuffer[OUT_BUFFER_SIZE];
-//    HANDLE event = CreateEvent(NULL, FALSE, FALSE, NULL);
-//    OVERLAPPED overlapped = {0};
-//    while(true)
-//    {
-//        if(!ReadFileEx(queue.pipe, inBuffer, IN_BUFFER_SIZE, &overlapped, readCallback))
-//        {
-//            if(!DisconnectNamedPipe(queue.pipe))
-//                THROW_RUNTIME_ERROR(stringify("Failed to disconnect client. Error: ", GetLastError()));
-//
-//            if(!ConnectNamedPipe(queue.pipe, NULL))
-//                THROW_RUNTIME_ERROR(stringify("Failed to connect to client. Error: ", GetLastError()));
-//        }
-//        else
-//        {
-//            DWORD result = WaitForSingleObjectEx(event, INFINITE, TRUE);
-//            switch(result)
-//            {
-//                case WAIT_IO_COMPLETION:
-//                    if(overlapped.InternalHigh)
-//                    {
-//                        WaitForSingleObject(queue.lock, INFINITE);
-//                        queue.messages.emplace_back(inBuffer, inBuffer + overlapped.InternalHigh);
-//                        ReleaseMutex(queue.lock);
-//                    }
-//                    break;
-//
-//                default:
-//                    std::cout << "Unexpected wait result: " << result << std::endl;
-//                    break;
-//            }
-//
-//            overlapped = {0};
-//            overlapped.hEvent = event;
-//        }
-//    }
-////    while(true)
-////    {
-////
-//////        DWORD numBytesRead;
-//////        if(!ReadFile(queue.pipe, inBuffer, IN_BUFFER_SIZE, &numBytesRead, NULL) || numBytesRead == 0)
-//////        {
-//////            if(!DisconnectNamedPipe(queue.pipe))
-//////                THROW_RUNTIME_ERROR(stringify("Failed to disconnect client. Error: ", GetLastError()));
-//////
-//////            if(!ConnectNamedPipe(queue.pipe, NULL))
-//////                THROW_RUNTIME_ERROR(stringify("Failed to connect to client. Error: ", GetLastError()));
-//////        }
-//////        else
-//////        {
-//////            WaitForSingleObject(queue.lock, INFINITE);
-//////            queue.messages.emplace_back(inBuffer, inBuffer + numBytesRead);
-//////            ReleaseMutex(queue.lock);
-//////        }
-////
-////
-////    }
-//
-//    CloseHandle(event);
-//    CloseHandle(queue.pipe);
-//
-//    return 0;
-}
-
-
-
-void TibiaClient::handleMessages()
-{
-////    if(mMessageQueue.pipe)
-////    {
-////        char derp = 1;
-////        std::cout << "Pipe: " << (unsigned int)mMessageQueue.pipe << std::endl;
-////        std::cout << "Invalid: " << (unsigned int)INVALID_HANDLE_VALUE << std::endl;
-////        std::cout << __LINE__ << std::endl;
-////        WriteFile(mMessageQueue.pipe, &derp, 1, NULL, NULL);
-////        std::cout << __LINE__ << std::endl;
-////    }
-//    std::list<std::vector<char>> messages;
-//
-//    WaitForSingleObject(mMessageQueue.lock, INFINITE);
-//    messages.swap(mMessageQueue.messages);
-//    ReleaseMutex(mMessageQueue.lock);
-//
-//    for(const std::vector<char>& message : messages)
-//    {
-//        sb::messaging::Message::Type t = sb::messaging::Message::readMessageType(message.data(), message.size());
-//        typedef sb::messaging::Message::Type T;
-//        switch(t)
-//        {
-//            case T::LOGIN_REQUEST:
-//                handleLoginRequest(message.data(), message.size());
-//                break;
-//
-//            case T::GO_REQUEST:
-//                handleGoRequest(message.data(), message.size());
-//                break;
-//
-//            case T::FRAME_REQUEST:
-//                handleFrameRequest(message.data(), message.size());
-//                break;
-//
-//            case T::ATTACK_REQUEST:
-//                handleAttackRequest(message.data(), message.size());
-//                break;
-//
-//            default:
-//                std::cout << "Invalid message type: " << (int)t << std::endl;
-//        }
-//    }
-}
-
-#include <chrono>
 
 void TibiaClient::update()
 {
-    typedef sb::messaging::ConnectionManager::Event E;
-    typedef sb::messaging::ConnectionManager::ConnectionId C;
+    using namespace sb::messaging;
 
-    static const std::chrono::milliseconds MS_PER_FRAME(500);
+    typedef ConnectionManager::Event E;
+    typedef ConnectionManager::ConnectionId C;
+
+//    static const std::chrono::milliseconds MS_PER_FRAME(500);
+    static const std::chrono::milliseconds MS_PER_FRAME(25);
     static std::chrono::steady_clock::time_point lastFrameTime = std::chrono::steady_clock::now();
 
     std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
@@ -876,6 +507,13 @@ void TibiaClient::update()
         Frame frame = mGraphicsMonitorReader->getNewFrame();
         mMiniMap->update(frame);
         lastFrameTime = std::chrono::steady_clock::now();
+
+        mGui.update(frame);
+        if(mGui.getState() == Gui::State::GAME)
+        {
+            mScene.update(frame);
+            mOutfitResolver.resolve(mScene, frame, *mGraphicsMonitorReader);
+        }
         return;
     }
 
@@ -898,37 +536,39 @@ void TibiaClient::update()
 
         case E::READ:
         {
-            sb::messaging::Connection& connection = mConnectionManager.getConnection(c);
+            Connection& connection = mConnectionManager.getConnection(c);
             std::list<std::vector<char>> messages = connection.getMessages();
             std::cout << "Got " << messages.size() << " message(s)." << std::endl;
             assert(!messages.empty());
-            std::list<std::unique_ptr<sb::messaging::Message>> responses;
+            std::list<std::shared_ptr<sb::messaging::Message>> responses;
             for(const std::vector<char>& message : messages)
             {
                 sb::messaging::Message::Type t = sb::messaging::Message::readMessageType(message.data(), message.size());
                 typedef sb::messaging::Message::Type T;
+                std::shared_ptr<sb::messaging::Message> response;
                 switch(t)
                 {
                     case T::LOGIN_REQUEST:
-    //                                handleLoginRequest(message.data(), message.size());
-    //                                break;
+                        response = handleLoginRequest(message.data(), message.size());
+                        break;
 
                     case T::GO_REQUEST:
-    //                                handleGoRequest(message.data(), message.size());
-    //                                break;
+                        response = handleGoRequest(message.data(), message.size());
+                        break;
 
                     case T::FRAME_REQUEST:
-    //                                handleFrameRequest(message.data(), message.size());
-    //                                break;
+                        response = handleFrameRequest(message.data(), message.size());
+                        break;
 
                     case T::ATTACK_REQUEST:
-    //                                handleAttackRequest(message.data(), message.size());
-                        responses.push_back(std::make_unique<sb::messaging::Response>(sb::messaging::Response::Result::SUCCESS));
+                        response = handleAttackRequest(message.data(), message.size());
                         break;
 
                     default:
                         std::cout << "Invalid message type: " << (int)t << std::endl;
                 }
+                if(response != nullptr)
+                    responses.push_back(response);
             }
 
             if(responses.empty())
@@ -946,7 +586,7 @@ void TibiaClient::update()
         case E::WRITE:
         {
             std::cout << "Sent message." << std::endl;
-            sb::messaging::Connection& connection = mConnectionManager.getConnection(c);
+            Connection& connection = mConnectionManager.getConnection(c);
             connection.read();
             break;
         }
@@ -994,11 +634,11 @@ void TibiaClient::update()
 //                    std::list<std::vector<char>> messages = connection.getMessages();
 //                    assert(!messages.empty());
 //                    std::cout << "Got " << messages.size() << " message(s)." << std::endl;
-//                    std::list<std::unique_ptr<sb::messaging::Message>> responses;
+//                    std::list<std::unique_ptr<Message>> responses;
 //                    for(const std::vector<char>& message : messages)
 //                    {
-//                        sb::messaging::Message::Type t = sb::messaging::Message::readMessageType(message.data(), message.size());
-//                        typedef sb::messaging::Message::Type T;
+//                        Message::Type t = Message::readMessageType(message.data(), message.size());
+//                        typedef Message::Type T;
 //                        switch(t)
 //                        {
 //                            case T::LOGIN_REQUEST:
@@ -1015,7 +655,7 @@ void TibiaClient::update()
 //
 //                            case T::ATTACK_REQUEST:
 ////                                handleAttackRequest(message.data(), message.size());
-//                                responses.push_back(std::make_unique<sb::messaging::Response>(sb::messaging::Response::Result::SUCCESS));
+//                                responses.push_back(std::make_unique<Response>(Response::Result::SUCCESS));
 //                                break;
 //
 //                            default:
@@ -1644,11 +1284,6 @@ void TibiaClient::deleteEnvironment(char** environment) const
     #endif // defined
 }
 
-void TibiaClient::launchMessageListener()
-{
-//    mMessageQueue.lock = CreateMutex(NULL, FALSE, NULL);
-//    mMessageListenerThread = CreateThread(NULL, 0, messageListenerProc, &mMessageQueue, 0, NULL);
-}
 
 SharedMemorySegment* TibiaClient::getSharedMemory() const
 {

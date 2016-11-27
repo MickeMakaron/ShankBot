@@ -26,9 +26,10 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "SpriteInfo.hpp"
-#include "utility.hpp"
+#include "graphics/SpriteInfo.hpp"
+#include "utility/utility.hpp"
 using namespace GraphicsLayer;
+using namespace sb::tibiaassets;
 ///////////////////////////////////
 
 ///////////////////////////////////

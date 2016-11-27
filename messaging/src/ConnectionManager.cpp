@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "ConnectionManager.hpp"
-#include "utility.hpp"
+#include "messaging/ConnectionManager.hpp"
+#include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
 ///////////////////////////////////

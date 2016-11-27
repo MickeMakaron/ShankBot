@@ -26,12 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "utility.hpp"
-#include "PngImage.hpp"
-
-#include "Constants.hpp"
-#include "Matrix.hpp"
-#include "Frame.hpp"
+#include "utility/utility.hpp"
+#include "utility/Matrix.hpp"
 ///////////////////////////////////
 
 
@@ -313,7 +309,7 @@ std::vector<size_t> rgbaToTransparencyTreeSprite(const unsigned char* rgba, size
 
 ///////////////////////////////////
 
-size_t readTibiaSizeIndicator(std::istream& stream)
+__declspec(dllexport) size_t readTibiaSizeIndicator(std::istream& stream)
 {
     size_t size = 0;
     unsigned char byte;

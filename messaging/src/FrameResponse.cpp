@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "FrameResponse.hpp"
-#include "utility.hpp"
+#include "messaging/FrameResponse.hpp"
+#include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
 ///////////////////////////////////
@@ -62,7 +62,7 @@ size_t FrameResponse::getSizeDerived() const
 
     size += sizeof(mFrame.miniMap);
 
-    return size;
+    return Response::getSizeDerived() + size;
 }
 
 void FrameResponse::set(const Frame& frame)
@@ -77,7 +77,10 @@ const FrameResponse::Frame& FrameResponse::get() const
 
 size_t FrameResponse::fromBinaryDerived(const char* data, size_t size)
 {
-    size_t numBytesRead = 0;
+    size_t numBytesRead = Response::fromBinaryDerived(data, size);
+    if(size < numBytesRead)
+        return -1;
+    data += numBytesRead;
     for(size_t i = 0; i < Scene::SIZE; i++)
     {
         numBytesRead += sizeof(SIZE_TYPE);
@@ -209,6 +212,7 @@ size_t FrameResponse::fromBinaryDerived(const char* data, size_t size)
 
 void FrameResponse::toBinaryDerived(std::vector<char>& out) const
 {
+    Response::toBinaryDerived(out);
     for(size_t i = 0; i < Scene::SIZE; i++)
     {
         const std::vector<Object>& objects = mFrame.scene.objects[0][i];

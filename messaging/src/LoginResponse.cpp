@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "LoginResponse.hpp"
-#include "utility.hpp"
+#include "messaging/LoginResponse.hpp"
+#include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
 ///////////////////////////////////
@@ -38,12 +38,18 @@ size_t LoginResponse::getSizeDerived() const
     for(const Character& c : mCharacters)
         size += c.name.size() + c.world.size();
 
-    return size + sizeof(SIZE_TYPE) * (mCharacters.size() * 2 + 1);
+    return Response::getSizeDerived() + size + sizeof(SIZE_TYPE) * (mCharacters.size() * 2 + 1);
 }
 
 size_t LoginResponse::fromBinaryDerived(const char* data, size_t size)
 {
-    size_t numBytesRead = sizeof(SIZE_TYPE);
+    size_t numBytesRead = Response::fromBinaryDerived(data, size);
+    if(size < numBytesRead)
+        return -1;
+
+    data += numBytesRead;
+
+    numBytesRead += sizeof(SIZE_TYPE);
     if(size < numBytesRead)
         return -1;
 
@@ -79,6 +85,8 @@ size_t LoginResponse::fromBinaryDerived(const char* data, size_t size)
 
 void LoginResponse::toBinaryDerived(std::vector<char>& out) const
 {
+    Response::toBinaryDerived(out);
+
     SIZE_TYPE numCharacters = mCharacters.size();
     writeStream(numCharacters, out);
 

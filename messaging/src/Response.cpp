@@ -26,29 +26,32 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "Response.hpp"
-#include "utility.hpp"
+#include "messaging/Response.hpp"
+#include "utility/utility.hpp"
 using namespace sb::utility;
 using namespace sb::messaging;
 ///////////////////////////////////
 
 size_t Response::getSizeDerived() const
 {
-    return sizeof(mResult);
+    return sizeof(mResult) + sizeof(mResponseType);
 }
 
 size_t Response::fromBinaryDerived(const char* data, size_t size)
 {
-    if(size < sizeof(mResult))
+    size_t numBytesToRead = Response::getSizeDerived();
+    if(size < numBytesToRead)
         return -1;
 
+    readStream(mResponseType, data);
     readStream(mResult, data);
 
-    return sizeof(mResult);
+    return numBytesToRead;
 }
 
 void Response::toBinaryDerived(std::vector<char>& out) const
 {
+    writeStream(mResponseType, out);
     writeStream(mResult, out);
 }
 
@@ -60,4 +63,19 @@ void Response::set(Result result)
 Response::Result Response::get() const
 {
     return mResult;
+}
+
+Message::Type Response::getResponseType() const
+{
+    return mResponseType;
+}
+
+
+Message::Type Response::readResponseType(const char* data, size_t size)
+{
+    Response r;
+    if(!r.fromBinary(data, size))
+        return Message::Type::INVALID;
+
+    return r.getResponseType();
 }

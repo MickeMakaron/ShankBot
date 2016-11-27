@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "CombatSquareSample.hpp"
-#include "utility.hpp"
+#include "graphics/CombatSquareSample.hpp"
+#include "utility/utility.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 

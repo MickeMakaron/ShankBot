@@ -26,9 +26,9 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "TextBuilder.hpp"
-#include "utility.hpp"
-#include "Draw.hpp"
+#include "graphics/TextBuilder.hpp"
+#include "utility/utility.hpp"
+#include "graphics/Draw.hpp"
 using namespace GraphicsLayer;
 using namespace sb::utility;
 ///////////////////////////////////
