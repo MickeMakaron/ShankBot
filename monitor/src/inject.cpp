@@ -30,7 +30,7 @@
 #include <cstdio>
 #include "utility/FunctionDetour.hpp"
 #include "utility/Vertex.hpp"
-#include "graphics/SharedMemoryProtocol.hpp"
+#include "monitor/SharedMemoryProtocol.hpp"
 //
 ////#include <GL/gl.h>
 ////#include <GL/glext.h>

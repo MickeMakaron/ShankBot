@@ -26,43 +26,26 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/SpriteInfo.hpp"
+#include "monitor/SharedMemoryProtocol.hpp"
 #include "utility/utility.hpp"
+
 using namespace GraphicsLayer;
-using namespace sb::tibiaassets;
+using namespace SharedMemoryProtocol;
 ///////////////////////////////////
 
-///////////////////////////////////
-// STD C++
-#include <sstream>
-///////////////////////////////////
 
-SpriteInfo::SpriteInfo(const std::list<CatalogContent::SpriteSheet>& spriteSheets)
+unsigned char PixelData::getBytesPerPixel() const
 {
-    parseSpriteSheets(spriteSheets);
-}
-
-void SpriteInfo::parseSpriteSheets(const std::list<CatalogContent::SpriteSheet>& spriteSheets)
-{
-    for(const CatalogContent::SpriteSheet& s : spriteSheets)
+    switch(format)
     {
-        unsigned char tileWidth;
-        unsigned char tileHeight;
-        CatalogContent::getSpriteTileSize(s.spriteSize, tileWidth, tileHeight);
-        for(unsigned int id = s.firstSpriteId; id <= s.lastSpriteId; id++)
-            mInfo.emplace(id, Info(tileWidth, tileHeight, s.area));
-    }
-}
+        case PixelFormat::RGBA:
+        case PixelFormat::BGRA:
+            return sb::utility::BYTES_PER_PIXEL_RGBA;
 
-const SpriteInfo::Info& SpriteInfo::get(unsigned int spriteId) const
-{
-    auto result = mInfo.find(spriteId);
-    if(result == mInfo.end())
-    {
-        std::stringstream sstream;
-        sstream << "Sprite info for sprite id '" << spriteId << "' does not exist." << std::endl;
-        THROW_RUNTIME_ERROR(sstream.str());
-    }
+        case PixelFormat::ALPHA:
+            return sb::utility::BYTES_PER_PIXEL_ALPHA;
 
-    return result->second;
+        default:
+            THROW_RUNTIME_ERROR("Unimplemented pixel format.");
+    }
 }

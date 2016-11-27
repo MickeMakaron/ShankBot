@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/SequenceTree.hpp"
+#include "monitor/SequenceTree.hpp"
 #include "utility/utility.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////

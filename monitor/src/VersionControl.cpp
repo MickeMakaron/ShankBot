@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/VersionControl.hpp"
+#include "monitor/VersionControl.hpp"
 #include "utility/file.hpp"
 #include "utility/utility.hpp"
 using namespace sb::utility::file;

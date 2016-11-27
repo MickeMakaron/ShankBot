@@ -26,8 +26,8 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/GraphicsMonitorReader.hpp"
-#include "graphics/TibiaClient.hpp"
+#include "monitor/GraphicsMonitorReader.hpp"
+#include "monitor/TibiaClient.hpp"
 
 using namespace GraphicsLayer;
 ///////////////////////////////////

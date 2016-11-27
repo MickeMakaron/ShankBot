@@ -26,13 +26,13 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/TibiaClient.hpp"
-#include "graphics/SharedMemoryProtocol.hpp"
+#include "monitor/TibiaClient.hpp"
+#include "monitor/SharedMemoryProtocol.hpp"
 #include "utility/utility.hpp"
-#include "graphics/Constants.hpp"
+#include "monitor/Constants.hpp"
 
-#include "graphics/TextBuilder.hpp"
-#include "graphics/OutfitResolver.hpp"
+#include "monitor/TextBuilder.hpp"
+#include "monitor/OutfitResolver.hpp"
 #include "messaging/GoRequest.hpp"
 #include "messaging/Response.hpp"
 #include "messaging/AttackRequest.hpp"
@@ -1192,7 +1192,7 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
 
     LoadLibAddy = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 
-    const char* DLL_NAME = "GraphicsMonitor.dll";
+    const char* DLL_NAME = "ShankBotMonitorInjection.dll";
 
     RemoteString = (LPVOID)VirtualAllocEx(mClientProcessHandle, NULL, strlen(DLL_NAME), MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
     WriteProcessMemory(mClientProcessHandle, (LPVOID)RemoteString, DLL_NAME,strlen(DLL_NAME), NULL);

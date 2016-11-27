@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/Input.hpp"
+#include "monitor/Input.hpp"
 #include "utility/utility.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////

@@ -26,26 +26,24 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/SharedMemoryProtocol.hpp"
+#include "monitor/Sprite.hpp"
 #include "utility/utility.hpp"
-
 using namespace GraphicsLayer;
-using namespace SharedMemoryProtocol;
 ///////////////////////////////////
 
 
-unsigned char PixelData::getBytesPerPixel() const
+Sprite::Sprite(unsigned int id, unsigned short width, unsigned short height, const unsigned char* pixels)
+: id(id)
+, width(width)
+, height(height)
+, pixels(pixels, pixels + width * height * sb::utility::BYTES_PER_PIXEL_RGBA)
 {
-    switch(format)
-    {
-        case PixelFormat::RGBA:
-        case PixelFormat::BGRA:
-            return sb::utility::BYTES_PER_PIXEL_RGBA;
+}
 
-        case PixelFormat::ALPHA:
-            return sb::utility::BYTES_PER_PIXEL_ALPHA;
-
-        default:
-            THROW_RUNTIME_ERROR("Unimplemented pixel format.");
-    }
+Sprite::Sprite(unsigned int id, unsigned short width, unsigned short height, const std::vector<unsigned char>& pixels)
+: id(id)
+, width(width)
+, height(height)
+, pixels(pixels)
+{
 }

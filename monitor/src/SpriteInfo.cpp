@@ -26,54 +26,43 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/Draw.hpp"
+#include "monitor/SpriteInfo.hpp"
 #include "utility/utility.hpp"
 using namespace GraphicsLayer;
+using namespace sb::tibiaassets;
 ///////////////////////////////////
 
 ///////////////////////////////////
 // STD C++
-#include <cassert>
+#include <sstream>
 ///////////////////////////////////
 
-
-
-//        void getScreenCoords
-//        (
-//            float halfScreenWidth, float halfScreenHeight,
-//            unsigned short& screenX, unsigned short& screenY
-//        ) const
-//        {
-//            worldToScreenCoords(topLeft.x, topLeft.y, *transform, halfScreenWidth, halfScreenHeight, screenX, screenY);
-//        }
-
-//        void getScreenCoords
-//        (
-//            float halfScreenWidth, float halfScreenHeight,
-//            unsigned short& screenX, unsigned short& screenY,
-//            float worldX, float worldY
-//        ) const
-//        {
-//            worldToScreenCoords(worldX, worldY, *transform, halfScreenWidth, halfScreenHeight, screenX, screenY);
-//        }
-
-void Draw::getScreenCoords
-(
-    float halfScreenWidth, float halfScreenHeight,
-    float& screenX, float& screenY
-) const
+SpriteInfo::SpriteInfo(const std::list<CatalogContent::SpriteSheet>& spriteSheets)
 {
-    sb::utility::worldToScreenCoords(topLeft.x, topLeft.y, *transform, halfScreenWidth, halfScreenHeight, screenX, screenY);
+    parseSpriteSheets(spriteSheets);
 }
 
-void Draw::getScreenCoords
-(
-    float halfScreenWidth, float halfScreenHeight,
-    float& screenX, float& screenY,
-    float worldX, float worldY
-) const
+void SpriteInfo::parseSpriteSheets(const std::list<CatalogContent::SpriteSheet>& spriteSheets)
 {
-    sb::utility::worldToScreenCoords(worldX, worldY, *transform, halfScreenWidth, halfScreenHeight, screenX, screenY);
+    for(const CatalogContent::SpriteSheet& s : spriteSheets)
+    {
+        unsigned char tileWidth;
+        unsigned char tileHeight;
+        CatalogContent::getSpriteTileSize(s.spriteSize, tileWidth, tileHeight);
+        for(unsigned int id = s.firstSpriteId; id <= s.lastSpriteId; id++)
+            mInfo.emplace(id, Info(tileWidth, tileHeight, s.area));
+    }
 }
 
+const SpriteInfo::Info& SpriteInfo::get(unsigned int spriteId) const
+{
+    auto result = mInfo.find(spriteId);
+    if(result == mInfo.end())
+    {
+        std::stringstream sstream;
+        sstream << "Sprite info for sprite id '" << spriteId << "' does not exist." << std::endl;
+        THROW_RUNTIME_ERROR(sstream.str());
+    }
 
+    return result->second;
+}

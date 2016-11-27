@@ -26,11 +26,11 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/Scene.hpp"
-#include "graphics/SpriteInfo.hpp"
+#include "monitor/Scene.hpp"
+#include "monitor/SpriteInfo.hpp"
 #include "utility/utility.hpp"
 #include "tibiaassets/Object.hpp"
-#include "graphics/Frame.hpp"
+#include "monitor/Frame.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 

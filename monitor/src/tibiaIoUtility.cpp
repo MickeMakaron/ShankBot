@@ -26,11 +26,11 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/tibiaIoUtility.hpp"
-#include "graphics/GraphicsMonitorReader.hpp"
-#include "graphics/TibiaClient.hpp"
-#include "graphics/Input.hpp"
-#include "graphics/TextBuilder.hpp"
+#include "monitor/tibiaIoUtility.hpp"
+#include "monitor/GraphicsMonitorReader.hpp"
+#include "monitor/TibiaClient.hpp"
+#include "monitor/Input.hpp"
+#include "monitor/TextBuilder.hpp"
 
 ///////////////////////////////////
 

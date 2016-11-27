@@ -26,11 +26,11 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/OutfitResolver.hpp"
-#include "graphics/Frame.hpp"
+#include "monitor/OutfitResolver.hpp"
+#include "monitor/Frame.hpp"
 #include "tibiaassets/Object.hpp"
-#include "graphics/TextBuilder.hpp"
-#include "graphics/tibiaIoUtility.hpp"
+#include "monitor/TextBuilder.hpp"
+#include "monitor/tibiaIoUtility.hpp"
 using namespace sb::tibiaassets;
 using namespace GraphicsLayer;
 ///////////////////////////////////

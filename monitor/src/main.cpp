@@ -25,7 +25,7 @@
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
 
-#include "graphics/ShankBot.hpp"
+#include "monitor/ShankBot.hpp"
 using namespace GraphicsLayer;
 #include <fstream>
 

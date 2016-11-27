@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/FontSample.hpp"
+#include "monitor/FontSample.hpp"
 #include "utility/FunctionDetour.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////

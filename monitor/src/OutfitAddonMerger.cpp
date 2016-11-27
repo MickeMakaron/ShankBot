@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/OutfitAddonMerger.hpp"
+#include "monitor/OutfitAddonMerger.hpp"
 #include "tibiaassets/Object.hpp"
 #include "utility/utility.hpp"
 using namespace sb::tibiaassets;

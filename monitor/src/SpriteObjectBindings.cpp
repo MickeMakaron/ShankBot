@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/SpriteObjectBindings.hpp"
+#include "monitor/SpriteObjectBindings.hpp"
 using namespace sb::tibiaassets;
 using namespace GraphicsLayer;
 ///////////////////////////////////

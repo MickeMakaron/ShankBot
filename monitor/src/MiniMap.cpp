@@ -26,12 +26,12 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/MiniMap.hpp"
-#include "graphics/Constants.hpp"
+#include "monitor/MiniMap.hpp"
+#include "monitor/Constants.hpp"
 #include "utility/file.hpp"
 #include "utility/utility.hpp"
-#include "graphics/Input.hpp"
-#include "graphics/GraphicsMonitorReader.hpp"
+#include "monitor/Input.hpp"
+#include "monitor/GraphicsMonitorReader.hpp"
 using namespace GraphicsLayer;
 using namespace sb::utility;
 using namespace sb::utility::file;

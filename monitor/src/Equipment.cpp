@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "graphics/Equipment.hpp"
+#include "monitor/Equipment.hpp"
 using namespace GraphicsLayer;
 using namespace sb::tibiaassets;
 ///////////////////////////////////
