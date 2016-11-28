@@ -31,6 +31,7 @@
 #include "utility/utility.hpp"
 #include "monitor/Equipment.hpp"
 #include "utility/file.hpp"
+#include "monitor/TibiaContext.hpp"
 using namespace sb::tibiaassets;
 using namespace GraphicsLayer;
 ///////////////////////////////////
@@ -42,6 +43,11 @@ using namespace GraphicsLayer;
 #include <cassert>
 ///////////////////////////////////
 
+Gui::Gui(const TibiaContext& context)
+: mContext(context)
+{
+
+}
 
 void Gui::update(const Frame& frame)
 {
@@ -1904,12 +1910,15 @@ void Gui::parseEquippedItems(size_t& i)
         const Object* equippable = nullptr;
         for(const auto& pairing : s.pairings)
         {
-            for(const Object* o : pairing.objects)
-                if(o->itemInfo.bodyRestriction != Object::BodyRestriction::NONE)
+            for(size_t objIndex : pairing.objects)
+            {
+                const Object& o = mContext.getObjects()[objIndex];
+                if(o.itemInfo.bodyRestriction != Object::BodyRestriction::NONE)
                 {
-                    equippable = o;
+                    equippable = &o;
                     break;
                 }
+            }
             if(equippable)
                 break;
         }
@@ -1993,8 +2002,8 @@ void Gui::parseContainerSprites(size_t& i, Container& c)
 
         for(const SpriteDraw::SpriteObjectPairing& pairing : draws[i].pairings)
         {
-            for(const Object* o : pairing.objects)
-                if(o->itemInfo.isContainer)
+            for(size_t o : pairing.objects)
+                if(mContext.getObjects()[o].itemInfo.isContainer)
                 {
                     isContainerFound = true;
                     break;
@@ -2013,7 +2022,7 @@ void Gui::parseContainerSprites(size_t& i, Container& c)
     static const int DELTA_X = Constants::TILE_PIXEL_WIDTH + Constants::CONTAINER_SEPARATOR_PIXEL_WIDTH;
 
     size_t containerIndex = 0;
-    std::list<std::set<const Object*>> objects;
+    std::list<std::set<size_t>> objects;
     while(i < draws.size())
     {
         const SpriteDraw& d = draws[i];
@@ -2023,10 +2032,10 @@ void Gui::parseContainerSprites(size_t& i, Container& c)
         if(containerIndex != containerSlotLocalCoordsToIndex(START_X, START_Y, d.topLeft.x, d.topLeft.y))
             break;
 
-        std::set<const Object*> pickupables;
+        std::set<size_t> pickupables;
         for(const SpriteDraw::SpriteObjectPairing& pairing : d.pairings)
-            for(const Object* o : pairing.objects)
-                if(o->itemInfo.isPickupable)
+            for(size_t o : pairing.objects)
+                if(mContext.getObjects()[o].itemInfo.isPickupable)
                 {
                     pickupables.insert(o);
                 }

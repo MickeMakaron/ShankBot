@@ -36,6 +36,7 @@ namespace GraphicsLayer
 {
     class Frame;
     class GraphicsMonitorReader;
+    class TibiaContext;
 }
 namespace sb
 {
@@ -71,7 +72,7 @@ class OutfitResolver
             std::string name;
             short x;
             short y;
-            const sb::tibiaassets::Object* object;
+            size_t object;
         };
 
         struct Creature
@@ -80,7 +81,7 @@ class OutfitResolver
             short x;
             short y;
             float hp;
-            const sb::tibiaassets::Object* object;
+            size_t object;
         };
 
         struct UnknownPlayerCreature
@@ -89,7 +90,7 @@ class OutfitResolver
             short x;
             short y;
             float hp;
-            const sb::tibiaassets::Object* object = nullptr;
+            size_t object = -1;
         };
 
     private:
@@ -123,15 +124,17 @@ class OutfitResolver
                 PLAYER
             };
 
-            explicit Outfit(std::string name, Type type, const sb::tibiaassets::Object* object = nullptr)
+            explicit Outfit(std::string name, Type type, size_t object = -1)
             : name(name), type(type), object(object){};
 
             const std::string name;
             const Type type;
-            const sb::tibiaassets::Object* object = nullptr;
+            size_t object = -1;
         };
 
     public:
+        explicit OutfitResolver(const TibiaContext& context);
+
         void resolve(Scene& scene, const Frame& frame, GraphicsMonitorReader& reader);
         const std::list<Npc>& getNpcs() const;
         const std::list<Creature>& getCreatures() const;
@@ -153,6 +156,7 @@ class OutfitResolver
 
 
     private:
+        const TibiaContext& mContext;
         const Frame* mCurrentFrame;
         const Scene* mCurrentScene;
         std::map<std::string, Outfit> mOutfits;

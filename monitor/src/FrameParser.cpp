@@ -1655,14 +1655,10 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             {
                 SpriteDraw::SpriteObjectPairing pairing;
                 pairing.spriteId = spriteId;
-                std::list<const Object*> objects = mContext.getSpriteObjectBindings().getObjects(spriteId);
+                std::list<size_t> objects = mContext.getSpriteObjectBindings().getObjects(spriteId);
                 if(!objects.empty())
                 {
-                    for(const Object* object : objects)
-                    {
-                        pairing.objects.insert(object);
-                    }
-
+                    pairing.objects.swap(objects);
                     width = data.width;
                     height = data.height;
                     pairings.push_back(pairing);
@@ -1748,15 +1744,15 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             {
                 SpriteDraw::SpriteObjectPairing pairing;
                 pairing.spriteId = spriteId;
-                std::list<const Object*> objects = mContext.getSpriteObjectBindings().getObjects(spriteId);
+                std::list<size_t> objects = mContext.getSpriteObjectBindings().getObjects(spriteId);
                 if(!objects.empty())
                 {
-                    for(const Object* object : objects)
+                    for(size_t object : objects)
                     {
-                        for(const Object::SomeInfo& info : object->someInfos)
+                        for(const Object::SomeInfo& info : mContext.getObjects()[object].someInfos)
                             if(info.spriteInfo.numBlendFrames > 1)
                             {
-                                pairing.objects.insert(object);
+                                pairing.objects.push_back(object);
                                 break;
                             }
                     }

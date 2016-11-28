@@ -38,14 +38,12 @@ using namespace GraphicsLayer;
 ///////////////////////////////////
 
 SpriteObjectBindings::SpriteObjectBindings(const std::vector<Object>& objects)
-: mObjects(objects)
 {
     mBindings.clear();
-    parseObjects();
+    parseObjects(objects);
 }
 
-SpriteObjectBindings::SpriteObjectBindings(const std::vector<Object>& objects, std::string binPath)
-: mObjects(objects)
+SpriteObjectBindings::SpriteObjectBindings(std::string binPath)
 {
     mBindings.clear();
     readFromBinaryFile(binPath);
@@ -98,12 +96,10 @@ void SpriteObjectBindings::writeToBinaryFile(std::string path) const
     file.close();
 }
 
-void SpriteObjectBindings::parseObjects()
+void SpriteObjectBindings::parseObjects(const std::vector<Object>& objects)
 {
-    for(size_t i = 0; i < mObjects.size(); i++)
-    {
-        createBindings(mObjects[i], i);
-    }
+    for(size_t i = 0; i < objects.size(); i++)
+        createBindings(objects[i], i);
 }
 
 void SpriteObjectBindings::createBindings(const Object& o, size_t globalId)
@@ -119,16 +115,15 @@ void SpriteObjectBindings::createBindings(const Object& o, size_t globalId)
         }
 }
 
-std::list<const Object*> SpriteObjectBindings::getObjects(size_t spriteId) const
+std::list<size_t> SpriteObjectBindings::getObjects(size_t spriteId) const
 {
-    std::list<const Object*> objects;
+    std::list<size_t> objects;
 
     auto found = mBindings.find(spriteId);
     if(found == mBindings.end())
         return objects;
 
-    for(size_t id : found->second)
-        objects.push_back(&mObjects[id]);
+    objects.insert(objects.end(), found->second.begin(), found->second.end());
 
     return objects;
 }

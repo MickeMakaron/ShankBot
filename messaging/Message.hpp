@@ -54,21 +54,20 @@ namespace messaging
                 FRAME_RESPONSE,
                 FRAME_REQUEST,
                 ATTACK_REQUEST,
+                OBJECT_RESPONSE,
+                OBJECT_REQUEST,
                 INVALID,
             };
 
         public:
-            size_t fromBinary(const char* data, size_t size);
-            std::vector<char> toBinary() const;
-            static Type readMessageType(const char* data, size_t size);
-
-        protected:
             explicit Message(Type messageType) : M_MESSAGE_TYPE(messageType){};
 
-        private:
-            size_t getSize() const;
+            size_t fromBinary(const char* data, size_t size);
+            void toBinary(std::vector<char>& out) const;
+            static Type readMessageType(const char* data, size_t size);
 
-            virtual size_t getSizeDerived() const;
+
+        private:
             virtual size_t fromBinaryDerived(const char* data, size_t size);
             virtual void toBinaryDerived(std::vector<char>& out) const;
 

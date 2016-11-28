@@ -36,6 +36,7 @@ namespace GraphicsLayer
 {
     class SpriteInfo;
     struct Frame;
+    class TibiaContext;
 }
 namespace sb
 {
@@ -65,7 +66,7 @@ namespace GraphicsLayer
                 bool isOnStack = false;
                 float screenX;
                 float screenY;
-                const sb::tibiaassets::Object* object;
+                size_t object;
 
 //                bool operator<(const Object& other) const
 //                {
@@ -105,7 +106,7 @@ namespace GraphicsLayer
 
 
         public:
-            explicit Scene(const SpriteInfo& spriteInfo);
+            explicit Scene(const TibiaContext& context);
 
             void update(const Frame& frame);
 
@@ -135,7 +136,7 @@ namespace GraphicsLayer
             bool mIsCurrentFrameParsed = false;
 
             Tile mParsedCurrentFrame[MAX_VISIBLE_TILES_X][MAX_VISIBLE_TILES_Y];
-            const SpriteInfo& mSpriteInfo;
+            const TibiaContext& mContext;
 
             short mPreviousMiniMapX = 0;
             short mPreviousMiniMapY = 0;

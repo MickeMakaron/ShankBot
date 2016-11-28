@@ -38,34 +38,6 @@ using namespace sb;
 #include <cassert>
 ///////////////////////////////////
 
-size_t FrameResponse::getSizeDerived() const
-{
-    size_t size = 0;
-    for(size_t i = 0; i < Scene::SIZE; i++)
-        size += mFrame.scene.objects[0][i].size();
-
-    size += sizeof(SIZE_TYPE) * Scene::SIZE;
-
-    size += sizeof(SIZE_TYPE) * (mFrame.scene.npcs.size() + 1);
-    size += (sizeof(Npc::x) + sizeof(Npc::y) + sizeof(Npc::id)) * mFrame.scene.npcs.size();
-    for(const Npc& n : mFrame.scene.npcs)
-        size += n.name.size() + sizeof(n.x) + sizeof(n.y) + sizeof(n.id);
-
-    size += sizeof(SIZE_TYPE) * (mFrame.scene.players.size() + 1);
-    size += (sizeof(Player::x) + sizeof(Player::y) + sizeof(Player::hp)) * mFrame.scene.players.size();
-    for(const Player& p : mFrame.scene.players)
-        size += p.name.size();
-
-    size += sizeof(SIZE_TYPE) * (mFrame.scene.creatures.size() + 1);
-    size += (sizeof(Creature::x) + sizeof(Creature::y) + sizeof(Creature::id) + sizeof(Creature::hp)) * mFrame.scene.creatures.size();
-    for(const Creature& c : mFrame.scene.creatures)
-        size += c.name.size();
-
-    size += sizeof(mFrame.miniMap);
-
-    return Response::getSizeDerived() + size;
-}
-
 void FrameResponse::set(const Frame& frame)
 {
     mFrame = frame;
@@ -84,18 +56,17 @@ size_t FrameResponse::fromBinaryDerived(const char* data, size_t size)
     data += numBytesRead;
     for(size_t i = 0; i < Scene::SIZE; i++)
     {
-        numBytesRead += sizeof(SIZE_TYPE);
+        SIZE_TYPE numObjects;
+        numBytesRead += sizeof(numObjects);
         if(size < numBytesRead)
             return -1;
-
-        SIZE_TYPE numObjects;
         readStream(numObjects, data);
 
-        numBytesRead += numObjects * sizeof(Object);
+        numBytesRead += numObjects * sizeof(GlobalObjectId);
         if(size < numBytesRead)
             return -1;
 
-        std::vector<Object>& objects = mFrame.scene.objects[0][i];
+        std::vector<GlobalObjectId>& objects = mFrame.scene.objects[0][i];
         objects.resize(numObjects);
         readStream(*objects.data(), data, objects.size());
     }
@@ -216,7 +187,7 @@ void FrameResponse::toBinaryDerived(std::vector<char>& out) const
     Response::toBinaryDerived(out);
     for(size_t i = 0; i < Scene::SIZE; i++)
     {
-        const std::vector<Object>& objects = mFrame.scene.objects[0][i];
+        const std::vector<GlobalObjectId>& objects = mFrame.scene.objects[0][i];
         assert(objects.size() <= SIZE_TYPE(-1));
 
         SIZE_TYPE size = objects.size();

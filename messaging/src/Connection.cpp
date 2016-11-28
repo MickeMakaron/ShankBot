@@ -207,7 +207,8 @@ bool Connection::sendMessages(const std::list<std::shared_ptr<Message>>& message
 
     for(const auto& msg : messages)
     {
-        std::vector<char> data = msg->toBinary();
+        std::vector<char> data;
+        msg->toBinary(data);
         numBytesWritten += data.size();
         if(numBytesWritten >= M_OUT_BUFFER_SIZE)
             return false;
@@ -244,7 +245,8 @@ bool Connection::sendMessage(const Message& message)
     if(mState != State::IDLE)
         return false;
 
-    std::vector<char> data = message.toBinary();
+    std::vector<char> data;
+    message.toBinary(data);
     if(data.size() > M_OUT_BUFFER_SIZE)
         return false;
 

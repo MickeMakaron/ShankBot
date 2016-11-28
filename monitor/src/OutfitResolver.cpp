@@ -31,6 +31,7 @@
 #include "tibiaassets/Object.hpp"
 #include "monitor/TextBuilder.hpp"
 #include "monitor/tibiaIoUtility.hpp"
+#include "monitor/TibiaContext.hpp"
 using namespace sb::tibiaassets;
 using namespace GraphicsLayer;
 ///////////////////////////////////
@@ -40,6 +41,12 @@ using namespace GraphicsLayer;
 #include <cassert>
 #include <iostream>
 ///////////////////////////////////
+
+OutfitResolver::OutfitResolver(const TibiaContext& context)
+: mContext(context)
+{
+
+}
 
 void OutfitResolver::resolve(Scene& scene, const Frame& frame, GraphicsMonitorReader& reader)
 {
@@ -76,16 +83,17 @@ void OutfitResolver::clear()
 std::list<Scene::Object> OutfitResolver::getVisibleOutfits(Scene& scene) const
 {
     std::list<Scene::Object> visibleOutfits;
-    scene.forEach([&visibleOutfits](const Scene::Tile& tile)
+    scene.forEach([&](const Scene::Tile& tile)
     {
         for(auto it = tile.knownLayerObjects.rbegin(); it != tile.knownLayerObjects.rend(); it++)
         {
-            if(it->object->type == Object::Type::OUTFIT)
+            const Object& o = mContext.getObjects()[it->object];
+            if(o.type == Object::Type::OUTFIT)
             {
                 visibleOutfits.push_back(*it);
                 break;
             }
-            else if(it->object->itemInfo.isGround)
+            else if(o.itemInfo.isGround)
                 break;
         }
     });
@@ -148,8 +156,7 @@ std::list<OutfitResolver::HpBar> OutfitResolver::getHpBars() const
             case Color::HP_LIGHT_RED:
             case Color::HP_RED:
             case Color::HP_DARK_RED:
-//                if(screenX < mCurrentFrame->viewX + mCurrentFrame->viewWidth)
-                if((int)rectWidth == 21 && (int)rectHeight == 2)
+                if((int)rectHeight == 2 && screenX < mCurrentFrame->viewX + mCurrentFrame->viewWidth)
                 {
                     HpBar b;
                     b.x = screenX;
@@ -393,7 +400,7 @@ void OutfitResolver::processNpcs(const std::list<Text>& names, std::list<Scene::
         npc.name = npcName.string;
         if(matchingOutfit != visibleOutfits.end())
         {
-            if(storedOutfit.object != nullptr)
+            if(storedOutfit.object != -1)
                 assert(storedOutfit.object == matchingOutfit->object);
             else
                 storedOutfit.object = matchingOutfit->object;
@@ -428,7 +435,7 @@ void OutfitResolver::processPlayerCreatures(std::list<TextHpPair>& pairs, std::l
         auto storedIt = mOutfits.find(pairIt->text.string);
         if(matchingOutfitIt != visibleOutfits.end())
         {
-            bool hasMounts = matchingOutfitIt->object->someInfos.front().spriteInfo.numMounts > 1;
+            bool hasMounts = mContext.getObjects()[matchingOutfitIt->object].someInfos.front().spriteInfo.numMounts > 1;
             if(storedIt != mOutfits.end())
             {
                 Outfit& storedOutfit = storedIt->second;
@@ -441,7 +448,7 @@ void OutfitResolver::processPlayerCreatures(std::list<TextHpPair>& pairs, std::l
                 if(storedOutfit.type == Outfit::Type::CREATURE)
                 {
                     assert(!hasMounts);
-                    assert(storedOutfit.object != nullptr);
+                    assert(storedOutfit.object != -1);
 
 //                    if(storedOutfit.object != nullptr)
 //                        assert(storedOutfit.object == matchingOutfitIt->object);

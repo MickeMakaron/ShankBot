@@ -56,7 +56,6 @@ namespace messaging
             static const SIZE_TYPE MAX_STRING_LENGTH = SIZE_TYPE(-1);
             size_t fromBinaryDerived(const char* data, size_t size) override;
             void toBinaryDerived(std::vector<char>& out) const override;
-            size_t getSizeDerived() const override;
 
         private:
             std::vector<Character> mCharacters;

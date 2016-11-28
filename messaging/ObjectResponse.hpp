@@ -24,54 +24,46 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
+#ifndef SB_MESSAGING_OBJECT_RESPONSE_HPP
+#define SB_MESSAGING_OBJECT_RESPONSE_HPP
+
+
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "messaging/Response.hpp"
-#include "utility/utility.hpp"
-using namespace sb::utility;
-using namespace sb::messaging;
-using namespace sb;
+#include "messaging/config.hpp"
+#include "api/Object.hpp"
 ///////////////////////////////////
 
-size_t Response::fromBinaryDerived(const char* data, size_t size)
+namespace sb
 {
-    size_t numBytesToRead = sizeof(mResponseType) + sizeof(mResult);
-    if(size < numBytesToRead)
-        return -1;
+namespace messaging
+{
+    class SHANK_BOT_MESSAGING_DECLSPEC ObjectResponse : public Response
+    {
+        private:
+            typedef unsigned char SMALL_SIZE_TYPE;
+            typedef unsigned int LARGE_SIZE_TYPE;
 
-    readStream(mResponseType, data);
-    readStream(mResult, data);
+        public:
+            explicit ObjectResponse(RequestResult result = RequestResult::FAIL) : Response(result, Message::Type::OBJECT_RESPONSE){};
 
-    return numBytesToRead;
+            void set(const std::vector<sb::tibiaassets::Object>& objects);
+            const std::vector<sb::Object>& get() const;
+
+        private:
+            size_t fromBinaryDerived(const char* data, size_t size) override;
+            void toBinaryDerived(std::vector<char>& out) const override;
+
+            static void objectToBinary(const sb::Object& obj, std::vector<char>& out);
+            static size_t objectFromBinary(sb::Object& obj, const char* data, size_t size);
+
+
+        private:
+            std::vector<Object> mObjects;
+    };
 }
-
-void Response::toBinaryDerived(std::vector<char>& out) const
-{
-    writeStream(mResponseType, out);
-    writeStream(mResult, out);
-}
-
-void Response::set(RequestResult result)
-{
-    mResult = result;
-}
-
-RequestResult Response::getResult() const
-{
-    return mResult;
-}
-
-Message::Type Response::getResponseType() const
-{
-    return mResponseType;
 }
 
 
-Message::Type Response::readResponseType(const char* data, size_t size)
-{
-    Response r;
-    if(!r.fromBinary(data, size))
-        return Message::Type::INVALID;
-
-    return r.getResponseType();
-}
+#endif // SB_MESSAGING_OBJECT_RESPONSE_HPP

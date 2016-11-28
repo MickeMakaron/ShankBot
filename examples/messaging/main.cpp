@@ -34,9 +34,16 @@ using namespace sb;
 #include <cassert>
 #include <sstream>
 
+std::vector<Object> objects;
+
 void handleLoginResponse(RequestResult result, const std::vector<Character>& characters)
 {
     std::cout << "Login result: " << (int)result << std::endl;
+    if(result != RequestResult::SUCCESS)
+    {
+        std::cout << "Login failed." << std::endl;
+        return;
+    }
     for(const Character& c : characters)
         std::cout << "\t" << c.name << "\t\t\t" << c.world << std::endl;
     std::cout << std::endl;
@@ -45,11 +52,21 @@ void handleLoginResponse(RequestResult result, const std::vector<Character>& cha
 void handleGoResult(RequestResult result)
 {
     std::cout << "Go result: " << (int)result << std::endl;
+    if(result != RequestResult::SUCCESS)
+    {
+        std::cout << "Go failed." << std::endl;
+        return;
+    }
 }
 
 void handleFrameResponse(RequestResult result, const Frame& f)
 {
     std::cout << "Frame result: " << (int)result << std::endl;
+    if(result != RequestResult::SUCCESS)
+    {
+        std::cout << "Frame request failed." << std::endl;
+        return;
+    }
 
     std::cout << ":::::::::::: FRAME :::::::::::::::" << std::endl;
     std::cout << "Object count: " << std::endl;
@@ -57,7 +74,16 @@ void handleFrameResponse(RequestResult result, const Frame& f)
     {
         for(size_t x = 0; x < f.scene.WIDTH; x++)
         {
-            std::cout << "\t" << f.scene.objects[x][y].size() << " ";
+            bool isWalkableTile = true;
+            for(auto it = f.scene.objects[x][y].rbegin(); it != f.scene.objects[x][y].rend(); it++)
+                if(objects[*it].itemInfo.isBlocking)
+                {
+                    isWalkableTile = false;
+                    break;
+                }
+
+//            std::cout << objects[f.scene.objects[x][y].front()].id << "\t";
+            std::cout << (int)isWalkableTile << "\t";
         }
 
         std::cout << std::endl;
@@ -125,7 +151,17 @@ void parseGoCommand(std::string command, short& x, short& y)
 
 int main(int argc, char** argv)
 {
+    std::cout << "Connecting... ";
     Requester requester;
+    std::cout << "done" << std::endl;
+
+    std::cout << "Fetching objects... ";
+    if(requester.objects(objects) != RequestResult::SUCCESS)
+    {
+        std::cout << "Failed. Bye!" << std::endl;
+        return -1;
+    }
+    std::cout << "done. Fetched " << objects.size() << " objects." << std::endl;
     while(true)
     {
 

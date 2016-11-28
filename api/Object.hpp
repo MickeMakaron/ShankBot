@@ -24,54 +24,29 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
+#ifndef SB_API_OBJECT_HPP
+#define SB_API_OBJECT_HPP
+
+
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "messaging/Response.hpp"
-#include "utility/utility.hpp"
-using namespace sb::utility;
-using namespace sb::messaging;
-using namespace sb;
+#include "tibiaassets/Object.hpp"
 ///////////////////////////////////
 
-size_t Response::fromBinaryDerived(const char* data, size_t size)
+///////////////////////////////////
+// STD C++
+#include <string>
+///////////////////////////////////
+
+namespace sb
 {
-    size_t numBytesToRead = sizeof(mResponseType) + sizeof(mResult);
-    if(size < numBytesToRead)
-        return -1;
-
-    readStream(mResponseType, data);
-    readStream(mResult, data);
-
-    return numBytesToRead;
-}
-
-void Response::toBinaryDerived(std::vector<char>& out) const
-{
-    writeStream(mResponseType, out);
-    writeStream(mResult, out);
-}
-
-void Response::set(RequestResult result)
-{
-    mResult = result;
-}
-
-RequestResult Response::getResult() const
-{
-    return mResult;
-}
-
-Message::Type Response::getResponseType() const
-{
-    return mResponseType;
+    struct Object
+    {
+        sb::tibiaassets::Object::Type type = sb::tibiaassets::Object::Type::NONE;
+        unsigned short id = 0;
+        sb::tibiaassets::Object::ItemInfo itemInfo;
+    };
 }
 
 
-Message::Type Response::readResponseType(const char* data, size_t size)
-{
-    Response r;
-    if(!r.fromBinary(data, size))
-        return Message::Type::INVALID;
-
-    return r.getResponseType();
-}
+#endif // SB_API_OBJECT_HPP

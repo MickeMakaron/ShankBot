@@ -34,6 +34,7 @@
 #include "messaging/GoRequest.hpp"
 #include "messaging/LoginRequest.hpp"
 #include "messaging/LoginResponse.hpp"
+#include "messaging/ObjectResponse.hpp"
 #include "utility/utility.hpp"
 using namespace sb;
 namespace msg = sb::messaging;
@@ -59,6 +60,8 @@ RequestResult Requester::frame(Frame& f)
 {
     RequestResult result;
     auto response = mRequester->request(result, std::make_unique<msg::FrameRequest>());
+    if(response == nullptr)
+        return result;
     assert(msg::Response::readResponseType(response->data(), response->size()) == msg::Message::Type::FRAME_RESPONSE);
     msg::FrameResponse r;
     if(!r.fromBinary(response->data(), response->size()))
@@ -73,6 +76,8 @@ RequestResult Requester::go(short x, short y)
     req->set(x, y);
     RequestResult result;
     auto response = mRequester->request(result, std::unique_ptr<msg::Message>(req));
+    if(response == nullptr)
+        return result;
     assert(msg::Response::readResponseType(response->data(), response->size()) == msg::Message::Type::INVALID);
     return result;
 }
@@ -83,6 +88,8 @@ RequestResult Requester::login(std::string accountName, std::string password, st
     req->set(accountName, password);
     RequestResult result;
     auto response = mRequester->request(result, std::unique_ptr<msg::Message>(req));
+    if(response == nullptr)
+        return result;
 
     assert(msg::Response::readResponseType(response->data(), response->size()) == msg::Message::Type::LOGIN_RESPONSE);
     msg::LoginResponse r;
@@ -90,5 +97,20 @@ RequestResult Requester::login(std::string accountName, std::string password, st
         THROW_RUNTIME_ERROR("Failed to read login response.");
 
     characters = r.getCharacters();
+    return result;
+}
+
+RequestResult Requester::objects(std::vector<Object>& objs)
+{
+    RequestResult result;
+    auto response = mRequester->request(result, std::make_unique<msg::Message>(msg::Message::Type::OBJECT_REQUEST));
+    if(response == nullptr)
+        return result;
+    assert(msg::Response::readResponseType(response->data(), response->size()) == msg::Message::Type::OBJECT_RESPONSE);
+    msg::ObjectResponse r;
+    if(!r.fromBinary(response->data(), response->size()))
+       THROW_RUNTIME_ERROR("Failed to read object response.");
+
+    objs = r.get();
     return result;
 }

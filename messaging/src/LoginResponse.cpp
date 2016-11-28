@@ -33,15 +33,6 @@ using namespace sb::messaging;
 using namespace sb;
 ///////////////////////////////////
 
-size_t LoginResponse::getSizeDerived() const
-{
-    size_t size = 0;
-    for(const Character& c : mCharacters)
-        size += c.name.size() + c.world.size();
-
-    return Response::getSizeDerived() + size + sizeof(SIZE_TYPE) * (mCharacters.size() * 2 + 1);
-}
-
 size_t LoginResponse::fromBinaryDerived(const char* data, size_t size)
 {
     size_t numBytesRead = Response::fromBinaryDerived(data, size);

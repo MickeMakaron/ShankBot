@@ -50,19 +50,10 @@ size_t Message::fromBinary(const char* data, size_t size)
     return sizeof(type) + readBytes;
 }
 
-std::vector<char> Message::toBinary() const
+void Message::toBinary(std::vector<char>& out) const
 {
-    std::vector<char> out;
-    out.reserve(getSize());
     writeStream(M_MESSAGE_TYPE, out);
     toBinaryDerived(out);
-
-    return out;
-}
-
-size_t Message::getSize() const
-{
-    return sizeof(M_MESSAGE_TYPE) + getSizeDerived();
 }
 
 Message::Type Message::readMessageType(const char* data, size_t size)
@@ -71,11 +62,6 @@ Message::Type Message::readMessageType(const char* data, size_t size)
         return Type::INVALID;
 
     return *(Type*)data;
-}
-
-size_t Message::getSizeDerived() const
-{
-    return 0;
 }
 
 size_t Message::fromBinaryDerived(const char* data, size_t size)

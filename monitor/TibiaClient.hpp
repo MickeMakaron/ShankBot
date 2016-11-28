@@ -91,6 +91,7 @@ namespace GraphicsLayer
             std::shared_ptr<sb::messaging::Message> handleGoRequest(const char* data, size_t size);
             std::shared_ptr<sb::messaging::Message> handleFrameRequest(const char* data, size_t size);
             std::shared_ptr<sb::messaging::Message> handleAttackRequest(const char* data, size_t size);
+            std::shared_ptr<sb::messaging::Message> handleObjectRequest(const char* data, size_t size);
 
         private:
             const TibiaContext& mContext;

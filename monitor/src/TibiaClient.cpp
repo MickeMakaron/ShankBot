@@ -40,6 +40,7 @@
 #include "messaging/FrameResponse.hpp"
 #include "messaging/LoginRequest.hpp"
 #include "messaging/LoginResponse.hpp"
+#include "messaging/ObjectResponse.hpp"
 using namespace GraphicsLayer;
 using namespace SharedMemoryProtocol;
 using namespace sb::tibiaassets;
@@ -71,12 +72,15 @@ using namespace sb::tibiaassets;
 #include <unistd.h>
 ///////////////////////////////////
 
-
 TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& context)
 : mContext(context)
 , mFrameParser(context)
-, mScene(context.getSpriteInfo())
+, mScene(context)
+, mGui(context)
+, mOutfitResolver(context)
 {
+
+
     std::string sharedMemoryName;
     prepareSharedMemory(sharedMemoryName);
     mGraphicsMonitorReader.reset(new GraphicsMonitorReader(*this, context, mShm));
@@ -389,16 +393,17 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
 
             const Scene::Tile& t = mScene.getTile(x, y);
             char currLayer = -1;
-            std::vector<sb::Object>& objects = f.scene.objects[x][y];
+            std::vector<unsigned int>& objects = f.scene.objects[x][y];
             for(const Scene::Object& o : t.knownLayerObjects)
             {
                 if(currLayer != o.layer)
                 {
                     currLayer = o.layer;
-                    sb::Object obj;
-                    obj.type = o.object->type;
-                    obj.id = o.object->id;
-                    objects.push_back(obj);
+//                    sb::Object obj;
+//                    obj.type = o.object->type;
+//                    obj.id = o.object->id;
+//                    objects.push_back(obj);
+                    objects.push_back(o.object);
                 }
             }
         }
@@ -411,7 +416,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
     {
         f.scene.npcs.emplace_back();
         sb::Npc& n = f.scene.npcs.back();
-        n.id = npc.object ? npc.object->id : 0;
+        n.id = npc.object != -1 ? mContext.getObjects()[npc.object].id : 0;
         n.name = npc.name;
         n.x = npc.x;
         n.y = npc.y;
@@ -421,7 +426,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleFrameRequest(const ch
     {
         f.scene.creatures.emplace_back();
         sb::Creature& c = f.scene.creatures.back();
-        c.id = creature.object ? creature.object->id : 0;
+        c.id = creature.object != -1 ? mContext.getObjects()[creature.object].id : 0;
         c.name = creature.name;
         c.x = creature.x;
         c.y = creature.y;
@@ -485,6 +490,15 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleAttackRequest(const c
         response.reset(new Response(sb::RequestResult::FAIL));
 
     return response;
+}
+
+std::shared_ptr<sb::messaging::Message> TibiaClient::handleObjectRequest(const char* data, size_t size)
+{
+    using namespace sb::messaging;
+    std::cout << "Handling object request." << std::endl;
+    auto r = std::make_shared<ObjectResponse>(sb::RequestResult::SUCCESS);
+    r->set(mContext.getObjects());
+    return r;
 }
 
 
@@ -562,6 +576,10 @@ void TibiaClient::update()
 
                     case T::ATTACK_REQUEST:
                         response = handleAttackRequest(message.data(), message.size());
+                        break;
+
+                    case T::OBJECT_REQUEST:
+                        response = handleObjectRequest(message.data(), message.size());
                         break;
 
                     default:

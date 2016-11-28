@@ -52,7 +52,6 @@ namespace messaging
             static Message::Type readResponseType(const char* data, size_t size);
 
         protected:
-            size_t getSizeDerived() const override;
             size_t fromBinaryDerived(const char* data, size_t size) override;
             void toBinaryDerived(std::vector<char>& out) const override;
 

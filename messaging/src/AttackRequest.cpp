@@ -32,11 +32,6 @@ using namespace sb::messaging;
 using namespace sb::utility;
 ///////////////////////////////////
 
-size_t AttackRequest::getSizeDerived() const
-{
-    return sizeof(mX) + sizeof(mY);
-}
-
 void AttackRequest::set(unsigned short x, unsigned short y)
 {
     mX = x;
@@ -56,7 +51,7 @@ unsigned short AttackRequest::getY() const
 
 size_t AttackRequest::fromBinaryDerived(const char* data, size_t size)
 {
-    size_t numBytesRead = getSizeDerived();
+    size_t numBytesRead = sizeof(mX) + sizeof(mY);
     if(size < numBytesRead)
         return -1;
 

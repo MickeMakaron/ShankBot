@@ -32,11 +32,6 @@ using namespace sb::utility;
 using namespace sb::messaging;
 ///////////////////////////////////
 
-size_t GoRequest::getSizeDerived() const
-{
-    return sizeof(mX) + sizeof(mY);
-}
-
 void GoRequest::set(short x, short y)
 {
     mX = x;
@@ -56,7 +51,7 @@ short GoRequest::getY() const
 
 size_t GoRequest::fromBinaryDerived(const char* data, size_t size)
 {
-    size_t numBytesRead = getSizeDerived();
+    size_t numBytesRead = sizeof(mX) + sizeof(mY);
     if(size < numBytesRead)
         return -1;
 

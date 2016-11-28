@@ -63,18 +63,14 @@ namespace sb
         unsigned short id;
     };
 
-    struct Object
-    {
-        sb::tibiaassets::Object::Type type;
-        unsigned short id;
-    };
+    typedef unsigned int GlobalObjectId;
 
     struct Scene
     {
         static const size_t WIDTH = 15;
         static const size_t HEIGHT = 11;
         static const size_t SIZE = WIDTH * HEIGHT;
-        std::vector<Object> objects[WIDTH][HEIGHT];
+        std::vector<GlobalObjectId> objects[WIDTH][HEIGHT];
         std::vector<Player> players;
         std::vector<Npc> npcs;
         std::vector<Creature> creatures;

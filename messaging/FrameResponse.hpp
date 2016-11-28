@@ -31,7 +31,6 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "messaging/Response.hpp"
-#include "tibiaassets/Object.hpp"
 #include "messaging/config.hpp"
 #include "api/Frame.hpp"
 ///////////////////////////////////
@@ -54,8 +53,6 @@ namespace messaging
         private:
             size_t fromBinaryDerived(const char* data, size_t size) override;
             void toBinaryDerived(std::vector<char>& out) const override;
-            size_t getSizeDerived() const override;
-
 
         private:
             Frame mFrame;

@@ -42,7 +42,7 @@ namespace sb
 {
 namespace tibiaassets
 {
-    struct SHANK_BOT_TIBIAASSETS_DECLSPEC Object
+    struct Object
     {
         struct FrameInfo
         {
@@ -67,7 +67,7 @@ namespace tibiaassets
             unsigned char numBlendFrames;
             unsigned char unknown1;
 
-            std::vector<size_t> spriteIds;
+            std::vector<unsigned int> spriteIds;
 
             AnimationInfo animationInfo;
         };
@@ -131,8 +131,8 @@ namespace tibiaassets
 
         struct MarketInfo
         {
-            size_t id1 = 0;
-            size_t id2 = 0;
+            unsigned int id1 = 0;
+            unsigned int id2 = 0;
             VocationRestriction vocationRestriction = VocationRestriction::NONE;
             ClassRestriction classRestriction = ClassRestriction::NONE;
             unsigned short levelRestriction = 0;
@@ -211,21 +211,21 @@ namespace tibiaassets
             bool hasMinimapColor = false;
             MiniMapColor minimapColor = MiniMapColor::INVALID;
             bool isTransparent = false;
-            bool hasMarketInfo = false;
-            unsigned short category = 0;
-            unsigned short marketId1 = 0;
-            unsigned short marketId2 = 0;
-            std::string name;
-            unsigned short profession = 0;
-            unsigned short level = 0;
+//            unsigned short category = 0;
+//            unsigned short marketId1 = 0;
+//            unsigned short marketId2 = 0;
+//            std::string name;
+//            unsigned short profession = 0;
+//            unsigned short level = 0;
             unsigned short defaultAction = 0;
             unsigned char offsetX = 0;
             unsigned char offsetY = 0;
 
 
-            MarketInfo marketInfo;
             BodyRestriction bodyRestriction = BodyRestriction::NONE;
             bool isItemDestroyer = 0; // full tile?
+            bool hasMarketInfo = false;
+            MarketInfo marketInfo;
         };
 
 
@@ -238,7 +238,7 @@ namespace tibiaassets
             NONE = 0xff,
         };
         Type type = Type::NONE;
-        size_t id = 0;
+        unsigned int id = 0;
         std::vector<SomeInfo> someInfos;
         ItemInfo itemInfo;
     };

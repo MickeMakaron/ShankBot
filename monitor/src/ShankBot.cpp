@@ -63,6 +63,7 @@ using namespace sb::tibiaassets;
 #endif // defined
 ///////////////////////////////////
 #include "QtGui/QImage"
+//#include "messaging/ObjectResponse.hpp"
 void ShankBot::initializeData(std::string clientDir, std::string versionControlDir)
 {
     using namespace sb::utility;
@@ -90,6 +91,18 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
     AppearancesReader appearances(appearanceses.front().path);
     auto objects = std::make_unique<std::vector<Object>>(appearances.getObjects());
     std::cout << "Done" << std::endl;
+
+//    sb::messaging::ObjectResponse r;
+//    r.set(*objects);
+//    std::vector<char> data;
+//    r.toBinary(data);
+//    r.fromBinary(data.data(), data.size());
+//    for(size_t i = 0; i < 10; i++)
+//    {
+//        const sb::Object& o = r.get()[i];
+//        const sb::tibiaassets::Object& to = (*objects)[i];
+//        int flerp = 0;
+//    }
 
     std::cout << "Reading graphics resources...";
     std::unique_ptr<GraphicsResourceReader> gResourceReader = std::make_unique<GraphicsResourceReader>(GRAPHICS_RESOURCES_PATH);
@@ -199,12 +212,13 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
                 }
             }
 
-            std::list<const Object*> objects = bindings.getObjects(spr.id);
+            std::list<size_t> boundObjects = bindings.getObjects(spr.id);
             bool isMergeOnly = false;
-            for(const Object* o : objects)
+            for(size_t objIndex : boundObjects)
             {
-                const Object::SpriteInfo& info = o->someInfos.front().spriteInfo;
-                if(o->type == Object::Type::OUTFIT && (info.numAddons > 1 || info.numMounts > 1 || info.numBlendFrames > 1))
+                const Object& o = (*objects)[objIndex];
+                const Object::SpriteInfo& info = o.someInfos.front().spriteInfo;
+                if(o.type == Object::Type::OUTFIT && (info.numAddons > 1 || info.numMounts > 1 || info.numBlendFrames > 1))
                     isMergeOnly = true;
                 else
                 {
@@ -254,7 +268,7 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
         VersionControl::checkout(versionControlDir);
     }
 
-    auto bindings = std::make_unique<SpriteObjectBindings>(*objects, SPRITE_OBJECT_BINDINGS_PATH);
+    auto bindings = std::make_unique<SpriteObjectBindings>(SPRITE_OBJECT_BINDINGS_PATH);
     auto spriteInfo = std::make_unique<SpriteInfo>(cat.getSpriteSheets());
 
 

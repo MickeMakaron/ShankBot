@@ -38,7 +38,6 @@
 ///////////////////////////////////
 // STD C++
 #include <memory>
-#include <set>
 #include <list>
 #include <string>
 ///////////////////////////////////
@@ -90,7 +89,7 @@ namespace GraphicsLayer
         struct SpriteObjectPairing
         {
             size_t spriteId;
-            std::set<const sb::tibiaassets::Object*> objects;
+            std::list<size_t> objects;
         };
 
         std::list<SpriteObjectPairing> pairings;

@@ -125,7 +125,7 @@ std::string MiniMap::createMiniMapColorFileName(unsigned int x, unsigned int y, 
 
 std::list<MiniMap::Tile> MiniMap::findPosAbsolute()
 {
-    static const std::string MINI_MAP_DIR = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/graphics/tibia/packages/Tibia/minimap";
+    static const std::string MINI_MAP_DIR = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/monitor/tibia/packages/Tibia/minimap";
     uint64_t latestModifiedTime = getLatestModifiedFileTime(MINI_MAP_DIR);
 
     mInput.sendKeyCombination({VK_MENU, VK_NEXT});
@@ -409,7 +409,7 @@ bool MiniMap::handleLevelChange2()
         {
             unsigned int x = mGlobalLeft + pair.first;
             unsigned int y = mGlobalTop + pair.second;
-            static const std::string DIRECTORY = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/graphics/tibia/packages/Tibia/minimap/";
+            static const std::string DIRECTORY = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/monitor/tibia/packages/Tibia/minimap/";
             std::string path = DIRECTORY + createMiniMapColorFileName(x, y, level);
             QImage img(QString::fromStdString(path));
             if(!img.isNull())

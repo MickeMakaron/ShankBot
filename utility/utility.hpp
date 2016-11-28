@@ -107,6 +107,18 @@ namespace utility
     }
 
     template<typename T>
+    bool readStreamSafe(T& t, const char*& stream, const char* end, size_t n = 1)
+    {
+        const size_t size = sizeof(T) * n;
+        if(stream + size > end)
+            return false;
+        memcpy((char*)&t, stream, size);
+        stream += size;
+
+        return true;
+    }
+
+    template<typename T>
     writeStream(const T& t, char*& stream, size_t n = 1)
     {
         const size_t size = sizeof(T) * n;

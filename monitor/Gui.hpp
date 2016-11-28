@@ -31,11 +31,16 @@
 // Internal ShankBot headers
 #include "Frame.hpp"
 #include "Text.hpp"
+namespace GraphicsLayer
+{
+    class TibiaContext;
+}
 ///////////////////////////////////
 
 ///////////////////////////////////
 // STD C++
 #include <map>
+#include <set>
 ///////////////////////////////////
 
 namespace GraphicsLayer
@@ -145,7 +150,7 @@ namespace GraphicsLayer
             {
                 std::string name;
                 unsigned char capacity = 0;
-                std::vector<std::pair<unsigned short, std::set<const sb::tibiaassets::Object*>>> items; // Count/item
+                std::vector<std::pair<unsigned short, std::set<size_t>>> items; // Count/item
 
                 std::vector<std::pair<size_t, Rect>> getVisibleItems() const;
 
@@ -158,7 +163,7 @@ namespace GraphicsLayer
                 struct Offer
                 {
                     std::string name;
-                    std::set<const sb::tibiaassets::Object*> objects;
+                    std::set<size_t> objects;
                     unsigned int cost = 0;
                     float weight = 0;
                     bool isAffordable = false;
@@ -192,13 +197,15 @@ namespace GraphicsLayer
                 {
                     std::string name;
                     float hpPercent;
-                    std::set<const sb::tibiaassets::Object*> objects;
+                    std::set<size_t> objects;
                 };
 
                 std::list<Outfit> outfits;
                 Outfit* selectedOutfit = nullptr;
             };
 
+        public:
+            explicit Gui(const TibiaContext& context);
 
             void update(const Frame& frame);
 
@@ -287,6 +294,7 @@ namespace GraphicsLayer
 
 
         private:
+            const TibiaContext& mContext;
             Frame mCurrentFrame;
             bool mIsCurrentFrameParsed = false;
             float mHalfFrameWidth = 0.f;

@@ -48,20 +48,19 @@ namespace GraphicsLayer
     {
         public:
             explicit SpriteObjectBindings(const std::vector<sb::tibiaassets::Object>& objects);
-            explicit SpriteObjectBindings(const std::vector<sb::tibiaassets::Object>& objects, std::string binPath);
+            explicit SpriteObjectBindings(std::string binPath);
 
-            std::list<const sb::tibiaassets::Object*> getObjects(size_t spriteId) const;
+            std::list<size_t> getObjects(size_t spriteId) const;
 
             void writeToBinaryFile(std::string path) const;
 
         private:
             void readFromBinaryFile(std::string binPath);
 
-            void parseObjects();
+            void parseObjects(const std::vector<sb::tibiaassets::Object>& objects);
             void createBindings(const sb::tibiaassets::Object& o, size_t globalId);
 
         private:
-            const std::vector<sb::tibiaassets::Object>& mObjects;
             std::map<size_t, std::set<size_t>> mBindings;
     };
 }

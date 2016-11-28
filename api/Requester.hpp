@@ -33,6 +33,7 @@
 #include "api/RequestResult.hpp"
 #include "api/Frame.hpp"
 #include "api/Character.hpp"
+#include "api/Object.hpp"
 namespace sb
 {
 namespace messaging
@@ -59,6 +60,7 @@ class SHANK_BOT_API_DECLSPEC Requester
         RequestResult frame(Frame& f);
         RequestResult go(short x, short y);
         RequestResult login(std::string accountName, std::string password, std::vector<Character>& characters);
+        RequestResult objects(std::vector<Object>& objs);
 
     private:
         sb::messaging::Requester* mRequester = nullptr;

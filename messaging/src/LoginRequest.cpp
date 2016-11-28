@@ -32,10 +32,6 @@ using namespace sb::utility;
 using namespace sb::messaging;
 ///////////////////////////////////
 
-size_t LoginRequest::getSizeDerived() const
-{
-    return sizeof(SIZE_TYPE) * 2 + mAccountName.size() + mPassword.size();
-}
 
 size_t LoginRequest::fromBinaryDerived(const char* data, size_t size)
 {

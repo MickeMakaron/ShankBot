@@ -96,8 +96,8 @@ class SHANK_BOT_MESSAGING_DECLSPEC Connection
 
     protected:
         static constexpr const char* const M_PIPE_NAME = "\\\\.\\pipe\\ShankBotMessagePipe";
-        static const size_t M_IN_BUFFER_SIZE = 1 << 16;
-        static const size_t M_OUT_BUFFER_SIZE = 1 << 16;
+        static const size_t M_IN_BUFFER_SIZE = 1 << 24;
+        static const size_t M_OUT_BUFFER_SIZE = 1 << 24;
 
     private:
         void* mEvent;

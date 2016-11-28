@@ -27,10 +27,10 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/Scene.hpp"
-#include "monitor/SpriteInfo.hpp"
 #include "utility/utility.hpp"
 #include "tibiaassets/Object.hpp"
 #include "monitor/Frame.hpp"
+#include "monitor/TibiaContext.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -42,8 +42,8 @@ using namespace GraphicsLayer;
 #include <algorithm>
 ///////////////////////////////////
 
-Scene::Scene(const SpriteInfo& spriteInfo)
-: mSpriteInfo(spriteInfo)
+Scene::Scene(const TibiaContext& context)
+: mContext(context)
 {
 }
 
@@ -112,12 +112,12 @@ void Scene::parseCurrentFrame()
     {
         if(!draw.pairings.empty())
         {
-            const SpriteInfo::Info& spriteInfo = mSpriteInfo.get(draw.pairings.front().spriteId);
+            const SpriteInfo::Info& spriteInfo = mContext.getSpriteInfo().get(draw.pairings.front().spriteId);
 
-            const sb::tibiaassets::Object* firstObject = *draw.pairings.front().objects.begin();
+            const sb::tibiaassets::Object& firstObject = mContext.getObjects()[draw.pairings.front().objects.front()];
 
-            short x = draw.topLeft.x + firstObject->itemInfo.offsetX;
-            short y = draw.topLeft.y + firstObject->itemInfo.offsetY;
+            short x = draw.topLeft.x + firstObject.itemInfo.offsetX;
+            short y = draw.topLeft.y + firstObject.itemInfo.offsetY;
 
             short remainderX;
             remainderX = x % Constants::TILE_PIXEL_WIDTH;
@@ -145,7 +145,7 @@ void Scene::parseCurrentFrame()
             for(const SpriteDraw::SpriteObjectPairing& pair : draw.pairings)
             {
                 assert(!pair.objects.empty());
-                for(const sb::tibiaassets::Object* obj : pair.objects)
+                for(size_t obj : pair.objects)
                 {
 //                    if(obj->itemInfo.isGround)
 //                    {
