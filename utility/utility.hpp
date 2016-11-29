@@ -119,7 +119,7 @@ namespace utility
     }
 
     template<typename T>
-    writeStream(const T& t, char*& stream, size_t n = 1)
+    void writeStream(const T& t, char*& stream, size_t n = 1)
     {
         const size_t size = sizeof(T) * n;
         memcpy(stream, (char*)&t, size);
@@ -127,7 +127,7 @@ namespace utility
     }
 
     template<typename T>
-    writeStream(const T& t, std::vector<char>& stream, size_t n = 1)
+    void writeStream(const T& t, std::vector<char>& stream, size_t n = 1)
     {
         const size_t size = sizeof(T) * n;
         stream.insert(stream.end(), (char*)&t, (char*)&t + size);
