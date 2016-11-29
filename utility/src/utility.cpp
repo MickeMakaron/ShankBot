@@ -542,13 +542,19 @@ bool isNumeric(std::string str)
 int strToInt(std::string str)
 {
     str.erase(std::remove(str.begin(), str.end(), ','), str.end());
-    return std::stoi(str);
+    std::stringstream sstream(str);
+    int i;
+    sstream >> i;
+    return i;
 }
 
 float strToFloat(std::string str)
 {
     str.erase(std::remove(str.begin(), str.end(), ','), str.end());
-    return std::stof(str);
+    std::stringstream sstream(str);
+    float f;
+    sstream >> f;
+    return f;
 }
 
 bool isNumeric(unsigned char c)
