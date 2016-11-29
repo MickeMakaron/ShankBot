@@ -242,7 +242,7 @@ namespace GraphicsLayer
             unsigned short getManaLeechChance();
             unsigned short getManaLeechAmount();
 
-            const std::map<EqType, const sb::tibiaassets::Object*>& getEquipment();
+            const std::map<EqType, size_t>& getEquipment();
             const std::list<Container>& getContainers();
 
         private:
@@ -251,7 +251,7 @@ namespace GraphicsLayer
             void updateSideBottomWindows(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
             void updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
             const Button* setButtonText(const Text& text);
-//            void updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
+            void updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
 //            void updateItems(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::vector<SpriteDraw>& guiSpriteDraws);
 //            void updateItems(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::list<Text>& stackCounts);
 //            void updateEquippedItems(size_t& i, const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::vector<SpriteDraw>& guiSpriteDraws);
@@ -302,7 +302,7 @@ namespace GraphicsLayer
             State mCurrentState = State::UNDEFINED;
             std::list<Button> mButtons;
 //            std::map<UiSection, std::list<Rect>> mUiSections;
-            std::map<EqType, const sb::tibiaassets::Object*> mEquipment;
+            std::map<EqType, size_t> mEquipment;
             std::list<Container> mContainers;
             std::list<SideBottomWindow> mSideBottomWindows;
             std::unique_ptr<NpcTradeWindow> mNpcTradeWindow;

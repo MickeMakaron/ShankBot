@@ -29,7 +29,6 @@
 #include "monitor/Gui.hpp"
 #include "monitor/TextBuilder.hpp"
 #include "utility/utility.hpp"
-#include "monitor/Equipment.hpp"
 #include "utility/file.hpp"
 #include "monitor/TibiaContext.hpp"
 using namespace sb::tibiaassets;
@@ -165,36 +164,36 @@ void Gui::updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& 
         }
     }
 }
-//
-//void Gui::updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws)
-//{
-//    auto hpIt = guiDraws.find("hitpoints-bar-filled.png");
-//    if(hpIt == guiDraws.end())
-//        return;
-//    assert(hpIt->second.size() == 1);
-//
-//    auto manaIt = guiDraws.find("mana-bar-filled.png");
-//    if(manaIt == guiDraws.end())
-//    {
-//        std::cout << "Warning: manaIt == guiDraws.end(), " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-//        return;
-//    }
-//    assert(manaIt->second.size() == 1);
-//
-//
-//    auto bordersIt = guiDraws.find("hitpoints-manapoints-bar-border.png");
-//    assert(bordersIt != guiDraws.end());
-//    assert(bordersIt->second.size() == 2);
-//
-//    const GuiDraw& hpBar = *hpIt->second.front();
-//    const GuiDraw& hpBorder = *bordersIt->second.front();
-//
-//    const GuiDraw& manaBar = *manaIt->second.front();
-//    const GuiDraw& manaBorder = *bordersIt->second.back();
-//
-//    mHpLevel = (hpBar.botRight.x - hpBar.topLeft.x) / (hpBorder.botRight.x - hpBorder.topLeft.x);
-//    mManaLevel = (manaBar.botRight.x - manaBar.topLeft.x) / (manaBorder.botRight.x - manaBorder.topLeft.x);
-//}
+
+void Gui::updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws)
+{
+    auto hpIt = guiDraws.find("hitpoints-bar-filled.png");
+    if(hpIt == guiDraws.end())
+        return;
+    assert(hpIt->second.size() == 1);
+
+    auto manaIt = guiDraws.find("mana-bar-filled.png");
+    if(manaIt == guiDraws.end())
+    {
+        std::cout << "Warning: Expected to find mana-bar-filled. " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
+        return;
+    }
+    assert(manaIt->second.size() == 1);
+
+
+    auto bordersIt = guiDraws.find("hitpoints-manapoints-bar-border.png");
+    assert(bordersIt != guiDraws.end());
+    assert(bordersIt->second.size() == 2);
+
+    const GuiDraw& hpBar = *hpIt->second.front();
+    const GuiDraw& hpBorder = *bordersIt->second.front();
+
+    const GuiDraw& manaBar = *manaIt->second.front();
+    const GuiDraw& manaBorder = *bordersIt->second.back();
+
+    mHpLevel = (hpBar.botRight.x - hpBar.topLeft.x) / (hpBorder.botRight.x - hpBorder.topLeft.x);
+    mManaLevel = (manaBar.botRight.x - manaBar.topLeft.x) / (manaBorder.botRight.x - manaBorder.topLeft.x);
+}
 
 const Gui::Button* Gui::setButtonText(const Text& text)
 {
@@ -1907,7 +1906,7 @@ void Gui::parseEquippedItems(size_t& i)
         i++;
 
 
-        const Object* equippable = nullptr;
+        size_t equippable = -1;
         for(const auto& pairing : s.pairings)
         {
             for(size_t objIndex : pairing.objects)
@@ -1915,18 +1914,18 @@ void Gui::parseEquippedItems(size_t& i)
                 const Object& o = mContext.getObjects()[objIndex];
                 if(o.itemInfo.bodyRestriction != Object::BodyRestriction::NONE)
                 {
-                    equippable = &o;
+                    equippable = objIndex;
                     break;
                 }
             }
-            if(equippable)
+            if(equippable != -1)
                 break;
         }
 
-        assert(equippable);
+        assert(equippable != -1);
 
         typedef Object::BodyRestriction B;
-        switch(equippable->itemInfo.bodyRestriction)
+        switch(mContext.getObjects()[equippable].itemInfo.bodyRestriction)
         {
             case B::TWO_HANDED:
             case B::WEAPON:
@@ -1950,7 +1949,7 @@ void Gui::parseEquippedItems(size_t& i)
             case B::BELT: mEquipment[EqType::HIP] = equippable; break;
 
             default:
-                THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected body restriction: ", (int)equippable->itemInfo.bodyRestriction, '\n'));
+                THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected body restriction: ", (int)mContext.getObjects()[equippable].itemInfo.bodyRestriction, '\n'));
         }
     }
 }
@@ -2186,6 +2185,8 @@ void Gui::parseCurrentFrame()
     updateButtons(guiDraws);
     if(mCurrentState == State::GAME)
     {
+        updateManaAndHpLevels(guiDraws);
+
         size_t textDrawsIndex = 0;
         parseNames(textDrawsIndex);
         parseChat(textDrawsIndex);
@@ -2616,7 +2617,7 @@ unsigned short Gui::getManaLeechAmount()
     return mManaLeechAmount;
 }
 
-const std::map<Gui::EqType, const Object*>& Gui::getEquipment()
+const std::map<Gui::EqType, size_t>& Gui::getEquipment()
 {
     return mEquipment;
 }
