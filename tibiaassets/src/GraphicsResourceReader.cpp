@@ -55,27 +55,27 @@ using namespace sb::tibiaassets;
 
 const std::map<std::string, GraphicsResourceReader::SpriteSheet> GraphicsResourceReader::SPRITE_SHEETS =
 {
-    {"creature-speech-flags.png", {18, 18, {"talk", "quest", "trade", "directions"}}},
-    {"speech.png", {18, 18, {"talk", "quest", "trade", "directions"}}},
-    {"creature-state-flags.png", {11, 11,
+    {"creature-speech-flags.png", SpriteSheet(18, 18, {"talk", "quest", "trade", "directions"})},
+    {"speech.png", SpriteSheet(18, 18, {"talk", "quest", "trade", "directions"})},
+    {"creature-state-flags.png", SpriteSheet(11, 11,
         {
             "party-none-unknown", "party-inviter", "party-invitee", "party-member", "party-leader", "party-member-shared-xp", "party-leader-shared-xp", "party-member-shared-xp-fail", "party-leader-shared-xp-fail", "party-gray-unknown",
             "skull-none-unknown", "skull-yellow", "skull-green", "skull-white", "skull-red", "skull-black", "skull-orange", "skull-none-unknown", "skull-none-unknown", "skull-none-unknown",
             "guild-none-unknown", "guild-war-green", "guild-war-red", "guild-war-blue", "guild-yellow", "guild-white", "guild-none-unknown", "guild-none-unknown", "guild-none-unknown", "guild-none-unknown",
             "summon-none-unknown", "summon-green", "summon-red", "summon-none-unknown", "summon-none-unknown", "summon-none-unknown", "summon-none-unknown", "summon-none-unknown", "summon-none-unknown", "summon-none-unknown",
             "lightning-none-unknown", "lightning-red"
-        }}},
-    {"guild.png", {11, 11, {"war-green", "war-red", "war-blue", "yellow", "white"}}},
-    {"party.png", {11, 11, {"inviter", "invitee", "member", "leader", "member-shared-xp", "leader-shared-xp", "member-shared-xp-fail", "leader-shared-xp-fail", "leader-shared-xp-fail", "leader-shared-xp-fail","gray-unknown"}}},
-    {"playerkiller.png", {11, 11, {"yellow", "green", "white", "red", "black", "orange"}}},
-    {"player-state-playerkiller-flags.png", {9, 9, {"yellow", "green", "white", "red", "black", "orange"}}},
-    {"player-state-flags.png", {9, 9, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17"}}},
-    {"summon.png", {9, 9, {"green", "red"}}},
-    {"markers.png", {11, 11, {"checkmark", "questionmark", "exclamationmark", "star", "crossmark", "cross", "mouth", "brush", "sword", "flag", "lock", "bag", "skull", "dollar", "red-up", "red-down", "red-right", "red-left", "green-up", "green-down"}}},
-    {"vip-icons.png", {12, 12, {"none-unknown", "heart", "skull", "lightning", "crosshair", "star", "yinyang", "triangle", "cross", "dollar", "balkenkreuz"}}},
-    {"premium-icons.png", {20, 20, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"}}},
-    {"spellgroup-icons.png", {20, 20, {"1", "2", "3", "4"}}},
-//    {"spell-icons.png", {20, 20, {"1", "2", "3", "4"}}}, // 138 st... // TODO:
+        })},
+    {"guild.png", SpriteSheet(11, 11, {"war-green", "war-red", "war-blue", "yellow", "white"})},
+    {"party.png", SpriteSheet(11, 11, {"inviter", "invitee", "member", "leader", "member-shared-xp", "leader-shared-xp", "member-shared-xp-fail", "leader-shared-xp-fail", "leader-shared-xp-fail", "leader-shared-xp-fail","gray-unknown"})},
+    {"playerkiller.png", SpriteSheet(11, 11, {"yellow", "green", "white", "red", "black", "orange"})},
+    {"player-state-playerkiller-flags.png", SpriteSheet(9, 9, {"yellow", "green", "white", "red", "black", "orange"})},
+    {"player-state-flags.png", SpriteSheet(9, 9, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17"})},
+    {"summon.png", SpriteSheet(9, 9, {"green", "red"})},
+    {"markers.png", SpriteSheet(11, 11, {"checkmark", "questionmark", "exclamationmark", "star", "crossmark", "cross", "mouth", "brush", "sword", "flag", "lock", "bag", "skull", "dollar", "red-up", "red-down", "red-right", "red-left", "green-up", "green-down"})},
+    {"vip-icons.png", SpriteSheet(12, 12, {"none-unknown", "heart", "skull", "lightning", "crosshair", "star", "yinyang", "triangle", "cross", "dollar", "balkenkreuz"})},
+    {"premium-icons.png", SpriteSheet(20, 20, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"})},
+    {"spellgroup-icons.png", SpriteSheet(20, 20, {"1", "2", "3", "4"})},
+//    {"spell-icons.png", SpriteSheet(20, 20, {"1", "2", "3", "4"})}, // 138 st... // TODO:
 };
 
 

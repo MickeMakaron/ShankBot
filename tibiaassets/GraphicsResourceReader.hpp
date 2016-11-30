@@ -69,6 +69,12 @@ namespace tibiaassets
 
             struct SpriteSheet
             {
+                SpriteSheet(size_t width, size_t height, const std::vector<std::string>& names)
+                : spriteWidth(width)
+                , spriteHeight(height)
+                , names(names)
+                {
+                }
                 size_t spriteWidth = 0;
                 size_t spriteHeight = 0;
                 std::vector<std::string> names;
