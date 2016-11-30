@@ -37,6 +37,13 @@ using namespace GraphicsLayer;
 #include <cassert>
 ///////////////////////////////////
 
+///////////////////////////////////
+// Windows
+#ifndef MAPVK_VK_TO_VSC
+    #define MAPVK_VK_TO_VSC (0)
+#endif
+///////////////////////////////////
+
 Input::Input(HWND window)
 : M_WINDOW(window)
 {

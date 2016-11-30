@@ -54,6 +54,13 @@ using namespace sb::tibiaassets;
 #include <sys/mman.h>
 #endif // defined
 
+///////////////////////////////////
+// Windows
+#ifndef PROCESS_QUERY_LIMITED_INFORMATION
+    #define PROCESS_QUERY_LIMITED_INFORMATION (0x1000)
+#endif
+///////////////////////////////////
+
 
 ///////////////////////////////////
 // STD C++
@@ -527,6 +534,60 @@ void TibiaClient::update()
         {
             mScene.update(frame);
             mOutfitResolver.resolve(mScene, frame, *mGraphicsMonitorReader);
+
+            std::cout << "Cap: " << mGui.getCap() << std::endl;
+            std::cout << "Soul: " << mGui.getSoul() << std::endl;
+            std::cout << "Hp: " << mGui.getHp() << std::endl;
+            std::cout << "Mana: " << mGui.getMana() << std::endl;
+            std::cout << "Hp percent: " << mGui.getHpLevel() * 100.f << "%" << std::endl;
+            std::cout << "Mana percent: " << mGui.getManaLevel() * 100.f << "%" << std::endl;
+            std::cout << "Level: " << mGui.getLevel() << std::endl;
+            std::cout << "Exp: " << mGui.getExperience() << std::endl;
+            std::cout << "Xp gain rate: " << mGui.getXpGainRate() << std::endl;
+            std::cout << "Speed: " << mGui.getSpeed() << std::endl;
+            std::cout << "Food: " << mGui.getFoodMinutes() << std::endl;
+            std::cout << "Stamina: " << mGui.getStaminaMinutes() << std::endl;
+            std::cout << "Offline training: " << mGui.getOfflineTrainingMinutes() << std::endl;
+            std::cout << "Magic lvl: " << mGui.getMagicLevel() << std::endl;
+            std::cout << "Fist: " << mGui.getFistFighting() << std::endl;
+            std::cout << "Club: " << mGui.getClubFighting() << std::endl;
+            std::cout << "Sword: " << mGui.getSwordFighting() << std::endl;
+            std::cout << "Axe: " << mGui.getAxeFighting() << std::endl;
+            std::cout << "Distance: " << mGui.getDistanceFighting() << std::endl;
+            std::cout << "Shielding: " << mGui.getShielding() << std::endl;
+            std::cout << "Fishing: " << mGui.getFishing() << std::endl;
+            std::cout << "Crit chance: " << mGui.getCritChance() << "%" << std::endl;
+            std::cout << "Crit dmg: " << mGui.getCritDamage() << std::endl;
+            std::cout << "Hp leech chance: " << mGui.getHpLeechChance() << "%" << std::endl;
+            std::cout << "Hp leech amount: " << mGui.getHpLeechAmount() << std::endl;
+            std::cout << "Mana leech chance: " << mGui.getManaLeechChance() << "%" << std::endl;
+            std::cout << "Mana leech amoumt: " << mGui.getManaLeechAmount() << std::endl;
+
+
+            std::cout << "EQUIPMENT: " << std::endl;
+            for(const auto& pair : mGui.getEquipment())
+            {
+                const Object& o = mContext.getObjects()[pair.second];
+                std::cout << "\t" << (int)pair.first << ": " << o.id;
+                if(o.itemInfo.hasMarketInfo)
+                    std::cout << " (" << o.itemInfo.marketInfo.name << ")";
+                std::cout << std::endl;
+            }
+
+            std::cout << "CONTAINERS: " << std::endl;
+            for(const Gui::Container& c : mGui.getContainers())
+            {
+                std::cout << "\t" << c.items.size() << " items: " << std::endl;
+                for(const auto& pair : c.items)
+                {
+                    const Object& o = mContext.getObjects()[*pair.second.begin()];
+                    std::cout << "\t" << (int)pair.first << ": " << o.id;
+                    if(o.itemInfo.hasMarketInfo)
+                        std::cout << " (" << o.itemInfo.marketInfo.name << ")";
+                    std::cout << std::endl;
+                }
+            }
+
         }
         return;
     }
@@ -1258,36 +1319,36 @@ char** TibiaClient::prepareEnvironment() const
 //    extern const char** environ = (const char**)GetEnvironmentStrings();
     return nullptr;
     #endif // defined
-
-    size_t envSize = 0;
-    while(environ[envSize] != nullptr)
-        envSize++;
-
-    #if defined(_WIN32)
-    char** tibiaEnv = new char*[envSize + 1];
-    tibiaEnv[envSize] = nullptr;
-    return tibiaEnv;
-    #else
-    size_t tibiaEnvSize = envSize + 2;
-    char** tibiaEnv = new char*[tibiaEnvSize + 1];
-    tibiaEnv[tibiaEnvSize] = nullptr;
-
-    for(size_t i = 0; i < envSize; i++)
-    {
-        if(strncmp(environ[i], "HOME=", 5) == 0)
-            tibiaEnv[i] = strdup("HOME=./");
-        else
-            tibiaEnv[i] = strdup(environ[i]);
-    }
-
-    tibiaEnv[envSize] = strdup("LD_PRELOAD=../bin/Release/libGraphicsMonitor.so");
-
-    std::stringstream sstream;
-    sstream << "SHANKBOT_SHARED_MEMORY_FD=" << mShmHandle;
-    tibiaEnv[envSize + 1] = strdup(sstream.str().c_str());
-
-    return tibiaEnv;
-    #endif // defined
+//
+//    size_t envSize = 0;
+//    while(environ[envSize] != nullptr)
+//        envSize++;
+//
+//    #if defined(_WIN32)
+//    char** tibiaEnv = new char*[envSize + 1];
+//    tibiaEnv[envSize] = nullptr;
+//    return tibiaEnv;
+//    #else
+//    size_t tibiaEnvSize = envSize + 2;
+//    char** tibiaEnv = new char*[tibiaEnvSize + 1];
+//    tibiaEnv[tibiaEnvSize] = nullptr;
+//
+//    for(size_t i = 0; i < envSize; i++)
+//    {
+//        if(strncmp(environ[i], "HOME=", 5) == 0)
+//            tibiaEnv[i] = strdup("HOME=./");
+//        else
+//            tibiaEnv[i] = strdup(environ[i]);
+//    }
+//
+//    tibiaEnv[envSize] = strdup("LD_PRELOAD=../bin/Release/libGraphicsMonitor.so");
+//
+//    std::stringstream sstream;
+//    sstream << "SHANKBOT_SHARED_MEMORY_FD=" << mShmHandle;
+//    tibiaEnv[envSize + 1] = strdup(sstream.str().c_str());
+//
+//    return tibiaEnv;
+//    #endif // defined
 }
 
 void TibiaClient::deleteEnvironment(char** environment) const
