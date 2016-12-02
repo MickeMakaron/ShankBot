@@ -24,6 +24,15 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
+
+#if defined(_WIN32)
+#define WINVER _WIN32_WINNT_WS03
+#define _WIN32_WINNT _WIN32_WINNT_WS03
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#endif // defined
+
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/TibiaClient.hpp"
@@ -48,11 +57,7 @@ using namespace sb::tibiaassets;
 
 
 
-#if defined(_WIN32)
-#include <windows.h>
-#else
-#include <sys/mman.h>
-#endif // defined
+
 
 ///////////////////////////////////
 // Windows
@@ -1226,8 +1231,14 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
 
-    const char* MODULE_PATH = "tibia/packages/Tibia/bin/client.exe";
-    const char* STARTING_DIR = "tibia/packages/Tibia/bin";
+    const std::string MODULE_PATH = clientDirectory + "/packages/Tibia/bin/client.exe";
+    const std::string STARTING_DIR = clientDirectory + "/packages/Tibia/bin";
+
+    std::vector<char> envBuf(1024 * 10);
+    GetModuleFileName(NULL, (char*)envBuf.data(), envBuf.size());
+    std::string executablePath(envBuf.data());
+    executablePath = sb::utility::file::getPath(executablePath);
+    SetDllDirectory(executablePath.c_str());
 
     SetEnvironmentVariable(SHARED_MEMORY_ENV_VAR_NAME, sharedMemoryName.c_str());
     SECURITY_ATTRIBUTES parentSyncSecAttr;
@@ -1245,7 +1256,7 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
     }
     if(!CreateProcess
        (
-            MODULE_PATH,   // No module name (use command line)
+            MODULE_PATH.c_str(),   // No module name (use command line)
             NULL,        // Command line
             NULL,           // Process handle not inheritable
             NULL,           // Thread handle not inheritable
@@ -1254,7 +1265,7 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
 //            NULL,
             NULL,
 //            environment,           // environment block
-            STARTING_DIR,           // Use parent's starting directory
+            STARTING_DIR.c_str(),           // Use parent's starting directory
             &si,            // Pointer to STARTUPINFO structure
             &pi             // Pointer to PROCESS_INFORMATION structure
         ))
@@ -1263,6 +1274,7 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
         sstream << "Failed to start client. " << GetLastError() << std::endl;
         THROW_RUNTIME_ERROR(sstream.str());
     }
+    SetDllDirectory(NULL);
     SetEnvironmentVariable(SHARED_MEMORY_ENV_VAR_NAME, NULL);
 
     mClientProcessHandle = pi.hProcess;
@@ -1271,8 +1283,7 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
 
     LoadLibAddy = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 
-    const char* DLL_NAME = "ShankBotMonitorInjection.dll";
-
+    const char* DLL_NAME = "libShankBotMonitorInjection.dll";
     RemoteString = (LPVOID)VirtualAllocEx(mClientProcessHandle, NULL, strlen(DLL_NAME), MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
     WriteProcessMemory(mClientProcessHandle, (LPVOID)RemoteString, DLL_NAME,strlen(DLL_NAME), NULL);
     HANDLE injectionThread = CreateRemoteThread(mClientProcessHandle, NULL, NULL, (LPTHREAD_START_ROUTINE)LoadLibAddy, (LPVOID)RemoteString, NULL, NULL);
@@ -1281,7 +1292,7 @@ void TibiaClient::launchClient(char** environment, std::string clientDirectory, 
     std::cout << "Injecting... ";
     DWORD result = WaitForSingleObject(injectionThread, 5000);
 
-    if(result == WAIT_OBJECT_0)
+    if(result == WAIT_OBJECT_0 && mShm->isClientAttached)
     {
         std::cout << "OK" << std::endl;
         ResumeThread(pi.hThread);
