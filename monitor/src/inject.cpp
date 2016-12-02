@@ -3258,13 +3258,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 }
 
                 GraphicsMonitor::ioBufferLock = CreateMutex(NULL, FALSE, NULL);
-
-//                std::cout << GraphicsMonitor::shm->numDrawCalls << std::endl;
-
-//                UnmapViewOfFile(pBuf);
-//
-//                CloseHandle(hMapFile);
-
                 void* loadLib = (void*)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 
 
@@ -3272,6 +3265,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                     std::cout << "Cannot get loadLib address" << std::endl;
 
                 loadLibDetour = new FunctionDetour(loadLib, (void*)detourFunc);
+
+                GraphicsMonitor::shm->isClientAttached = true;
 //                virtualProtectDetour = new FunctionDetour((void*)GetProcAddress(GetModuleHandle("kernel32.dll"), "VirtualProtect"), (void*)virtualProtect);
 //                virtualProtectExDetour = new FunctionDetour((void*)GetProcAddress(GetModuleHandle("kernel32.dll"), "VirtualProtectEx"), (void*)virtualProtectEx);
 //                virtualAllocDetour = new FunctionDetour((void*)GetProcAddress(GetModuleHandle("kernel32.dll"), "VirtualAlloc"), (void*)virtualAlloc);

@@ -206,6 +206,7 @@ namespace GraphicsLayer
 
             #endif
 
+            bool isClientAttached = false;
         };
 
         const unsigned int NUM_BYTES = sizeof(SharedMemorySegment);
