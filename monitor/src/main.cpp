@@ -26,42 +26,11 @@
 // {SHANK_BOT_LICENSE_END}
 
 #include "monitor/ShankBot.hpp"
-using namespace GraphicsLayer;
-#include <fstream>
-
-unsigned int fnv1a32(const unsigned char* data, size_t size)
-{
-    static const unsigned int FNV_PRIME_32 = 16777619;
-    static const unsigned int OFFSET_BASIS_32 = 2166136261;
-    unsigned int hash = OFFSET_BASIS_32;
-    for(size_t i = 0; i < size; i++)
-    {
-        hash ^= data[i];
-        hash *= FNV_PRIME_32;
-    }
-
-    return hash;
-}
-
-#include "QtGui/QImage"
-void convertTileBufferDump(size_t number)
-{
-    using namespace sb::utility;
-    std::string readPath = stringify("tibia/packages/Tibia/bin/tileBuffers/", number, ".ppm");
-    std::string writePath = stringify("tibia/packages/Tibia/bin/tileBuffers/", number, ".png");
-    std::ifstream tileBuffer(readPath, std::ios::binary);
-    unsigned char* rgba = new unsigned char[2048 * 2048 * 4];
-    tileBuffer.read((char*)rgba, 2048 * 2048 * 4);
-    tileBuffer.close();
-    QImage img(rgba, 2048, 2048, QImage::Format_RGBA8888);
-    img.save(QString::fromStdString(writePath));
-    delete[] rgba;
-    return;
-}
-
 int main(int argc, char** argv)
 {
-    GraphicsLayer::ShankBot sb("tibia", "version-control");
+    std::string tibiaDir;
+    std::string versionControlDir;
+    GraphicsLayer::ShankBot sb(tibiaDir, versionControlDir);
     sb.run();
 
     return 0;
