@@ -72,11 +72,8 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
     const std::string SPRITE_TRANSPARENCY_TREE_PATH = STORAGE_PATH + "/tree-sprite-transparency.bin";
     const std::string SPRITE_OBJECT_BINDINGS_PATH = STORAGE_PATH + "/sprite-object-bindings.bin";
     const std::string SPRITE_INFO_PATH = STORAGE_PATH + "/sprite-info.bin";
-    const std::string CATALOG_CONTENT_PATH = "tibia/packages/Tibia/assets/catalog-content.json";
-    const std::string GRAPHICS_RESOURCES_PATH = "tibia/packages/Tibia/bin/graphics_resources.rcc";
-    std::string DAT_PATH = clientDir + "/Tibia.dat";
-    std::string SPR_PATH = clientDir + "/Tibia.spr";
-    std::string PIC_PATH = clientDir + "/Tibia.pic";
+    const std::string CATALOG_CONTENT_PATH = clientDir + "/packages/Tibia/assets/catalog-content.json";
+    const std::string GRAPHICS_RESOURCES_PATH = clientDir + "/packages/Tibia/bin/graphics_resources.rcc";
 
     std::cout << "Initializing..." << std::endl;
 
