@@ -109,9 +109,9 @@ bool MiniMap::parseMiniMapColorFileName(const std::string& fileName, unsigned in
     std::string levelStr(&base[levelIndex], &base[separatorIndex]);
     assert(isNumeric(levelStr));
 
-    x = stoi(xStr);
-    y = stoi(yStr);
-    level = stoi(levelStr);
+    x = strToInt(xStr);
+    y = strToInt(yStr);
+    level = strToInt(levelStr);
     return true;
 }
 
