@@ -41,12 +41,26 @@
 ///////////////////////////////////
 // STD C
 #include <sys/stat.h>
+
+#ifndef _WIN32
 #include <dirent.h>
+#endif // _WIN32
+
+#ifndef S_ISDIR
+#define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
+#define	S_ISFIFO(m)	(((m) & S_IFMT) == S_IFIFO)
+#define	S_ISCHR(m)	(((m) & S_IFMT) == S_IFCHR)
+#define	S_ISBLK(m)	(((m) & S_IFMT) == S_IFBLK)
+#define	S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
+#endif // S_ISDIR
 ///////////////////////////////////
 
 ///////////////////////////////////
 // Windows
+#ifdef _WIN32
+#define NOMINMAX
 #include <windows.h>
+#endif // _WIN32
 ///////////////////////////////////
 
 namespace sb
@@ -61,7 +75,7 @@ void makeDirIfNotExists(std::string dirPath)
     if(stat(dirPath.c_str(), &st) == -1)
     {
         #if defined(_WIN32)
-        if(mkdir(dirPath.c_str()) != 0)
+        if(CreateDirectory(dirPath.c_str(), NULL) == 0 && GetLastError() != ERROR_ALREADY_EXISTS)
         {
         #else
         if(mkdir(dirPath.c_str(), 0700) != 0)
@@ -72,7 +86,7 @@ void makeDirIfNotExists(std::string dirPath)
     }
 }
 
-__declspec(dllexport) bool fileExists(std::string path)
+bool fileExists(std::string path)
 {
     struct stat st = {0};
     if(stat(path.c_str(), &st) == -1)
@@ -83,12 +97,130 @@ __declspec(dllexport) bool fileExists(std::string path)
 
 void forEachFile(std::string directory, std::function<void(const std::string& file)> function, bool bottomUp)
 {
+    #ifdef _WIN32
+    std::string searchPattern = directory + "\\*";
+    WIN32_FIND_DATA ent;
+    HANDLE find = FindFirstFile(searchPattern.c_str(), &ent);
+    if(find == INVALID_HANDLE_VALUE)
+    {
+        if(GetLastError() == ERROR_FILE_NOT_FOUND)
+            return;
+
+        THROW_RUNTIME_ERROR("Cannot open directory at '" + directory + "'.");
+    }
+
+    #else
     DIR* dir;
+    dirent* ent;
     dir = opendir(directory.c_str());
     if(dir == nullptr)
         THROW_RUNTIME_ERROR("Cannot open directory at '" + directory + "'.");
 
-    dirent* ent;
+    #endif // _WIN32
+
+    if(bottomUp)
+    {
+        #ifdef _WIN32
+        do
+        #else
+        while((ent = readdir(dir)) != nullptr)
+        #endif // _WIN32
+        {
+            struct stat s;
+            std::string fileName;
+            #ifdef _WIN32
+            fileName.assign(ent.cFileName);
+            #else
+            fileName.assign(ent->d_name);
+            #endif // _WIN32
+
+            std::string path = directory + "/" + fileName;
+            int result = stat(path.c_str(), &s);
+			if (result != 0)
+			{
+				unsigned int errorCode;
+				#ifdef _WIN32
+				errorCode = GetLastError();
+				#else
+				errorCode = errno;
+				#endif // _WIN32
+                THROW_RUNTIME_ERROR(sb::utility::stringify("Coult not stat file at '", path, "'. Error code: ", errorCode));
+
+			}
+
+            if (S_ISDIR(s.st_mode))
+//            if(ent->d_type == DT_DIR)
+            {
+                if(fileName != ".." && fileName != ".")
+                {
+                    forEachFile(path, function);
+                    function(path);
+                }
+            }
+            else if(S_ISREG(s.st_mode))
+//            else if(ent->d_type == DT_REG)
+            {
+                function(path);
+            }
+        #ifdef _WIN32
+        } while(FindNextFile(find, &ent) != 0);
+        #else
+        }
+        #endif // _WIN32
+
+    }
+    else // top down
+    {
+        std::list<std::string> directories;
+        #ifdef _WIN32
+        do
+        #else
+        while((ent = readdir(dir)) != nullptr)
+        #endif // _WIN32
+        {
+            struct stat s;
+
+            std::string fileName;
+            #ifdef _WIN32
+            fileName.assign(ent.cFileName);
+            #else
+            fileName.assign(ent->d_name);
+            #endif // _WIN32
+
+            std::string path = directory + "/" + fileName;
+            stat(path.c_str(), &s);
+            if (S_ISDIR(s.st_mode))
+            {
+                if(fileName != ".." && fileName != ".")
+                {
+                    directories.push_back(path);
+                    function(path);
+                }
+            }
+            else if(S_ISREG(s.st_mode))
+            {
+                function(path);
+            }
+        #ifdef _WIN32
+        } while(FindNextFile(find, &ent) != 0);
+        #else
+        }
+        #endif // _WIN32
+
+        for(std::string d : directories)
+            forEachFile(d, function, bottomUp);
+    }
+
+    #ifdef _WIN32
+    FindClose(find);
+    #else
+    closedir(dir);
+    #endif // _WIN32
+
+    /*
+    #else
+
+
     if(bottomUp)
     {
         while((ent = readdir(dir)) != nullptr)
@@ -154,6 +286,9 @@ void forEachFile(std::string directory, std::function<void(const std::string& fi
 
 
     closedir(dir);
+
+    #endif // _WIN32
+    */
 }
 
 bool isDir(std::string path)
