@@ -199,6 +199,10 @@ Object::SpriteInfo AppearancesReader::readSpriteInfo(std::istream& stream) const
                 readTibiaSizeIndicator(stream);
                 break;
 
+            case SpriteInfoOpCode::UNKNOWN3:
+                stream.seekg(readTibiaSizeIndicator(stream), stream.cur);
+                break;
+
             case SpriteInfoOpCode::ANIMATION_INFO:
                 info.animationInfo = readAnimationInfo(stream);
                 break;

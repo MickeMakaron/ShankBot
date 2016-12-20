@@ -72,6 +72,7 @@ class SHANK_BOT_TIBIAASSETS_DECLSPEC AppearancesReader
             SPRITE_ID = 0x28,
             ANIMATION_INFO = 0x32,
             UNKNOWN2 = 0x38,
+            UNKNOWN3 = 0x4a,
         };
 
         enum class SomeInfoOpCode : unsigned char
