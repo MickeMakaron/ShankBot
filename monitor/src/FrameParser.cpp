@@ -54,7 +54,7 @@ using namespace sb::tibiaassets;
 
 FrameParser::FrameParser(const TibiaContext& context)
 : mContext(context)
-, mTileCache(2048)
+, mTileCache(1 << 14)
 {
 //    QImage img("glyphCompDebug/3p.png");
 //    assert(!img.isNull());
@@ -781,7 +781,7 @@ void FrameParser::parseTextureData(const TextureData& textureData)
     tex.width = textureData.width;
     tex.height = textureData.height;
 
-    if(textureData.width == 2048 && textureData.height == 2048)
+    if(textureData.width == 4096 && textureData.height == 4096)
         mTileBufferId = textureData.id;
 
     if(textureData.height == 16 || textureData.height == 68)

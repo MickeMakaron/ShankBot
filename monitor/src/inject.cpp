@@ -1728,7 +1728,7 @@ void WINAPI texImg
             assert(GraphicsMonitor::textureBuffers.size() <= GraphicsMonitor::TextureBuffers::NUM_BUFFERS);
         }
 
-        if(width == 2048 && height == 2048)
+        if(width == 4096 && height == 4096)
         {
             GraphicsMonitor::tileSheetTextureId = textureId;
         }
@@ -2077,17 +2077,17 @@ BOOL WINAPI swapBuf(HDC hdc)
 
     GLuint textureBackup = textureUnits.getTexture(GL_TEXTURE_2D);
 
-    for(auto pair : textures)
-    {
-//        if(pair.first != 3 && pair.first != 4)
-            if(pair.first == tileSheetTextureId)
-//        if(pair.first >= 9)
-//        if(pair.first == 17)
-        {
-            bindTex(GL_TEXTURE_2D, pair.first);
-            writeBoundTextureToFile("tileBuffers");
-        }
-    }
+//    for(auto pair : textures)
+//    {
+////        if(pair.first != 3 && pair.first != 4)
+//            if(pair.first == tileSheetTextureId)
+////        if(pair.first >= 9)
+////        if(pair.first == 17)
+//        {
+//            bindTex(GL_TEXTURE_2D, pair.first);
+//            writeBoundTextureToFile("tileBuffers");
+//        }
+//    }
 
     bindTex(GL_TEXTURE_2D, textureBackup);
 
@@ -2800,6 +2800,7 @@ BOOL WINAPI makeCurrent(HDC hdc, HGLRC hglrc)
         areExtendedOpenGlFunctionsHooked = true;
     }
 
+    /*
     if(shm->window != 0 && WindowFromDC(hdc) == shm->window)
     {
         if(rescaleFramebuffer == 0)
@@ -2872,6 +2873,7 @@ BOOL WINAPI makeCurrent(HDC hdc, HGLRC hglrc)
             bindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         }
     }
+    */
 
     dataBuffer.clear();
     createNewFrame();
