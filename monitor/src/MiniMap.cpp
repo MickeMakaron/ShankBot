@@ -43,6 +43,7 @@ using namespace sb::tibiaassets;
 #include <cassert>
 #include <sstream>
 #include <limits>
+#include <cmath>
 ///////////////////////////////////
 
 ///////////////////////////////////
