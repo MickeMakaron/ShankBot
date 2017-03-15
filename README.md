@@ -56,7 +56,7 @@ Now a ShankBot server is running and is attached to a Tibia client. You may conn
 > examples/messaging
 
 # Project structure
-
+TODO
 
 # System Maps
 ![](http://i.imgur.com/xS3nv35.jpg)
