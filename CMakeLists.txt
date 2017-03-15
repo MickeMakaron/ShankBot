@@ -12,11 +12,18 @@ endmacro(mark_as_internal _var)
 
 find_library(QT_CORE_LIB NAMES Qt5Core PATHS "${QT_BIN_PATH}" NO_DEFAULT_PATH)
 find_library(QT_GUI_LIB NAMES Qt5Gui PATHS "${QT_BIN_PATH}" NO_DEFAULT_PATH)
+find_library(QT_QWINDOWS_LIB NAMES qwindows PATHS "${QT_BIN_PATH}/../plugins/platforms" NO_DEFAULT_PATH)
 mark_as_internal(QT_CORE_LIB)
 mark_as_internal(QT_GUI_LIB)
+mark_as_internal(QT_QWINDOWS_LIB)
 if(NOT QT_CORE_LIB OR NOT QT_GUI_LIB)
 	message(FATAL_ERROR "Please set QT_BIN_PATH to the path containing the Qt DLLs.")
 endif(NOT QT_CORE_LIB OR NOT QT_GUI_LIB)
+
+if(NOT QT_QWINDOWS_LIB)
+	message(FATAL_ERROR "Failed to find qwindows.dll")
+endif(NOT QT_QWINDOWS_LIB)
+
 
 find_path(QT_CORE_INCL NAMES QtCore PATHS "${QT_INCLUDE_PATH}" NO_DEFAULT_PATH)
 find_path(QT_GUI_INCL NAMES QtGui PATHS "${QT_INCLUDE_PATH}" NO_DEFAULT_PATH)
@@ -85,5 +92,12 @@ add_custom_command(TARGET ShankBotMonitor POST_BUILD COMMAND ${CMAKE_COMMAND} -E
 	${QT_CORE_LIB} $<TARGET_FILE_DIR:ShankBotMonitor>)
 add_custom_command(TARGET ShankBotMonitor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
 	${QT_GUI_LIB} $<TARGET_FILE_DIR:ShankBotMonitor>)
+
+
+add_custom_command(TARGET ShankBotMonitor POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory 
+	"platforms")
+add_custom_command(TARGET ShankBotMonitor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+	${QT_QWINDOWS_LIB} $<TARGET_FILE_DIR:ShankBotMonitor>/platforms)
+	
 add_custom_command(TARGET ShankBotMonitor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
 	${STD_CXX_LIB} $<TARGET_FILE_DIR:ShankBotMonitor>)
