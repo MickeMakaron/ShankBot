@@ -7,10 +7,26 @@ ShankBot has the following dependencies:
 * GLEW
 
 #### Install Qt
-The easiest way to install Qt is to use their installer. However, only the QtCore and QtGui libraries are actually used by ShankBot, so you could just build those two libraries from source. Here's how to install the necessary libraries and headers using Qt's installer:
-1. Download the Qt Online Installer for your platform [here](https://www.qt.io/download-open-source/#section-2).
-2. Run the installer and specify the installation directory. When you get to select components to install, the only thing you need is the prebuilt component for your compiler toolchain. So, for example, if you only want the headers and libraries for MinGW 5.3.0 32 bit for Qt 5.8, uncheck all boxes that can be unchecked, expand Qt 5.8 and check the box that says "MinGW 5.3.0 32 bit". 
+Qt is a big collection of tools and libaries, and ShankBot only uses the libraries and headers of QtCore and QtGui. There are three ways you could install Qt:
+1. Use the Qt installer. This is the easiest way, but will install LOTS of bloatware.
+2. Download only QtBase, which contains QtCore and QtGui among other things. It is a bit tricky to find the right file to download, but the upside is that you reduce the bloat a lot, and it will go a lot faster to download and "install" once you've found the right file.
+3. Build QtCore and QtGui explicitly from source. Yeah... it's possible, but you're on your own.
 
+##### Qt installer
+NOTE: This will install tons of bloat. If you mind installing an extra +2gb of documentation and tools, go to the next section instead.
+1. Download the Qt Online Installer for your platform [here](https://www.qt.io/download-open-source/#section-2).
+2. Run the installer and specify the installation directory. When you get to select components to install, the only thing you need is the prebuilt component for your compiler toolchain. So, for example, if you only want the headers and libraries for MinGW 5.3.0 32 bit for Qt 5.8, uncheck all boxes that can be unchecked, expand Qt 5.8 and check the box that says "MinGW 5.3.0 32 bit".
+
+##### QtBase only
+1. Go to [Qt's SDK browser](http://download.qt.io/online/qtsdkrepository/). You will be presented with a list of platforms. Pick your platform.
+2. You will be presented with a list of target devices. Pick your target device.
+3. Pick the Qt version you're interested in. For example, if you want to use Qt 5.8.0, pick qt5_58.
+4. Pick the compiler you want the Qt binaries to be built with. This list a bit cluttered. Look for list items formatted as "qt.\<version\>.\<compiler\>". For Qt 5.8.0 MinGW 5.3.0 it's "qt.58.win32_mingw53".
+5. Finally, download QtBase. On Windows the name has "qtbase" in it, so just do a Ctrl+F for "qtbase". On linux it has "essentials" in it instead.
+6. Extract QtBase to wherever you want it.
+
+For example, if you want QtBase for Win32 on desktop with Qt 5.8.0 and MinGW 5.3.0, download
+> http://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt5_58/qt.58.win32_mingw53/5.8.0-1qtbase-Windows-Windows_7-Mingw53-Windows-Windows_7-X86.7z
 
 #### Install GLEW
 Only the headers are needed. Download them at http://glew.sourceforge.net/.
@@ -19,7 +35,7 @@ Only the headers are needed. Download them at http://glew.sourceforge.net/.
 > git clone https://github.com/MickeMakaron/ShankBot
 
 ### 3. Build with CMake 
-Set the "Source" directory to the directory that contains a "CMakeLists.txt" file. You will be prompted to tell CMake where you installed the dependencies. 
+Set the "Source" directory to the directory that contains a "CMakeLists.txt" file. You will be prompted to tell CMake where you installed the dependencies.
 
 
 ## System Maps
