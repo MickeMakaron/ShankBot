@@ -2182,6 +2182,21 @@ void Gui::parseCurrentFrame()
 //        }
 //    }
 
+
+//    for(const SpriteDraw& d : *mCurrentFrame.guiSpriteDraws)
+//    {
+//        const Object* sprite = &mContext.getObjects()[*d.pairings.front().objects.begin()];
+//        Vertex topLeft;
+//        d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, topLeft.x, topLeft.y);
+//
+//
+//        std::cout << "Sprite: " << sprite->id << " " << d.topLeft.x << "x" << d.topLeft.y << " -> " << topLeft.x << "x" << topLeft.y << " (" << d.topLeft.x - d.botRight.x << "x" << d.topLeft.y - d.botRight.y << ")";
+//        if(sprite->itemInfo.hasMarketInfo)
+//            std::cout << " (" << sprite->itemInfo.marketInfo.name << ")";
+//        std::cout << std::endl;
+//    }
+
+
     updateButtons(guiDraws);
     if(mCurrentState == State::GAME)
     {
@@ -2322,18 +2337,6 @@ void Gui::parseCurrentFrame()
 //            }
 //        }
 
-
-//    for(const SpriteDraw& d : *mCurrentFrame.guiSpriteDraws)
-//    {
-//        const Object* sprite = *d.pairings.front().objects.begin();
-//        Vertex topLeft;
-//        d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, topLeft.x, topLeft.y);
-//
-//        std::cout << "Sprite: " << sprite->id << " " << d.topLeft.x << "x" << d.topLeft.y << " -> " << topLeft.x << "x" << topLeft.y;
-//        if(sprite->itemInfo.hasMarketInfo)
-//            std::cout << " (" << sprite->itemInfo.marketInfo.name << ")";
-//        std::cout << std::endl;
-//    }
 
 
 
