@@ -35,7 +35,7 @@ Only the headers are needed. Download them at http://glew.sourceforge.net/.
 > git clone https://github.com/MickeMakaron/ShankBot
 
 ### 3. Build with CMake 
-Set the "Source" directory to the directory that contains a "CMakeLists.txt" file. You will be prompted to tell CMake where you installed the dependencies.
+Set the "Source" directory to the directory that contains a "CMakeLists.txt" file. It should be at "\<installdir\>/ShankBot/CMakeLists.txt". You will be prompted to tell CMake where you installed the dependencies.
 
 
 ## System Maps
