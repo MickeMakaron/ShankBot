@@ -26,10 +26,11 @@
 // {SHANK_BOT_LICENSE_END}
 
 #include "monitor/ShankBot.hpp"
+
 int main(int argc, char** argv)
 {
-    std::string tibiaDir;
-    std::string versionControlDir;
+    std::string tibiaDir = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/monitor/tibia";
+    std::string versionControlDir = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/monitor/version-control";
     GraphicsLayer::ShankBot sb(tibiaDir, versionControlDir);
     sb.run();
 
