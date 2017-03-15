@@ -16,7 +16,7 @@ Qt is a big collection of tools and libaries, and ShankBot only uses the librari
 3. Build QtCore and QtGui explicitly from source. Yeah... it's possible, but you're on your own.
 
 #### Qt installer
-NOTE: This will install tons of bloat. If you mind installing an extra +2gb of documentation and tools, go to the next section instead.
+NOTE: This will install tons of bloat. If you mind installing an extra +2gb of documentation and tools, go to [QtBase only](https://github.com/MickeMakaron/ShankBot#qtbase-only) instead.
 1. Download the Qt Online Installer for your platform [here](https://www.qt.io/download-open-source/#section-2).
 2. Run the installer and specify the installation directory. When you get to select components to install, the only thing you need is the prebuilt component for your compiler toolchain. So, for example, if you only want the headers and libraries for MinGW 5.3.0 32 bit for Qt 5.8, uncheck all boxes that can be unchecked, expand Qt 5.8 and check the box that says "MinGW 5.3.0 32 bit".
 
