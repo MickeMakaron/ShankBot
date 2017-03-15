@@ -35,7 +35,9 @@ Only the headers are needed. Download them at http://glew.sourceforge.net/.
 > git clone https://github.com/MickeMakaron/ShankBot
 
 ### 3. Build with CMake 
-Set the "Source" directory to the directory that contains a "CMakeLists.txt" file. It should be at "\<installdir\>/ShankBot/CMakeLists.txt". You will be prompted to tell CMake where you installed the dependencies.
+Set the "Source" directory to the directory that contains a "CMakeLists.txt" file. It should be at "\<installdir\>/ShankBot/CMakeLists.txt". You will be prompted to tell CMake where you installed the dependencies. 
+
+If you are using precompiled binaries of Qt, remember to make sure that the compiler you are compiling ShankBot with is ABI-compatible with the compiler that the Qt binaries were built with.
 
 
 ## System Maps
