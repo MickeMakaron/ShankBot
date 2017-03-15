@@ -52,8 +52,10 @@ So, to run ShankBot:
 2. Set the "versionControlDir" to any directory you like. It will be used by ShankBot to keep track of Tibia versions. 
 3. Run the "ShankBotMonitor" executable.
 
-Now a ShankBot server is running and is attached to a Tibia client. You may connect ShankBot clients to the server. For an example of how to do this, build the messaging example at
+Now a ShankBot server is running and is attached to a Tibia client. You may connect ShankBot clients to the server. For an example of how to do this, see the messaging example at
 > examples/messaging
+
+# Project structure
 
 
 # System Maps
