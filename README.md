@@ -3,6 +3,8 @@ ShankBot is an automation tool for the MMORPG Tibia.
 
 It works by monitoring what Tibia renders to the screen by hooking OpenGL calls. 
 
+Wiki: https://github.com/MickeMakaron/ShankBot/wiki
+
 # Build
 ## 1. Install dependencies:
 ShankBot has the following dependencies:
