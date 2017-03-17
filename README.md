@@ -1,3 +1,4 @@
+![ShankBot logo](http://imgur.com/fD9EqKv.png "ShankBot")
 # ShankBot
 ShankBot is an automation tool for the MMORPG Tibia. 
 
