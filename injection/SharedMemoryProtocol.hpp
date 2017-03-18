@@ -45,6 +45,7 @@ namespace GraphicsLayer
     {
         struct Message
         {
+
             enum class MessageType : unsigned char
             {
                 PIXEL_DATA,
@@ -55,9 +56,11 @@ namespace GraphicsLayer
                 TRANSFORMATION_MATRIX,
                 UNIFORM_4_F,
                 COPY_TEXTURE,
-                FILE_IO
+                FILE_IO,
+                INVALID
             };
 
+            Message() : messageType(MessageType::INVALID){}
             MessageType messageType;
         };
 
@@ -106,32 +109,13 @@ namespace GraphicsLayer
 
         struct VertexAttribPointer : public Message
         {
-//            enum class VertexType : unsigned char
-//            {
-//                TEXTURED,
-//                COLORED,
-//                TEXT,
-//                TEXTURED_NO_ORDER,
-//                TEXTURED_OFFSET,
-//            };
-
             typedef float Order;
             typedef unsigned short Index;
-
-
-//            unsigned int numVertices = 0;
-//            unsigned int numUnknown = 0;
-//            unsigned int numIndices = 0;
-//            unsigned int verticesOffset = 0;
-//            unsigned int unknownOffset = 0;
-//            unsigned int indicesOffset = 0;
 
             unsigned char index = 0;
             unsigned int bufferId = 0;
             unsigned int stride = 0;
             unsigned int offset = 0;
-
-//            VertexType vertexType = VertexType::TEXTURED;
         };
 
         struct DrawCall : public Message
@@ -143,6 +127,8 @@ namespace GraphicsLayer
                 TRIANGLE_FAN
             };
 
+            DrawCall() : blendColor(), type(PrimitiveType::TRIANGLE){}
+
             unsigned short bufferId = 0;
             unsigned short programId = 0;
             unsigned int sourceTextureId = 0;
@@ -150,11 +136,13 @@ namespace GraphicsLayer
             unsigned int indicesOffset = 0;
             unsigned int numIndices = 0;
             Color blendColor;
-            PrimitiveType type = PrimitiveType::TRIANGLE;
+            PrimitiveType type;
         };
 
         struct TransformationMatrix : public Message
         {
+            TransformationMatrix() : matrix() {};
+
             unsigned short programId = 0;
             sb::utility::Matrix<float, 4, 4> matrix;
         };
@@ -187,7 +175,7 @@ namespace GraphicsLayer
         };
 
 
-        const unsigned int DATA_BUFFER_SIZE = 1 << 24;//1 << 23;
+        const unsigned int DATA_BUFFER_SIZE = 1 << 24;
         const char* const SHARED_MEMORY_ENV_VAR_NAME = "SHANKBOT_SHARED_MEMORY_NAME";
         const unsigned int SHARED_MEMORY_NAME_LENGTH = 128;
 
@@ -198,7 +186,6 @@ namespace GraphicsLayer
 
             #if defined(_WIN32)
             HWND window = NULL;
-            HANDLE parentSync = NULL;
             HANDLE parentProcessHandle = NULL;
             HANDLE semWrite = NULL;
             HANDLE semRead = NULL;
