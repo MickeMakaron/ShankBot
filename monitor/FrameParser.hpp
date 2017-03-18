@@ -30,7 +30,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "TileBufferCache.hpp"
-#include "SharedMemoryProtocol.hpp"
+#include "injection/SharedMemoryProtocol.hpp"
 #include "FontSample.hpp"
 #include "Frame.hpp"
 #include "GenericType.hpp"

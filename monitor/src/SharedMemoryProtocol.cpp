@@ -26,7 +26,7 @@
 // {SHANK_BOT_LICENSE_END}
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "monitor/SharedMemoryProtocol.hpp"
+#include "injection/SharedMemoryProtocol.hpp"
 #include "utility/utility.hpp"
 
 using namespace GraphicsLayer;

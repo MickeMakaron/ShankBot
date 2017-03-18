@@ -36,7 +36,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/TibiaClient.hpp"
-#include "monitor/SharedMemoryProtocol.hpp"
+#include "injection/SharedMemoryProtocol.hpp"
 #include "utility/utility.hpp"
 #include "monitor/Constants.hpp"
 
