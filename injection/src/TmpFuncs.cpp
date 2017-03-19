@@ -45,6 +45,14 @@ using namespace GraphicsLayer::SharedMemoryProtocol;
 
 namespace GraphicsLayer
 {
+std::vector<DetourHolder> user32Detours =
+{
+    DetourHolder("CreateWindowExW", createWindowExW),
+    DetourHolder("CreateWindowExA", createWindowExA),
+    DetourHolder("PeekMessageW", peekMessage),
+    DetourHolder("RegisterClassExA", registerClassExA),
+};
+
 namespace GraphicsMonitor
 {
 
@@ -744,6 +752,11 @@ void hookModuleExports(HINSTANCE module, LPCSTR moduleName)
     std::string name = toString(moduleName);
     std::transform(name.begin(), name.end(), name.begin(), tolower);
 
+    auto getProcAddress = [module](const std::string& symbol)
+    {
+        return (void*)GetProcAddress(module, symbol.c_str());
+    };
+
     if(name == "opengl32.dll")
     {
         if(swapBufDetour)
@@ -780,18 +793,22 @@ void hookModuleExports(HINSTANCE module, LPCSTR moduleName)
     }
     else if(name == "user32.dll")
     {
-        if(createWindowExWDetour)
+        for(DetourHolder& h : user32Detours)
         {
-            delete createWindowExWDetour;
-            delete createWindowExADetour;
-            delete peekMessageDetour;
-            delete registerClassExADetour;
+            h.renew(getProcAddress);
         }
-
-        createWindowExWDetour = new FunctionDetour((void*)GetProcAddress(module, "CreateWindowExW"), (void*)createWindowExW);
-        createWindowExADetour = new FunctionDetour((void*)GetProcAddress(module, "CreateWindowExA"), (void*)createWindowExA);
-        peekMessageDetour = new FunctionDetour((void*)GetProcAddress(module, "PeekMessageW"), (void*)peekMessage);
-        registerClassExADetour = new FunctionDetour((void*)GetProcAddress(module, "RegisterClassExA"), (void*)registerClassExA);
+//        if(createWindowExWDetour)
+//        {
+//            delete createWindowExWDetour;
+//            delete createWindowExADetour;
+//            delete peekMessageDetour;
+//            delete registerClassExADetour;
+//        }
+//
+//        createWindowExWDetour = new FunctionDetour((void*)GetProcAddress(module, "CreateWindowExW"), (void*)createWindowExW);
+//        createWindowExADetour = new FunctionDetour((void*)GetProcAddress(module, "CreateWindowExA"), (void*)createWindowExA);
+//        peekMessageDetour = new FunctionDetour((void*)GetProcAddress(module, "PeekMessageW"), (void*)peekMessage);
+//        registerClassExADetour = new FunctionDetour((void*)GetProcAddress(module, "RegisterClassExA"), (void*)registerClassExA);
     }
 }
 
@@ -834,5 +851,28 @@ void initializeInjection()
 
     shm->isClientAttached = true;
 }
+
+DetourHolder& getDetour(const std::string& targetSymbol)
+{
+    auto foundIt = std::find_if(user32Detours.begin(), user32Detours.end(), [&targetSymbol](const DetourHolder& h)
+    {
+        return h.getTargetSymbol() == targetSymbol;
+    });
+
+    THROW_ASSERT(foundIt != user32Detours.end());
+    return *foundIt;
 }
+
+DetourHolder& getDetour(const void* detourFunc)
+{
+    auto foundIt = std::find_if(user32Detours.begin(), user32Detours.end(), [detourFunc](const DetourHolder& h)
+    {
+        return h.getDetourFunc() == detourFunc;
+    });
+
+    THROW_ASSERT(foundIt != user32Detours.end());
+    return *foundIt;
+}
+}
+
 

@@ -316,11 +316,13 @@ BOOL WINAPI swapBuf(HDC hdc)
 
 ATOM WINAPI registerClassExA(CONST WNDCLASSEXA* lpWndClass)
 {
+    static DetourHolder& detour = getDetour(registerClassExA);
+
     setClassWindowProc(lpWndClass);
 
-    registerClassExADetour->disable();
-    ATOM retVal = ((ATOM (WINAPI *)(CONST WNDCLASSEXA*))registerClassExADetour->getFunction())(lpWndClass);
-    registerClassExADetour->enable();
+    detour.getDetour()->disable();
+    ATOM retVal = ((ATOM (WINAPI *)(CONST WNDCLASSEXA*))detour.getDetour()->getFunction())(lpWndClass);
+    detour.getDetour()->enable();
     return retVal;
 }
 
@@ -340,11 +342,13 @@ HWND WINAPI createWindowExA
     LPVOID param
 )
 {
-    createWindowExADetour->disable();
+    static DetourHolder& detour = getDetour(createWindowExA);
+
+    detour.getDetour()->disable();
     HWND retVal = ((HWND (WINAPI *)(DWORD,LPCSTR,LPCSTR,DWORD,int,int,int,int,HWND,HMENU,HINSTANCE,LPVOID))
-                   createWindowExADetour->getFunction())
+                   detour.getDetour()->getFunction())
                    (dwExStyle, className, windowName, dwStyle, x, y, width, height, parent, menu, instance, param);
-    createWindowExADetour->enable();
+    detour.getDetour()->enable();
 
     setWindowProc(retVal, className);
     return retVal;
@@ -366,11 +370,13 @@ HWND WINAPI createWindowExW
     LPVOID param
 )
 {
-    createWindowExWDetour->disable();
+    static DetourHolder& detour = getDetour(createWindowExW);
+
+    detour.getDetour()->disable();
     HWND retVal = ((HWND (WINAPI *)(DWORD,LPCWSTR,LPCWSTR,DWORD,int,int,int,int,HWND,HMENU,HINSTANCE,LPVOID))
-                   createWindowExWDetour->getFunction())
+                   detour.getDetour()->getFunction())
                    (dwExStyle, className, windowName, dwStyle, x, y, width, height, parent, menu, instance, param);
-    createWindowExWDetour->enable();
+    detour.getDetour()->enable();
 
     setWindowProc(retVal, className);
     createWindow(retVal, windowName);
@@ -380,10 +386,12 @@ HWND WINAPI createWindowExW
 
 WINBOOL WINAPI peekMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
 {
-    peekMessageDetour->disable();
+    static DetourHolder& detour = getDetour(peekMessage);
+
+    detour.getDetour()->disable();
     BOOL retVal =
-    ((WINBOOL (WINAPI *)(LPMSG, HWND, UINT, UINT, UINT))peekMessageDetour->getFunction())(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
-    peekMessageDetour->enable();
+    ((WINBOOL (WINAPI *)(LPMSG, HWND, UINT, UINT, UINT))detour.getDetour()->getFunction())(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+    detour.getDetour()->enable();
 
     handleWindowMessage(lpMsg);
 

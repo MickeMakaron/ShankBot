@@ -30,6 +30,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "utility/FunctionDetour.hpp"
+#include "injection/DetourHolder.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -42,40 +43,14 @@
 #include <windows.h>
 ///////////////////////////////////
 
+
+///////////////////////////////////
+// STD C++
+#include <vector>
+///////////////////////////////////
+
 namespace GraphicsLayer
 {
-    extern FunctionDetour* loadLibDetour;
-    extern FunctionDetour* swapBufDetour;
-    extern FunctionDetour* texImgDetour;
-    extern FunctionDetour* subTexImgDetour;
-    extern FunctionDetour* bufDatDetour;
-    extern FunctionDetour* bindTexDetour;
-    extern FunctionDetour* drawArraysDetour;
-    extern FunctionDetour* drawElementsDetour;
-    extern FunctionDetour* bindFramebufferDetour;
-    extern FunctionDetour* framebufferTexDetour;
-    extern FunctionDetour* activeTextureDetour;
-    extern FunctionDetour* vertexAttribPointerDetour;
-    extern FunctionDetour* bindBufferDetour;
-    extern FunctionDetour* makeCurrentDetour;
-    extern FunctionDetour* viewportDetour;
-    extern FunctionDetour* useProgramDetour;
-    extern FunctionDetour* uniform4fvDetour;
-    extern FunctionDetour* uniformMatrix4fvDetour;
-    extern FunctionDetour* copyTexImageDetour;
-    extern FunctionDetour* copyTexSubImageDetour;
-    extern FunctionDetour* bindVertexArrayDetour;
-    extern FunctionDetour* blendColorDetour;
-    extern FunctionDetour* pixelStoreiDetour;
-
-    extern FunctionDetour* createWindowExWDetour;
-    extern FunctionDetour* createWindowExADetour;
-    extern FunctionDetour* peekMessageDetour;
-    extern FunctionDetour* registerClassExADetour;
-
-    extern PROC (WINAPI *getProc)(LPCSTR);
-
-
     void APIENTRY viewport(GLint x, GLint y, GLsizei width, GLsizei height);
 
     void APIENTRY pixelStorei(GLenum pname, GLint param);
@@ -216,8 +191,48 @@ namespace GraphicsLayer
     void clearDataBuffer();
     void hookModuleExports(HINSTANCE module, LPCSTR moduleName);
     void initializeInjection();
+    DetourHolder& getDetour(const std::string& targetSymbol);
+    DetourHolder& getDetour(const void* detourFunc);
+    template<typename CFunction>
+    DetourHolder& getDetour(const CFunction& detourFunc)
+    {
+        return getDetour((const void*)detourFunc);
+    }
+
+
+    extern FunctionDetour* loadLibDetour;
+    extern FunctionDetour* swapBufDetour;
+    extern FunctionDetour* texImgDetour;
+    extern FunctionDetour* subTexImgDetour;
+    extern FunctionDetour* bufDatDetour;
+    extern FunctionDetour* bindTexDetour;
+    extern FunctionDetour* drawArraysDetour;
+    extern FunctionDetour* drawElementsDetour;
+    extern FunctionDetour* bindFramebufferDetour;
+    extern FunctionDetour* framebufferTexDetour;
+    extern FunctionDetour* activeTextureDetour;
+    extern FunctionDetour* vertexAttribPointerDetour;
+    extern FunctionDetour* bindBufferDetour;
+    extern FunctionDetour* makeCurrentDetour;
+    extern FunctionDetour* viewportDetour;
+    extern FunctionDetour* useProgramDetour;
+    extern FunctionDetour* uniform4fvDetour;
+    extern FunctionDetour* uniformMatrix4fvDetour;
+    extern FunctionDetour* copyTexImageDetour;
+    extern FunctionDetour* copyTexSubImageDetour;
+    extern FunctionDetour* bindVertexArrayDetour;
+    extern FunctionDetour* blendColorDetour;
+    extern FunctionDetour* pixelStoreiDetour;
+
+    extern std::vector<DetourHolder> user32Detours;
+
+    extern FunctionDetour* createWindowExWDetour;
+    extern FunctionDetour* createWindowExADetour;
+    extern FunctionDetour* peekMessageDetour;
+    extern FunctionDetour* registerClassExADetour;
+
+    extern PROC (WINAPI *getProc)(LPCSTR);
+
 }
-
-
 
 #endif // GRAPHICS_LAYER_TMP_FUNCS_HPP
