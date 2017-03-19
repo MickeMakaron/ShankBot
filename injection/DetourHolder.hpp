@@ -59,6 +59,17 @@ namespace GraphicsLayer
             const void* getDetourFunc() const;
             FunctionDetour* getDetour();
 
+            template<typename ReturnT, typename... ParamTs>
+            ReturnT callAs(ReturnT (__attribute__((__stdcall__)) *funcPrototype)(ParamTs...), ParamTs... args)
+            {
+                mDetour->disable();
+                ReturnT ret = ((ReturnT (__attribute__((__stdcall__))*)(ParamTs...))mDetour->getFunction())
+                    (std::forward<ParamTs>(args)...);
+                mDetour->enable();
+
+                return ret;
+            }
+
 
         private:
             std::shared_ptr<FunctionDetour> mDetour;

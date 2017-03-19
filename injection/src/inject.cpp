@@ -320,10 +320,7 @@ ATOM WINAPI registerClassExA(CONST WNDCLASSEXA* lpWndClass)
 
     setClassWindowProc(lpWndClass);
 
-    detour.getDetour()->disable();
-    ATOM retVal = ((ATOM (WINAPI *)(CONST WNDCLASSEXA*))detour.getDetour()->getFunction())(lpWndClass);
-    detour.getDetour()->enable();
-    return retVal;
+    return detour.callAs(registerClassExA, lpWndClass);
 }
 
 HWND WINAPI createWindowExA
@@ -344,11 +341,8 @@ HWND WINAPI createWindowExA
 {
     static DetourHolder& detour = getDetour(createWindowExA);
 
-    detour.getDetour()->disable();
-    HWND retVal = ((HWND (WINAPI *)(DWORD,LPCSTR,LPCSTR,DWORD,int,int,int,int,HWND,HMENU,HINSTANCE,LPVOID))
-                   detour.getDetour()->getFunction())
-                   (dwExStyle, className, windowName, dwStyle, x, y, width, height, parent, menu, instance, param);
-    detour.getDetour()->enable();
+    HWND retVal = detour.callAs(createWindowExA,
+        dwExStyle, className, windowName, dwStyle, x, y, width, height, parent, menu, instance, param);
 
     setWindowProc(retVal, className);
     return retVal;
@@ -372,11 +366,8 @@ HWND WINAPI createWindowExW
 {
     static DetourHolder& detour = getDetour(createWindowExW);
 
-    detour.getDetour()->disable();
-    HWND retVal = ((HWND (WINAPI *)(DWORD,LPCWSTR,LPCWSTR,DWORD,int,int,int,int,HWND,HMENU,HINSTANCE,LPVOID))
-                   detour.getDetour()->getFunction())
-                   (dwExStyle, className, windowName, dwStyle, x, y, width, height, parent, menu, instance, param);
-    detour.getDetour()->enable();
+    HWND retVal = detour.callAs(createWindowExW,
+        dwExStyle, className, windowName, dwStyle, x, y, width, height, parent, menu, instance, param);
 
     setWindowProc(retVal, className);
     createWindow(retVal, windowName);
@@ -388,10 +379,8 @@ WINBOOL WINAPI peekMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsg
 {
     static DetourHolder& detour = getDetour(peekMessage);
 
-    detour.getDetour()->disable();
-    BOOL retVal =
-    ((WINBOOL (WINAPI *)(LPMSG, HWND, UINT, UINT, UINT))detour.getDetour()->getFunction())(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
-    detour.getDetour()->enable();
+    BOOL retVal = detour.callAs(peekMessage,
+        lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
 
     handleWindowMessage(lpMsg);
 

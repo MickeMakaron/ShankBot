@@ -191,7 +191,6 @@ namespace GraphicsLayer
     void clearDataBuffer();
     void hookModuleExports(HINSTANCE module, LPCSTR moduleName);
     void initializeInjection();
-    DetourHolder& getDetour(const std::string& targetSymbol);
     DetourHolder& getDetour(const void* detourFunc);
     template<typename CFunction>
     DetourHolder& getDetour(const CFunction& detourFunc)

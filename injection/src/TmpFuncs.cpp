@@ -852,17 +852,6 @@ void initializeInjection()
     shm->isClientAttached = true;
 }
 
-DetourHolder& getDetour(const std::string& targetSymbol)
-{
-    auto foundIt = std::find_if(user32Detours.begin(), user32Detours.end(), [&targetSymbol](const DetourHolder& h)
-    {
-        return h.getTargetSymbol() == targetSymbol;
-    });
-
-    THROW_ASSERT(foundIt != user32Detours.end());
-    return *foundIt;
-}
-
 DetourHolder& getDetour(const void* detourFunc)
 {
     auto foundIt = std::find_if(user32Detours.begin(), user32Detours.end(), [detourFunc](const DetourHolder& h)
