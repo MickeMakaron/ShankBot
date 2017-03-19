@@ -29,6 +29,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "injection/TmpFuncs.hpp"
+#include "injection/TextureUnitHolder.hpp"
 #include "injection/SharedMemoryProtocol.hpp"
 using namespace GraphicsLayer::SharedMemoryProtocol;
 ///////////////////////////////////
@@ -46,101 +47,23 @@ namespace GraphicsLayer
 {
 namespace GraphicsMonitor
 {
-    struct Texture
-    {
-        int width;
-        int height;
-        GLenum format;
-    };
 
     GLuint boundTexture = 0;
     GLuint boundFramebuffer = 0;
     GLuint boundBuffer = 0;
-    GLuint boundRenderbuffer = 0;
     GLuint boundProgram = 0;
     Color currentBlendColor;
 
-
-    struct TextureUnit
-    {
-        TextureUnit() : targets(), id(0){}
-
-        std::map<GLenum, GLuint> targets;
-        GLenum id;
-    };
-
-    class TextureUnitHolder
-    {
-        public:
-            explicit TextureUnitHolder();
-
-            void setTexture(GLenum target, GLuint texture);
-            GLuint getTexture(GLenum target) const;
-            void setActiveTextureUnit(GLenum unit);
-
-            // DEBUG
-            const std::vector<TextureUnit>& getTextureUnits() const;
-
-        private:
-            std::vector<TextureUnit> mTextureUnits;
-            TextureUnit* mActiveTextureUnit;
-    };
-
-    TextureUnitHolder::TextureUnitHolder()
-    : mTextureUnits()
-    , mActiveTextureUnit(nullptr)
-    {
-        TextureUnit unit0;
-        unit0.id = GL_TEXTURE0;
-        mTextureUnits.push_back(unit0);
-        mActiveTextureUnit = &mTextureUnits[0];
-    }
-
-    void TextureUnitHolder::setTexture(GLenum target, GLuint texture)
-    {
-        mActiveTextureUnit->targets[target] = texture;
-    }
-
-    void TextureUnitHolder::setActiveTextureUnit(GLenum unit)
-    {
-        if(unit < GL_TEXTURE0)
-            throw std::runtime_error("Invalid argument in TextureUnitHolder::setActiveTextureUnit");
-
-        size_t index = unit - GL_TEXTURE0;
-        if(index >= mTextureUnits.size())
-        {
-            size_t oldSize = mTextureUnits.size();
-            mTextureUnits.resize(index + 1);
-            for(size_t i = oldSize; i < mTextureUnits.size(); i++)
-                mTextureUnits[i].id = i + GL_TEXTURE0;
-        }
-        mActiveTextureUnit = &mTextureUnits[index];
-    }
-
-    GLuint TextureUnitHolder::getTexture(GLenum target) const
-    {
-        return mActiveTextureUnit->targets[target];
-    }
-
-    const std::vector<TextureUnit>& TextureUnitHolder::getTextureUnits() const
-    {
-        return mTextureUnits;
-    }
-
-
-
     std::map<GLuint, GLuint> framebufferTextureAttachment;
     TextureUnitHolder textureUnits;
-    GLuint sceneBuffer = 0;
 
     std::vector<char> dataBuffer;
     size_t currentFrameIndex = 0;
 
 
-    std::map<GLuint, SharedMemoryProtocol::VertexBufferWrite> vertexBuffers;
+    std::map<GLuint, VertexBufferWrite> vertexBuffers;
 
     GLuint tileSheetTextureId = 0;
-    GLuint unshadedViewTextureId = 0;
 
     enum TextureBuffers : unsigned char
     {
@@ -153,7 +76,7 @@ namespace GraphicsMonitor
 
     bool areExtendedOpenGlFunctionsHooked = false;
 
-    SharedMemoryProtocol::SharedMemorySegment* shm = nullptr;
+    SharedMemorySegment* shm = nullptr;
 
     float peakDataOccupancy = 0.f;
 
@@ -165,24 +88,11 @@ namespace GraphicsMonitor
     std::map<GLuint, GLuint> vaoToVbo;
     GLuint boundVertexArray = 0;
 
-    std::ofstream log;
-
-
-
     std::map<std::string, LRESULT (CALLBACK *)(HWND, UINT, WPARAM, LPARAM)> classNameToWndProc;
     std::map<HWND, LRESULT (CALLBACK *)(HWND, UINT, WPARAM, LPARAM)> hwndToWndProc;
-
 }
 
 using namespace GraphicsMonitor;
-
-#ifdef NDEBUG
-#define WRITE_LOG() ((void)0)
-#define WRITE_LOG_STEP() ((void)0)
-#else
-#define WRITE_LOG() log << __PRETTY_FUNCTION__ << " (" << __LINE__ << ")" << std::endl
-#define WRITE_LOG_STEP() log << "\t" << __LINE__ << std::endl
-#endif
 
 #define THROW_ASSERT(v) if(!(v)) {std::cout << __LINE__ << std::endl; throw 1;}
 
@@ -890,7 +800,6 @@ void initializeInjection()
     AllocConsole();
     freopen("CONOUT$", "w", stdout);
     std::cout << "Hallo!" << std::endl;
-    log.open("sb-error.log");
 
     char szName[SHARED_MEMORY_NAME_LENGTH + 1];
     GetEnvironmentVariable(SHARED_MEMORY_ENV_VAR_NAME, szName, sizeof(szName));
