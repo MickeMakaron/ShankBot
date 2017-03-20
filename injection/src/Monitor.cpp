@@ -28,11 +28,8 @@
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "injection/TmpFuncs.hpp"
-#include "injection/TextureUnitHolder.hpp"
-#include "utility/FunctionDetour.hpp"
-#include "injection/SharedMemoryProtocol.hpp"
-#include "injection/Injection.hpp"
+#include "injection/Monitor.hpp"
+#include "injection/utility.hpp"
 using namespace GraphicsLayer::SharedMemoryProtocol;
 ///////////////////////////////////
 
@@ -49,87 +46,120 @@ namespace GraphicsLayer
 {
 namespace GraphicsMonitor
 {
-
-    GLuint boundTexture = 0;
-    GLuint boundFramebuffer = 0;
-    GLuint boundBuffer = 0;
-    GLuint boundProgram = 0;
-    Color currentBlendColor;
-
-    std::map<GLuint, GLuint> framebufferTextureAttachment;
-    TextureUnitHolder textureUnits;
-
-    std::vector<char> dataBuffer;
-    size_t currentFrameIndex = 0;
-
-
-    std::map<GLuint, VertexBufferWrite> vertexBuffers;
-
-    GLuint tileSheetTextureId = 0;
-
-    enum TextureBuffers : unsigned char
-    {
-        SHADED,
-        UNSHADED,
-        SHADING_MAP,
-        NUM_BUFFERS
-    };
-    std::vector<GLuint> textureBuffers;
-
-    SharedMemorySegment* shm = nullptr;
-
-    float peakDataOccupancy = 0.f;
-
-
-    GLsizei currentViewportWidth = 0;
-    GLsizei currentViewportHeight = 0;
-    GLenum currentUnpackAlignment = 4;
-
-    std::map<GLuint, GLuint> vaoToVbo;
-    GLuint boundVertexArray = 0;
-
-    std::map<std::string, LRESULT (CALLBACK *)(HWND, UINT, WPARAM, LPARAM)> classNameToWndProc;
-    std::map<HWND, LRESULT (CALLBACK *)(HWND, UINT, WPARAM, LPARAM)> hwndToWndProc;
+//
+//    GLuint boundTexture = 0;
+//    GLuint boundFramebuffer = 0;
+//    GLuint boundBuffer = 0;
+//    GLuint boundProgram = 0;
+//    Color currentBlendColor;
+//
+//    std::map<GLuint, GLuint> framebufferTextureAttachment;
+//    TextureUnitHolder textureUnits;
+//
+//    std::vector<char> dataBuffer;
+//    size_t currentFrameIndex = 0;
+//
+//
+//    std::map<GLuint, VertexBufferWrite> vertexBuffers;
+//
+//    GLuint tileSheetTextureId = 0;
+//
+//    enum TextureBuffers : unsigned char
+//    {
+//        SHADED,
+//        UNSHADED,
+//        SHADING_MAP,
+//        NUM_BUFFERS
+//    };
+//    std::vector<GLuint> textureBuffers;
+//
+//    SharedMemorySegment* shm = nullptr;
+//
+//    float peakDataOccupancy = 0.f;
+//
+//
+//    GLsizei currentViewportWidth = 0;
+//    GLsizei currentViewportHeight = 0;
+//    GLenum currentUnpackAlignment = 4;
+//
+//    std::map<GLuint, GLuint> vaoToVbo;
+//    GLuint boundVertexArray = 0;
+//
+//    std::map<std::string, LRESULT (CALLBACK *)(HWND, UINT, WPARAM, LPARAM)> classNameToWndProc;
+//    std::map<HWND, LRESULT (CALLBACK *)(HWND, UINT, WPARAM, LPARAM)> hwndToWndProc;
 }
 
 using namespace GraphicsMonitor;
 
 #define THROW_ASSERT(v) if(!(v)) {std::cout << __LINE__ << std::endl; throw 1;}
 
-Frame* getCurrentFrame()
+
+
+std::map<std::string, WindowProc> Monitor::classNameToWndProc;
+std::map<HWND, WindowProc> Monitor::hwndToWndProc;
+
+Monitor::Monitor()
+{
+    char szName[SHARED_MEMORY_NAME_LENGTH + 1];
+    GetEnvironmentVariable(SHARED_MEMORY_ENV_VAR_NAME, szName, sizeof(szName));
+    SetEnvironmentVariable(SHARED_MEMORY_ENV_VAR_NAME, NULL);
+    HANDLE hMapFile = OpenFileMapping
+    (
+        FILE_MAP_ALL_ACCESS,   // read/write access
+        FALSE,                 // do not inherit the name
+        szName      // name of mapping object
+    );
+
+    if (hMapFile == NULL)
+    {
+        throw std::runtime_error("Could not create shared memory object (" + std::to_string(GetLastError()) + ").");
+    }
+
+    shm = (SharedMemorySegment*) MapViewOfFile
+    (
+        hMapFile, // handle to map object
+        FILE_MAP_ALL_ACCESS,  // read/write permission
+        0,
+        0,
+        NUM_BYTES
+    );
+
+    if (shm == NULL)
+    {
+        throw std::runtime_error("Could not map shared memory (" + std::to_string(GetLastError()) + ").");
+    }
+
+    shm->isClientAttached = true;
+}
+
+
+Frame* Monitor::getCurrentFrame()
 {
     return (Frame*)((char*)dataBuffer.data() + currentFrameIndex);
 }
 
-void createNewFrame()
+void Monitor::createNewFrame()
 {
     Frame f;
     currentFrameIndex = dataBuffer.size();
     dataBuffer.insert(dataBuffer.end(), (char*)&f, (char*)&f + sizeof(f));
 }
 
-void appendToDataBuffer(const char* data, size_t size)
+void Monitor::appendToDataBuffer(const char* data, size_t size)
 {
     using namespace GraphicsMonitor;
     getCurrentFrame()->size += size;
     dataBuffer.insert(dataBuffer.end(), data, data + size);
 }
 
-template<typename T>
-void appendToDataBuffer(const T& message)
-{
-    appendToDataBuffer((char*)&message, sizeof(message));
-}
-
-void setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
+void Monitor::setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
     THROW_ASSERT(x == 0 && y == 0);
     currentViewportWidth = width;
     currentViewportHeight = height;
 }
 
-
-void setPixelStore(GLenum pname, GLint param)
+void Monitor::setPixelStore(GLenum pname, GLint param)
 {
     if(pname == GL_UNPACK_ALIGNMENT)
     {
@@ -137,12 +167,12 @@ void setPixelStore(GLenum pname, GLint param)
     }
 }
 
-void setProgram(GLuint program)
+void Monitor::setProgram(GLuint program)
 {
     boundProgram = program;
 }
 
-void appendVec4ToDataBuffer(GLint location, GLsizei count, const GLfloat* vec4)
+void Monitor::appendVec4ToDataBuffer(GLint location, GLsizei count, const GLfloat* vec4)
 {
     THROW_ASSERT(count == 1);
 
@@ -154,7 +184,7 @@ void appendVec4ToDataBuffer(GLint location, GLsizei count, const GLfloat* vec4)
     appendToDataBuffer(u);
 }
 
-void appendTransformationMatrixToDataBuffer(GLsizei count, GLboolean doTranspose, const GLfloat* matrix)
+void Monitor::appendTransformationMatrixToDataBuffer(GLsizei count, GLboolean doTranspose, const GLfloat* matrix)
 {
     THROW_ASSERT(count == 1);
     THROW_ASSERT(!doTranspose);
@@ -167,19 +197,19 @@ void appendTransformationMatrixToDataBuffer(GLsizei count, GLboolean doTranspose
 }
 
 
-void setBlendColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
+void Monitor::setBlendColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
     currentBlendColor = Color(r * 255, g * 255, b * 255, a * 255);
 }
 
 
-void setTexture(GLenum target, GLuint texture)
+void Monitor::setTexture(GLenum target, GLuint texture)
 {
     textureUnits.setTexture(target, texture);
 }
 
 
-void appendDrawArraysToDataBuffer(GLenum mode, GLint indicesOffset, GLsizei count)
+void Monitor::appendDrawArraysToDataBuffer(GLenum mode, GLint indicesOffset, GLsizei count)
 {
     THROW_ASSERT(mode == GL_TRIANGLE_FAN);
 
@@ -205,20 +235,20 @@ void appendDrawArraysToDataBuffer(GLenum mode, GLint indicesOffset, GLsizei coun
 }
 
 
-void setVertexArray(GLuint array)
+void Monitor::setVertexArray(GLuint array)
 {
     boundVertexArray = array;
 }
 
 
-void setBuffer(GLenum target, GLuint buffer)
+void Monitor::setBuffer(GLenum target, GLuint buffer)
 {
     THROW_ASSERT(target == GL_ARRAY_BUFFER || target == GL_ELEMENT_ARRAY_BUFFER);
     boundBuffer = buffer;
 }
 
 
-void appendVertexAttribPointerToDataBuffer(GLuint index, GLsizei stride, const GLvoid* offset)
+void Monitor::appendVertexAttribPointerToDataBuffer(GLuint index, GLsizei stride, const GLvoid* offset)
 {
     if(boundVertexArray != 0)
     {
@@ -235,7 +265,7 @@ void appendVertexAttribPointerToDataBuffer(GLuint index, GLsizei stride, const G
 }
 
 
-void appendDrawElementsToDataBuffer(GLenum mode, const GLvoid* indicesOffset, GLsizei count)
+void Monitor::appendDrawElementsToDataBuffer(GLenum mode, const GLvoid* indicesOffset, GLsizei count)
 {
     THROW_ASSERT(boundBuffer != 1);
 
@@ -274,7 +304,7 @@ void appendDrawElementsToDataBuffer(GLenum mode, const GLvoid* indicesOffset, GL
 }
 
 
-void appendVertexBufferWriteToDataBuffer(const GLvoid* data, GLsizei size)
+void Monitor::appendVertexBufferWriteToDataBuffer(const GLvoid* data, GLsizei size)
 {
     VertexBufferWrite& buffer = vertexBuffers[boundBuffer];
     buffer.bufferId = boundBuffer;
@@ -286,7 +316,7 @@ void appendVertexBufferWriteToDataBuffer(const GLvoid* data, GLsizei size)
 }
 
 
-void insertTextureData(GLsizei width, GLsizei height, GLenum target)
+void Monitor::insertTextureData(GLsizei width, GLsizei height, GLenum target)
 {
     GLuint textureId = textureUnits.getTexture(target);
     if(textureId == 0)
@@ -313,7 +343,7 @@ void insertTextureData(GLsizei width, GLsizei height, GLenum target)
 }
 
 
-void insertPixelData
+void Monitor::insertPixelData
 (
     GLenum target,
   	GLint level,
@@ -396,7 +426,7 @@ void insertPixelData
 }
 
 
-void appendCopyTextureToDataBuffer(GLenum target, GLint level, GLint srcX, GLint srcY, GLint x, GLint y, GLsizei width, GLsizei height)
+void Monitor::appendCopyTextureToDataBuffer(GLenum target, GLint level, GLint srcX, GLint srcY, GLint x, GLint y, GLsizei width, GLsizei height)
 {
     THROW_ASSERT(level == 0);
 
@@ -423,18 +453,18 @@ void appendCopyTextureToDataBuffer(GLenum target, GLint level, GLint srcX, GLint
     appendToDataBuffer(copy);
 }
 
-void setFramebuffer(GLuint framebuffer)
+void Monitor::setFramebuffer(GLuint framebuffer)
 {
     boundFramebuffer = framebuffer;
 }
 
 
-void setActiveTexture(GLenum texture)
+void Monitor::setActiveTexture(GLenum texture)
 {
     textureUnits.setActiveTextureUnit(texture);
 }
 
-void setFramebufferTexture(GLuint texture, GLint level)
+void Monitor::setFramebufferTexture(GLuint texture, GLint level)
 {
     THROW_ASSERT(level == 0);
     framebufferTextureAttachment[boundFramebuffer] = texture;
@@ -442,7 +472,7 @@ void setFramebufferTexture(GLuint texture, GLint level)
 
 
 
-void updateSharedMemory()
+void Monitor::updateSharedMemory()
 {
     if(dataBuffer.size() < sizeof(Frame))
     {
@@ -479,7 +509,7 @@ void updateSharedMemory()
     }
 }
 
-void printSharedMemoryBufferDiagnostics()
+void Monitor::printSharedMemoryBufferDiagnostics()
 {
     using namespace GraphicsMonitor;
     using namespace SharedMemoryProtocol;
@@ -491,7 +521,7 @@ void printSharedMemoryBufferDiagnostics()
                 << " peak: " << peakDataOccupancy << "%" <<  std::endl;
 }
 
-bool isParentAlive()
+bool Monitor::isParentAlive()
 {
     unsigned long code;
     if(GetExitCodeProcess(shm->parentProcessHandle, &code) == 0)
@@ -503,7 +533,7 @@ bool isParentAlive()
     return (code == STILL_ACTIVE);
 }
 
-void postFrame()
+void Monitor::postFrame()
 {
     if(ReleaseSemaphore(shm->semRead, 1, NULL) == 0)
     {
@@ -513,7 +543,7 @@ void postFrame()
 }
 
 
-void waitForFrameRequest()
+void Monitor::waitForFrameRequest()
 {
     switch(WaitForSingleObject(shm->semWrite, 500))
     {
@@ -543,7 +573,7 @@ void waitForFrameRequest()
 }
 
 
-void submitFrameData()
+void Monitor::submitFrameData()
 {
     THROW_ASSERT(getCurrentFrame()->size <= DATA_BUFFER_SIZE);
 
@@ -554,6 +584,29 @@ void submitFrameData()
     createNewFrame();
 }
 
+WindowProc Monitor::getWindowProc(HWND window)
+{
+    auto foundIt = hwndToWndProc.find(window);
+    if(foundIt == hwndToWndProc.end())
+    {
+        return nullptr;
+    }
+
+    return foundIt->second;
+}
+
+WindowProc Monitor::getWindowProcByClassName(HWND window)
+{
+    char className[512];
+    GetClassNameA(window, className, 512);
+    auto foundIt = classNameToWndProc.find(std::string(className));
+    if(foundIt == classNameToWndProc.end())
+    {
+        return nullptr;
+    }
+
+    return foundIt->second;
+}
 
 LRESULT CALLBACK windowClassProcDetour(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -569,60 +622,64 @@ LRESULT CALLBACK windowClassProcDetour(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     }
 
     using namespace GraphicsMonitor;
-    auto hwndToWndProcIt = hwndToWndProc.find(hwnd);
-    if(hwndToWndProcIt != hwndToWndProc.end())
-        return hwndToWndProcIt->second(hwnd, uMsg, wParam, lParam);
-
-    char classN[256];
-    GetClassNameA(hwnd, classN, 256);
-    auto classNameToWndProcIt = classNameToWndProc.find(std::string(classN));
-    if(classNameToWndProcIt != classNameToWndProc.end())
+    WindowProc windowProc = Monitor::getWindowProc(hwnd);
+    if(windowProc)
     {
-        auto& proc = classNameToWndProcIt->second;
-        hwndToWndProc[hwnd] = proc;
-        return proc(hwnd, uMsg, wParam, lParam);
+        return windowProc(hwnd, uMsg, wParam, lParam);
     }
+//    auto hwndToWndProcIt = hwndToWndProc.find(hwnd);
+//    if(hwndToWndProcIt != hwndToWndProc.end())
+//        return hwndToWndProcIt->second(hwnd, uMsg, wParam, lParam);
+
+    windowProc = Monitor::getWindowProcByClassName(hwnd);
+    if(windowProc)
+    {
+        Monitor::setWindowProc(hwnd, windowProc);
+        return windowProc(hwnd, uMsg, wParam, lParam);
+    }
+
+//    char classN[256];
+//    GetClassNameA(hwnd, classN, 256);
+//    auto classNameToWndProcIt = classNameToWndProc.find(std::string(classN));
+//    if(classNameToWndProcIt != classNameToWndProc.end())
+//    {
+//        auto& proc = classNameToWndProcIt->second;
+//        hwndToWndProc[hwnd] = proc;
+//        return proc(hwnd, uMsg, wParam, lParam);
+//    }
 
     THROW_ASSERT(false);
     return DefWindowProcA(hwnd, uMsg, wParam, lParam);
 }
 
-std::string toString(LPCSTR str)
-{
-    return std::string(str);
-}
-
-std::string toString(LPCWSTR str)
-{
-    char mbStr[512];
-    wcstombs(mbStr, str, 512);
-    return std::string(mbStr);
-}
-
-
-void setClassWindowProc(CONST WNDCLASSEXA* windowClass)
+void Monitor::setClassWindowProc(CONST WNDCLASSEXA* windowClass)
 {
     classNameToWndProc[toString(windowClass->lpszClassName)] = windowClass->lpfnWndProc;
     ((WNDCLASSEXA*)windowClass)->lpfnWndProc = windowClassProcDetour;
 }
 
-void setWindowProc(HWND window, const std::string& windowClass)
+void Monitor::setWindowProc(HWND window, const std::string& windowClass)
 {
     hwndToWndProc[window] = classNameToWndProc[windowClass];
 }
 
-void setWindowProc(HWND window, LPCSTR windowClass)
+void Monitor::setWindowProc(HWND window, LPCSTR windowClass)
 {
     setWindowProc(window, toString(windowClass));
 }
 
 
-void setWindowProc(HWND window, LPCWSTR windowClass)
+void Monitor::setWindowProc(HWND window, LPCWSTR windowClass)
 {
     setWindowProc(window, toString(windowClass));
 }
 
-void createWindow(HWND window, LPCWSTR windowName)
+void Monitor::setWindowProc(HWND window, WindowProc proc)
+{
+    hwndToWndProc[window] = proc;
+}
+
+void Monitor::createWindow(HWND window, LPCWSTR windowName)
 {
     std::string name = toString(windowName);
     if(name == "Tibia")
@@ -632,7 +689,7 @@ void createWindow(HWND window, LPCWSTR windowName)
     }
 }
 
-void handleWindowMessage(LPMSG msg)
+void Monitor::handleWindowMessage(LPMSG msg)
 {
     THROW_ASSERT(msg != nullptr);
     switch(msg->message)
@@ -708,71 +765,11 @@ void handleWindowMessage(LPMSG msg)
     }
 }
 
-void hookExtendedOpenGlFunctions(Injection& injection, const std::string& module, HDC hdc, HGLRC hglrc)
-{
-    if(hdc && hglrc)
-    {
-        PROC (WINAPI *getProc)(LPCSTR) = (PROC (WINAPI *)(LPCSTR))GetProcAddress(GetModuleHandle("opengl32.dll"), "wglGetProcAddress");
-        injection.hookModule(module, [getProc](const std::string& symbol)
-        {
-            return (void*)getProc(symbol.c_str());
-        });
-    }
-}
 
-void clearDataBuffer()
+void Monitor::clearDataBuffer()
 {
     dataBuffer.clear();
     createNewFrame();
-}
-
-void hookModuleExports(Injection& injection, HINSTANCE module, LPCSTR moduleName)
-{
-    std::string name = toString(moduleName);
-    std::transform(name.begin(), name.end(), name.begin(), tolower);
-
-    injection.hookModule(name, [module](const std::string& symbol)
-    {
-        return (void*)GetProcAddress(module, symbol.c_str());
-    });
-}
-
-void initializeInjection()
-{
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-    std::cout << "Hallo!" << std::endl;
-
-    char szName[SHARED_MEMORY_NAME_LENGTH + 1];
-    GetEnvironmentVariable(SHARED_MEMORY_ENV_VAR_NAME, szName, sizeof(szName));
-    SetEnvironmentVariable(SHARED_MEMORY_ENV_VAR_NAME, NULL);
-    HANDLE hMapFile = OpenFileMapping
-    (
-        FILE_MAP_ALL_ACCESS,   // read/write access
-        FALSE,                 // do not inherit the name
-        szName      // name of mapping object
-    );
-
-    if (hMapFile == NULL)
-    {
-        throw std::runtime_error("Could not create shared memory object (" + std::to_string(GetLastError()) + ").");
-    }
-
-    shm = (SharedMemorySegment*) MapViewOfFile
-    (
-        hMapFile, // handle to map object
-        FILE_MAP_ALL_ACCESS,  // read/write permission
-        0,
-        0,
-        NUM_BYTES
-    );
-
-    if (shm == NULL)
-    {
-        throw std::runtime_error("Could not map shared memory (" + std::to_string(GetLastError()) + ").");
-    }
-
-    shm->isClientAttached = true;
 }
 }
 
