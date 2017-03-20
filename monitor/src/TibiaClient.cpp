@@ -39,7 +39,7 @@
 #include "injection/SharedMemoryProtocol.hpp"
 #include "utility/utility.hpp"
 #include "monitor/Constants.hpp"
-
+#include "monitor/FrameFile.hpp"
 #include "monitor/TextBuilder.hpp"
 #include "monitor/OutfitResolver.hpp"
 #include "messaging/GoRequest.hpp"
@@ -515,7 +515,6 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleObjectRequest(const c
     return r;
 }
 
-#include "QtGui/QImage"
 void TibiaClient::update()
 {
     using namespace sb::messaging;
@@ -536,11 +535,8 @@ void TibiaClient::update()
         if(frame.screenPixels != nullptr)
         {
             static size_t screenPixelsCount = 0;
-
-            const RawImage& i = *frame.screenPixels;
-            QImage img(i.pixels.data(), i.width, i.height, QImage::Format_RGB888);
-            img = img.mirrored(false, true);
-            img.save(QString::fromStdString("frameDumps/p" + std::to_string(screenPixelsCount) + ".png"));
+            FrameFile file(frame);
+            file.write("frameDumps/d" + std::to_string(screenPixelsCount));
 
             screenPixelsCount++;
         }
