@@ -224,6 +224,7 @@ namespace GraphicsLayer
     extern FunctionDetour* pixelStoreiDetour;
 
     extern std::vector<DetourHolder> user32Detours;
+    extern std::vector<DetourHolder> opengl32Detours;
 
     extern FunctionDetour* createWindowExWDetour;
     extern FunctionDetour* createWindowExADetour;

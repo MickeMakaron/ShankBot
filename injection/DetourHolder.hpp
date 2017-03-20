@@ -60,7 +60,7 @@ namespace GraphicsLayer
             FunctionDetour* getDetour();
 
             template<typename ReturnT, typename... ParamTs>
-            ReturnT callAs(ReturnT (__attribute__((__stdcall__)) *funcPrototype)(ParamTs...), ParamTs... args)
+            typename std::enable_if<!std::is_void<ReturnT>::value, ReturnT>::type callAs(ReturnT (__attribute__((__stdcall__)) *funcPrototype)(ParamTs...), ParamTs... args)
             {
                 mDetour->disable();
                 ReturnT ret = ((ReturnT (__attribute__((__stdcall__))*)(ParamTs...))mDetour->getFunction())
@@ -70,6 +70,14 @@ namespace GraphicsLayer
                 return ret;
             }
 
+            template<typename... ParamTs>
+            void callAs(void (__attribute__((__stdcall__)) *funcPrototype)(ParamTs...), ParamTs... args)
+            {
+                mDetour->disable();
+                ((void (__attribute__((__stdcall__))*)(ParamTs...))mDetour->getFunction())
+                    (std::forward<ParamTs>(args)...);
+                mDetour->enable();
+            }
 
         private:
             std::shared_ptr<FunctionDetour> mDetour;

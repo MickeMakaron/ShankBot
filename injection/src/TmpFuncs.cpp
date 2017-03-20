@@ -53,6 +53,21 @@ std::vector<DetourHolder> user32Detours =
     DetourHolder("RegisterClassExA", registerClassExA),
 };
 
+std::vector<DetourHolder> opengl32Detours =
+{
+    DetourHolder("glPixelStorei", pixelStorei),
+    DetourHolder("glTexImage2D", texImg),
+    DetourHolder("glTexSubImage2D", subTexImg),
+    DetourHolder("glBindTexture", bindTex),
+    DetourHolder("glDrawArrays", drawArrays),
+    DetourHolder("glDrawElements", drawElements),
+    DetourHolder("wglMakeCurrent", makeCurrent),
+    DetourHolder("glViewport", viewport),
+    DetourHolder("glCopyTexImage2D", copyTexImage),
+    DetourHolder("glCopyTexSubImage2D", copyTexSubImage),
+};
+
+
 namespace GraphicsMonitor
 {
 
@@ -759,37 +774,41 @@ void hookModuleExports(HINSTANCE module, LPCSTR moduleName)
 
     if(name == "opengl32.dll")
     {
-        if(swapBufDetour)
+        for(DetourHolder& h : opengl32Detours)
         {
-            delete pixelStoreiDetour;
-            delete swapBufDetour;
-            delete texImgDetour;
-            delete subTexImgDetour;
-            delete bindTexDetour;
-            delete drawArraysDetour;
-            delete drawElementsDetour;
-            delete makeCurrentDetour;
-            delete viewportDetour;
-            delete copyTexImageDetour;
-            delete copyTexSubImageDetour;
+            h.renew(getProcAddress);
         }
+        getProc = (PROC (WINAPI *)(LPCSTR))getProcAddress("wglGetProcAddress");
 
-        pixelStoreiDetour = new FunctionDetour((void*)GetProcAddress(module, "glPixelStorei"), (void*)pixelStorei);
-        swapBufDetour = new FunctionDetour((void*)GetProcAddress(GetModuleHandle("gdi32.dll"), "SwapBuffers"), (void*)swapBuf);
-        texImgDetour = new FunctionDetour((void*)GetProcAddress(module, "glTexImage2D"), (void*)texImg);
-        subTexImgDetour = new FunctionDetour((void*)GetProcAddress(module, "glTexSubImage2D"), (void*)subTexImg);
-        bindTexDetour = new FunctionDetour((void*)GetProcAddress(module, "glBindTexture"), (void*)bindTex);
-        drawArraysDetour = new FunctionDetour((void*)GetProcAddress(module, "glDrawArrays"), (void*)drawArrays);
-        drawElementsDetour = new FunctionDetour((void*)GetProcAddress(module, "glDrawElements"), (void*)drawElements);
-
-        getProc = (PROC (WINAPI *)(LPCSTR))GetProcAddress(module, "wglGetProcAddress");
-        makeCurrentDetour = new FunctionDetour((void*)GetProcAddress(module, "wglMakeCurrent"), (void*)makeCurrent);
-
-        viewportDetour = new FunctionDetour((void*)GetProcAddress(module, "glViewport"), (void*)viewport);
-
-
-        copyTexImageDetour = new FunctionDetour((void*)GetProcAddress(module, "glCopyTexImage2D"), (void*)copyTexImage);
-        copyTexSubImageDetour = new FunctionDetour((void*)GetProcAddress(module, "glCopyTexSubImage2D"), (void*)copyTexSubImage);
+//        if(swapBufDetour)
+//        {
+//            delete pixelStoreiDetour;
+//            delete texImgDetour;
+//            delete subTexImgDetour;
+//            delete bindTexDetour;
+//            delete drawArraysDetour;
+//            delete drawElementsDetour;
+//            delete makeCurrentDetour;
+//            delete viewportDetour;
+//            delete copyTexImageDetour;
+//            delete copyTexSubImageDetour;
+//        }
+//
+//        pixelStoreiDetour = new FunctionDetour((void*)GetProcAddress(module, "glPixelStorei"), (void*)pixelStorei);
+//        texImgDetour = new FunctionDetour((void*)GetProcAddress(module, "glTexImage2D"), (void*)texImg);
+//        subTexImgDetour = new FunctionDetour((void*)GetProcAddress(module, "glTexSubImage2D"), (void*)subTexImg);
+//        bindTexDetour = new FunctionDetour((void*)GetProcAddress(module, "glBindTexture"), (void*)bindTex);
+//        drawArraysDetour = new FunctionDetour((void*)GetProcAddress(module, "glDrawArrays"), (void*)drawArrays);
+//        drawElementsDetour = new FunctionDetour((void*)GetProcAddress(module, "glDrawElements"), (void*)drawElements);
+//
+//        getProc = (PROC (WINAPI *)(LPCSTR))GetProcAddress(module, "wglGetProcAddress");
+//        makeCurrentDetour = new FunctionDetour((void*)GetProcAddress(module, "wglMakeCurrent"), (void*)makeCurrent);
+//
+//        viewportDetour = new FunctionDetour((void*)GetProcAddress(module, "glViewport"), (void*)viewport);
+//
+//
+//        copyTexImageDetour = new FunctionDetour((void*)GetProcAddress(module, "glCopyTexImage2D"), (void*)copyTexImage);
+//        copyTexSubImageDetour = new FunctionDetour((void*)GetProcAddress(module, "glCopyTexSubImage2D"), (void*)copyTexSubImage);
     }
     else if(name == "user32.dll")
     {
@@ -809,6 +828,14 @@ void hookModuleExports(HINSTANCE module, LPCSTR moduleName)
 //        createWindowExADetour = new FunctionDetour((void*)GetProcAddress(module, "CreateWindowExA"), (void*)createWindowExA);
 //        peekMessageDetour = new FunctionDetour((void*)GetProcAddress(module, "PeekMessageW"), (void*)peekMessage);
 //        registerClassExADetour = new FunctionDetour((void*)GetProcAddress(module, "RegisterClassExA"), (void*)registerClassExA);
+    }
+    else if(name == "gdi32.dll")
+    {
+        if(swapBufDetour)
+        {
+            delete swapBufDetour;
+        }
+        swapBufDetour = new FunctionDetour((void*)GetProcAddress(GetModuleHandle("gdi32.dll"), "SwapBuffers"), (void*)swapBuf);
     }
 }
 
@@ -859,7 +886,17 @@ DetourHolder& getDetour(const void* detourFunc)
         return h.getDetourFunc() == detourFunc;
     });
 
-    THROW_ASSERT(foundIt != user32Detours.end());
+    if(foundIt != user32Detours.end())
+    {
+        return *foundIt;
+    }
+
+    foundIt = std::find_if(opengl32Detours.begin(), opengl32Detours.end(), [detourFunc](const DetourHolder& h)
+    {
+        return h.getDetourFunc() == detourFunc;
+    });
+
+    THROW_ASSERT(foundIt != opengl32Detours.end());
     return *foundIt;
 }
 }

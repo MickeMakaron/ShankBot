@@ -81,21 +81,21 @@ PROC (WINAPI *getProc)(LPCSTR) = nullptr;
 
 void APIENTRY viewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
+    static DetourHolder& detour = getDetour(viewport);
+
     setViewport(x, y, width, height);
 
-    viewportDetour->disable();
-    ((void APIENTRY (*)(GLint, GLint, GLsizei, GLsizei))viewportDetour->getFunction())(x, y, width, height);
-    viewportDetour->enable();
+    detour.callAs(viewport, x, y, width, height);
 }
 
 
 void APIENTRY pixelStorei(GLenum pname, GLint param)
 {
+    static DetourHolder& detour = getDetour(pixelStorei);
+
     setPixelStore(pname, param);
 
-    pixelStoreiDetour->disable();
-    ((void APIENTRY (*)(GLenum, GLint))pixelStoreiDetour->getFunction())(pname, param);
-    pixelStoreiDetour->enable();
+    detour.callAs(pixelStorei, pname, param);
 }
 
 void APIENTRY useProgram(GLuint program)
@@ -137,20 +137,20 @@ void APIENTRY blendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha
 
 void WINAPI bindTex(GLenum target, GLuint texture)
 {
+    static DetourHolder& detour = getDetour(bindTex);
+
     setTexture(target, texture);
-    bindTexDetour->disable();
-    ((void WINAPI (*)(GLenum, GLuint))
-        bindTexDetour->getFunction())(target, texture);
-    bindTexDetour->enable();
+
+    detour.callAs(bindTex, target, texture);
 }
 
 void APIENTRY drawArrays(GLenum mode, GLint first, GLsizei count)
 {
+    static DetourHolder& detour = getDetour(drawArrays);
+
     appendDrawArraysToDataBuffer(mode, first, count);
 
-    drawArraysDetour->disable();
-    ((void APIENTRY (*)(GLenum, GLint, GLsizei))drawArraysDetour->getFunction())(mode, first, count);
-    drawArraysDetour->enable();
+    detour.callAs(drawArrays, mode, first, count);
 }
 
 void WINAPI bindVertexArray(GLuint array)
@@ -184,11 +184,11 @@ void WINAPI vertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean
 
 void APIENTRY drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
+    static DetourHolder& detour = getDetour(drawElements);
+
     appendDrawElementsToDataBuffer(mode, indices, count);
 
-    drawElementsDetour->disable();
-    ((void APIENTRY (*)(GLenum, GLsizei, GLenum, const GLvoid*))drawElementsDetour->getFunction())(mode, count, type, indices);
-    drawElementsDetour->enable();
+    detour.callAs(drawElements, mode, count, type, indices);
 }
 
 void WINAPI bufDat
@@ -209,22 +209,20 @@ void WINAPI bufDat
 
 void WINAPI copyTexImage(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
 {
+    static DetourHolder& detour = getDetour(copyTexImage);
+
     appendCopyTextureToDataBuffer(target, level, 0, 0, x, y, width, height);
 
-    copyTexImageDetour->disable();
-    ((void WINAPI (*)(GLenum, GLint, GLenum, GLint, GLint, GLsizei, GLsizei, GLint))
-        copyTexImageDetour->getFunction())(target, level, internalformat, x, y, width, height, border);
-    copyTexImageDetour->enable();
+    detour.callAs(copyTexImage, target, level, internalformat, x, y, width, height, border);
 }
 
 void WINAPI copyTexSubImage(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
-   appendCopyTextureToDataBuffer(target, level, xoffset, yoffset, x, y, width, height);
+    static DetourHolder& detour = getDetour(copyTexSubImage);
 
-    copyTexSubImageDetour->disable();
-    ((void WINAPI (*)(GLenum, GLint, GLint, GLint, GLint, GLint, GLsizei, GLsizei))
-        copyTexSubImageDetour->getFunction())(target, level, xoffset, yoffset, x, y, width, height);
-    copyTexSubImageDetour->enable();
+    appendCopyTextureToDataBuffer(target, level, xoffset, yoffset, x, y, width, height);
+
+    detour.callAs(copyTexSubImage, target, level, xoffset, yoffset, x, y, width, height);
 }
 
 void WINAPI texImg
@@ -240,14 +238,13 @@ void WINAPI texImg
   	const GLvoid* data
 )
 {
+    static DetourHolder& detour = getDetour(texImg);
+
+
     insertTextureData(width, height, target);
     insertPixelData(target, level, 0, 0, width, height, format, type, data);
 
-
-    texImgDetour->disable();
-    ((void WINAPI (*)(GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*))
-        texImgDetour->getFunction())(target, level, internalFormat, width, height, border, format, type, data);
-    texImgDetour->enable();
+    detour.callAs(texImg, target, level, internalFormat, width, height, border, format, type, data);
 }
 
 void WINAPI subTexImg
@@ -263,12 +260,11 @@ void WINAPI subTexImg
   	const GLvoid* pixels
 )
 {
+    static DetourHolder& detour = getDetour(subTexImg);
+
     insertPixelData(target, level, xoffset, yoffset, width, height, format, type, pixels);
 
-    subTexImgDetour->disable();
-    ((void WINAPI (*)(GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*))
-        subTexImgDetour->getFunction())(target, level, xoffset, yoffset, width, height, format, type, pixels);
-    subTexImgDetour->enable();
+    detour.callAs(subTexImg, target, level, xoffset, yoffset, width, height, format, type, pixels);
 }
 
 
@@ -390,9 +386,9 @@ WINBOOL WINAPI peekMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsg
 
 BOOL WINAPI makeCurrent(HDC hdc, HGLRC hglrc)
 {
-    makeCurrentDetour->disable();
-    BOOL retVal = ((BOOL (WINAPI *)(HDC, HGLRC))makeCurrentDetour->getFunction())(hdc, hglrc);
-    makeCurrentDetour->enable();
+    static DetourHolder& detour = getDetour(makeCurrent);
+
+    BOOL retVal = detour.callAs(makeCurrent, hdc, hglrc);
 
     hookExtendedOpenGlFunctions(hdc, hglrc);
     clearDataBuffer();
