@@ -106,6 +106,8 @@ TibiaClient::TibiaClient(std::string clientDirectory, const TibiaContext& contex
     mMiniMap.reset(new MiniMap(*mInput, *mGraphicsMonitorReader));
 
     mConnectionManager.addConnection(false);
+
+    mShm->dataFilters = DataFilter::Standard | DataFilter::ScreenPixels;
 }
 
 TibiaClient::~TibiaClient()
@@ -513,7 +515,7 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleObjectRequest(const c
     return r;
 }
 
-
+#include "QtGui/QImage"
 void TibiaClient::update()
 {
     using namespace sb::messaging;
@@ -531,6 +533,17 @@ void TibiaClient::update()
     if(timeSinceLastFrame > MS_PER_FRAME)
     {
         Frame frame = mGraphicsMonitorReader->getNewFrame();
+        if(frame.screenPixels != nullptr)
+        {
+            static size_t screenPixelsCount = 0;
+
+            const RawImage& i = *frame.screenPixels;
+            QImage img(i.pixels.data(), i.width, i.height, QImage::Format_RGB888);
+            img = img.mirrored(false, true);
+            img.save(QString::fromStdString("frameDumps/p" + std::to_string(screenPixelsCount) + ".png"));
+
+            screenPixelsCount++;
+        }
         mMiniMap->update(frame);
         lastFrameTime = std::chrono::steady_clock::now();
 
