@@ -24,39 +24,30 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef GRAPHICS_LAYER_RAW_IMAGE_HPP
-#define GRAPHICS_LAYER_RAW_IMAGE_HPP
-
-
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "utility/PixelFormat.hpp"
+#include "monitor/RawImage.hpp"
+using namespace GraphicsLayer;
 ///////////////////////////////////
 
-///////////////////////////////////
-// STD C++
-#include <vector>
-#include <cstring>
-///////////////////////////////////
 
-namespace GraphicsLayer
+RawImage::RawImage(sb::utility::PixelFormat format, unsigned short width, unsigned short height, const unsigned char* data)
+: format(format)
+, width(width)
+, height(height)
+, pixels(data, data + getSize())
 {
-    struct RawImage
-    {
-        public:
-            RawImage(sb::utility::PixelFormat format, unsigned short width, unsigned short height, const unsigned char* data);
-            RawImage(sb::utility::PixelFormat format, unsigned short width, unsigned short height, const std::vector<unsigned char>& data);
-
-        private:
-            size_t getSize() const;
-
-        public:
-            const sb::utility::PixelFormat format;
-            const unsigned short width;
-            const unsigned short height;
-            const std::vector<unsigned char> pixels;
-    };
 }
 
+RawImage::RawImage(sb::utility::PixelFormat format, unsigned short width, unsigned short height, const std::vector<unsigned char>& data)
+: format(format)
+, width(width)
+, height(height)
+, pixels(data.begin(), data.begin() + std::min(data.size(), getSize()))
+{
+}
 
-#endif // GRAPHICS_LAYER_RAW_IMAGE_HPP
+size_t RawImage::getSize() const
+{
+    return width * height * sb::utility::getBytesPerPixel(format);
+}
