@@ -100,8 +100,8 @@ namespace GraphicsLayer
             void setFramebuffer(GLuint framebuffer);
             void setActiveTexture(GLenum texture);
             void setFramebufferTexture(GLuint texture, GLint level);
-            void postFrame();
-            void waitForFrameRequest();
+            void postFrame() const;
+            void waitForFrameRequest() const;
             void submitFrameData();
             void clearDataBuffer();
 
@@ -115,7 +115,7 @@ namespace GraphicsLayer
             static void setWindowProc(HWND window, WindowProc proc);
 
         private:
-            SharedMemoryProtocol::Frame* getCurrentFrame();
+            SharedMemoryProtocol::Frame* getCurrentFrame() const;
             void createNewFrame();
             void appendToDataBuffer(const char* data, size_t size);
             template<typename T>
@@ -126,29 +126,29 @@ namespace GraphicsLayer
 
             void updateSharedMemory();
             void printSharedMemoryBufferDiagnostics();
-            bool isParentAlive();
+            bool isParentAlive() const;
 
             static void setWindowProc(HWND window, const std::string& windowClass);
 
 
 
         private:
-            GLuint boundTexture = 0;
-            GLuint boundFramebuffer = 0;
-            GLuint boundBuffer = 0;
-            GLuint boundProgram = 0;
-            Color currentBlendColor;
+            GLuint mBoundTexture = 0;
+            GLuint mBoundFramebuffer = 0;
+            GLuint mBoundBuffer = 0;
+            GLuint mBoundProgram = 0;
+            Color mCurrentBlendColor;
 
-            std::map<GLuint, GLuint> framebufferTextureAttachment;
-            TextureUnitHolder textureUnits;
+            std::map<GLuint, GLuint> mFramebufferTextureAttachment;
+            TextureUnitHolder mTextureUnits;
 
-            std::vector<char> dataBuffer;
-            size_t currentFrameIndex = 0;
+            std::vector<char> mDataBuffer;
+            size_t mCurrentFrameIndex = 0;
 
 
-            std::map<GLuint, SharedMemoryProtocol::VertexBufferWrite> vertexBuffers;
+            std::map<GLuint, SharedMemoryProtocol::VertexBufferWrite> mVertexBuffers;
 
-            GLuint tileSheetTextureId = 0;
+            GLuint mTileSheetTextureId = 0;
 
             enum TextureBuffers : unsigned char
             {
@@ -157,22 +157,22 @@ namespace GraphicsLayer
                 SHADING_MAP,
                 NUM_BUFFERS
             };
-            std::vector<GLuint> textureBuffers;
+            std::vector<GLuint> mTextureBuffers;
 
-            SharedMemoryProtocol::SharedMemorySegment* shm = nullptr;
+            SharedMemoryProtocol::SharedMemorySegment* mShm = nullptr;
 
-            float peakDataOccupancy = 0.f;
+            float mPeakDataOccupancy = 0.f;
 
 
-            GLsizei currentViewportWidth = 0;
-            GLsizei currentViewportHeight = 0;
-            GLenum currentUnpackAlignment = 4;
+            GLsizei mCurrentViewportWidth = 0;
+            GLsizei mCurrentViewportHeight = 0;
+            GLenum mCurrentUnpackAlignment = 4;
 
-            std::map<GLuint, GLuint> vaoToVbo;
-            GLuint boundVertexArray = 0;
+            std::map<GLuint, GLuint> mVaoToVbo;
+            GLuint mBoundVertexArray = 0;
 
-            static std::map<std::string, WindowProc> classNameToWndProc;
-            static std::map<HWND, WindowProc> hwndToWndProc;
+            static std::map<std::string, WindowProc> mClassNameToWndProc;
+            static std::map<HWND, WindowProc> mHwndToWndProc;
     };
 }
 
