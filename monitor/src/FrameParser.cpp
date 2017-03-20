@@ -721,6 +721,12 @@ void FrameParser::parseGlyphPixelData(const PixelData& pixelData, const unsigned
 
 void FrameParser::parsePixelData(const PixelData& pixelData, const unsigned char* pixels)
 {
+    if(pixelData.messageType == Message::MessageType::SCREEN_PIXELS)
+    {
+        mCurrentFrame.screenPixels.reset(new RawImage(pixelData.format, pixelData.width, pixelData.height, pixels));
+        return;
+    }
+
     if(pixelData.targetTextureId == mTileBufferId)
     {
         updateTileBuffer(pixelData, pixels);
@@ -836,7 +842,7 @@ void FrameParser::parseVertexAttribPointer(const VertexAttribPointer& attrib)
     }
 }
 
-void FrameParser::parseGlyphDraw(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
 {
     if(drawCall.targetTextureId != 0)
     {
@@ -862,8 +868,8 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall, Frame& frame)
         d.color = drawCall.blendColor;
     d.transform = std::make_shared<Matrix<float, 4, 4>>(program.transform);
     d.glyphDraws = std::make_shared<std::vector<GlyphDraw>>();
-    const unsigned short HALF_FRAME_WIDTH = frame.width / 2;
-    const unsigned short HALF_FRAME_HEIGHT = frame.height / 2;
+    const unsigned short HALF_FRAME_WIDTH = mCurrentFrame.width / 2;
+    const unsigned short HALF_FRAME_HEIGHT = mCurrentFrame.height / 2;
 
     if(drawCall.type == DrawCall::PrimitiveType::TRIANGLE)
     {
@@ -913,7 +919,7 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall, Frame& frame)
 //        }
 //
 //        const size_t numDraws = text.size();
-//        frame.textDraws->reserve(frame.textDraws->capacity() + numDraws);
+//        mCurrentFrame.textDraws->reserve(mCurrentFrame.textDraws->capacity() + numDraws);
 //        for(const TextBuilder::Text& str : text)
 //        {
 //            TextLineDraw d;
@@ -927,9 +933,9 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall, Frame& frame)
 //            d.b = str.b;
 //            d.type = str.type;
 //
-//            frame.textDraws->push_back(d);
+//            mCurrentFrame.textDraws->push_back(d);
 //        }
-        frame.textDraws->push_back(d);
+        mCurrentFrame.textDraws->push_back(d);
     }
     else // if TRIANGLE_STRIP
     {
@@ -955,7 +961,7 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall, Frame& frame)
     }
 }
 
-void FrameParser::parseRectDraw(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseRectDraw(const DrawCall& drawCall)
 {
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     ColoredVertex* vertices = (ColoredVertex*)((char*)buffer.data + buffer.getVerticesOffset());
@@ -1008,8 +1014,8 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall, Frame& frame)
                     i++;
                 }
 
-                frame.rectDraws->emplace_back();
-                RectDraw& r = frame.rectDraws->back();
+                mCurrentFrame.rectDraws->emplace_back();
+                RectDraw& r = mCurrentFrame.rectDraws->back();
                 r.topLeft.x = left;
                 r.topLeft.y = top;
                 r.botRight.x = right;
@@ -1018,7 +1024,7 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall, Frame& frame)
                 r.color = color;
 
 //                Vertex topLeftScreen;
-//                r.getScreenCoords(float(frame.width) / 2.f, float(frame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
+//                r.getScreenCoords(float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
 //                std::cout << "Rect draw (" << (int)color.r << "," << (int)color.g << "," << (int)color.b << "," << (int)color.a << "): " << topLeftScreen.x << "x" << topLeftScreen.y << " (" << r.botRight.x - r.topLeft.x << "x" << r.botRight.y - r.topLeft.y << ")" << std::endl;
 
 
@@ -1064,10 +1070,10 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall, Frame& frame)
 ////                    r.b = v.b;
 ////                    r.a = v.a;
 //                    r.color = Color(topLeft.r, topLeft.g, topLeft.b, topLeft.a);
-//                    frame.rectDraws->push_back(r);
+//                    mCurrentFrame.rectDraws->push_back(r);
 //
 //                    Vertex topLeftScreen;
-//                    r.getScreenCoords(float(frame.width) / 2.f, float(frame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
+//                    r.getScreenCoords(float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
 //                    std::cout << "Rect draw (" << (int)topLeft.r << "," << (int)topLeft.g << "," << (int)topLeft.b << "," << (int)topLeft.a << "): " << topLeftScreen.x << "x" << topLeftScreen.y << " (" << r.botRight.x - r.topLeft.x << "x" << r.botRight.y - r.topLeft.y << ")" << std::endl;
 //
 //                    i += 6;
@@ -1098,7 +1104,7 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall, Frame& frame)
     }
 }
 
-void FrameParser::parseSpriteDraw(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
 {
     assert(drawCall.type == DrawCall::PrimitiveType::TRIANGLE_STRIP);
     mUnshadedViewBufferId = drawCall.targetTextureId;
@@ -1108,7 +1114,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall, Frame& frame)
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const Texture& tex = mTextures[drawCall.sourceTextureId];
     const size_t numDraws = drawCall.numIndices / 6;
-    frame.spriteDraws->reserve(frame.spriteDraws->capacity() + numDraws);
+    mCurrentFrame.spriteDraws->reserve(mCurrentFrame.spriteDraws->capacity() + numDraws);
 //    for(size_t i = 0; i < drawCall.numIndices; i++)
 //    {
 //        const TexturedVertex& v = vertices[indices[i]];
@@ -1135,7 +1141,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall, Frame& frame)
                 draw.topLeft.x = topLeft.x;
                 draw.topLeft.y = topLeft.y;
                 draw.pairings = SpriteObjectPairingsData::fromTile(tile);
-                frame.spriteDraws->push_back(draw);
+                mCurrentFrame.spriteDraws->push_back(draw);
                 break;
             }
 
@@ -1152,7 +1158,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall, Frame& frame)
     }
 }
 
-void FrameParser::parseGuiTileDraw(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
 {
     assert(drawCall.type == DrawCall::PrimitiveType::TRIANGLE || drawCall.type == DrawCall::PrimitiveType::TRIANGLE_STRIP);
 
@@ -1160,11 +1166,11 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall, Frame& frame)
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const Texture& tex = mTextures[drawCall.sourceTextureId];
-    const unsigned short HALF_FRAME_WIDTH = frame.width / 2;
-    const unsigned short HALF_FRAME_HEIGHT = frame.height / 2;
+    const unsigned short HALF_FRAME_WIDTH = mCurrentFrame.width / 2;
+    const unsigned short HALF_FRAME_HEIGHT = mCurrentFrame.height / 2;
     const ShaderProgram& program = mShaderPrograms[drawCall.programId];
     const size_t numDraws = drawCall.numIndices / 6;
-    frame.guiDraws->reserve(frame.guiDraws->capacity() + numDraws);
+    mCurrentFrame.guiDraws->reserve(mCurrentFrame.guiDraws->capacity() + numDraws);
     std::shared_ptr<Matrix<float, 4, 4>> transform = std::make_shared<Matrix<float, 4, 4>>(program.transform);
 
 //    if(drawCall.type == DrawCall::PrimitiveType::TRIANGLE)
@@ -1224,7 +1230,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall, Frame& frame)
                 draw.botRight.y = botRight.y;
                 draw.pairings = SpriteObjectPairingsData::fromTile(tile);
                 draw.transform = transform;
-                frame.guiSpriteDraws->push_back(draw);
+                mCurrentFrame.guiSpriteDraws->push_back(draw);
                 break;
             }
             case Tile::Type::GRAPHICS_RESOURCE_NAMES:
@@ -1236,7 +1242,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall, Frame& frame)
                 d.botRight.y = botRight.y;
                 d.name = GraphicsResourceNamesData::fromTile(tile).front();
                 d.transform = transform;
-                frame.guiDraws->push_back(d);
+                mCurrentFrame.guiDraws->push_back(d);
                 break;
             }
             case Tile::Type::TILE_NUMBER:
@@ -1256,18 +1262,18 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall, Frame& frame)
     }
 }
 
-void FrameParser::parseTileDraw(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseTileDraw(const DrawCall& drawCall)
 {
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
 
     if(drawCall.targetTextureId != 0)
-        parseSpriteDraw(drawCall, frame);
+        parseSpriteDraw(drawCall);
     else
-        parseGuiTileDraw(drawCall, frame);
+        parseGuiTileDraw(drawCall);
 }
 
-void FrameParser::parseUnshadedViewDraw(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseUnshadedViewDraw(const DrawCall& drawCall)
 {
     if(drawCall.targetTextureId != 0)
         THROW_RUNTIME_ERROR("Light effects are enabled. They should not be enabled.");
@@ -1289,16 +1295,16 @@ void FrameParser::parseUnshadedViewDraw(const DrawCall& drawCall, Frame& frame)
     (
         topLeft.x, topLeft.y,
         mShaderPrograms[drawCall.programId].transform,
-        float(frame.width) / 2.f, float(frame.height) / 2.f,
-        frame.viewX, frame.viewY
+        float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f,
+        mCurrentFrame.viewX, mCurrentFrame.viewY
     );
 
     const TexturedVertex& botRight = vertices[indices[4]];
-    frame.viewWidth = botRight.x;
-    frame.viewHeight = botRight.y;
+    mCurrentFrame.viewWidth = botRight.x;
+    mCurrentFrame.viewHeight = botRight.y;
 }
 
-void FrameParser::parseMiniMapDraw(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseMiniMapDraw(const DrawCall& drawCall)
 {
     assert(drawCall.type == DrawCall::PrimitiveType::TRIANGLE_STRIP);
     if(drawCall.targetTextureId != 0)
@@ -1324,16 +1330,16 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall, Frame& frame)
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const TexturedVertex& topLeft = vertices[indices[0]];
-    frame.hasMiniMapMoved = true;
-    frame.miniMapX = topLeft.x;
-    frame.miniMapY = topLeft.y;
+    mCurrentFrame.hasMiniMapMoved = true;
+    mCurrentFrame.miniMapX = topLeft.x;
+    mCurrentFrame.miniMapY = topLeft.y;
 
     worldToScreenCoords
     (
         topLeft.x, topLeft.y,
         mShaderPrograms[drawCall.programId].transform,
-        float(frame.width) / 2.f, float(frame.height) / 2.f,
-        frame.miniMapScreenX, frame.miniMapScreenY
+        float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f,
+        mCurrentFrame.miniMapScreenX, mCurrentFrame.miniMapScreenY
     );
 
     const TexturedVertex& botRight = vertices[indices[3]];
@@ -1342,12 +1348,12 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall, Frame& frame)
     (
         botRight.x, botRight.y,
         mShaderPrograms[drawCall.programId].transform,
-        float(frame.width) / 2.f, float(frame.height) / 2.f,
+        float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f,
         screenBotRight.x, screenBotRight.y
     );
 
-    frame.miniMapScreenWidth = screenBotRight.x - frame.miniMapScreenX;
-    frame.miniMapScreenHeight = screenBotRight.y - frame.miniMapScreenY;
+    mCurrentFrame.miniMapScreenWidth = screenBotRight.x - mCurrentFrame.miniMapScreenX;
+    mCurrentFrame.miniMapScreenHeight = screenBotRight.y - mCurrentFrame.miniMapScreenY;
 
     MiniMapDraw d;
     d.topLeft.x = topLeft.x;
@@ -1360,49 +1366,49 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall, Frame& frame)
     assert(pixelsIt != mMiniMapBuffers.end());
     d.pixels = pixelsIt->second;
 
-    frame.miniMapDraws->push_back(d);
+    mCurrentFrame.miniMapDraws->push_back(d);
 
 //    const Texture& tex = mTextures[drawCall.sourceTextureId];
 //    std::cout   << "Minimap " << drawCall.sourceTextureId << ": " << std::endl
-//                << "\tScreen topleft: " << frame.miniMapScreenX << "x" << frame.miniMapScreenY << std::endl
+//                << "\tScreen topleft: " << mCurrentFrame.miniMapScreenX << "x" << mCurrentFrame.miniMapScreenY << std::endl
 //                << "\tLocal topleft: " << topLeft.x << "x" << topLeft.y << std::endl
 //                << "\tScreen botright: " << screenBotRight.x << "x" << screenBotRight.y << std::endl
 //                << "\tLocal botright: " << botRight.x << "x" << botRight.y << std::endl
-//                << "\tScreen Size: " << frame.miniMapScreenWidth << "x" << frame.miniMapScreenHeight << std::endl
+//                << "\tScreen Size: " << mCurrentFrame.miniMapScreenWidth << "x" << mCurrentFrame.miniMapScreenHeight << std::endl
 //                << "\tTex topleft: " << topLeft.texX * tex.width << "x" << topLeft.texY * tex.height << std::endl
 //                << "\tTex botRight: " << botRight.texX * tex.width << "x" << botRight.texY * tex.height << std::endl
 //                << "\tTex size: " << (botRight.texX - topLeft.texX) * tex.width << "x" << (botRight.texY - topLeft.texY) * tex.height << std::endl;
 }
 
-void FrameParser::parseDrawCall(const DrawCall& drawCall, Frame& frame)
+void FrameParser::parseDrawCall(const DrawCall& drawCall)
 {
     if(mVertexBuffers[drawCall.bufferId].vertexType == VertexBuffer::VertexType::COLORED)
     {
-        parseRectDraw(drawCall, frame);
+        parseRectDraw(drawCall);
         return;
     }
 
     if(mGlyphBufferIds.find(drawCall.sourceTextureId) != mGlyphBufferIds.end())
     {
-        parseGlyphDraw(drawCall, frame);
+        parseGlyphDraw(drawCall);
         return;
     }
 
     if(drawCall.sourceTextureId == mTileBufferId)
     {
-        parseTileDraw(drawCall, frame);
+        parseTileDraw(drawCall);
         return;
     }
 
     if(drawCall.sourceTextureId == mUnshadedViewBufferId)
     {
-        parseUnshadedViewDraw(drawCall, frame);
+        parseUnshadedViewDraw(drawCall);
         return;
     }
 
     if(mMiniMapBuffers.find(drawCall.sourceTextureId) != mMiniMapBuffers.end())
     {
-        parseMiniMapDraw(drawCall, frame);
+        parseMiniMapDraw(drawCall);
         return;
     }
 }
@@ -1428,17 +1434,17 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
     for(const char* data = segment->data; data < DATA_END;)
     {
         const SharedMemoryProtocol::Frame& frame = *(SharedMemoryProtocol::Frame*)(data);
-        Frame currentFrame;
-        currentFrame.guiDraws = std::make_shared<std::vector<GuiDraw>>();
-        currentFrame.spriteDraws = std::make_shared<std::vector<SpriteDraw>>();
-        currentFrame.textDraws = std::make_shared<std::vector<TextDraw>>();
-        currentFrame.rectDraws = std::make_shared<std::vector<RectDraw>>();
-        currentFrame.guiSpriteDraws = std::make_shared<std::vector<SpriteDraw>>();
-        currentFrame.fileIo = std::make_shared<std::vector<FileIo>>();
-        currentFrame.miniMapDraws = std::make_shared<std::vector<MiniMapDraw>>();
+        mCurrentFrame = Frame();
+        mCurrentFrame.guiDraws = std::make_shared<std::vector<GuiDraw>>();
+        mCurrentFrame.spriteDraws = std::make_shared<std::vector<SpriteDraw>>();
+        mCurrentFrame.textDraws = std::make_shared<std::vector<TextDraw>>();
+        mCurrentFrame.rectDraws = std::make_shared<std::vector<RectDraw>>();
+        mCurrentFrame.guiSpriteDraws = std::make_shared<std::vector<SpriteDraw>>();
+        mCurrentFrame.fileIo = std::make_shared<std::vector<FileIo>>();
+        mCurrentFrame.miniMapDraws = std::make_shared<std::vector<MiniMapDraw>>();
 
-        currentFrame.width = frame.width;
-        currentFrame.height = frame.height;
+        mCurrentFrame.width = frame.width;
+        mCurrentFrame.height = frame.height;
 //        std::cout << "NEW FRAME" << std::endl;
 
         const char* FRAME_END = data + frame.size;
@@ -1450,6 +1456,7 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
             switch(message.messageType)
             {
                 case Type::PIXEL_DATA:
+                case Type::SCREEN_PIXELS:
                 {
                     const PixelData& pixelData = *(PixelData*)(data);
                     data += sizeof(pixelData);
@@ -1505,7 +1512,7 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
                     const DrawCall& drawCall = *(DrawCall*)(data);
                     data += sizeof(drawCall);
 
-                    parseDrawCall(drawCall, currentFrame);
+                    parseDrawCall(drawCall);
                     break;
                 }
 
@@ -1535,7 +1542,7 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
                     const char* pathData = data;
                     data += io.pathSize;
 
-                    parseFileIo(io, pathData, currentFrame);
+                    parseFileIo(io, pathData);
                     break;
                 }
 
@@ -1551,13 +1558,14 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
 //            std::cout << d.name << "->" << d.x << "x" << d.y << " (" << d.width << "x" << d.height << ")" << std::endl;
 
         assert(data == FRAME_END);
-        frames.push_back(std::move(currentFrame));
+        frames.push_back(std::move(mCurrentFrame));
+        mCurrentFrame = Frame();
     }
 
     return frames;
 }
 
-void FrameParser::parseFileIo(const SharedMemoryProtocol::FileIo& io, const char* data, Frame& frame) const
+void FrameParser::parseFileIo(const SharedMemoryProtocol::FileIo& io, const char* data) const
 {
     FileIo f;
     f.path.assign(data, io.pathSize);
@@ -1575,7 +1583,7 @@ void FrameParser::parseFileIo(const SharedMemoryProtocol::FileIo& io, const char
             THROW_RUNTIME_ERROR(stringify("Unimplemented FileIo type: ", (int)io.type));
     }
 
-    frame.fileIo->push_back(f);
+    mCurrentFrame.fileIo->push_back(f);
 }
 
 void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* pixels)

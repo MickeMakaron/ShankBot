@@ -201,18 +201,18 @@ namespace GraphicsLayer
             void parseTextureData(const SharedMemoryProtocol::TextureData& textureData);
             void parseVertexBufferWrite(const SharedMemoryProtocol::VertexBufferWrite& bufferWrite, const char* bufferData);
             void parseVertexAttribPointer(const SharedMemoryProtocol::VertexAttribPointer& bufferInfo);
-            void parseDrawCall(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
+            void parseDrawCall(const SharedMemoryProtocol::DrawCall& drawCall);
             void parseTransformationMatrix(const SharedMemoryProtocol::TransformationMatrix& transform);
             void parseUniform4f(const SharedMemoryProtocol::Uniform4f& uniform);
 
-            void parseRectDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
-            void parseGlyphDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
-            void parseSpriteDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
-            void parseGuiTileDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
-            void parseTileDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
-            void parseUnshadedViewDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
-            void parseMiniMapDraw(const SharedMemoryProtocol::DrawCall& drawCall, Frame& frame);
-            void parseFileIo(const SharedMemoryProtocol::FileIo& io, const char* data, Frame& frame) const;
+            void parseRectDraw(const SharedMemoryProtocol::DrawCall& drawCall);
+            void parseGlyphDraw(const SharedMemoryProtocol::DrawCall& drawCall);
+            void parseSpriteDraw(const SharedMemoryProtocol::DrawCall& drawCall);
+            void parseGuiTileDraw(const SharedMemoryProtocol::DrawCall& drawCall);
+            void parseTileDraw(const SharedMemoryProtocol::DrawCall& drawCall);
+            void parseUnshadedViewDraw(const SharedMemoryProtocol::DrawCall& drawCall);
+            void parseMiniMapDraw(const SharedMemoryProtocol::DrawCall& drawCall);
+            void parseFileIo(const SharedMemoryProtocol::FileIo& io, const char* data) const;
 
 
         private:
@@ -231,6 +231,8 @@ namespace GraphicsLayer
             unsigned int mUnshadedViewBufferId = 0;
             unsigned int mShadedViewBufferId = 0;
             std::set<unsigned int> mGlyphBufferIds;
+
+            Frame mCurrentFrame;
     };
 
 }
