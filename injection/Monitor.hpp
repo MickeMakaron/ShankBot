@@ -133,23 +133,6 @@ namespace GraphicsLayer
 
 
         private:
-            GLuint mBoundTexture = 0;
-            GLuint mBoundFramebuffer = 0;
-            GLuint mBoundBuffer = 0;
-            GLuint mBoundProgram = 0;
-            Color mCurrentBlendColor;
-
-            std::map<GLuint, GLuint> mFramebufferTextureAttachment;
-            TextureUnitHolder mTextureUnits;
-
-            std::vector<char> mDataBuffer;
-            size_t mCurrentFrameIndex = 0;
-
-
-            std::map<GLuint, SharedMemoryProtocol::VertexBufferWrite> mVertexBuffers;
-
-            GLuint mTileSheetTextureId = 0;
-
             enum TextureBuffers : unsigned char
             {
                 SHADED,
@@ -157,19 +140,31 @@ namespace GraphicsLayer
                 SHADING_MAP,
                 NUM_BUFFERS
             };
+
+            GLuint mBoundTexture = 0;
+            GLuint mBoundFramebuffer = 0;
+            GLuint mBoundBuffer = 0;
+            GLuint mBoundProgram = 0;
+            GLuint mBoundVertexArray = 0;
+
+            size_t mCurrentFrameIndex = 0;
+            Color mCurrentBlendColor;
+            GLsizei mCurrentViewportWidth = 0;
+            GLsizei mCurrentViewportHeight = 0;
+            GLenum mCurrentUnpackAlignment = 4;
+
+            GLuint mTileSheetTextureId = 0;
+
+            std::map<GLuint, GLuint> mFramebufferTextureAttachment;
+            TextureUnitHolder mTextureUnits;
+            std::vector<char> mDataBuffer;
+            std::map<GLuint, SharedMemoryProtocol::VertexBufferWrite> mVertexBuffers;
+            std::map<GLuint, GLuint> mVaoToVbo;
             std::vector<GLuint> mTextureBuffers;
 
             SharedMemoryProtocol::SharedMemorySegment* mShm = nullptr;
 
             float mPeakDataOccupancy = 0.f;
-
-
-            GLsizei mCurrentViewportWidth = 0;
-            GLsizei mCurrentViewportHeight = 0;
-            GLenum mCurrentUnpackAlignment = 4;
-
-            std::map<GLuint, GLuint> mVaoToVbo;
-            GLuint mBoundVertexArray = 0;
 
             static std::map<std::string, WindowProc> mClassNameToWndProc;
             static std::map<HWND, WindowProc> mHwndToWndProc;
