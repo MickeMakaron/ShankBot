@@ -131,6 +131,8 @@ namespace GraphicsLayer
             static void setWindowProc(HWND window, const std::string& windowClass);
 
 
+            void appendScreenPixelsToDataBuffer();
+
 
         private:
             enum TextureBuffers : unsigned char

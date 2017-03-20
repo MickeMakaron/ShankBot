@@ -529,8 +529,33 @@ void Monitor::submitFrameData()
     getCurrentFrame()->width = mCurrentViewportWidth;
     getCurrentFrame()->height = mCurrentViewportHeight;
 
+    if(mShm->dataFilters & DataFilter::ScreenPixels)
+    {
+        appendScreenPixelsToDataBuffer();
+    }
+
     updateSharedMemory();
     createNewFrame();
+}
+
+void Monitor::appendScreenPixelsToDataBuffer()
+{
+    size_t size = mCurrentViewportWidth * mCurrentViewportHeight * 3;
+    char* pixels = new char[size];
+
+    void APIENTRY (*readPixels)(GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLvoid*);
+    readPixels = (decltype(readPixels))GetProcAddress(GetModuleHandle("opengl32.dll"), "glReadPixels");
+    THROW_ASSERT(readPixels != nullptr);
+
+    readPixels(0, 0, mCurrentViewportWidth, mCurrentViewportHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+    PixelData p;
+    p.format = PixelData::PixelFormat::RGB;
+    p.width = mCurrentViewportWidth;
+    p.height = mCurrentViewportHeight;
+    p.messageType = Message::MessageType::SCREEN_PIXELS;
+    appendToDataBuffer(p);
+    appendToDataBuffer(pixels, size);
 }
 
 WindowProc Monitor::getWindowProc(HWND window)

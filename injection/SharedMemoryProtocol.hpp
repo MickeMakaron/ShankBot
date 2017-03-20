@@ -39,6 +39,11 @@
 #include "utility/Color.hpp"
 ///////////////////////////////////
 
+///////////////////////////////////
+// STD C++
+#include <cstdint>
+///////////////////////////////////
+
 namespace GraphicsLayer
 {
     namespace SharedMemoryProtocol
@@ -57,6 +62,7 @@ namespace GraphicsLayer
                 UNIFORM_4_F,
                 COPY_TEXTURE,
                 FILE_IO,
+                SCREEN_PIXELS,
                 INVALID
             };
 
@@ -68,6 +74,7 @@ namespace GraphicsLayer
         {
             enum class PixelFormat : unsigned char
             {
+                RGB,
                 RGBA,
                 BGRA,
                 ALPHA
@@ -179,6 +186,12 @@ namespace GraphicsLayer
         const char* const SHARED_MEMORY_ENV_VAR_NAME = "SHANKBOT_SHARED_MEMORY_NAME";
         const unsigned int SHARED_MEMORY_NAME_LENGTH = 128;
 
+        namespace DataFilter
+        {
+            const uint32_t Standard       = 0;
+            const uint32_t ScreenPixels   = 1 << 0;
+        };
+
         struct SharedMemorySegment
         {
             char data[DATA_BUFFER_SIZE];
@@ -192,6 +205,9 @@ namespace GraphicsLayer
             #else
 
             #endif
+
+
+            uint32_t dataFilters = DataFilter::Standard;
 
             bool isClientAttached = false;
         };
