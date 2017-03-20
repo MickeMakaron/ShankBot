@@ -24,28 +24,29 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
+#ifndef SB_UTILITY_PIXEL_FORMAT_HPP
+#define SB_UTILITY_PIXEL_FORMAT_HPP
+
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "injection/SharedMemoryProtocol.hpp"
-#include "utility/utility.hpp"
-
-using namespace GraphicsLayer;
-using namespace SharedMemoryProtocol;
+#include "utility/config.hpp"
 ///////////////////////////////////
 
-
-unsigned char PixelData::getBytesPerPixel() const
+namespace sb
 {
-    switch(format)
+namespace utility
+{
+    enum class PixelFormat : unsigned char
     {
-        case PixelFormat::RGBA:
-        case PixelFormat::BGRA:
-            return sb::utility::BYTES_PER_PIXEL_RGBA;
+        RGB,
+        RGBA,
+        BGRA,
+        ALPHA
+    };
 
-        case PixelFormat::ALPHA:
-            return sb::utility::BYTES_PER_PIXEL_ALPHA;
-
-        default:
-            THROW_RUNTIME_ERROR("Unimplemented pixel format.");
-    }
+    SHANK_BOT_UTILITY_DECLSPEC unsigned char getBytesPerPixel(const PixelFormat& format);
 }
+}
+
+
+#endif // SB_UTILITY_PIXEL_FORMAT_HPP

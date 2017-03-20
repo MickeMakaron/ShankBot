@@ -254,6 +254,7 @@ namespace utility
     #define THROW_RUNTIME_ERROR(message) sb::utility::throwException<std::runtime_error>(__LINE__, __FILE__, __PRETTY_FUNCTION__, message);
 
     const unsigned char BYTES_PER_PIXEL_RGBA = 4;
+    const unsigned char BYTES_PER_PIXEL_BGRA = BYTES_PER_PIXEL_RGBA;
     const unsigned char BYTES_PER_PIXEL_RGB = 3;
     const unsigned char BYTES_PER_PIXEL_ALPHA = 1;
 }

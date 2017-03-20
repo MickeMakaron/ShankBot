@@ -329,7 +329,7 @@ void Monitor::insertPixelData
     p.width = width;
     p.texX = x;
     p.texY = y;
-    using PixelFormat = PixelData::PixelFormat;
+    using PixelFormat = sb::utility::PixelFormat;
     switch(format)
     {
         case GL_RGBA:
@@ -550,7 +550,7 @@ void Monitor::appendScreenPixelsToDataBuffer()
     readPixels(0, 0, mCurrentViewportWidth, mCurrentViewportHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
     PixelData p;
-    p.format = PixelData::PixelFormat::RGB;
+    p.format = sb::utility::PixelFormat::RGB;
     p.width = mCurrentViewportWidth;
     p.height = mCurrentViewportHeight;
     p.messageType = Message::MessageType::SCREEN_PIXELS;

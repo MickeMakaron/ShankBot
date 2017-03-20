@@ -188,7 +188,7 @@ namespace GraphicsLayer
             void updateMiniMapPixels(const SharedMemoryProtocol::PixelData& pixelData, const unsigned char* pixels);
 
             unsigned char getChar(unsigned textureId, unsigned short x, unsigned short y, unsigned short width, unsigned short height);
-            TileNumber getTileNumber(const unsigned char* pixels, unsigned short width, unsigned short height, SharedMemoryProtocol::PixelData::PixelFormat format) const;
+            TileNumber getTileNumber(const unsigned char* pixels, unsigned short width, unsigned short height, sb::utility::PixelFormat format) const;
             Tile getTile(unsigned int textureId, unsigned short x, unsigned short y);
 
             unsigned char getChar(const unsigned char* pixels, unsigned short width, unsigned short height, std::list<unsigned char>* topTen = nullptr) const;

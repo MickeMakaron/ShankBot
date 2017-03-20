@@ -31,6 +31,7 @@
 // Internal ShankBot headers
 #include "Draw.hpp"
 #include "FileIo.hpp"
+#include "monitor/RawImage.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -68,6 +69,7 @@ namespace GraphicsLayer
         std::shared_ptr<std::vector<RectDraw>> rectDraws;
         std::shared_ptr<std::vector<FileIo>> fileIo;
         std::shared_ptr<std::vector<MiniMapDraw>> miniMapDraws;
+        std::shared_ptr<RawImage> screenPixels;
     };
 }
 

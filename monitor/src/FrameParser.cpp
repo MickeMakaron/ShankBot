@@ -61,7 +61,7 @@ FrameParser::FrameParser(const TibiaContext& context)
 //    assert(!img.isNull());
 //    assert(img.format() == QImage::Format_ARGB32);
 //    img = img.convertToFormat(QImage::Format_RGBA8888);
-//    getTileNumber(img.constBits(), img.width(), img.height(), PixelData::PixelFormat::RGBA);
+//    getTileNumber(img.constBits(), img.width(), img.height(), sb::utility::PixelFormat::RGBA);
 }
 
 FrameParser::Tile::Tile(size_t width, size_t height, Type type, const std::shared_ptr<GenericType>& data)
@@ -283,7 +283,7 @@ FrameParser::Tile FrameParser::getTile(unsigned int textureId, unsigned short x,
     return Tile();
 }
 
-FrameParser::TileNumber FrameParser::getTileNumber(const unsigned char* pixels, unsigned short width, unsigned short height, PixelData::PixelFormat format) const
+FrameParser::TileNumber FrameParser::getTileNumber(const unsigned char* pixels, unsigned short width, unsigned short height, sb::utility::PixelFormat format) const
 {
     static const size_t MAX_GLYPH_WIDTH = 9;
     static const size_t MIN_GLYPH_WIDTH = 8;
@@ -293,7 +293,7 @@ FrameParser::TileNumber FrameParser::getTileNumber(const unsigned char* pixels, 
     if(width < MIN_GLYPH_WIDTH || height < MIN_GLYPH_HEIGHT || height > MAX_GLYPH_HEIGHT)
         return FrameParser::TileNumber();
 
-    typedef PixelData::PixelFormat Format;
+    typedef sb::utility::PixelFormat Format;
     assert(format == Format::RGBA || format == Format::BGRA);
     std::unique_ptr<QImage> img;
     if(format == Format::RGBA)
@@ -600,7 +600,7 @@ unsigned char FrameParser::getChar(const unsigned char* pixels, unsigned short w
 
 void FrameParser::updateMiniMapPixels(const PixelData& pixelData, const unsigned char* pixels)
 {
-    assert(pixelData.format == PixelData::PixelFormat::BGRA);
+    assert(pixelData.format == sb::utility::PixelFormat::BGRA);
 
     auto it = mMiniMapBuffers.find(pixelData.targetTextureId);
     assert(it != mMiniMapBuffers.end());
@@ -626,16 +626,16 @@ void FrameParser::parseGlyphPixelData(const PixelData& pixelData, const unsigned
         unsigned char* modifiedPixels = nullptr;
         switch(pixelData.format)
         {
-            case PixelData::PixelFormat::RGBA:
+            case sb::utility::PixelFormat::RGBA:
                 img = new QImage(pixels, pixelData.width, pixelData.height, QImage::Format_RGBA8888);
                 *img = img->convertToFormat(QImage::Format_Grayscale8);
                 break;
-            case PixelData::PixelFormat::BGRA:
+            case sb::utility::PixelFormat::BGRA:
                 modifiedPixels = bgraToRgba(pixels, pixelData.width, pixelData.height);
                 img = new QImage(modifiedPixels, pixelData.width, pixelData.height, QImage::Format_RGBA8888);
                 *img = img->convertToFormat(QImage::Format_Grayscale8);
                 break;
-            case PixelData::PixelFormat::ALPHA:
+            case sb::utility::PixelFormat::ALPHA:
                 {
                     size_t remainder = pixelData.width % 4;
                     if(remainder == 0)
@@ -746,7 +746,7 @@ void FrameParser::parsePixelData(const PixelData& pixelData, const unsigned char
 //        f = QImage::Format_Grayscale8;
 //    else if(pixelData.getBytesPerPixel() == 4)
 //    {
-//        f = pixelData.format == PixelData::PixelFormat::RGBA ? QImage::Format_RGBA8888 : QImage::Format_ARGB32;
+//        f = pixelData.format == sb::utility::PixelFormat::RGBA ? QImage::Format_RGBA8888 : QImage::Format_ARGB32;
 //    }
 //    else
 //        THROW_RUNTIME_ERROR(stringify("Unimplemented format: ", (int)pixelData.format));
@@ -1455,7 +1455,7 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
                     data += sizeof(pixelData);
 
                     unsigned char* pixels = (unsigned char*)data;
-                    size_t pixelsSize = pixelData.width * pixelData.height * pixelData.getBytesPerPixel();
+                    size_t pixelsSize = pixelData.width * pixelData.height * getBytesPerPixel(pixelData.format);
 
                     data += pixelsSize;
                     parsePixelData(pixelData, pixels);
@@ -1580,7 +1580,7 @@ void FrameParser::parseFileIo(const SharedMemoryProtocol::FileIo& io, const char
 
 void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* pixels)
 {
-    typedef PixelData::PixelFormat Format;
+    typedef sb::utility::PixelFormat Format;
     std::vector<size_t> opaquePixels;
     bool isBlank = false;
     switch(data.format)

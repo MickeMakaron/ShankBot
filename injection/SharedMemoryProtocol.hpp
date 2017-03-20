@@ -37,6 +37,7 @@
 // Internal ShankBot headers
 #include "utility/Matrix.hpp"
 #include "utility/Color.hpp"
+#include "utility/PixelFormat.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -72,21 +73,12 @@ namespace GraphicsLayer
 
         struct PixelData : public Message
         {
-            enum class PixelFormat : unsigned char
-            {
-                RGB,
-                RGBA,
-                BGRA,
-                ALPHA
-            };
-            unsigned char getBytesPerPixel() const;
-
             unsigned short texX;
             unsigned short texY;
             unsigned short width;
             unsigned short height;
             unsigned int targetTextureId;
-            PixelFormat format;
+            sb::utility::PixelFormat format;
         };
 
         struct CopyTexture : public Message
