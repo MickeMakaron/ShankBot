@@ -539,59 +539,59 @@ void TibiaClient::update()
         {
             mScene.update(frame);
             mOutfitResolver.resolve(mScene, frame, *mGraphicsMonitorReader);
-//
-//            std::cout << "Cap: " << mGui.getCap() << std::endl;
-//            std::cout << "Soul: " << mGui.getSoul() << std::endl;
-//            std::cout << "Hp: " << mGui.getHp() << std::endl;
-//            std::cout << "Mana: " << mGui.getMana() << std::endl;
-//            std::cout << "Hp percent: " << mGui.getHpLevel() * 100.f << "%" << std::endl;
-//            std::cout << "Mana percent: " << mGui.getManaLevel() * 100.f << "%" << std::endl;
-//            std::cout << "Level: " << mGui.getLevel() << std::endl;
-//            std::cout << "Exp: " << mGui.getExperience() << std::endl;
-//            std::cout << "Xp gain rate: " << mGui.getXpGainRate() << std::endl;
-//            std::cout << "Speed: " << mGui.getSpeed() << std::endl;
-//            std::cout << "Food: " << mGui.getFoodMinutes() << std::endl;
-//            std::cout << "Stamina: " << mGui.getStaminaMinutes() << std::endl;
-//            std::cout << "Offline training: " << mGui.getOfflineTrainingMinutes() << std::endl;
-//            std::cout << "Magic lvl: " << mGui.getMagicLevel() << std::endl;
-//            std::cout << "Fist: " << mGui.getFistFighting() << std::endl;
-//            std::cout << "Club: " << mGui.getClubFighting() << std::endl;
-//            std::cout << "Sword: " << mGui.getSwordFighting() << std::endl;
-//            std::cout << "Axe: " << mGui.getAxeFighting() << std::endl;
-//            std::cout << "Distance: " << mGui.getDistanceFighting() << std::endl;
-//            std::cout << "Shielding: " << mGui.getShielding() << std::endl;
-//            std::cout << "Fishing: " << mGui.getFishing() << std::endl;
-//            std::cout << "Crit chance: " << mGui.getCritChance() << "%" << std::endl;
-//            std::cout << "Crit dmg: " << mGui.getCritDamage() << std::endl;
-//            std::cout << "Hp leech chance: " << mGui.getHpLeechChance() << "%" << std::endl;
-//            std::cout << "Hp leech amount: " << mGui.getHpLeechAmount() << std::endl;
-//            std::cout << "Mana leech chance: " << mGui.getManaLeechChance() << "%" << std::endl;
-//            std::cout << "Mana leech amoumt: " << mGui.getManaLeechAmount() << std::endl;
-//
-//
-//            std::cout << "EQUIPMENT: " << std::endl;
-//            for(const auto& pair : mGui.getEquipment())
-//            {
-//                const Object& o = mContext.getObjects()[pair.second];
-//                std::cout << "\t" << (int)pair.first << ": " << o.id;
-//                if(o.itemInfo.hasMarketInfo)
-//                    std::cout << " (" << o.itemInfo.marketInfo.name << ")";
-//                std::cout << std::endl;
-//            }
-//
-//            std::cout << "CONTAINERS: " << std::endl;
-//            for(const Gui::Container& c : mGui.getContainers())
-//            {
-//                std::cout << "\t" << c.items.size() << " items: " << std::endl;
-//                for(const auto& pair : c.items)
-//                {
-//                    const Object& o = mContext.getObjects()[*pair.second.begin()];
-//                    std::cout << "\t" << (int)pair.first << ": " << o.id;
-//                    if(o.itemInfo.hasMarketInfo)
-//                        std::cout << " (" << o.itemInfo.marketInfo.name << ")";
-//                    std::cout << std::endl;
-//                }
-//            }
+
+            std::cout << "Cap: " << mGui.getCap() << std::endl;
+            std::cout << "Soul: " << mGui.getSoul() << std::endl;
+            std::cout << "Hp: " << mGui.getHp() << std::endl;
+            std::cout << "Mana: " << mGui.getMana() << std::endl;
+            std::cout << "Hp percent: " << mGui.getHpLevel() * 100.f << "%" << std::endl;
+            std::cout << "Mana percent: " << mGui.getManaLevel() * 100.f << "%" << std::endl;
+            std::cout << "Level: " << mGui.getLevel() << std::endl;
+            std::cout << "Exp: " << mGui.getExperience() << std::endl;
+            std::cout << "Xp gain rate: " << mGui.getXpGainRate() << std::endl;
+            std::cout << "Speed: " << mGui.getSpeed() << std::endl;
+            std::cout << "Food: " << mGui.getFoodMinutes() << std::endl;
+            std::cout << "Stamina: " << mGui.getStaminaMinutes() << std::endl;
+            std::cout << "Offline training: " << mGui.getOfflineTrainingMinutes() << std::endl;
+            std::cout << "Magic lvl: " << mGui.getMagicLevel() << std::endl;
+            std::cout << "Fist: " << mGui.getFistFighting() << std::endl;
+            std::cout << "Club: " << mGui.getClubFighting() << std::endl;
+            std::cout << "Sword: " << mGui.getSwordFighting() << std::endl;
+            std::cout << "Axe: " << mGui.getAxeFighting() << std::endl;
+            std::cout << "Distance: " << mGui.getDistanceFighting() << std::endl;
+            std::cout << "Shielding: " << mGui.getShielding() << std::endl;
+            std::cout << "Fishing: " << mGui.getFishing() << std::endl;
+            std::cout << "Crit chance: " << mGui.getCritChance() << "%" << std::endl;
+            std::cout << "Crit dmg: " << mGui.getCritDamage() << std::endl;
+            std::cout << "Hp leech chance: " << mGui.getHpLeechChance() << "%" << std::endl;
+            std::cout << "Hp leech amount: " << mGui.getHpLeechAmount() << std::endl;
+            std::cout << "Mana leech chance: " << mGui.getManaLeechChance() << "%" << std::endl;
+            std::cout << "Mana leech amoumt: " << mGui.getManaLeechAmount() << std::endl;
+
+
+            std::cout << "EQUIPMENT: " << std::endl;
+            for(const auto& pair : mGui.getEquipment())
+            {
+                const Object& o = mContext.getObjects()[pair.second];
+                std::cout << "\t" << (int)pair.first << ": " << o.id;
+                if(o.itemInfo.hasMarketInfo)
+                    std::cout << " (" << o.itemInfo.marketInfo.name << ")";
+                std::cout << std::endl;
+            }
+
+            std::cout << "CONTAINERS: " << std::endl;
+            for(const Gui::Container& c : mGui.getContainers())
+            {
+                std::cout << "\t" << c.items.size() << " items: " << std::endl;
+                for(const auto& pair : c.items)
+                {
+                    const Object& o = mContext.getObjects()[*pair.second.begin()];
+                    std::cout << "\t" << (int)pair.first << ": " << o.id;
+                    if(o.itemInfo.hasMarketInfo)
+                        std::cout << " (" << o.itemInfo.marketInfo.name << ")";
+                    std::cout << std::endl;
+                }
+            }
 
         }
         return;
