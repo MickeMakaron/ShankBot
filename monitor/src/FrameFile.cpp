@@ -27,6 +27,9 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/FrameFile.hpp"
+#include "monitor/Frame.hpp"
+#include "monitor/TibiaContext.hpp"
+#include "utility/utility.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -39,27 +42,34 @@ using namespace GraphicsLayer;
 
 ///////////////////////////////////
 // STD C++
+#include <fstream>
 ///////////////////////////////////
 
-FrameFile::FrameFile()
+FrameFile::FrameFile(const TibiaContext& context)
+: mContext(context)
 {
 
 }
 
-FrameFile::FrameFile(Frame f)
-: mFrame(f)
+FrameFile::FrameFile(const TibiaContext& context, const Frame& f)
+: mContext(context)
 {
-
+    parse(f);
 }
 
 bool FrameFile::write(const std::string& filePath) const
 {
-    if(mFrame.screenPixels != nullptr)
+    if(mScreenPixels != nullptr)
     {
-        const RawImage& i = *mFrame.screenPixels;
+        const RawImage& i = *mScreenPixels;
         QImage img(i.pixels.data(), i.width, i.height, QImage::Format_RGB888);
         img = img.mirrored(false, true);
         img.save(QString::fromStdString(filePath + ".png"));
+    }
+    if(mGui != nullptr)
+    {
+        std::ofstream file(filePath + "gui.txt");
+        sb::utility::writeStream(*mGui, file);
     }
 }
 
@@ -68,7 +78,11 @@ bool FrameFile::read(const std::string& filePath) const
 
 }
 
-Frame FrameFile::getFrame() const
+void FrameFile::parse(const Frame& f)
 {
+    mScreenPixels = f.screenPixels;
 
+    Gui gui(mContext);
+    gui.update(f);
+    mGui.reset(new Gui::Data(gui.getData()));
 }

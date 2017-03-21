@@ -532,14 +532,12 @@ void TibiaClient::update()
     if(timeSinceLastFrame > MS_PER_FRAME)
     {
         Frame frame = mGraphicsMonitorReader->getNewFrame();
-//        if(frame.screenPixels != nullptr)
-//        {
-//            static size_t screenPixelsCount = 0;
-//            FrameFile file(frame);
-//            file.write("frameDumps/d" + std::to_string(screenPixelsCount));
-//
-//            screenPixelsCount++;
-//        }
+
+        static size_t screenPixelsCount = 0;
+        FrameFile file(mContext, frame);
+        file.write("frameDumps/d" + std::to_string(screenPixelsCount));
+        screenPixelsCount++;
+
         mMiniMap->update(frame);
         lastFrameTime = std::chrono::steady_clock::now();
 
