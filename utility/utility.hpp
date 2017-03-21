@@ -86,6 +86,21 @@ namespace utility
 
     SHANK_BOT_UTILITY_DECLSPEC std::string randStr(size_t length);
 
+
+    template<typename ExceptionType>
+    void throwException(size_t line, std::string file, std::string function, std::string message)
+    {
+        std::stringstream sstream;
+        sstream << std::endl
+                << "File: " << file << std::endl
+                << "Function (line nr): " << function << " (" << line << ")" << std::endl
+                << "Message: " << message << std::endl;
+        throw ExceptionType(sstream.str());
+    }
+
+    #define THROW_RUNTIME_ERROR(message) sb::utility::throwException<std::runtime_error>(__LINE__, __FILE__, __PRETTY_FUNCTION__, message);
+
+
     template<typename T>
     void readStream(T& t, std::istream& stream, size_t n = 1)
     {
@@ -116,6 +131,16 @@ namespace utility
         stream += size;
 
         return true;
+    }
+
+    template<typename T>
+    void readStreamSafe(T& t, std::istream& stream, size_t n = 1)
+    {
+        if(!stream.good())
+        {
+            THROW_RUNTIME_ERROR("Failed to read file stream.");
+        }
+        stream.read((char*)&t, sizeof(T) * n);
     }
 
     template<typename T>
@@ -239,19 +264,6 @@ namespace utility
 
         return x1 < x2;
     }
-
-    template<typename ExceptionType>
-    void throwException(size_t line, std::string file, std::string function, std::string message)
-    {
-        std::stringstream sstream;
-        sstream << std::endl
-                << "File: " << file << std::endl
-                << "Function (line nr): " << function << " (" << line << ")" << std::endl
-                << "Message: " << message << std::endl;
-        throw ExceptionType(sstream.str());
-    }
-
-    #define THROW_RUNTIME_ERROR(message) sb::utility::throwException<std::runtime_error>(__LINE__, __FILE__, __PRETTY_FUNCTION__, message);
 
     const unsigned char BYTES_PER_PIXEL_RGBA = 4;
     const unsigned char BYTES_PER_PIXEL_BGRA = BYTES_PER_PIXEL_RGBA;
