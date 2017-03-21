@@ -44,6 +44,7 @@ using namespace GraphicsLayer;
 
 Gui::Gui(const TibiaContext& context)
 : mContext(context)
+, mData(new Data())
 {
 
 }
@@ -51,8 +52,20 @@ Gui::Gui(const TibiaContext& context)
 void Gui::update(const Frame& frame)
 {
     mCurrentFrame = frame;
-    mCurrentState = frame.viewWidth > 0 ? State::GAME : State::MAIN_MENU;
+    mData.reset(new Data());
+    mData->state = mCurrentFrame.viewWidth > 0 ? State::GAME : State::MAIN_MENU;
     mIsCurrentFrameParsed = false;
+}
+
+Gui::State Gui::getState() const
+{
+    return mData->state;
+}
+
+const Gui::Data& Gui::getData()
+{
+    parseCurrentFrame();
+    return *mData;
 }
 
 std::vector<std::pair<size_t, Gui::Rect>> Gui::Container::getVisibleItems() const
@@ -121,8 +134,8 @@ void Gui::updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& 
     {
         for(const GuiDraw* guiDraw : it->second)
         {
-            Button b;
-            b.isDown = false;
+            std::shared_ptr<Button> b(new Button());
+            b->isDown = false;
             float x;
             float y;
             sb::utility::worldToScreenCoords
@@ -132,11 +145,11 @@ void Gui::updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& 
                 mHalfFrameWidth, mHalfFrameHeight,
                 x, y
             );
-            b.x = x;
-            b.y = y;
-            b.width = guiDraw->botRight.x - guiDraw->topLeft.x;
-            b.height = guiDraw->botRight.y - guiDraw->topLeft.y;
-            mButtons.push_back(b);
+            b->x = x;
+            b->y = y;
+            b->width = guiDraw->botRight.x - guiDraw->topLeft.x;
+            b->height = guiDraw->botRight.y - guiDraw->topLeft.y;
+            mData->buttons.push_back(b);
         }
     }
 
@@ -145,8 +158,8 @@ void Gui::updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& 
     {
         for(const GuiDraw* guiDraw : it->second)
         {
-            Button b;
-            b.isDown = true;
+            std::shared_ptr<Button> b(new Button());
+            b->isDown = true;
             float x;
             float y;
             sb::utility::worldToScreenCoords
@@ -156,11 +169,11 @@ void Gui::updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& 
                 mHalfFrameWidth, mHalfFrameHeight,
                 x, y
             );
-            b.x = x;
-            b.y = y;
-            b.width = guiDraw->botRight.x - guiDraw->topLeft.x;
-            b.height = guiDraw->botRight.y - guiDraw->topLeft.y;
-            mButtons.push_back(b);
+            b->x = x;
+            b->y = y;
+            b->width = guiDraw->botRight.x - guiDraw->topLeft.x;
+            b->height = guiDraw->botRight.y - guiDraw->topLeft.y;
+            mData->buttons.push_back(b);
         }
     }
 }
@@ -191,14 +204,15 @@ void Gui::updateManaAndHpLevels(const std::map<std::string, std::list<const GuiD
     const GuiDraw& manaBar = *manaIt->second.front();
     const GuiDraw& manaBorder = *bordersIt->second.back();
 
-    mHpLevel = (hpBar.botRight.x - hpBar.topLeft.x) / (hpBorder.botRight.x - hpBorder.topLeft.x);
-    mManaLevel = (manaBar.botRight.x - manaBar.topLeft.x) / (manaBorder.botRight.x - manaBorder.topLeft.x);
+    mData->hpLevel = (hpBar.botRight.x - hpBar.topLeft.x) / (hpBorder.botRight.x - hpBorder.topLeft.x);
+    mData->manaLevel = (manaBar.botRight.x - manaBar.topLeft.x) / (manaBorder.botRight.x - manaBorder.topLeft.x);
 }
 
-const Gui::Button* Gui::setButtonText(const Text& text)
+std::shared_ptr<Gui::Button> Gui::setButtonText(const Text& text)
 {
-    for(Button& b : mButtons)
+    for(std::shared_ptr<Button>& bPtr : mData->buttons)
     {
+        Button& b = *bPtr;
         if(b.text == "")
         {
             if(b.x <= text.x && b.y <= text.y)
@@ -206,7 +220,7 @@ const Gui::Button* Gui::setButtonText(const Text& text)
                 if(text.x - b.x < b.width && text.y - b.y < b.height)
                 {
                     b.text = text.string;
-                    return &b;
+                    return bPtr;
                 }
             }
         }
@@ -452,13 +466,13 @@ const Gui::Button* Gui::setButtonText(const Text& text)
 //
 //                if(isSoulFront)
 //                {
-//                    mSoul = front;
-//                    mCap = back;
+//                    mData->soul = front;
+//                    mData->cap = back;
 //                }
 //                else
 //                {
-//                    mCap = front;
-//                    mSoul = back;
+//                    mData->cap = front;
+//                    mData->soul = back;
 //                }
 //
 //                isSoulAndCapParsed = true;
@@ -468,12 +482,12 @@ const Gui::Button* Gui::setButtonText(const Text& text)
 //            }
 //            else if(isNumeric(t.string))
 //            {
-//                mHp = strToInt(t.string);
+//                mData->hp = strToInt(t.string);
 //                it++;
 //                assert(it != text.end());
 //
 //                assert(isNumeric(it->string));
-//                mMana = strToInt(it->string);
+//                mData->mana = strToInt(it->string);
 //
 //                it++;
 //
@@ -522,9 +536,9 @@ const Gui::Button* Gui::setButtonText(const Text& text)
 //    }
 //}
 
-void Gui::parseVipWindowText(size_t& i, const SideBottomWindow& w)
+void Gui::parseVipWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w)
 {
-    if(i >= mCurrentFrame.textDraws->size() || w.isMinimized)
+    if(i >= mCurrentFrame.textDraws->size() || w->isMinimized)
         return;
 
     std::unique_ptr<TextBuilder> builder;
@@ -532,8 +546,8 @@ void Gui::parseVipWindowText(size_t& i, const SideBottomWindow& w)
     if(builder->getTextType() != Text::Type::VIP_ONLINE && builder->getTextType() != Text::Type::VIP_OFFLINE)
         return;
 
-    std::list<std::string>* currentList;
-    currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mOnlineVip : &mOfflineVip;
+    std::vector<std::string>* currentList;
+    currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mData->onlineVips : &mData->offlineVips;
 
     for(const Text& t : builder->getText())
         currentList->push_back(t.string);
@@ -546,7 +560,7 @@ void Gui::parseVipWindowText(size_t& i, const SideBottomWindow& w)
     builder.reset(new TextBuilder((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height));
     if(builder->getTextType() == Text::Type::VIP_ONLINE || builder->getTextType() == Text::Type::VIP_OFFLINE)
     {
-        currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mOnlineVip : &mOfflineVip;
+        currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mData->onlineVips : &mData->offlineVips;
         for(const Text& t : builder->getText())
             currentList->push_back(t.string);
 
@@ -554,18 +568,16 @@ void Gui::parseVipWindowText(size_t& i, const SideBottomWindow& w)
     }
 }
 
-void Gui::parseBattleWindowText(size_t& i, const SideBottomWindow& w)
+void Gui::parseBattleWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w)
 {
-    mBattleWindow.reset(new BattleWindow());
-
-    if(i >= mCurrentFrame.textDraws->size() || w.isMinimized)
+    if(i >= mCurrentFrame.textDraws->size() || w->isMinimized)
         return;
 
     Rect r;
-    r.pos.x = w.resizer.pos.x;
-    r.pos.y = w.exitButton.pos.y;
-    r.size.x = w.exitButton.pos.x + w.exitButton.size.x - r.pos.x;
-    r.size.y = w.resizer.pos.y + w.resizer.size.y - r.pos.y;
+    r.pos.x = w->resizer.pos.x;
+    r.pos.y = w->exitButton.pos.y;
+    r.size.x = w->exitButton.pos.x + w->exitButton.size.x - r.pos.x;
+    r.size.y = w->resizer.pos.y + w->resizer.size.y - r.pos.y;
 
     while(i < mCurrentFrame.textDraws->size())
     {
@@ -581,13 +593,13 @@ void Gui::parseBattleWindowText(size_t& i, const SideBottomWindow& w)
         {
             assert(t.localX == Constants::BATTLE_WINDOW_NAME_LOCAL_X);
 
-            mBattleWindow->outfits.emplace_back();
-            BattleWindow::Outfit& o = mBattleWindow->outfits.back();
-            o.name = t.string;
+            mData->battleWindow->outfits.emplace_back();
+            std::shared_ptr<BattleWindow::Outfit>& o = mData->battleWindow->outfits.back();
+            o->name = t.string;
             if(t.type == Text::Type::NAME_BATTLE_WINDOW_HIGHLIGHTED)
             {
                 assert(text.size() == 1);
-                mBattleWindow->selectedOutfit = &o;
+                mData->battleWindow->selectedOutfit = o;
             }
         }
 
@@ -604,9 +616,9 @@ void Gui::parseBattleWindowText(size_t& i, const SideBottomWindow& w)
 }
 
 
-void Gui::parseSkillWindowText(size_t& i, const SideBottomWindow& w)
+void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w)
 {
-    if(i >= mCurrentFrame.textDraws->size() || w.isMinimized)
+    if(i >= mCurrentFrame.textDraws->size() || w->isMinimized)
         return;
 
     TextBuilder builder((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height);
@@ -625,13 +637,13 @@ void Gui::parseSkillWindowText(size_t& i, const SideBottomWindow& w)
     assert(it->string == "Level");
     it++;
     assert(isNumeric(it->string));
-    mLevel = strToInt(it->string);
+    mData->level = strToInt(it->string);
     it++;
 
     assert(it->string == "  Experience");
     it++;
     assert(isNumeric(it->string));
-    mExperience = strToInt(it->string);
+    mData->experience = strToInt(it->string);
     it++;
 
     if(it->string == "  XP Gain Rate")
@@ -655,36 +667,36 @@ void Gui::parseSkillWindowText(size_t& i, const SideBottomWindow& w)
 
         std::list<Text> xpGainRate = b.getText();
         assert(xpGainRate.size() == 1);
-        mXpGainRate = parsePercentageText(xpGainRate.front().string);
+        mData->xpGainRate = parsePercentageText(xpGainRate.front().string);
     }
     else
     {
-        mXpGainRate = parsePercentageText(it->string);
+        mData->xpGainRate = parsePercentageText(it->string);
         it++;
     }
 
     assert(it->string == "Hit Points");
     it++;
     assert(isNumeric(it->string));
-    mHp = strToInt(it->string);
+    mData->hp = strToInt(it->string);
     it++;
 
     assert(it->string == "Mana");
     it++;
     assert(isNumeric(it->string));
-    mMana = strToInt(it->string);
+    mData->mana = strToInt(it->string);
     it++;
 
     assert(it->string == "Soul Points");
     it++;
     assert(isNumeric(it->string));
-    mSoul = strToInt(it->string);
+    mData->soul = strToInt(it->string);
     it++;
 
     assert(it->string == "Capacity");
     it++;
     assert(isNumeric(it->string));
-    mCap = strToInt(it->string);
+    mData->cap = strToInt(it->string);
     it++;
 
     assert(it->string == "Speed");
@@ -698,76 +710,76 @@ void Gui::parseSkillWindowText(size_t& i, const SideBottomWindow& w)
         std::list<Text> speed = b.getText();
         assert(speed.size() == 1);
         assert(isNumeric(speed.front().string));
-        mSpeed = strToInt(speed.front().string);
+        mData->speed = strToInt(speed.front().string);
     }
     else
     {
         assert(isNumeric(it->string));
-        mSpeed = strToInt(it->string);
+        mData->speed = strToInt(it->string);
         it++;
     }
 
     assert(it->string == "Food");
     it++;
-    mFoodMinutes = parseTimeText(it->string);
+    mData->foodMinutes = parseTimeText(it->string);
     it++;
 
     assert(it->string == "Stamina");
     it++;
-    mStaminaMinutes = parseTimeText(it->string);
+    mData->staminaMinutes = parseTimeText(it->string);
     it++;
 
     assert(it->string == "Offline Training");
     it++;
-    mOfflineTrainingMinutes = parseTimeText(it->string);
+    mData->offlineTrainingMinutes = parseTimeText(it->string);
     it++;
 
     assert(it->string == "Magic Level");
     it++;
     assert(isNumeric(it->string));
-    mMagicLevel = strToInt(it->string);
+    mData->magicLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Fist Fighting");
     it++;
     assert(isNumeric(it->string));
-    mFistFighting = strToInt(it->string);
+    mData->fistLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Club Fighting");
     it++;
     assert(isNumeric(it->string));
-    mClubFighting = strToInt(it->string);
+    mData->clubLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Sword Fighting");
     it++;
     assert(isNumeric(it->string));
-    mSwordFighting = strToInt(it->string);
+    mData->swordLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Axe Fighting");
     it++;
     assert(isNumeric(it->string));
-    mAxeFighting = strToInt(it->string);
+    mData->axeLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Distance Fighting");
     it++;
     assert(isNumeric(it->string));
-    mDistanceFighting = strToInt(it->string);
+    mData->distanceLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Shielding");
     it++;
     assert(isNumeric(it->string));
-    mShielding = strToInt(it->string);
+    mData->shieldingLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Fishing");
     it++;
     assert(isNumeric(it->string));
-    mFishing = strToInt(it->string);
+    mData->fishingLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Critical Hit:");
@@ -775,12 +787,12 @@ void Gui::parseSkillWindowText(size_t& i, const SideBottomWindow& w)
 
     assert(it->string == "  Chance");
     it++;
-    mCritChance = parsePercentageText(it->string);
+    mData->critChance = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "  Extra Damage");
     it++;
-    mCritDamage = parsePercentageText(it->string);
+    mData->critDamage = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "Hit Points Leech:");
@@ -788,12 +800,12 @@ void Gui::parseSkillWindowText(size_t& i, const SideBottomWindow& w)
 
     assert(it->string == "  Chance");
     it++;
-    mHpLeechChance = parsePercentageText(it->string);
+    mData->hpLeechChance = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "  Amount");
     it++;
-    mHpLeechAmount = parsePercentageText(it->string);
+    mData->hpLeechAmount = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "Mana Leech:");
@@ -801,12 +813,12 @@ void Gui::parseSkillWindowText(size_t& i, const SideBottomWindow& w)
 
     assert(it->string == "  Chance");
     it++;
-    mManaLeechChance = parsePercentageText(it->string);
+    mData->manaLeechChance = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "  Amount");
     it++;
-    mManaLeechAmount = parsePercentageText(it->string);
+    mData->manaLeechAmount = parsePercentageText(it->string);
     it++;
 
     assert(it == text.end());
@@ -968,8 +980,8 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
 
     for(const Rect& r : exitButtons)
     {
-        mSideBottomWindows.emplace_front();
-        SideBottomWindow& w = mSideBottomWindows.front();
+        mData->sideBottomWindows.insert(mData->sideBottomWindows.begin(), std::make_shared<SideBottomWindow>());
+        SideBottomWindow& w = *mData->sideBottomWindows.front();
 
         w.exitButton = r;
 
@@ -1042,8 +1054,9 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
     {
         SideBottomWindow* closestWindow = nullptr;
         size_t minY = -1;
-        for(SideBottomWindow& w : mSideBottomWindows)
+        for(std::shared_ptr<SideBottomWindow>& wPtr : mData->sideBottomWindows)
         {
+            SideBottomWindow& w = *wPtr;
             if(!w.isMinimized && w.exitButton.pos.y < r.pos.y)
             {
                 size_t dy = r.pos.y - w.exitButton.pos.y;
@@ -1068,7 +1081,7 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
 //
 //void Gui::updateEquippedItems(size_t& i, const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::vector<SpriteDraw>& guiSpriteDraws)
 //{
-//    mEquipment.clear();
+//    mData->equipment.clear();
 //
 //    if(i >= guiSpriteDraws.size())
 //        return;
@@ -1140,23 +1153,23 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
 //            case B::TWO_HANDED:
 //            case B::WEAPON:
 //            case B::SHIELD:
-//                if(mEquipment.find(EqType::HAND1) == mEquipment.end())
-//                    mEquipment[EqType::HAND1] = equippable;
+//                if(mData->equipment.find(EqType::HAND1) == mData->equipment.end())
+//                    mData->equipment[EqType::HAND1] = equippable;
 //                else
 //                {
-//                    assert(mEquipment.find(EqType::HAND2) == mEquipment.end());
-//                    mEquipment[EqType::HAND2] = equippable;
+//                    assert(mData->equipment.find(EqType::HAND2) == mData->equipment.end());
+//                    mData->equipment[EqType::HAND2] = equippable;
 //                }
 //                break;
 //
-//            case B::HELMET: mEquipment[EqType::HEAD] = equippable; break;
-//            case B::AMULET: mEquipment[EqType::NECK] = equippable; break;
-//            case B::BACKPACK: mEquipment[EqType::BACK] = equippable; break;
-//            case B::ARMOR: mEquipment[EqType::TORSO] = equippable; break;
-//            case B::LEGS: mEquipment[EqType::LEGS] = equippable; break;
-//            case B::BOOTS: mEquipment[EqType::FEET] = equippable; break;
-//            case B::RING: mEquipment[EqType::FINGER] = equippable; break;
-//            case B::BELT: mEquipment[EqType::HIP] = equippable; break;
+//            case B::HELMET: mData->equipment[EqType::HEAD] = equippable; break;
+//            case B::AMULET: mData->equipment[EqType::NECK] = equippable; break;
+//            case B::BACKPACK: mData->equipment[EqType::BACK] = equippable; break;
+//            case B::ARMOR: mData->equipment[EqType::TORSO] = equippable; break;
+//            case B::LEGS: mData->equipment[EqType::LEGS] = equippable; break;
+//            case B::BOOTS: mData->equipment[EqType::FEET] = equippable; break;
+//            case B::RING: mData->equipment[EqType::FINGER] = equippable; break;
+//            case B::BELT: mData->equipment[EqType::HIP] = equippable; break;
 //
 //            default:
 //            {
@@ -1173,14 +1186,14 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
 //
 //void Gui::updateSideBottomWindowItems(size_t& i, const std::vector<SpriteDraw>& guiSpriteDraws)
 //{
-//    mContainers.clear();
+//    mData->containers.clear();
 //    std::cout << "WINDOW ORDER: " << std::endl;
-//    for(SideBottomWindow& w : mSideBottomWindows)
+//    for(SideBottomWindow& w : mData->sideBottomWindows)
 //    {
 //        std::cout << "\t" << (int)w.type << std::endl;
 //    }
 //
-//    for(SideBottomWindow& w : mSideBottomWindows)
+//    for(SideBottomWindow& w : mData->sideBottomWindows)
 //    {
 //        if(i >= guiSpriteDraws.size())
 //            return;
@@ -1250,8 +1263,8 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
 ////    assert(iconWidth == 12);
 ////    assert(iconHeight == 12 || iconHeight == 10);
 ////
-////    mContainers.emplace_back();
-////    Container& c = mContainers.back();
+////    mData->containers.emplace_back();
+////    Container& c = mData->containers.back();
 ////    if(container->itemInfo.hasMarketInfo)
 ////        c.name = container->itemInfo.marketInfo.name;
 ////
@@ -1322,7 +1335,7 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
 //
 //void Gui::updateItems(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::vector<SpriteDraw>& guiSpriteDraws)
 //{
-//    if(mCurrentState != State::GAME)
+//    if(mData->state != State::GAME)
 //        return;
 //
 //    size_t i = 0;
@@ -1461,8 +1474,8 @@ void Gui::parseSideWindowTopText(size_t& i)
             assert(isNumeric(soul->string));
             assert(isNumeric(cap->string));
 
-            mSoul = strToInt(soul->string);
-            mCap = strToInt(cap->string);
+            mData->soul = strToInt(soul->string);
+            mData->cap = strToInt(cap->string);
 
             parsedTypes.insert(SOUL_CAP);
         }
@@ -1470,10 +1483,10 @@ void Gui::parseSideWindowTopText(size_t& i)
         {
             assert(text.size() >= 2);
 
-            mHp = strToInt(text.front().string);
+            mData->hp = strToInt(text.front().string);
             text.pop_front();
             assert(isNumeric(text.front().string));
-            mMana = strToInt(text.front().string);
+            mData->mana = strToInt(text.front().string);
             text.pop_front();
 
             parsedTypes.insert(HP_MANA);
@@ -1507,8 +1520,8 @@ void Gui::parseSideWindowTopText(size_t& i)
 
 void Gui::parseSideWindowBottomText(size_t& i)
 {
-    auto containerIt = mContainers.begin();
-    for(SideBottomWindow& w : mSideBottomWindows)
+    auto containerIt = mData->containers.begin();
+    for(std::shared_ptr<SideBottomWindow>& w : mData->sideBottomWindows)
     {
         assert(i < mCurrentFrame.textDraws->size());
         TextBuilder builder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height);
@@ -1520,41 +1533,41 @@ void Gui::parseSideWindowBottomText(size_t& i)
         const std::string& str = text.front().string;
         if(str == "Skills")
         {
-            w.type = SideBottomWindow::Type::SKILLS;
+            w->type = SideBottomWindow::Type::SKILLS;
             parseSkillWindowText(i, w);
         }
         else if(str == "Battle")
         {
-            w.type = SideBottomWindow::Type::BATTLE;
+            w->type = SideBottomWindow::Type::BATTLE;
             parseBattleWindowText(i, w);
         }
         else if(str == "VIP")
         {
-            w.type = SideBottomWindow::Type::VIP;
+            w->type = SideBottomWindow::Type::VIP;
             parseVipWindowText(i, w);
         }
         else if(str == "Unjustified Points")
         {
-            w.type = SideBottomWindow::Type::UNJUSTIFIED_POINTS;
+            w->type = SideBottomWindow::Type::UNJUSTIFIED_POINTS;
         }
         else if(str == "NPC Trade")
         {
-            w.type = SideBottomWindow::Type::NPC_TRADE;
+            w->type = SideBottomWindow::Type::NPC_TRADE;
             parseNpcTradeWindowText(i, w);
         }
         else if(str == "Browse Field")
         {
             THROW_RUNTIME_ERROR("Don't forget to implement Browse Field! :-)");
         }
-        else if(w.isMinimized)
+        else if(w->isMinimized)
         {
-            w.type = SideBottomWindow::Type::CONTAINER;
-            Container& c = *mContainers.insert(containerIt, Container());
+            w->type = SideBottomWindow::Type::CONTAINER;
+            Container& c = *mData->containers.insert(containerIt, Container());
             parseContainerText(i, c, str, w);
         }
-        else if(containerIt != mContainers.end())
+        else if(containerIt != mData->containers.end())
         {
-            w.type = SideBottomWindow::Type::CONTAINER;
+            w->type = SideBottomWindow::Type::CONTAINER;
             parseContainerText(i, *containerIt, str, w);
             containerIt++;
         }
@@ -1563,45 +1576,43 @@ void Gui::parseSideWindowBottomText(size_t& i)
     }
 }
 
-void Gui::parseNpcTradeWindowText(size_t& i, const SideBottomWindow& w)
+void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w)
 {
+    mData->npcTradeWindow->window = w;
 
-    mNpcTradeWindow.reset(new NpcTradeWindow());
-    mNpcTradeWindow->window = &w;
-
-    if(i >= mCurrentFrame.textDraws->size() || w.isMinimized)
+    if(i >= mCurrentFrame.textDraws->size() || w->isMinimized)
         return;
 
      std::list<Text> text = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
      assert(text.size() == 2 || text.size() == 3);
 
      assert(text.front().string == "Buy");
-     mNpcTradeWindow->buyButton = setButtonText(text.front());
-     assert(mNpcTradeWindow->buyButton);
+     mData->npcTradeWindow->buyButton = setButtonText(text.front());
+     assert(mData->npcTradeWindow->buyButton);
 
      text.pop_front();
 
      assert(text.front().string == "Sell");
-     mNpcTradeWindow->sellButton = setButtonText(text.front());
-     assert(mNpcTradeWindow->sellButton);
+     mData->npcTradeWindow->sellButton = setButtonText(text.front());
+     assert(mData->npcTradeWindow->sellButton);
 
      text.pop_front();
 
      if(!text.empty())
      {
         assert(text.front().string == "ok");
-        mNpcTradeWindow->okButton = setButtonText(text.front());
-        assert(mNpcTradeWindow->okButton);
+        mData->npcTradeWindow->okButton = setButtonText(text.front());
+        assert(mData->npcTradeWindow->okButton);
      }
 
 
 
 
-     assert(mNpcTradeWindow->buyButton->isDown || mNpcTradeWindow->sellButton->isDown);
-     if(mNpcTradeWindow->buyButton->isDown)
-        mNpcTradeWindow->currentTab = NpcTradeWindow::Tab::BUY;
+     assert(mData->npcTradeWindow->buyButton->isDown || mData->npcTradeWindow->sellButton->isDown);
+     if(mData->npcTradeWindow->buyButton->isDown)
+        mData->npcTradeWindow->currentTab = NpcTradeWindow::Tab::BUY;
      else
-        mNpcTradeWindow->currentTab = NpcTradeWindow::Tab::SELL;
+        mData->npcTradeWindow->currentTab = NpcTradeWindow::Tab::SELL;
 
 
     assert(i < mCurrentFrame.textDraws->size());
@@ -1659,7 +1670,7 @@ void Gui::parseNpcTradeWindowText(size_t& i, const SideBottomWindow& w)
             else
                 offer.weight = strToFloat(weight);
 
-            mNpcTradeWindow->visibleOffers.push_back(offer);
+            mData->npcTradeWindow->visibleOffers.push_back(offer);
         }
 
         assert(i < mCurrentFrame.textDraws->size());
@@ -1673,41 +1684,41 @@ void Gui::parseNpcTradeWindowText(size_t& i, const SideBottomWindow& w)
     assert(it->string == "Amount:");
     it++;
     assert(isNumeric(it->string));
-    mNpcTradeWindow->amount = strToInt(it->string);
+    mData->npcTradeWindow->amount = strToInt(it->string);
     it++;
 
     assert(it->string == "Price:");
     it++;
     assert(isNumeric(it->string));
-    mNpcTradeWindow->totalPrice = strToInt(it->string);
+    mData->npcTradeWindow->totalPrice = strToInt(it->string);
     it++;
 
     assert(it->string == "Money:");
     it++;
     assert(isNumeric(it->string));
-    mNpcTradeWindow->availableMoney = strToInt(it->string);
+    mData->npcTradeWindow->availableMoney = strToInt(it->string);
     it++;
 
     assert(it == text.end());
 
-    if(!mNpcTradeWindow->okButton)
+    if(!mData->npcTradeWindow->okButton)
     {
         assert(i < mCurrentFrame.textDraws->size());
         text = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
         assert(text.size() == 1);
         assert(text.front().string == "ok");
-        mNpcTradeWindow->okButton = setButtonText(text.front());
-        assert(mNpcTradeWindow->okButton);
+        mData->npcTradeWindow->okButton = setButtonText(text.front());
+        assert(mData->npcTradeWindow->okButton);
     }
 }
 
-void Gui::parseContainerText(size_t& i, Container& c, const std::string& str, const SideBottomWindow& w)
+void Gui::parseContainerText(size_t& i, Container& c, const std::string& str, const std::shared_ptr<SideBottomWindow>& w)
 {
     using namespace sb::utility;
     c.name = toLower(str);
-    c.window = &w;
+    c.window = w;
 
-    if(i >= mCurrentFrame.textDraws->size() || w.isMinimized)
+    if(i >= mCurrentFrame.textDraws->size() || w->isMinimized)
         return;
 
     TextBuilder builder((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height);
@@ -1781,8 +1792,8 @@ void Gui::parseContainerSlots(const std::map<std::string, std::list<const GuiDra
     auto it = slotsTopLeft.rbegin();
     for(size_t i = 0; i < numContainerSlots;)
     {
-        mContainers.emplace_back();
-        Container& c = mContainers.back();
+        mData->containers.emplace_back();
+        Container& c = mData->containers.back();
 
         using namespace Constants;
         static const int DELTA_X = TILE_PIXEL_WIDTH + CONTAINER_SEPARATOR_PIXEL_WIDTH;
@@ -1930,23 +1941,23 @@ void Gui::parseEquippedItems(size_t& i)
             case B::TWO_HANDED:
             case B::WEAPON:
             case B::SHIELD:
-                if(mEquipment.find(EqType::HAND1) == mEquipment.end())
-                    mEquipment[EqType::HAND1] = equippable;
+                if(mData->equipment.find(EqType::HAND1) == mData->equipment.end())
+                    mData->equipment[EqType::HAND1] = equippable;
                 else
                 {
-                    assert(mEquipment.find(EqType::HAND2) == mEquipment.end());
-                    mEquipment[EqType::HAND2] = equippable;
+                    assert(mData->equipment.find(EqType::HAND2) == mData->equipment.end());
+                    mData->equipment[EqType::HAND2] = equippable;
                 }
                 break;
 
-            case B::HELMET: mEquipment[EqType::HEAD] = equippable; break;
-            case B::AMULET: mEquipment[EqType::NECK] = equippable; break;
-            case B::BACKPACK: mEquipment[EqType::BACK] = equippable; break;
-            case B::ARMOR: mEquipment[EqType::TORSO] = equippable; break;
-            case B::LEGS: mEquipment[EqType::LEGS] = equippable; break;
-            case B::BOOTS: mEquipment[EqType::FEET] = equippable; break;
-            case B::RING: mEquipment[EqType::FINGER] = equippable; break;
-            case B::BELT: mEquipment[EqType::HIP] = equippable; break;
+            case B::HELMET: mData->equipment[EqType::HEAD] = equippable; break;
+            case B::AMULET: mData->equipment[EqType::NECK] = equippable; break;
+            case B::BACKPACK: mData->equipment[EqType::BACK] = equippable; break;
+            case B::ARMOR: mData->equipment[EqType::TORSO] = equippable; break;
+            case B::LEGS: mData->equipment[EqType::LEGS] = equippable; break;
+            case B::BOOTS: mData->equipment[EqType::FEET] = equippable; break;
+            case B::RING: mData->equipment[EqType::FINGER] = equippable; break;
+            case B::BELT: mData->equipment[EqType::HIP] = equippable; break;
 
             default:
                 THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected body restriction: ", (int)mContext.getObjects()[equippable].itemInfo.bodyRestriction, '\n'));
@@ -1954,39 +1965,39 @@ void Gui::parseEquippedItems(size_t& i)
     }
 }
 
-void Gui::parseBattleWindowSprites(size_t& i, const SideBottomWindow& w)
+void Gui::parseBattleWindowSprites(size_t& i, const std::shared_ptr<SideBottomWindow>& w)
 {
     const std::vector<SpriteDraw>& draws = *mCurrentFrame.guiSpriteDraws;
-    if(i >= draws.size() || w.isMinimized)
+    if(i >= draws.size() || w->isMinimized)
         return;
 
-    assert(w.hasResizer);
-    assert(w.type == SideBottomWindow::Type::BATTLE);
+    assert(w->hasResizer);
+    assert(w->type == SideBottomWindow::Type::BATTLE);
 
-    assert(mBattleWindow != nullptr);
-    auto outfitIt = mBattleWindow->outfits.begin();
+    assert(mData->battleWindow != nullptr);
+    auto outfitIt = mData->battleWindow->outfits.begin();
     while(i < draws.size())
     {
         const SpriteDraw& d = draws[i];
 //        Vertex topLeft;
 //        d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, topLeft.x, topLeft.y);
-//        if(topLeft.x < w.resizer.pos.x || topLeft.y < w.exitButton.pos.y || topLeft.y > w.resizer.pos.y + w.resizer.size.y)
+//        if(topLeft.x < w->resizer.pos.x || topLeft.y < w->exitButton.pos.y || topLeft.y > w->resizer.pos.y + w->resizer.size.y)
 //            return;
 
         if(d.topLeft.x != Constants::BATTLE_WINDOW_SPRITE_LOCAL_X)
             break;
 
-        assert(outfitIt != mBattleWindow->outfits.end());
+        assert(outfitIt != mData->battleWindow->outfits.end());
 
         for(const SpriteDraw::SpriteObjectPairing& pairing : d.pairings)
-            outfitIt->objects.insert(pairing.objects.begin(), pairing.objects.end());
+            (*outfitIt)->objects.insert(pairing.objects.begin(), pairing.objects.end());
 
 
         outfitIt++;
         i++;
     }
 
-    assert(outfitIt == mBattleWindow->outfits.end());
+    assert(outfitIt == mData->battleWindow->outfits.end());
 }
 
 void Gui::parseContainerSprites(size_t& i, Container& c)
@@ -2064,9 +2075,9 @@ void Gui::parseContainerSprites(size_t& i, Container& c)
 
 void Gui::parseNpcTradeWindowSprites(size_t& i)
 {
-    assert(mNpcTradeWindow != nullptr);
+    assert(mData->npcTradeWindow != nullptr);
     const std::vector<SpriteDraw>& draws = *mCurrentFrame.guiSpriteDraws;
-    if(i >= draws.size() || mNpcTradeWindow->window->isMinimized)
+    if(i >= draws.size() || mData->npcTradeWindow->window->isMinimized)
         return;
 
     size_t offerIndex = 0;
@@ -2075,14 +2086,14 @@ void Gui::parseNpcTradeWindowSprites(size_t& i)
         const SpriteDraw& d = draws[i];
         if(d.topLeft.x == Constants::NPC_TRADE_LIST_SLOT_LOCAL_X)
         {
-            assert(offerIndex < mNpcTradeWindow->visibleOffers.size());
-            NpcTradeWindow::Offer& offer = mNpcTradeWindow->visibleOffers[offerIndex];
+            assert(offerIndex < mData->npcTradeWindow->visibleOffers.size());
+            NpcTradeWindow::Offer& offer = mData->npcTradeWindow->visibleOffers[offerIndex];
             for(const SpriteDraw::SpriteObjectPairing& pairing : d.pairings)
                 offer.objects.insert(pairing.objects.begin(), pairing.objects.end());
         }
         else if(d.topLeft.x == Constants::NPC_TRADE_CURRENT_SLOT_LOCAL_X)
         {
-            assert(offerIndex == mNpcTradeWindow->visibleOffers.size());
+            assert(offerIndex == mData->npcTradeWindow->visibleOffers.size());
 //            std::set<const Object*> objects;
 //            for(const SpriteDraw::SpriteObjectPairing& pairing : d.pairings)
 //                for(const Object* object : pairing.objects)
@@ -2092,12 +2103,12 @@ void Gui::parseNpcTradeWindowSprites(size_t& i)
 //                    }
 //
 //            std::list<size_t> matchingOfferIndices;
-//            for(size_t j = 0; j < mNpcTradeWindow->visibleOffers.size(); j++)
-//                if(objects.find(mNpcTradeWindow->visibleOffers[j].object) != objects.end())
+//            for(size_t j = 0; j < mData->npcTradeWindow->visibleOffers.size(); j++)
+//                if(objects.find(mData->npcTradeWindow->visibleOffers[j].object) != objects.end())
 //                    matchingOfferIndices.push_back(j);
 //
 //            assert(matchingOfferIndices.size() == 1);
-//            mNpcTradeWindow->selectedOfferIndex = matchingOfferIndices.front();
+//            mData->npcTradeWindow->selectedOfferIndex = matchingOfferIndices.front();
         }
         else
             return;
@@ -2112,18 +2123,18 @@ void Gui::parseGuiSpriteDraws()
     size_t i = 0;
     parseEquippedItems(i);
 
-    auto containerIt = mContainers.begin();
-    for(const SideBottomWindow& w : mSideBottomWindows)
+    auto containerIt = mData->containers.begin();
+    for(const std::shared_ptr<SideBottomWindow>& w : mData->sideBottomWindows)
     {
         typedef SideBottomWindow::Type T;
-        switch(w.type)
+        switch(w->type)
         {
             case T::BATTLE:
                 parseBattleWindowSprites(i, w);
                 break;
 
             case T::CONTAINER:
-                assert(containerIt != mContainers.end());
+                assert(containerIt != mData->containers.end());
                 parseContainerSprites(i, *containerIt);
                 containerIt++;
                 break;
@@ -2143,14 +2154,15 @@ void Gui::parseCurrentFrame()
     if(mIsCurrentFrameParsed)
         return;
 
-    mButtons.clear();
-    mEquipment.clear();
-    mContainers.clear();
-    mSideBottomWindows.clear();
-    mNpcTradeWindow.release();
-    mBattleWindow.release();
-    mOnlineVip.clear();
-    mOfflineVip.clear();
+//
+//    mData->buttons.clear();
+//    mData->equipment.clear();
+//    mData->containers.clear();
+//    mData->sideBottomWindows.clear();
+//    mData->npcTradeWindow.release();
+//    mData->battleWindow.release();
+//    mData->onlineVips.clear();
+//    mData->offlineVips.clear();
 
     mHalfFrameWidth = mCurrentFrame.width / 2.f;
     mHalfFrameHeight = mCurrentFrame.height / 2.f;
@@ -2198,7 +2210,7 @@ void Gui::parseCurrentFrame()
 
 
     updateButtons(guiDraws);
-    if(mCurrentState == State::GAME)
+    if(mData->state == State::GAME)
     {
         updateManaAndHpLevels(guiDraws);
 
@@ -2211,7 +2223,7 @@ void Gui::parseCurrentFrame()
         parseSideWindowBottomText(textDrawsIndex);
         parseGuiSpriteDraws();
     }
-    else if(mCurrentState == State::MAIN_MENU)
+    else if(mData->state == State::MAIN_MENU)
     {
         for(const TextDraw& d : *mCurrentFrame.textDraws)
         {
@@ -2225,33 +2237,33 @@ void Gui::parseCurrentFrame()
     }
     else
     {
-        THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected state: ", (int)mCurrentState, "\n"));
+        THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected state: ", (int)mData->state, "\n"));
     }
 
-//    std::cout << "Num side bottom windows: " << mSideBottomWindows.size() << std::endl;
+//    std::cout << "Num side bottom windows: " << mData->sideBottomWindows.size() << std::endl;
 
 
-//    for(auto str : mOnlineVip)
+//    for(auto str : mData->onlineVips)
 //        std::cout << "Online: " << str << std::endl;
-//    for(auto str : mOfflineVip)
+//    for(auto str : mData->offlineVips)
 //        std::cout << "Offline: " << str << std::endl;
 
-//    std::cout << "Containers: " << mContainers.size() << std::endl;
-//    for(const Container& c : mContainers)
+//    std::cout << "Containers: " << mData->containers.size() << std::endl;
+//    for(const Container& c : mData->containers)
 //    {
 //        std::cout << "\t" << "Cap: " << (int)c.capacity << std::endl;
 //        std::cout << "\t" << "Scroll: " << (int)c.scroll << std::endl;
 //    }
 
 //    std::cout << "Contents of battle window: " << std::endl;
-//    for(const BattleWindow::Outfit& o : mBattleWindow->outfits)
+//    for(const BattleWindow::Outfit& o : mData->battleWindow->outfits)
 //    {
 //        std::cout << "\t" << o.name << std::endl;
 //    }
 //
-//    if(mNpcTradeWindow != nullptr)
+//    if(mData->npcTradeWindow != nullptr)
 //    {
-//        const NpcTradeWindow& w = *mNpcTradeWindow;
+//        const NpcTradeWindow& w = *mData->npcTradeWindow;
 //        std::cout << "NPC TRADE DUMP: " << std::endl;
 //        std::cout << "\tOffers: " << std::endl;
 //        for(const auto& offer : w.visibleOffers)
@@ -2272,9 +2284,9 @@ void Gui::parseCurrentFrame()
 //                    << "\tTab: " << (int)w.currentTab << std::endl;
 //    }
 //
-//    if(mBattleWindow != nullptr)
+//    if(mData->battleWindow != nullptr)
 //    {
-//        const BattleWindow& w = *mBattleWindow;
+//        const BattleWindow& w = *mData->battleWindow;
 //
 //        std::cout << "BATTLE WINDOW DUMP: " << std::endl;
 //        std::cout << "\tOutfits: " << std::endl;
@@ -2292,10 +2304,10 @@ void Gui::parseCurrentFrame()
 //            std::cout << "\tSelected outfit: " << w.selectedOutfit->name << std::endl;
 //    }
 //
-//    if(!mContainers.empty())
+//    if(!mData->containers.empty())
 //    {
-//        std::cout << "CONTAINER DUMP (" << mContainers.size() << "):" << std::endl;
-//        for(const Container& c : mContainers)
+//        std::cout << "CONTAINER DUMP (" << mData->containers.size() << "):" << std::endl;
+//        for(const Container& c : mData->containers)
 //        {
 //            std::cout   << "\tName: " << c.name << std::endl
 //                        << "\tCapacity: " << (int)c.capacity << std::endl
@@ -2461,171 +2473,175 @@ void Gui::parseCurrentFrame()
 //        }
 //    }
 
-    auto removeStart = std::remove_if(mButtons.begin(), mButtons.end(), [](const Button& b){return (b.text == "");});
-    mButtons.erase(removeStart, mButtons.end());
+    auto removeStart = std::remove_if
+    (
+        mData->buttons.begin(), mData->buttons.end(),
+        [](const std::shared_ptr<Button>& b){return (b->text == "");}
+    );
+    mData->buttons.erase(removeStart, mData->buttons.end());
 
 
     mIsCurrentFrameParsed = true;
 }
-
-Gui::State Gui::getState() const
-{
-    return mCurrentState;
-}
-
-const std::list<Gui::Button>& Gui::getButtons()
-{
-    parseCurrentFrame();
-    return mButtons;
-}
-
-unsigned short Gui::getCap()
-{
-    parseCurrentFrame();
-    return mCap;
-}
-
-unsigned short Gui::getSoul()
-{
-    parseCurrentFrame();
-    return mSoul;
-}
-
-unsigned short Gui::getHp()
-{
-    parseCurrentFrame();
-    return mHp;
-}
-
-unsigned short Gui::getMana()
-{
-    parseCurrentFrame();
-    return mMana;
-}
-
-float Gui::getHpLevel()
-{
-    parseCurrentFrame();
-    return mHpLevel;
-}
-
-float Gui::getManaLevel()
-{
-    parseCurrentFrame();
-    return mManaLevel;
-}
-
-unsigned short Gui::getLevel()
-{
-    return mLevel;
-}
-
-unsigned int Gui::getExperience()
-{
-    return mExperience;
-}
-
-unsigned short Gui::getXpGainRate()
-{
-    return mXpGainRate;
-}
-
-unsigned short Gui::getSpeed()
-{
-    return mSpeed;
-}
-
-unsigned short Gui::getFoodMinutes()
-{
-    return mFoodMinutes;
-}
-
-unsigned short Gui::getStaminaMinutes()
-{
-    return mStaminaMinutes;
-}
-
-unsigned short Gui::getOfflineTrainingMinutes()
-{
-    return mOfflineTrainingMinutes;
-}
-
-unsigned short Gui::getMagicLevel()
-{
-    return mMagicLevel;
-}
-
-unsigned short Gui::getFistFighting()
-{
-    return mFistFighting;
-}
-
-unsigned short Gui::getClubFighting()
-{
-    return mClubFighting;
-}
-
-unsigned short Gui::getSwordFighting()
-{
-    return mSwordFighting;
-}
-
-unsigned short Gui::getAxeFighting()
-{
-    return mAxeFighting;
-}
-
-unsigned short Gui::getDistanceFighting()
-{
-    return mDistanceFighting;
-}
-
-unsigned short Gui::getShielding()
-{
-    return mShielding;
-}
-
-unsigned short Gui::getFishing()
-{
-    return mFishing;
-}
-
-unsigned short Gui::getCritChance()
-{
-    return mCritChance;
-}
-
-unsigned short Gui::getCritDamage()
-{
-    return mCritDamage;
-}
-
-unsigned short Gui::getHpLeechChance()
-{
-    return mHpLeechChance;
-}
-
-unsigned short Gui::getHpLeechAmount()
-{
-    return mHpLeechAmount;
-}
-
-unsigned short Gui::getManaLeechChance()
-{
-    return mManaLeechChance;
-}
-
-unsigned short Gui::getManaLeechAmount()
-{
-    return mManaLeechAmount;
-}
-
-const std::map<Gui::EqType, size_t>& Gui::getEquipment()
-{
-    return mEquipment;
-}
-
-const std::list<Gui::Container>& Gui::getContainers()
-{
-    return mContainers;
-}
+//
+//Gui::State Gui::getState() const
+//{
+//    return mData->state;
+//}
+//
+//const std::list<Gui::Button>& Gui::getButtons()
+//{
+//    parseCurrentFrame();
+//    return mData->buttons;
+//}
+//
+//unsigned short Gui::getCap()
+//{
+//    parseCurrentFrame();
+//    return mData->cap;
+//}
+//
+//unsigned short Gui::getSoul()
+//{
+//    parseCurrentFrame();
+//    return mData->soul;
+//}
+//
+//unsigned short Gui::getHp()
+//{
+//    parseCurrentFrame();
+//    return mData->hp;
+//}
+//
+//unsigned short Gui::getMana()
+//{
+//    parseCurrentFrame();
+//    return mData->mana;
+//}
+//
+//float Gui::getHpLevel()
+//{
+//    parseCurrentFrame();
+//    return mData->hpLevel;
+//}
+//
+//float Gui::getManaLevel()
+//{
+//    parseCurrentFrame();
+//    return mData->manaLevel;
+//}
+//
+//unsigned short Gui::getLevel()
+//{
+//    return mData->level;
+//}
+//
+//unsigned int Gui::getExperience()
+//{
+//    return mData->experience;
+//}
+//
+//unsigned short Gui::getXpGainRate()
+//{
+//    return mData->xpGainRate;
+//}
+//
+//unsigned short Gui::getSpeed()
+//{
+//    return mData->speed;
+//}
+//
+//unsigned short Gui::getFoodMinutes()
+//{
+//    return mData->foodMinutes;
+//}
+//
+//unsigned short Gui::getStaminaMinutes()
+//{
+//    return mData->staminaMinutes;
+//}
+//
+//unsigned short Gui::getOfflineTrainingMinutes()
+//{
+//    return mData->offlineTrainingMinutes;
+//}
+//
+//unsigned short Gui::getMagicLevel()
+//{
+//    return mData->magicLevel;
+//}
+//
+//unsigned short Gui::getFistFighting()
+//{
+//    return mData->fistLevel;
+//}
+//
+//unsigned short Gui::getClubFighting()
+//{
+//    return mData->clubLevel;
+//}
+//
+//unsigned short Gui::getSwordFighting()
+//{
+//    return mData->swordLevel;
+//}
+//
+//unsigned short Gui::getAxeFighting()
+//{
+//    return mData->axeLevel;
+//}
+//
+//unsigned short Gui::getDistanceFighting()
+//{
+//    return mData->distanceLevel;
+//}
+//
+//unsigned short Gui::getShielding()
+//{
+//    return mData->shieldingLevel;
+//}
+//
+//unsigned short Gui::getFishing()
+//{
+//    return mData->fishingLevel;
+//}
+//
+//unsigned short Gui::getCritChance()
+//{
+//    return mData->critChance;
+//}
+//
+//unsigned short Gui::getCritDamage()
+//{
+//    return mData->critDamage;
+//}
+//
+//unsigned short Gui::getHpLeechChance()
+//{
+//    return mData->hpLeechChance;
+//}
+//
+//unsigned short Gui::getHpLeechAmount()
+//{
+//    return mData->hpLeechAmount;
+//}
+//
+//unsigned short Gui::getManaLeechChance()
+//{
+//    return mData->manaLeechChance;
+//}
+//
+//unsigned short Gui::getManaLeechAmount()
+//{
+//    return mData->manaLeechAmount;
+//}
+//
+//const std::map<Gui::EqType, size_t>& Gui::getEquipment()
+//{
+//    return mData->equipment;
+//}
+//
+//const std::list<Gui::Container>& Gui::getContainers()
+//{
+//    return mData->containers;
+//}

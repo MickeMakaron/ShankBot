@@ -155,7 +155,7 @@ namespace GraphicsLayer
                 std::vector<std::pair<size_t, Rect>> getVisibleItems() const;
 
                 float scroll = 0;
-                const SideBottomWindow* window = nullptr;
+                std::shared_ptr<SideBottomWindow> window;
             };
 
             struct NpcTradeWindow
@@ -175,7 +175,7 @@ namespace GraphicsLayer
                 unsigned int totalPrice = 0;
                 unsigned int availableMoney = 0;
 
-                const SideBottomWindow* window = nullptr;
+                std::shared_ptr<SideBottomWindow> window;
 
                 enum class Tab : unsigned char
                 {
@@ -183,9 +183,9 @@ namespace GraphicsLayer
                     SELL,
                     INVALID,
                 };
-                const Button* buyButton;
-                const Button* sellButton;
-                const Button* okButton;
+                std::shared_ptr<Button> buyButton;
+                std::shared_ptr<Button> sellButton;
+                std::shared_ptr<Button> okButton;
 
                 Tab currentTab = Tab::INVALID;
 
@@ -200,8 +200,55 @@ namespace GraphicsLayer
                     std::set<size_t> objects;
                 };
 
-                std::list<Outfit> outfits;
-                Outfit* selectedOutfit = nullptr;
+                std::vector<std::shared_ptr<Outfit>> outfits;
+                std::shared_ptr<Outfit> selectedOutfit;
+            };
+
+            struct Data
+            {
+                State state = State::UNDEFINED;
+                std::vector<std::shared_ptr<Button>> buttons;
+                unsigned short cap = 0;
+                unsigned short soul = 0;
+                unsigned short mana = 0;
+                unsigned short hp = 0;
+                float hpLevel = 0.f;
+                float manaLevel = 0.f;
+
+                unsigned short level = 0;
+                unsigned int experience = 0;
+                unsigned short xpGainRate = 0;
+                unsigned short speed = 0;
+                unsigned short foodMinutes = 0;
+                unsigned short staminaMinutes = 0;
+                unsigned short offlineTrainingMinutes = 0;
+
+                unsigned short magicLevel = 0;
+                unsigned short fistLevel = 0;
+                unsigned short clubLevel = 0;
+                unsigned short swordLevel = 0;
+                unsigned short axeLevel = 0;
+                unsigned short distanceLevel = 0;
+                unsigned short shieldingLevel = 0;
+                unsigned short fishingLevel = 0;
+
+                unsigned short critChance = 0;
+                unsigned short critDamage = 0;
+
+                unsigned short hpLeechChance = 0;
+                unsigned short hpLeechAmount = 0;
+
+                unsigned short manaLeechChance = 0;
+                unsigned short manaLeechAmount = 0;
+
+                std::map<EqType, size_t> equipment;
+                std::vector<Container> containers;
+
+                std::vector<std::shared_ptr<SideBottomWindow>> sideBottomWindows;
+                std::shared_ptr<NpcTradeWindow> npcTradeWindow;
+                std::shared_ptr<BattleWindow> battleWindow;
+                std::vector<std::string> onlineVips;
+                std::vector<std::string> offlineVips;
             };
 
         public:
@@ -209,48 +256,51 @@ namespace GraphicsLayer
 
             void update(const Frame& frame);
 
+            const Data& getData();
             State getState() const;
-            const std::list<Button>& getButtons();
+
+//            State getState() const;
+//            const std::list<Button>& getButtons();
 
 
-            unsigned short getCap();
-            unsigned short getSoul();
-            unsigned short getMana();
-            unsigned short getHp();
-            float getHpLevel();
-            float getManaLevel();
-
-            unsigned short getLevel();
-            unsigned int getExperience();
-            unsigned short getXpGainRate();
-            unsigned short getSpeed();
-            unsigned short getFoodMinutes();
-            unsigned short getStaminaMinutes();
-            unsigned short getOfflineTrainingMinutes();
-            unsigned short getMagicLevel();
-            unsigned short getFistFighting();
-            unsigned short getClubFighting();
-            unsigned short getSwordFighting();
-            unsigned short getAxeFighting();
-            unsigned short getDistanceFighting();
-            unsigned short getShielding();
-            unsigned short getFishing();
-            unsigned short getCritChance();
-            unsigned short getCritDamage();
-            unsigned short getHpLeechChance();
-            unsigned short getHpLeechAmount();
-            unsigned short getManaLeechChance();
-            unsigned short getManaLeechAmount();
-
-            const std::map<EqType, size_t>& getEquipment();
-            const std::list<Container>& getContainers();
+//            unsigned short getCap();
+//            unsigned short getSoul();
+//            unsigned short getMana();
+//            unsigned short getHp();
+//            float getHpLevel();
+//            float getManaLevel();
+//
+//            unsigned short getLevel();
+//            unsigned int getExperience();
+//            unsigned short getXpGainRate();
+//            unsigned short getSpeed();
+//            unsigned short getFoodMinutes();
+//            unsigned short getStaminaMinutes();
+//            unsigned short getOfflineTrainingMinutes();
+//            unsigned short getMagicLevel();
+//            unsigned short getFistFighting();
+//            unsigned short getClubFighting();
+//            unsigned short getSwordFighting();
+//            unsigned short getAxeFighting();
+//            unsigned short getDistanceFighting();
+//            unsigned short getShielding();
+//            unsigned short getFishing();
+//            unsigned short getCritChance();
+//            unsigned short getCritDamage();
+//            unsigned short getHpLeechChance();
+//            unsigned short getHpLeechAmount();
+//            unsigned short getManaLeechChance();
+//            unsigned short getManaLeechAmount();
+//
+//            const std::map<EqType, size_t>& getEquipment();
+//            const std::list<Container>& getContainers();
 
         private:
             void parseCurrentFrame();
 
             void updateSideBottomWindows(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
             void updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
-            const Button* setButtonText(const Text& text);
+            std::shared_ptr<Button> setButtonText(const Text& text);
             void updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
 //            void updateItems(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::vector<SpriteDraw>& guiSpriteDraws);
 //            void updateItems(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::list<Text>& stackCounts);
@@ -266,12 +316,12 @@ namespace GraphicsLayer
 //            void parseChatText(size_t& i, const std::vector<TextDraw>& textDraws);
 //            void parseSideWindowText(size_t& i, const std::vector<TextDraw>& textDraws);
 //            void parseSideWindowTopText(size_t& i, const std::vector<TextDraw>& textDraws);
-            void parseSkillWindowText(size_t& i, const SideBottomWindow& w);
+            void parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w);
             unsigned short parseTimeText(const std::string& str) const;
             unsigned short parsePercentageText(const std::string& str) const;
-            void parseBattleWindowText(size_t& i, const SideBottomWindow& w);
-            void parseVipWindowText(size_t& i, const SideBottomWindow& w);
-            void parseNpcTradeWindowText(size_t& i, const SideBottomWindow& w);
+            void parseBattleWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w);
+            void parseVipWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w);
+            void parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w);
             void parseDialogFramesText(size_t& i);
 
 
@@ -283,11 +333,11 @@ namespace GraphicsLayer
             void parseSideWindowTopText(size_t& i);
             void parseSideWindowBottomText(size_t& i);
             void parseContainerSlots(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
-            void parseContainerText(size_t& i, Container& c, const std::string& str, const SideBottomWindow& w);
+            void parseContainerText(size_t& i, Container& c, const std::string& str, const std::shared_ptr<SideBottomWindow>& w);
             static size_t containerSlotLocalCoordsToIndex(float startX, float startY, float x, float y);
 
             void parseEquippedItems(size_t& i);
-            void parseBattleWindowSprites(size_t& i, const SideBottomWindow& w);
+            void parseBattleWindowSprites(size_t& i, const std::shared_ptr<SideBottomWindow>& w);
             void parseContainerSprites(size_t& i, Container& c);
             void parseNpcTradeWindowSprites(size_t& i);
             void parseGuiSpriteDraws();
@@ -295,48 +345,50 @@ namespace GraphicsLayer
 
         private:
             const TibiaContext& mContext;
+            std::shared_ptr<Data> mData;
             Frame mCurrentFrame;
             bool mIsCurrentFrameParsed = false;
             float mHalfFrameWidth = 0.f;
             float mHalfFrameHeight = 0.f;
-            State mCurrentState = State::UNDEFINED;
-            std::list<Button> mButtons;
+//            State mCurrentState = State::UNDEFINED;
+//            std::list<Button> mButtons;
 //            std::map<UiSection, std::list<Rect>> mUiSections;
-            std::map<EqType, size_t> mEquipment;
-            std::list<Container> mContainers;
-            std::list<SideBottomWindow> mSideBottomWindows;
-            std::unique_ptr<NpcTradeWindow> mNpcTradeWindow;
-            std::unique_ptr<BattleWindow> mBattleWindow;
-            std::list<std::string> mOnlineVip;
-            std::list<std::string> mOfflineVip;
-            unsigned short mCap;
-            unsigned short mSoul;
-            unsigned short mMana;
-            unsigned short mHp;
-            float mHpLevel;
-            float mManaLevel;
+//            std::map<EqType, size_t> mEquipment;
+//            std::list<Container> mContainers;
+//            std::list<SideBottomWindow> mSideBottomWindows;
+//            std::unique_ptr<NpcTradeWindow> mNpcTradeWindow;
+//            std::unique_ptr<BattleWindow> mBattleWindow;
+//            std::list<std::string> mOnlineVip;
+//            std::list<std::string> mOfflineVip;
 
-            unsigned short mLevel = 0;
-            unsigned int mExperience = 0;
-            unsigned short mXpGainRate = 0;
-            unsigned short mSpeed = 0;
-            unsigned short mFoodMinutes = 0;
-            unsigned short mStaminaMinutes = 0;
-            unsigned short mOfflineTrainingMinutes = 0;
-            unsigned short mMagicLevel = 0;
-            unsigned short mFistFighting = 0;
-            unsigned short mClubFighting = 0;
-            unsigned short mSwordFighting = 0;
-            unsigned short mAxeFighting = 0;
-            unsigned short mDistanceFighting = 0;
-            unsigned short mShielding = 0;
-            unsigned short mFishing = 0;
-            unsigned short mCritChance = 0;
-            unsigned short mCritDamage = 0;
-            unsigned short mHpLeechChance = 0;
-            unsigned short mHpLeechAmount = 0;
-            unsigned short mManaLeechChance = 0;
-            unsigned short mManaLeechAmount = 0;
+//            unsigned short mCap;
+//            unsigned short mSoul;
+//            unsigned short mMana;
+//            unsigned short mHp;
+//            float mHpLevel;
+//            float mManaLevel;
+//
+//            unsigned short mLevel = 0;
+//            unsigned int mExperience = 0;
+//            unsigned short mXpGainRate = 0;
+//            unsigned short mSpeed = 0;
+//            unsigned short mFoodMinutes = 0;
+//            unsigned short mStaminaMinutes = 0;
+//            unsigned short mOfflineTrainingMinutes = 0;
+//            unsigned short mMagicLevel = 0;
+//            unsigned short mFistFighting = 0;
+//            unsigned short mClubFighting = 0;
+//            unsigned short mSwordFighting = 0;
+//            unsigned short mAxeFighting = 0;
+//            unsigned short mDistanceFighting = 0;
+//            unsigned short mShielding = 0;
+//            unsigned short mFishing = 0;
+//            unsigned short mCritChance = 0;
+//            unsigned short mCritDamage = 0;
+//            unsigned short mHpLeechChance = 0;
+//            unsigned short mHpLeechAmount = 0;
+//            unsigned short mManaLeechChance = 0;
+//            unsigned short mManaLeechAmount = 0;
 
             bool mIsEquipmentMinimized = false;
     };

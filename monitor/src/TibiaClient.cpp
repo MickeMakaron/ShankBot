@@ -313,9 +313,9 @@ std::shared_ptr<sb::messaging::Message> TibiaClient::handleLoginRequest(const ch
         return std::make_shared<LoginResponse>();
     }
 
-    for(const Gui::Button& b : mGui.getButtons())
+    for(const std::shared_ptr<Gui::Button>& b : mGui.getData().buttons)
     {
-        if(b.text == "Login")
+        if(b->text == "Login")
         {
             mInput->sendString(l.getAccountName());
             mInput->sendKey(VK_TAB);
@@ -532,54 +532,55 @@ void TibiaClient::update()
     if(timeSinceLastFrame > MS_PER_FRAME)
     {
         Frame frame = mGraphicsMonitorReader->getNewFrame();
-        if(frame.screenPixels != nullptr)
-        {
-            static size_t screenPixelsCount = 0;
-            FrameFile file(frame);
-            file.write("frameDumps/d" + std::to_string(screenPixelsCount));
-
-            screenPixelsCount++;
-        }
+//        if(frame.screenPixels != nullptr)
+//        {
+//            static size_t screenPixelsCount = 0;
+//            FrameFile file(frame);
+//            file.write("frameDumps/d" + std::to_string(screenPixelsCount));
+//
+//            screenPixelsCount++;
+//        }
         mMiniMap->update(frame);
         lastFrameTime = std::chrono::steady_clock::now();
 
         mGui.update(frame);
+        const Gui::Data& gui = mGui.getData();
         if(mGui.getState() == Gui::State::GAME)
         {
             mScene.update(frame);
             mOutfitResolver.resolve(mScene, frame, *mGraphicsMonitorReader);
 
-            std::cout << "Cap: " << mGui.getCap() << std::endl;
-            std::cout << "Soul: " << mGui.getSoul() << std::endl;
-            std::cout << "Hp: " << mGui.getHp() << std::endl;
-            std::cout << "Mana: " << mGui.getMana() << std::endl;
-            std::cout << "Hp percent: " << mGui.getHpLevel() * 100.f << "%" << std::endl;
-            std::cout << "Mana percent: " << mGui.getManaLevel() * 100.f << "%" << std::endl;
-            std::cout << "Level: " << mGui.getLevel() << std::endl;
-            std::cout << "Exp: " << mGui.getExperience() << std::endl;
-            std::cout << "Xp gain rate: " << mGui.getXpGainRate() << std::endl;
-            std::cout << "Speed: " << mGui.getSpeed() << std::endl;
-            std::cout << "Food: " << mGui.getFoodMinutes() << std::endl;
-            std::cout << "Stamina: " << mGui.getStaminaMinutes() << std::endl;
-            std::cout << "Offline training: " << mGui.getOfflineTrainingMinutes() << std::endl;
-            std::cout << "Magic lvl: " << mGui.getMagicLevel() << std::endl;
-            std::cout << "Fist: " << mGui.getFistFighting() << std::endl;
-            std::cout << "Club: " << mGui.getClubFighting() << std::endl;
-            std::cout << "Sword: " << mGui.getSwordFighting() << std::endl;
-            std::cout << "Axe: " << mGui.getAxeFighting() << std::endl;
-            std::cout << "Distance: " << mGui.getDistanceFighting() << std::endl;
-            std::cout << "Shielding: " << mGui.getShielding() << std::endl;
-            std::cout << "Fishing: " << mGui.getFishing() << std::endl;
-            std::cout << "Crit chance: " << mGui.getCritChance() << "%" << std::endl;
-            std::cout << "Crit dmg: " << mGui.getCritDamage() << std::endl;
-            std::cout << "Hp leech chance: " << mGui.getHpLeechChance() << "%" << std::endl;
-            std::cout << "Hp leech amount: " << mGui.getHpLeechAmount() << std::endl;
-            std::cout << "Mana leech chance: " << mGui.getManaLeechChance() << "%" << std::endl;
-            std::cout << "Mana leech amoumt: " << mGui.getManaLeechAmount() << std::endl;
+            std::cout << "Cap: " << gui.cap << std::endl;
+            std::cout << "Soul: " << gui.soul << std::endl;
+            std::cout << "Hp: " << gui.hp << std::endl;
+            std::cout << "Mana: " << gui.mana << std::endl;
+            std::cout << "Hp percent: " << gui.hpLevel * 100.f << "%" << std::endl;
+            std::cout << "Mana percent: " << gui.manaLevel * 100.f << "%" << std::endl;
+            std::cout << "Level: " << gui.level << std::endl;
+            std::cout << "Exp: " << gui.experience << std::endl;
+            std::cout << "Xp gain rate: " << gui.xpGainRate << std::endl;
+            std::cout << "Speed: " << gui.speed << std::endl;
+            std::cout << "Food: " << gui.foodMinutes << std::endl;
+            std::cout << "Stamina: " << gui.staminaMinutes << std::endl;
+            std::cout << "Offline training: " << gui.offlineTrainingMinutes << std::endl;
+            std::cout << "Magic lvl: " << gui.magicLevel << std::endl;
+            std::cout << "Fist: " << gui.fistLevel << std::endl;
+            std::cout << "Club: " << gui.clubLevel << std::endl;
+            std::cout << "Sword: " << gui.swordLevel << std::endl;
+            std::cout << "Axe: " << gui.axeLevel << std::endl;
+            std::cout << "Distance: " << gui.distanceLevel << std::endl;
+            std::cout << "Shielding: " << gui.shieldingLevel << std::endl;
+            std::cout << "Fishing: " << gui.fishingLevel << std::endl;
+            std::cout << "Crit chance: " << gui.critChance << "%" << std::endl;
+            std::cout << "Crit dmg: " << gui.critDamage << std::endl;
+            std::cout << "Hp leech chance: " << gui.hpLeechChance << "%" << std::endl;
+            std::cout << "Hp leech amount: " << gui.hpLeechAmount << std::endl;
+            std::cout << "Mana leech chance: " << gui.manaLeechChance << "%" << std::endl;
+            std::cout << "Mana leech amoumt: " << gui.manaLeechAmount << std::endl;
 
 
             std::cout << "EQUIPMENT: " << std::endl;
-            for(const auto& pair : mGui.getEquipment())
+            for(const auto& pair : gui.equipment)
             {
                 const Object& o = mContext.getObjects()[pair.second];
                 std::cout << "\t" << (int)pair.first << ": " << o.id;
@@ -589,7 +590,7 @@ void TibiaClient::update()
             }
 
             std::cout << "CONTAINERS: " << std::endl;
-            for(const Gui::Container& c : mGui.getContainers())
+            for(const Gui::Container& c : gui.containers)
             {
                 std::cout << "\t" << c.items.size() << " items: " << std::endl;
                 for(const auto& pair : c.items)
@@ -933,11 +934,12 @@ void TibiaClient::update()
 
 
     mGui.update(frame);
+    const Gui::Data& gui = mGui.getData();
     if(mGui.getState() == Gui::State::MAIN_MENU)
     {
-        for(const Gui::Button& b : mGui.getButtons())
+        for(const std::shared_ptr<Gui::Button>& b : gui.buttons)
         {
-            if(b.text == "Login")
+            if(b->text == "Login")
             {
                 if(loginStringIndex == 0)
                 {
@@ -980,8 +982,6 @@ void TibiaClient::update()
     else if(mGui.getState() == Gui::State::GAME)
     {
         mScene.update(frame);
-        mGui.getButtons();
-
 
         static MiniMap miniMap(*mInput, *mGraphicsMonitorReader);
         miniMap.update(frame);
