@@ -29,15 +29,11 @@
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "monitor/Gui.hpp"
-#include "monitor/RawImage.hpp"
 namespace GraphicsLayer
 {
     struct Frame;
-    class TibiaContext;
 }
 ///////////////////////////////////
-
 
 ///////////////////////////////////
 // STD C++
@@ -46,22 +42,10 @@ namespace GraphicsLayer
 
 namespace GraphicsLayer
 {
-    class FrameFile
+    namespace FrameFile
     {
-        public:
-            FrameFile(const TibiaContext& context);
-            FrameFile(const TibiaContext& context, const Frame& f);
-
-            bool write(const std::string& filePath) const;
-            bool read(const std::string& filePath) const;
-
-        private:
-            void parse(const Frame& f);
-
-        private:
-            const TibiaContext& mContext;
-            std::shared_ptr<Gui::Data> mGui;
-            std::shared_ptr<RawImage> mScreenPixels;
+        bool write(const Frame& f, const std::string& filePath);
+        bool read(Frame& f, const std::string& filePath);
     };
 }
 
