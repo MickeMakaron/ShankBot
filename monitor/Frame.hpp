@@ -44,7 +44,6 @@ namespace GraphicsLayer
 {
     struct Frame
     {
-        std::shared_ptr<std::vector<SpriteDraw>> spriteDraws;
         bool hasMiniMapMoved = false;
         short miniMapX = 0;
         short miniMapY = 0;
@@ -63,11 +62,12 @@ namespace GraphicsLayer
         unsigned short width = 0;
         unsigned short height = 0;
 
+        std::shared_ptr<std::vector<SpriteDraw>> spriteDraws;
         std::shared_ptr<std::vector<GuiDraw>> guiDraws;
         std::shared_ptr<std::vector<SpriteDraw>> guiSpriteDraws;
         std::shared_ptr<std::vector<TextDraw>> textDraws;
         std::shared_ptr<std::vector<RectDraw>> rectDraws;
-        std::shared_ptr<std::vector<FileIo>> fileIo;
+        std::shared_ptr<std::vector<FileIo>> fileIo; // Unused
         std::shared_ptr<std::vector<MiniMapDraw>> miniMapDraws;
         std::shared_ptr<RawImage> screenPixels;
     };
