@@ -1695,7 +1695,7 @@ void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWin
     mData->npcTradeWindow->totalPrice = strToInt(it->string);
     it++;
 
-    assert(it->string == "Money:");
+    assert(it->string == "Gold:");
     it++;
     assert(isNumeric(it->string));
     mData->npcTradeWindow->availableMoney = strToInt(it->string);
