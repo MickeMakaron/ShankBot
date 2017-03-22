@@ -46,12 +46,24 @@ void write(const Draw& draw, std::ostream& stream)
 {
     writeStream(draw.topLeft, stream);
     writeStream(draw.botRight, stream);
-    writeStream(draw.transform == nullptr ? Matrix<float, 4, 4>() : *draw.transform, stream);
+    bool hasTransform = draw.transform != nullptr;
+    writeStream(hasTransform, stream);
+    if(!hasTransform)
+    {
+        return;
+    }
+    writeStream(*draw.transform, stream);
 }
 
 void write(const std::shared_ptr<std::vector<SpriteDraw>>& draws, std::ostream& stream)
 {
-    unsigned short numDraws = draws == nullptr ? 0 : draws->size();
+    bool hasData = draws != nullptr;
+    writeStream(hasData, stream);
+    if(!hasData)
+    {
+        return;
+    }
+    unsigned short numDraws = draws->size();
     writeStream(numDraws, stream);
     for(unsigned short i = 0; i < numDraws; i++)
     {
@@ -80,7 +92,13 @@ void write(const std::shared_ptr<std::vector<SpriteDraw>>& draws, std::ostream& 
 
 void write(const std::shared_ptr<std::vector<GuiDraw>>& draws, std::ostream& stream)
 {
-    unsigned short numDraws = draws == nullptr ? 0 : draws->size();
+    bool hasData = draws != nullptr;
+    writeStream(hasData, stream);
+    if(!hasData)
+    {
+        return;
+    }
+    unsigned short numDraws = draws->size();
     writeStream(numDraws, stream);
     for(unsigned short i = 0; i < numDraws; i++)
     {
@@ -99,7 +117,13 @@ void write(const std::shared_ptr<std::vector<GuiDraw>>& draws, std::ostream& str
 
 void write(const std::shared_ptr<std::vector<GlyphDraw>>& draws, std::ostream& stream)
 {
-    unsigned short numDraws = draws == nullptr ? 0 : draws->size();
+    bool hasData = draws != nullptr;
+    writeStream(hasData, stream);
+    if(!hasData)
+    {
+        return;
+    }
+    unsigned short numDraws = draws->size();
     writeStream(numDraws, stream);
     for(unsigned short i = 0; i < numDraws; i++)
     {
@@ -112,7 +136,13 @@ void write(const std::shared_ptr<std::vector<GlyphDraw>>& draws, std::ostream& s
 
 void write(const std::shared_ptr<std::vector<TextDraw>>& draws, std::ostream& stream)
 {
-    unsigned short numDraws = draws == nullptr ? 0 : draws->size();
+    bool hasData = draws != nullptr;
+    writeStream(hasData, stream);
+    if(!hasData)
+    {
+        return;
+    }
+    unsigned short numDraws = draws->size();
     writeStream(numDraws, stream);
     for(unsigned short i = 0; i < numDraws; i++)
     {
@@ -128,7 +158,13 @@ void write(const std::shared_ptr<std::vector<TextDraw>>& draws, std::ostream& st
 
 void write(const std::shared_ptr<std::vector<RectDraw>>& draws, std::ostream& stream)
 {
-    unsigned short numDraws = draws == nullptr ? 0 : draws->size();
+    bool hasData = draws != nullptr;
+    writeStream(hasData, stream);
+    if(!hasData)
+    {
+        return;
+    }
+    unsigned short numDraws = draws->size();
     writeStream(numDraws, stream);
     for(unsigned short i = 0; i < numDraws; i++)
     {
@@ -141,7 +177,13 @@ void write(const std::shared_ptr<std::vector<RectDraw>>& draws, std::ostream& st
 
 void write(const std::shared_ptr<std::vector<MiniMapDraw>>& draws, std::ostream& stream)
 {
-    unsigned short numDraws = draws == nullptr ? 0 : draws->size();
+    bool hasData = draws != nullptr;
+    writeStream(hasData, stream);
+    if(!hasData)
+    {
+        return;
+    }
+    unsigned short numDraws = draws->size();
     writeStream(numDraws, stream);
     for(unsigned short i = 0; i < numDraws; i++)
     {
@@ -160,9 +202,9 @@ void write(const std::shared_ptr<std::vector<MiniMapDraw>>& draws, std::ostream&
 
 void write(const std::shared_ptr<RawImage>& screenPixels, std::ostream& stream)
 {
-    bool isNull = screenPixels == nullptr;
-    writeStream(isNull, stream);
-    if(isNull)
+    bool hasData = screenPixels != nullptr;
+    writeStream(hasData, stream);
+    if(!hasData)
     {
         return;
     }
@@ -183,12 +225,27 @@ void read(Draw& draw, std::istream& stream)
     readStreamSafe(draw.topLeft, stream);
     readStreamSafe(draw.botRight, stream);
 
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
+    {
+        draw.transform = nullptr;
+        return;
+    }
+
     draw.transform.reset(new Matrix<float, 4, 4>());
     readStreamSafe(*draw.transform, stream);
 }
 
 void read(std::shared_ptr<std::vector<SpriteDraw>>& draws, std::istream& stream)
 {
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
+    {
+        draws = nullptr;
+        return;
+    }
     draws.reset(new std::vector<SpriteDraw>());
 
     unsigned short numDraws;
@@ -226,6 +283,14 @@ void read(std::shared_ptr<std::vector<SpriteDraw>>& draws, std::istream& stream)
 
 void read(std::shared_ptr<std::vector<GuiDraw>>& draws, std::istream& stream)
 {
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
+    {
+        draws = nullptr;
+        return;
+    }
+
     draws.reset(new std::vector<GuiDraw>());
 
     unsigned short numDraws;
@@ -249,6 +314,14 @@ void read(std::shared_ptr<std::vector<GuiDraw>>& draws, std::istream& stream)
 
 void read(std::shared_ptr<std::vector<GlyphDraw>>& draws, std::istream& stream)
 {
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
+    {
+        draws = nullptr;
+        return;
+    }
+
     draws.reset(new std::vector<GlyphDraw>());
 
     unsigned short numDraws;
@@ -265,6 +338,14 @@ void read(std::shared_ptr<std::vector<GlyphDraw>>& draws, std::istream& stream)
 
 void read(std::shared_ptr<std::vector<TextDraw>>& draws, std::istream& stream)
 {
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
+    {
+        draws = nullptr;
+        return;
+    }
+
     draws.reset(new std::vector<TextDraw>());
 
     unsigned short numDraws;
@@ -284,6 +365,14 @@ void read(std::shared_ptr<std::vector<TextDraw>>& draws, std::istream& stream)
 
 void read(std::shared_ptr<std::vector<RectDraw>>& draws, std::istream& stream)
 {
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
+    {
+        draws = nullptr;
+        return;
+    }
+
     draws.reset(new std::vector<RectDraw>());
 
     unsigned short numDraws;
@@ -300,6 +389,14 @@ void read(std::shared_ptr<std::vector<RectDraw>>& draws, std::istream& stream)
 
 void read(std::shared_ptr<std::vector<MiniMapDraw>>& draws, std::istream& stream)
 {
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
+    {
+        draws = nullptr;
+        return;
+    }
+
     draws.reset(new std::vector<MiniMapDraw>());
 
     unsigned short numDraws;
@@ -325,11 +422,11 @@ void read(std::shared_ptr<std::vector<MiniMapDraw>>& draws, std::istream& stream
 
 void read(std::shared_ptr<RawImage>& screenPixels, std::istream& stream)
 {
-    bool isNull;
-    readStreamSafe(isNull, stream);
-    if(isNull)
+    bool hasData;
+    readStreamSafe(hasData, stream);
+    if(!hasData)
     {
-        screenPixels.reset();
+        screenPixels = nullptr;
         return;
     }
 
