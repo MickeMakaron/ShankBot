@@ -1539,6 +1539,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
         else if(str == "Battle")
         {
             w->type = SideBottomWindow::Type::BATTLE;
+            mData->battleWindow.reset(new BattleWindow());
             parseBattleWindowText(i, w);
         }
         else if(str == "VIP")
@@ -1553,6 +1554,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
         else if(str == "NPC Trade")
         {
             w->type = SideBottomWindow::Type::NPC_TRADE;
+            mData->npcTradeWindow.reset(new NpcTradeWindow());
             parseNpcTradeWindowText(i, w);
         }
         else if(str == "Browse Field")
