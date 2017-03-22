@@ -267,6 +267,8 @@ QJsonValue toJson(const Gui::NpcTradeWindow& w)
     json["buyButton"] = w.buyButton == nullptr ? QJsonObject() : toJson(*w.buyButton);
     json["sellButton"] = w.sellButton == nullptr ? QJsonObject() : toJson(*w.sellButton);
     json["okButton"] = w.okButton == nullptr ? QJsonObject() : toJson(*w.okButton);
+
+    return json;
 }
 
 QJsonValue toJson(const Gui::Container& c)
