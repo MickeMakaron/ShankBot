@@ -29,19 +29,10 @@
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "monitor/Gui.hpp"
-#include "monitor/RawImage.hpp"
 namespace GraphicsLayer
 {
-    struct Frame;
-    class TibiaContext;
+    struct ParsedFrame;
 }
-///////////////////////////////////
-
-
-///////////////////////////////////
-// Qt
-class QJsonObject;
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -51,25 +42,11 @@ class QJsonObject;
 
 namespace GraphicsLayer
 {
-    class ParsedFrameFile
+    namespace ParsedFrameFile
     {
-        public:
-            ParsedFrameFile(const TibiaContext& context);
-            ParsedFrameFile(const TibiaContext& context, const Frame& f);
-
-            bool write(const std::string& filePath) const;
-            bool read(const std::string& filePath) const;
-
-        private:
-            void parse(const Frame& f);
-            void writeScreenPixels(QJsonObject& o, const std::string& filePath) const;
-            void writeGui(QJsonObject& o) const;
-
-        private:
-            const TibiaContext& mContext;
-            std::shared_ptr<Gui::Data> mGui;
-            std::shared_ptr<RawImage> mScreenPixels;
-    };
+        bool write(const ParsedFrame& f, const std::string& filePath);
+        bool read(ParsedFrame& f, const std::string& filePath);
+    }
 }
 
 

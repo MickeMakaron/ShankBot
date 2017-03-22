@@ -24,15 +24,13 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
+
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/ParsedFrameFile.hpp"
-#include "monitor/Frame.hpp"
-#include "monitor/TibiaContext.hpp"
+#include "monitor/ParsedFrame.hpp"
 #include "utility/utility.hpp"
-using namespace GraphicsLayer;
 ///////////////////////////////////
-
 
 ///////////////////////////////////
 // Qt
@@ -44,30 +42,18 @@ using namespace GraphicsLayer;
 #include "QtCore/QFileInfo"
 ///////////////////////////////////
 
-
-///////////////////////////////////
-// STD C++
-#include <fstream>
-#include <iostream>
-///////////////////////////////////
-
-ParsedFrameFile::ParsedFrameFile(const TibiaContext& context)
-: mContext(context)
+namespace GraphicsLayer
 {
-
-}
-
-ParsedFrameFile::ParsedFrameFile(const TibiaContext& context, const Frame& f)
-: mContext(context)
+namespace ParsedFrameFile
 {
-    parse(f);
-}
+void write(QJsonObject& o, const std::shared_ptr<RawImage>& screenPixels, const std::string& filePath);
+void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData);
 
-bool ParsedFrameFile::write(const std::string& filePath) const
+bool write(const ParsedFrame& f, const std::string& filePath)
 {
     QJsonObject o;
-    writeScreenPixels(o, filePath);
-    writeGui(o);
+    write(o, f.screenPixels, filePath);
+    write(o, f.gui);
 
     QFile file(QString::fromStdString(filePath + ".json"));
     if(!file.open(QIODevice::WriteOnly))
@@ -79,29 +65,20 @@ bool ParsedFrameFile::write(const std::string& filePath) const
     return true;
 }
 
-bool ParsedFrameFile::read(const std::string& filePath) const
+bool read(const std::string& filePath)
 {
 
 }
 
-void ParsedFrameFile::parse(const Frame& f)
+void write(QJsonObject& o, const std::shared_ptr<RawImage>& screenPixels, const std::string& filePath)
 {
-    mScreenPixels = f.screenPixels;
-
-    Gui gui(mContext);
-    gui.update(f);
-    mGui.reset(new Gui::Data(gui.getData()));
-}
-
-void ParsedFrameFile::writeScreenPixels(QJsonObject& o, const std::string& filePath) const
-{
-    if(mScreenPixels == nullptr)
+    if(screenPixels == nullptr)
     {
         o["screenPixels"] = "";
         return;
     }
 
-    const RawImage& i = *mScreenPixels;
+    const RawImage& i = *screenPixels;
     QImage img(i.pixels.data(), i.width, i.height, QImage::Format_RGB888);
     img = img.mirrored(false, true);
     QString imgPath = QString::fromStdString(filePath + ".png");
@@ -335,9 +312,9 @@ QJsonValue toJson(const Gui::BattleWindow& w)
     });
 }
 
-void ParsedFrameFile::writeGui(QJsonObject& o) const
+void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData)
 {
-    if(mGui == nullptr)
+    if(guiData == nullptr)
     {
         o["gui"] = "";
         return;
@@ -347,39 +324,39 @@ void ParsedFrameFile::writeGui(QJsonObject& o) const
 
     gui["attributes"] = QJsonObject(
     {
-        {"cap", mGui->cap},
-        {"soul", mGui->soul},
-        {"mana", mGui->mana},
-        {"hp", mGui->hp},
-        {"hpLevel", mGui->hpLevel},
-        {"manaLevel", mGui->manaLevel},
-        {"level", mGui->level},
-        {"experience", (int)mGui->experience},
-        {"xpGainRate", mGui->xpGainRate},
-        {"speed", mGui->speed},
-        {"foodMinutes", mGui->foodMinutes},
-        {"staminaMinutes", mGui->staminaMinutes},
-        {"offlineTrainingMinutes", mGui->offlineTrainingMinutes},
-        {"magicLevel", mGui->magicLevel},
-        {"fistLevel", mGui->fistLevel},
-        {"clubLevel", mGui->clubLevel},
-        {"swordLevel", mGui->swordLevel},
-        {"axeLevel", mGui->axeLevel},
-        {"distanceLevel", mGui->distanceLevel},
-        {"shieldingLevel", mGui->shieldingLevel},
-        {"fishingLevel", mGui->fishingLevel},
-        {"critChance", mGui->critChance},
-        {"critDamage", mGui->critDamage},
-        {"hpLeechChance", mGui->hpLeechChance},
-        {"hpLeechAmount", mGui->hpLeechAmount},
-        {"manaLeechChance", mGui->manaLeechChance},
-        {"manaLeechAmount", mGui->manaLeechAmount},
+        {"cap", guiData->cap},
+        {"soul", guiData->soul},
+        {"mana", guiData->mana},
+        {"hp", guiData->hp},
+        {"hpLevel", guiData->hpLevel},
+        {"manaLevel", guiData->manaLevel},
+        {"level", guiData->level},
+        {"experience", (int)guiData->experience},
+        {"xpGainRate", guiData->xpGainRate},
+        {"speed", guiData->speed},
+        {"foodMinutes", guiData->foodMinutes},
+        {"staminaMinutes", guiData->staminaMinutes},
+        {"offlineTrainingMinutes", guiData->offlineTrainingMinutes},
+        {"magicLevel", guiData->magicLevel},
+        {"fistLevel", guiData->fistLevel},
+        {"clubLevel", guiData->clubLevel},
+        {"swordLevel", guiData->swordLevel},
+        {"axeLevel", guiData->axeLevel},
+        {"distanceLevel", guiData->distanceLevel},
+        {"shieldingLevel", guiData->shieldingLevel},
+        {"fishingLevel", guiData->fishingLevel},
+        {"critChance", guiData->critChance},
+        {"critDamage", guiData->critDamage},
+        {"hpLeechChance", guiData->hpLeechChance},
+        {"hpLeechAmount", guiData->hpLeechAmount},
+        {"manaLeechChance", guiData->manaLeechChance},
+        {"manaLeechAmount", guiData->manaLeechAmount},
     });
 
-    gui["state"] = toJson(mGui->state);
+    gui["state"] = toJson(guiData->state);
 
     QJsonArray buttons;
-    for(const std::shared_ptr<Gui::Button>& b : mGui->buttons)
+    for(const std::shared_ptr<Gui::Button>& b : guiData->buttons)
     {
         buttons.push_back(b == nullptr ? QJsonObject() : toJson(*b));
     }
@@ -387,25 +364,25 @@ void ParsedFrameFile::writeGui(QJsonObject& o) const
 
     gui["equipment"] = QJsonObject(
     {
-        {"hand1", (int)mGui->equipment[Gui::EqType::HAND1]},
-        {"hand2", (int)mGui->equipment[Gui::EqType::HAND2]},
-        {"neck", (int)mGui->equipment[Gui::EqType::NECK]},
-        {"finger", (int)mGui->equipment[Gui::EqType::FINGER]},
-        {"head", (int)mGui->equipment[Gui::EqType::HEAD]},
-        {"torso", (int)mGui->equipment[Gui::EqType::TORSO]},
-        {"legs", (int)mGui->equipment[Gui::EqType::LEGS]},
-        {"feet", (int)mGui->equipment[Gui::EqType::FEET]},
-        {"back", (int)mGui->equipment[Gui::EqType::BACK]},
-        {"hip", (int)mGui->equipment[Gui::EqType::HIP]},
+        {"hand1", (int)guiData->equipment[Gui::EqType::HAND1]},
+        {"hand2", (int)guiData->equipment[Gui::EqType::HAND2]},
+        {"neck", (int)guiData->equipment[Gui::EqType::NECK]},
+        {"finger", (int)guiData->equipment[Gui::EqType::FINGER]},
+        {"head", (int)guiData->equipment[Gui::EqType::HEAD]},
+        {"torso", (int)guiData->equipment[Gui::EqType::TORSO]},
+        {"legs", (int)guiData->equipment[Gui::EqType::LEGS]},
+        {"feet", (int)guiData->equipment[Gui::EqType::FEET]},
+        {"back", (int)guiData->equipment[Gui::EqType::BACK]},
+        {"hip", (int)guiData->equipment[Gui::EqType::HIP]},
     });
 
     QJsonArray onlineVips;
     QJsonArray offlineVips;
-    for(const std::string& name : mGui->onlineVips)
+    for(const std::string& name : guiData->onlineVips)
     {
         onlineVips.push_back(QString::fromStdString(name));
     }
-    for(const std::string& name : mGui->offlineVips)
+    for(const std::string& name : guiData->offlineVips)
     {
         offlineVips.push_back(QString::fromStdString(name));
     }
@@ -414,13 +391,13 @@ void ParsedFrameFile::writeGui(QJsonObject& o) const
     gui["offlineVips"] = offlineVips;
 
     QJsonArray containers;
-    for(const Gui::Container& c : mGui->containers)
+    for(const Gui::Container& c : guiData->containers)
     {
         containers.push_back(toJson(c));
     }
     gui["containers"] = containers;
-    gui["trade"] = mGui->npcTradeWindow == nullptr ? QJsonObject() : toJson(*mGui->npcTradeWindow);
-    gui["battle"] = mGui->battleWindow == nullptr ? QJsonObject() : toJson(*mGui->battleWindow);
+    gui["trade"] = guiData->npcTradeWindow == nullptr ? QJsonObject() : toJson(*guiData->npcTradeWindow);
+    gui["battle"] = guiData->battleWindow == nullptr ? QJsonObject() : toJson(*guiData->battleWindow);
 
 
 
@@ -428,4 +405,7 @@ void ParsedFrameFile::writeGui(QJsonObject& o) const
 
 
     o["gui"] = gui;
+}
+
+}
 }
