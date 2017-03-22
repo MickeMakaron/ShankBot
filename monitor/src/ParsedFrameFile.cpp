@@ -39,6 +39,7 @@ using namespace GraphicsLayer;
 #include "QtGui/QImage"
 #include "QtCore/QJsonDocument"
 #include "QtCore/QJsonObject"
+#include "QtCore/QJsonArray"
 #include "QtCore/QFile"
 #include "QtCore/QFileInfo"
 ///////////////////////////////////
@@ -47,6 +48,7 @@ using namespace GraphicsLayer;
 ///////////////////////////////////
 // STD C++
 #include <fstream>
+#include <iostream>
 ///////////////////////////////////
 
 ParsedFrameFile::ParsedFrameFile(const TibiaContext& context)
@@ -95,7 +97,7 @@ void ParsedFrameFile::writeScreenPixels(QJsonObject& o, const std::string& fileP
 {
     if(mScreenPixels == nullptr)
     {
-        o["screen-pixels"] = "";
+        o["screenPixels"] = "";
         return;
     }
 
@@ -105,7 +107,230 @@ void ParsedFrameFile::writeScreenPixels(QJsonObject& o, const std::string& fileP
     QString imgPath = QString::fromStdString(filePath + ".png");
     img.save(imgPath);
 
-    o["screen-pixels"] = QFileInfo(imgPath).absoluteFilePath();
+    o["screenPixels"] = QFileInfo(imgPath).absoluteFilePath();
+}
+
+QJsonValue toJson(const Gui::Rect& r)
+{
+    return QJsonObject(
+    {
+        {"x", (int)r.pos.x},
+        {"y", (int)r.pos.y},
+        {"width", (int)r.size.x},
+        {"height", (int)r.size.y},
+    });
+}
+
+
+QJsonValue toJson(const Gui::SideBottomWindow::Type& t)
+{
+    using T = Gui::SideBottomWindow::Type;
+    switch(t)
+    {
+        case T::BATTLE: return "battle";
+        case T::CONTAINER: return "container";
+        case T::NPC_TRADE: return "npcTrade";
+        case T::UNJUSTIFIED_POINTS: return "unjustifiedPoints";
+        case T::SKILLS: return "skills";
+        case T::VIP: return "vip";
+
+        default:
+            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented window type: ", (int)t));
+    }
+}
+
+QJsonValue toJson(const std::set<size_t>& ids)
+{
+    QJsonArray array;
+    for(const size_t& id : ids)
+    {
+        array.push_back((int)id);
+    }
+
+    return array;
+}
+
+QJsonValue toJson(const Gui::SideBottomWindow& w)
+{
+    QJsonObject json(
+    {
+        {"clientArea", toJson(w.clientArea)},
+        {"exitButton", toJson(w.exitButton)},
+        {"isMinimized", w.isMinimized},
+        {"minMaxButton", toJson(w.minMaxButton)},
+        {"type", toJson(w.type)},
+    });
+
+    using T = Gui::SideBottomWindow::Type;
+    switch(w.type)
+    {
+        case T::BATTLE:
+            json["expandButton"] = toJson(w.expandButton);
+            break;
+        case T::CONTAINER:
+            json["upButton"] = toJson(w.containerUpButton);
+            break;
+
+        default:
+            break;
+    }
+
+    if(w.hasResizer)
+    {
+        json["resizer"] = toJson(w.resizer);
+    }
+
+    return json;
+}
+
+
+QJsonValue toJson(const Gui::State& s)
+{
+    using S = Gui::State;
+    switch(s)
+    {
+        case S::MAIN_MENU: return "mainMenu";
+        case S::GAME: return "game";
+
+        default:
+            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented GUI state: ", (int)s));
+    }
+}
+
+
+QJsonValue toJson(const Gui::NpcTradeWindow::Offer& o)
+{
+    return QJsonObject(
+    {
+        {"cost", (int)o.cost},
+        {"isAffordable", o.isAffordable},
+        {"weight", o.weight},
+        {"name", QString::fromStdString(o.name)},
+        {"objectIds", toJson(o.objects)},
+    });
+}
+
+QJsonValue toJson(const Gui::NpcTradeWindow::Tab& t)
+{
+    using Tab = Gui::NpcTradeWindow::Tab;
+    switch(t)
+    {
+        case Tab::BUY: return "buy";
+        case Tab::SELL: return "sell";
+
+        default:
+            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented trade tab: ", (int)t));
+    }
+}
+
+
+
+QJsonValue toJson(const Gui::Button& b)
+{
+    return QJsonObject(
+    {
+        {"isDown", b.isDown},
+        {"text", QString::fromStdString(b.text)},
+        {"x", b.x},
+        {"y", b.y},
+        {"width", b.width},
+        {"height", b.height},
+    });
+}
+
+QJsonValue toJson(const Gui::NpcTradeWindow& w)
+{
+    QJsonObject json(
+    {
+        {"amount", (int)w.amount},
+        {"availableMoney", (int)w.availableMoney},
+        {"totalPrice", (int)w.totalPrice},
+        {"selectedOfferIndex", (int)w.selectedOfferIndex},
+
+    });
+
+    QJsonArray offers;
+    for(const Gui::NpcTradeWindow::Offer& o : w.visibleOffers)
+    {
+        offers.push_back(toJson(o));
+    }
+    json["visibleOffers"] = offers;
+
+    if(w.selectedOfferIndex < w.visibleOffers.size())
+    {
+        json["selectedOffer"] = toJson(w.visibleOffers[w.selectedOfferIndex]);
+    }
+
+    json["tab"] = toJson(w.currentTab);
+
+    json["window"] = w.window == nullptr ? QJsonObject() : toJson(*w.window);
+    json["buyButton"] = w.buyButton == nullptr ? QJsonObject() : toJson(*w.buyButton);
+    json["sellButton"] = w.sellButton == nullptr ? QJsonObject() : toJson(*w.sellButton);
+    json["okButton"] = w.okButton == nullptr ? QJsonObject() : toJson(*w.okButton);
+}
+
+QJsonValue toJson(const Gui::Container& c)
+{
+    QJsonArray items;
+    for(const std::pair<unsigned short, std::set<size_t>>& item : c.items)
+    {
+        items.push_back(QJsonObject(
+        {
+            {"count", (int)item.first},
+            {"objectIds", toJson(item.second)},
+        }));
+    }
+
+
+    return QJsonObject(
+    {
+        {"name", QString::fromStdString(c.name)},
+        {"cap", (int)c.capacity},
+        {"items", items},
+        {"scroll", c.scroll},
+        {"window", c.window == nullptr ? QJsonObject() : toJson(*c.window)},
+    });
+}
+
+struct BattleWindow
+            {
+                struct Outfit
+                {
+                    std::string name;
+                    float hpPercent;
+                    std::set<size_t> objects;
+                };
+
+                std::vector<std::shared_ptr<Outfit>> outfits;
+                std::shared_ptr<Outfit> selectedOutfit;
+            };
+
+QJsonValue toJson(const Gui::BattleWindow::Outfit& o)
+{
+    return QJsonObject(
+    {
+        {"name", QString::fromStdString(o.name)},
+        {"hpPercent", o.hpPercent},
+        {"objectIds", toJson(o.objects)},
+    });
+}
+
+QJsonValue toJson(const Gui::BattleWindow& w)
+{
+    QJsonArray outfits;
+    for(const std::shared_ptr<Gui::BattleWindow::Outfit>& o : w.outfits)
+    {
+        if(o != nullptr)
+        {
+            outfits.push_back(toJson(*o));
+        }
+    }
+
+    return QJsonObject(
+    {
+        {"outfits", outfits},
+        {"selectedOutfit", w.selectedOutfit == nullptr ? QJsonObject() : toJson(*w.selectedOutfit)},
+    });
 }
 
 void ParsedFrameFile::writeGui(QJsonObject& o) const
@@ -121,48 +346,81 @@ void ParsedFrameFile::writeGui(QJsonObject& o) const
     gui["attributes"] = QJsonObject(
     {
         {"cap", mGui->cap},
+        {"soul", mGui->soul},
+        {"mana", mGui->mana},
+        {"hp", mGui->hp},
+        {"hpLevel", mGui->hpLevel},
+        {"manaLevel", mGui->manaLevel},
+        {"level", mGui->level},
+        {"experience", (int)mGui->experience},
+        {"xpGainRate", mGui->xpGainRate},
+        {"speed", mGui->speed},
+        {"foodMinutes", mGui->foodMinutes},
+        {"staminaMinutes", mGui->staminaMinutes},
+        {"offlineTrainingMinutes", mGui->offlineTrainingMinutes},
+        {"magicLevel", mGui->magicLevel},
+        {"fistLevel", mGui->fistLevel},
+        {"clubLevel", mGui->clubLevel},
+        {"swordLevel", mGui->swordLevel},
+        {"axeLevel", mGui->axeLevel},
+        {"distanceLevel", mGui->distanceLevel},
+        {"shieldingLevel", mGui->shieldingLevel},
+        {"fishingLevel", mGui->fishingLevel},
+        {"critChance", mGui->critChance},
+        {"critDamage", mGui->critDamage},
+        {"hpLeechChance", mGui->hpLeechChance},
+        {"hpLeechAmount", mGui->hpLeechAmount},
+        {"manaLeechChance", mGui->manaLeechChance},
+        {"manaLeechAmount", mGui->manaLeechAmount},
     });
 
-    gui["state"] = (int)mGui->state;
-    gui["cap"] = mGui->cap;
-    gui["soul"] = mGui->soul;
-    gui["mana"] = mGui->mana;
-    gui["hp"] = mGui->hp;
-    gui["hpLevel"] = mGui->hpLevel;
-    gui["manaLevel"] = mGui->manaLevel;
-    gui["level"] = mGui->level;
-    gui["experience"] = (int)mGui->experience;
-    gui["xpGainRate"] = mGui->xpGainRate;
-    gui["speed"] = mGui->speed;
-    gui["foodMinutes"] = mGui->foodMinutes;
-    gui["staminaMinutes"] = mGui->staminaMinutes;
-    gui["offlineTrainingMinutes"] = mGui->offlineTrainingMinutes;
-    gui["magicLevel"] = mGui->magicLevel;
-    gui["fistLevel"] = mGui->fistLevel;
-    gui["clubLevel"] = mGui->clubLevel;
-    gui["swordLevel"] = mGui->swordLevel;
-    gui["axeLevel"] = mGui->axeLevel;
-    gui["distanceLevel"] = mGui->distanceLevel;
-    gui["shieldingLevel"] = mGui->shieldingLevel;
-    gui["fishingLevel"] = mGui->fishingLevel;
-    gui["critChance"] = mGui->critChance;
-    gui["critDamage"] = mGui->critDamage;
-    gui["hpLeechChance"] = mGui->hpLeechChance;
-    gui["hpLeechAmount"] = mGui->hpLeechAmount;
-    gui["manaLeechChance"] = mGui->manaLeechChance;
-    gui["manaLeechAmount"] = mGui->manaLeechAmount;
+    gui["state"] = toJson(mGui->state);
 
-//
-//    std::vector<std::shared_ptr<Button>> buttons;
-//
-//    std::map<EqType, size_t> equipment;
-//    std::vector<Container> containers;
-//
-//    std::vector<std::shared_ptr<SideBottomWindow>> sideBottomWindows;
-//    std::shared_ptr<NpcTradeWindow> npcTradeWindow;
-//    std::shared_ptr<BattleWindow> battleWindow;
-//    std::vector<std::string> onlineVips;
-//    std::vector<std::string> offlineVips;
+    QJsonArray buttons;
+    for(const std::shared_ptr<Gui::Button>& b : mGui->buttons)
+    {
+        buttons.push_back(b == nullptr ? QJsonObject() : toJson(*b));
+    }
+    gui["buttons"] = buttons;
+
+    gui["equipment"] = QJsonObject(
+    {
+        {"hand1", (int)mGui->equipment[Gui::EqType::HAND1]},
+        {"hand2", (int)mGui->equipment[Gui::EqType::HAND2]},
+        {"neck", (int)mGui->equipment[Gui::EqType::NECK]},
+        {"finger", (int)mGui->equipment[Gui::EqType::FINGER]},
+        {"head", (int)mGui->equipment[Gui::EqType::HEAD]},
+        {"torso", (int)mGui->equipment[Gui::EqType::TORSO]},
+        {"legs", (int)mGui->equipment[Gui::EqType::LEGS]},
+        {"feet", (int)mGui->equipment[Gui::EqType::FEET]},
+        {"back", (int)mGui->equipment[Gui::EqType::BACK]},
+        {"hip", (int)mGui->equipment[Gui::EqType::HIP]},
+    });
+
+    QJsonArray onlineVips;
+    QJsonArray offlineVips;
+    for(const std::string& name : mGui->onlineVips)
+    {
+        onlineVips.push_back(QString::fromStdString(name));
+    }
+    for(const std::string& name : mGui->offlineVips)
+    {
+        offlineVips.push_back(QString::fromStdString(name));
+    }
+
+    gui["onlineVips"] = onlineVips;
+    gui["offlineVips"] = offlineVips;
+
+    QJsonArray containers;
+    for(const Gui::Container& c : mGui->containers)
+    {
+        containers.push_back(toJson(c));
+    }
+    gui["containers"] = containers;
+    gui["trade"] = mGui->npcTradeWindow == nullptr ? QJsonObject() : toJson(*mGui->npcTradeWindow);
+    gui["battle"] = mGui->battleWindow == nullptr ? QJsonObject() : toJson(*mGui->battleWindow);
+
+
 
 
 
