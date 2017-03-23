@@ -48,7 +48,7 @@ namespace ParsedFrameFile
 // Write
 ///////////////////////////////////
 
-void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData);
+void write(QJsonObject& o, const std::shared_ptr<const Gui::Data>& guiData);
 
 
 bool write(const ParsedFrame& f, const std::string& filePath)
@@ -518,7 +518,28 @@ void fromJson(Gui::BattleWindow& w, const QJsonValue& json)
     }
 }
 
-void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData)
+std::string toString(Gui::EqType t)
+{
+    using T = Gui::EqType;
+    switch(t)
+    {
+        case T::HAND1: return "hand1";
+        case T::HAND2: return "hand2";
+        case T::NECK: return "neck";
+        case T::FINGER: return "finger";
+        case T::HEAD: return "head";
+        case T::TORSO: return "torso";
+        case T::LEGS: return "legs";
+        case T::FEET: return "feet";
+        case T::BACK: return "back";
+        case T::HIP: return "hip";
+
+        default:
+            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented equipment type: ", (int)t));
+    }
+}
+
+void write(QJsonObject& o, const std::shared_ptr<const Gui::Data>& guiData)
 {
     if(guiData == nullptr)
     {
@@ -568,19 +589,12 @@ void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData)
     }
     gui["buttons"] = buttons;
 
-    gui["equipment"] = QJsonObject(
+    QJsonObject equipment;
+    for(const auto& pair : guiData->equipment)
     {
-        {"hand1", (int)guiData->equipment[Gui::EqType::HAND1]},
-        {"hand2", (int)guiData->equipment[Gui::EqType::HAND2]},
-        {"neck", (int)guiData->equipment[Gui::EqType::NECK]},
-        {"finger", (int)guiData->equipment[Gui::EqType::FINGER]},
-        {"head", (int)guiData->equipment[Gui::EqType::HEAD]},
-        {"torso", (int)guiData->equipment[Gui::EqType::TORSO]},
-        {"legs", (int)guiData->equipment[Gui::EqType::LEGS]},
-        {"feet", (int)guiData->equipment[Gui::EqType::FEET]},
-        {"back", (int)guiData->equipment[Gui::EqType::BACK]},
-        {"hip", (int)guiData->equipment[Gui::EqType::HIP]},
-    });
+        equipment[QString::fromStdString(toString(pair.first))] = (int)pair.second;
+    }
+    gui["equipment"] = equipment;
 
     QJsonArray onlineVips;
     QJsonArray offlineVips;
