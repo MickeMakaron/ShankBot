@@ -547,10 +547,10 @@ void Monitor::appendScreenPixelsToDataBuffer()
     readPixels = (decltype(readPixels))GetProcAddress(GetModuleHandle("opengl32.dll"), "glReadPixels");
     THROW_ASSERT(readPixels != nullptr);
 
-    readPixels(0, 0, mCurrentViewportWidth, mCurrentViewportHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    readPixels(0, 0, mCurrentViewportWidth, mCurrentViewportHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     PixelData p;
-    p.format = sb::utility::PixelFormat::RGB;
+    p.format = sb::utility::PixelFormat::RGBA;
     p.width = mCurrentViewportWidth;
     p.height = mCurrentViewportHeight;
     p.messageType = Message::MessageType::SCREEN_PIXELS;
