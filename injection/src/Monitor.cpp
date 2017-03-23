@@ -540,7 +540,7 @@ void Monitor::submitFrameData()
 
 void Monitor::appendScreenPixelsToDataBuffer()
 {
-    size_t size = mCurrentViewportWidth * mCurrentViewportHeight * 3;
+    size_t size = mCurrentViewportWidth * mCurrentViewportHeight * 4;
     char* pixels = new char[size];
 
     void APIENTRY (*readPixels)(GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLvoid*);
