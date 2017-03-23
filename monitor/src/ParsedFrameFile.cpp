@@ -46,8 +46,13 @@ namespace GraphicsLayer
 {
 namespace ParsedFrameFile
 {
+///////////////////////////////////
+// Write
+///////////////////////////////////
+
 void write(QJsonObject& o, const std::shared_ptr<RawImage>& screenPixels, const std::string& filePath);
 void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData);
+
 
 bool write(const ParsedFrame& f, const std::string& filePath)
 {
@@ -65,10 +70,6 @@ bool write(const ParsedFrame& f, const std::string& filePath)
     return true;
 }
 
-bool read(const std::string& filePath)
-{
-
-}
 
 void write(QJsonObject& o, const std::shared_ptr<RawImage>& screenPixels, const std::string& filePath)
 {
@@ -98,6 +99,15 @@ QJsonValue toJson(const Gui::Rect& r)
     });
 }
 
+void fromJson(Gui::Rect& r, const QJsonValue& json)
+{
+    QJsonObject o = json.toObject();
+    r.pos.x = o["x"].toInt();
+    r.pos.y = o["y"].toInt();
+    r.size.x = o["width"].toInt();
+    r.size.y = o["height"].toInt();
+}
+
 
 QJsonValue toJson(const Gui::SideBottomWindow::Type& t)
 {
@@ -116,6 +126,40 @@ QJsonValue toJson(const Gui::SideBottomWindow::Type& t)
     }
 }
 
+void fromJson(Gui::SideBottomWindow::Type& t, const QJsonValue& json)
+{
+    std::string str = json.toString().toStdString();
+    using T = Gui::SideBottomWindow::Type;
+    if(str == "battle")
+    {
+        t = T::BATTLE;
+    }
+    else if(str == "container")
+    {
+        t = T::CONTAINER;
+    }
+    else if(str == "npcTrade")
+    {
+        t = T::NPC_TRADE;
+    }
+    else if(str == "unjustifiedPoints")
+    {
+        t = T::UNJUSTIFIED_POINTS;
+    }
+    else if(str == "skills")
+    {
+        t = T::SKILLS;
+    }
+    else if(str == "vip")
+    {
+        t = T::VIP;
+    }
+    else
+    {
+        t = T::INVALID;
+    }
+}
+
 QJsonValue toJson(const std::set<size_t>& ids)
 {
     QJsonArray array;
@@ -125,6 +169,15 @@ QJsonValue toJson(const std::set<size_t>& ids)
     }
 
     return array;
+}
+
+
+void fromJson(std::set<size_t>& ids, const QJsonValue& json)
+{
+    for(QJsonValueRef v : json.toArray())
+    {
+        ids.insert(v.toInt());
+    }
 }
 
 QJsonValue toJson(const Gui::SideBottomWindow& w)
@@ -161,6 +214,38 @@ QJsonValue toJson(const Gui::SideBottomWindow& w)
 }
 
 
+void fromJson(Gui::SideBottomWindow& w, const QJsonValue& json)
+{
+    QJsonObject o = json.toObject();
+    fromJson(w.clientArea, o["clientArea"]);
+    fromJson(w.exitButton, o["exitButton"]);
+    w.isMinimized = o["isMinimized"].toBool();
+    fromJson(w.minMaxButton, o["minMaxButton"]);
+    fromJson(w.type, o["type"]);
+
+    using T = Gui::SideBottomWindow::Type;
+    switch(w.type)
+    {
+        case T::BATTLE:
+            fromJson(w.expandButton, o["expandButton"]);
+            break;
+        case T::CONTAINER:
+            fromJson(w.containerUpButton, o["upButton"]);
+            break;
+
+        default:
+            break;
+    }
+
+    w.hasResizer = o.contains("resizer");
+
+    if(w.hasResizer)
+    {
+        fromJson(w.resizer, o["resizer"]);
+    }
+}
+
+
 QJsonValue toJson(const Gui::State& s)
 {
     using S = Gui::State;
@@ -175,6 +260,24 @@ QJsonValue toJson(const Gui::State& s)
 }
 
 
+void fromJson(Gui::State& s, const QJsonValue& json)
+{
+    std::string str = json.toString().toStdString();
+    using S = Gui::State;
+    if(str == "mainMenu")
+    {
+        s = S::MAIN_MENU;
+    }
+    else if(str == "game")
+    {
+        s = S::GAME;
+    }
+    else
+    {
+        s = S::UNDEFINED;
+    }
+}
+
 QJsonValue toJson(const Gui::NpcTradeWindow::Offer& o)
 {
     return QJsonObject(
@@ -185,6 +288,16 @@ QJsonValue toJson(const Gui::NpcTradeWindow::Offer& o)
         {"name", QString::fromStdString(o.name)},
         {"objectIds", toJson(o.objects)},
     });
+}
+
+void fromJson(Gui::NpcTradeWindow::Offer& o, const QJsonValue& json)
+{
+    QJsonObject obj = json.toObject();
+    o.cost = obj["cost"].toInt();
+    o.isAffordable = obj["isAffordable"].toBool();
+    o.weight = obj["weight"].toDouble();
+    o.name = obj["name"].toString().toStdString();
+    fromJson(o.objects, obj["objectIds"]);
 }
 
 QJsonValue toJson(const Gui::NpcTradeWindow::Tab& t)
@@ -200,6 +313,23 @@ QJsonValue toJson(const Gui::NpcTradeWindow::Tab& t)
     }
 }
 
+void fromJson(Gui::NpcTradeWindow::Tab& t, const QJsonValue& json)
+{
+    std::string str = json.toString().toStdString();
+    using Tab = Gui::NpcTradeWindow::Tab;
+    if(str == "buy")
+    {
+        t = Tab::BUY;
+    }
+    else if(str == "sell")
+    {
+        t = Tab::SELL;
+    }
+    else
+    {
+        t = Tab::INVALID;
+    }
+}
 
 
 QJsonValue toJson(const Gui::Button& b)
@@ -213,6 +343,17 @@ QJsonValue toJson(const Gui::Button& b)
         {"width", b.width},
         {"height", b.height},
     });
+}
+
+void fromJson(Gui::Button& b, const QJsonValue& json)
+{
+    QJsonObject o = json.toObject();
+    b.isDown = o["isDown"].toBool();
+    b.text = o["text"].toString().toStdString();
+    b.x = o["x"].toInt();
+    b.y = o["y"].toInt();
+    b.width = o["width"].toInt();
+    b.height = o["height"].toInt();
 }
 
 QJsonValue toJson(const Gui::NpcTradeWindow& w)
@@ -248,6 +389,54 @@ QJsonValue toJson(const Gui::NpcTradeWindow& w)
     return json;
 }
 
+void fromJson(Gui::NpcTradeWindow& w, const QJsonValue& json)
+{
+    QJsonObject o = json.toObject();
+
+    w.amount = o["amount"].toInt();
+    w.availableMoney = o["availableMoney"].toInt();
+    w.totalPrice = o["totalPrice"].toInt();
+    w.selectedOfferIndex = o["selectedOfferIndex"].toInt();
+
+    for(QJsonValueRef v : o["visibleOffers"].toArray())
+    {
+        w.visibleOffers.emplace_back();
+        fromJson(w.visibleOffers.back(), v);
+    }
+
+    fromJson(w.currentTab, o["tab"]);
+
+    w.window = nullptr;
+    w.buyButton = nullptr;
+    w.sellButton = nullptr;
+    w.okButton = nullptr;
+    QJsonObject window = o["window"].toObject();
+    QJsonObject buyButton = o["buyButton"].toObject();
+    QJsonObject sellButton = o["sellButton"].toObject();
+    QJsonObject okButton = o["okButton"].toObject();
+
+    if(!window.empty())
+    {
+        w.window.reset(new Gui::SideBottomWindow());
+        fromJson(*w.window, window);
+    }
+    if(!buyButton.empty())
+    {
+        w.buyButton.reset(new Gui::Button());
+        fromJson(*w.buyButton, buyButton);
+    }
+    if(!sellButton.empty())
+    {
+        w.sellButton.reset(new Gui::Button());
+        fromJson(*w.sellButton, sellButton);
+    }
+    if(!okButton.empty())
+    {
+        w.okButton.reset(new Gui::Button());
+        fromJson(*w.okButton, okButton);
+    }
+}
+
 QJsonValue toJson(const Gui::Container& c)
 {
     QJsonArray items;
@@ -271,18 +460,31 @@ QJsonValue toJson(const Gui::Container& c)
     });
 }
 
-struct BattleWindow
-            {
-                struct Outfit
-                {
-                    std::string name;
-                    float hpPercent;
-                    std::set<size_t> objects;
-                };
+void fromJson(Gui::Container& c, const QJsonValue& json)
+{
+    QJsonObject o = json.toObject();
+    c.name = o["name"].toString().toStdString();
+    c.capacity = o["cap"].toInt();
 
-                std::vector<std::shared_ptr<Outfit>> outfits;
-                std::shared_ptr<Outfit> selectedOutfit;
-            };
+    for(QJsonValueRef v : o["items"].toArray())
+    {
+        QJsonObject itemObject = v.toObject();
+
+        c.items.emplace_back();
+        c.items.back().first = itemObject["count"].toInt();
+        fromJson(c.items.back().second, itemObject["objectIds"]);
+    }
+
+    c.scroll = o["scroll"].toDouble();
+
+    c.window = nullptr;
+    QJsonObject window = o["window"].toObject();
+    if(!window.empty())
+    {
+        c.window.reset(new Gui::SideBottomWindow());
+        fromJson(*c.window, window);
+    }
+}
 
 QJsonValue toJson(const Gui::BattleWindow::Outfit& o)
 {
@@ -292,6 +494,14 @@ QJsonValue toJson(const Gui::BattleWindow::Outfit& o)
         {"hpPercent", o.hpPercent},
         {"objectIds", toJson(o.objects)},
     });
+}
+
+void fromJson(Gui::BattleWindow::Outfit& o, const QJsonValue& json)
+{
+    QJsonObject obj = json.toObject();
+    o.name = obj["name"].toString().toStdString();
+    o.hpPercent = obj["hpPercent"].toDouble();
+    fromJson(o.objects, obj["objectIds"]);
 }
 
 QJsonValue toJson(const Gui::BattleWindow& w)
@@ -310,6 +520,24 @@ QJsonValue toJson(const Gui::BattleWindow& w)
         {"outfits", outfits},
         {"selectedOutfit", w.selectedOutfit == nullptr ? QJsonObject() : toJson(*w.selectedOutfit)},
     });
+}
+
+void fromJson(Gui::BattleWindow& w, const QJsonValue& json)
+{
+    QJsonObject o = json.toObject();
+    for(QJsonValueRef v : o["outfits"].toArray())
+    {
+        w.outfits.emplace_back(new Gui::BattleWindow::Outfit());
+        fromJson(*w.outfits.back(), v);
+    }
+
+    w.selectedOutfit = nullptr;
+    QJsonObject selectedOutfit = o["selectedOutfit"].toObject();
+    if(!selectedOutfit.empty())
+    {
+        w.selectedOutfit.reset(new Gui::BattleWindow::Outfit());
+        fromJson(*w.selectedOutfit, selectedOutfit);
+    }
 }
 
 void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData)
@@ -405,6 +633,136 @@ void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData)
 
 
     o["gui"] = gui;
+}
+
+
+///////////////////////////////////
+// Read
+///////////////////////////////////
+void read(const QJsonObject& o, std::shared_ptr<Gui::Data>& guiData);
+void read(const QJsonObject& o, std::shared_ptr<RawImage>& screenPixels);
+
+bool read(ParsedFrame& f, const std::string& filePath)
+{
+    QFile file(QString::fromStdString(filePath));
+    if(!file.open(QIODevice::ReadOnly))
+    {
+        return false;
+    }
+
+    QJsonObject o(QJsonDocument::fromJson(file.readAll()).object());
+
+    read(o, f.screenPixels);
+    read(o, f.gui);
+}
+
+
+
+void read(const QJsonObject& o, std::shared_ptr<Gui::Data>& guiData)
+{
+    guiData = nullptr;
+
+    QJsonObject gui = o["gui"].toObject();
+    if(gui.empty())
+    {
+        return;
+    }
+
+    guiData.reset(new Gui::Data());
+
+    QJsonObject attributes = gui["attributes"].toObject();
+    guiData->cap = attributes["cap"].toInt();
+    guiData->soul = attributes["soul"].toInt();
+    guiData->mana = attributes["mana"].toInt();
+    guiData->hp = attributes["hp"].toInt();
+    guiData->hpLevel = attributes["hpLevel"].toDouble();
+    guiData->manaLevel = attributes["manaLevel"].toDouble();
+    guiData->level = attributes["level"].toInt();
+    guiData->experience = attributes["experience"].toInt();
+    guiData->xpGainRate = attributes["xpGainRate"].toInt();
+    guiData->speed = attributes["speed"].toInt();
+    guiData->foodMinutes = attributes["foodMinutes"].toInt();
+    guiData->staminaMinutes = attributes["staminaMinutes"].toInt();
+    guiData->offlineTrainingMinutes = attributes["offlineTrainingMinutes"].toInt();
+    guiData->magicLevel = attributes["magicLevel"].toInt();
+    guiData->fistLevel = attributes["fistLevel"].toInt();
+    guiData->clubLevel = attributes["clubLevel"].toInt();
+    guiData->swordLevel = attributes["swordLevel"].toInt();
+    guiData->axeLevel = attributes["axeLevel"].toInt();
+    guiData->distanceLevel = attributes["distanceLevel"].toInt();
+    guiData->shieldingLevel = attributes["shieldingLevel"].toInt();
+    guiData->fishingLevel = attributes["fishingLevel"].toInt();
+    guiData->critChance = attributes["critChance"].toInt();
+    guiData->critDamage = attributes["critDamage"].toInt();
+    guiData->hpLeechChance = attributes["hpLeechChance"].toInt();
+    guiData->hpLeechAmount = attributes["hpLeechAmount"].toInt();
+    guiData->manaLeechChance = attributes["manaLeechChance"].toInt();
+    guiData->manaLeechAmount = attributes["manaLeechAmount"].toInt();
+
+    fromJson(guiData->state, gui["state"]);
+
+    for(QJsonValueRef v : gui["buttons"].toArray())
+    {
+        std::shared_ptr<Gui::Button> bPtr;
+        QJsonObject bObj = v.toObject();
+        if(!bObj.empty())
+        {
+            bPtr.reset(new Gui::Button());
+            fromJson(*bPtr, bObj);
+        }
+
+        guiData->buttons.push_back(bPtr);
+    }
+
+    QJsonObject eq = gui["equipment"].toObject();
+    guiData->equipment =
+    {
+        {Gui::EqType::HAND1, eq["hand1"].toInt()},
+        {Gui::EqType::HAND2, eq["hand2"].toInt()},
+        {Gui::EqType::NECK, eq["neck"].toInt()},
+        {Gui::EqType::FINGER, eq["finger"].toInt()},
+        {Gui::EqType::HEAD, eq["head"].toInt()},
+        {Gui::EqType::TORSO, eq["torso"].toInt()},
+        {Gui::EqType::LEGS, eq["legs"].toInt()},
+        {Gui::EqType::FEET, eq["feet"].toInt()},
+        {Gui::EqType::BACK, eq["back"].toInt()},
+        {Gui::EqType::HIP, eq["hip"].toInt()},
+    };
+
+    for(QJsonValueRef v : gui["onlineVips"].toArray())
+    {
+        guiData->onlineVips.push_back(v.toString().toStdString());
+    }
+    for(QJsonValueRef v : gui["offlineVips"].toArray())
+    {
+        guiData->offlineVips.push_back(v.toString().toStdString());
+    }
+
+    for(QJsonValueRef v : gui["containers"].toArray())
+    {
+        guiData->containers.emplace_back();
+        fromJson(guiData->containers.back(), v);
+    }
+
+    guiData->npcTradeWindow = nullptr;
+    guiData->battleWindow = nullptr;
+    QJsonObject npcTradeWindow = gui["trade"].toObject();
+    QJsonObject battleWindow = gui["battle"].toObject();
+    if(!npcTradeWindow.empty())
+    {
+        guiData->npcTradeWindow.reset(new Gui::NpcTradeWindow());
+        fromJson(*guiData->npcTradeWindow, npcTradeWindow);
+    }
+    if(!battleWindow.empty())
+    {
+        guiData->battleWindow.reset(new Gui::BattleWindow());
+        fromJson(*guiData->battleWindow, battleWindow);
+    }
+}
+
+void read(const QJsonObject& o, std::shared_ptr<RawImage>& screenPixels)
+{
+
 }
 
 }
