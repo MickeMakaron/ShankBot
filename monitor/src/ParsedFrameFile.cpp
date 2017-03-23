@@ -654,6 +654,8 @@ bool read(ParsedFrame& f, const std::string& filePath)
 
     read(o, f.screenPixels);
     read(o, f.gui);
+
+    return true;
 }
 
 
