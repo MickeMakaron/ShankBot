@@ -539,6 +539,8 @@ std::string toString(Gui::EqType t)
     }
 }
 
+
+
 void write(QJsonObject& o, const std::shared_ptr<const Gui::Data>& guiData)
 {
     if(guiData == nullptr)
@@ -708,19 +710,17 @@ void read(const QJsonObject& o, std::shared_ptr<Gui::Data>& guiData)
     }
 
     QJsonObject eq = gui["equipment"].toObject();
-    guiData->equipment =
+    for(auto it = eq.begin(); it != eq.end(); it++)
     {
-        {Gui::EqType::HAND1, eq["hand1"].toInt()},
-        {Gui::EqType::HAND2, eq["hand2"].toInt()},
-        {Gui::EqType::NECK, eq["neck"].toInt()},
-        {Gui::EqType::FINGER, eq["finger"].toInt()},
-        {Gui::EqType::HEAD, eq["head"].toInt()},
-        {Gui::EqType::TORSO, eq["torso"].toInt()},
-        {Gui::EqType::LEGS, eq["legs"].toInt()},
-        {Gui::EqType::FEET, eq["feet"].toInt()},
-        {Gui::EqType::BACK, eq["back"].toInt()},
-        {Gui::EqType::HIP, eq["hip"].toInt()},
-    };
+        using T = Gui::EqType;
+        for(size_t i = 0; i < (size_t)T::NUM_TYPES; i++)
+        {
+            if(it.key() == QString::fromStdString(toString((T)i)))
+            {
+                guiData->equipment[(T)i] = it.value().toInt();
+            }
+        }
+    }
 
     for(QJsonValueRef v : gui["onlineVips"].toArray())
     {
