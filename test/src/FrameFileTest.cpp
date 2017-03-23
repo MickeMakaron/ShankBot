@@ -30,9 +30,11 @@
 #include "monitor/FrameFile.hpp"
 #include "monitor/Frame.hpp"
 #include "utility/utility.hpp"
+#include "test/utility.hpp"
 using namespace GraphicsLayer;
+using namespace sb::test;
 ///////////////////////////////////
-#include "QtGui/QImage"
+
 ////////////////////////////////////////
 // Google Test
 #include "gtest/gtest.h"
@@ -195,160 +197,6 @@ public:
         return d;
     }
 
-    void expectEq(const Vertex& v1, const Vertex& v2) const
-    {
-        EXPECT_FLOAT_EQ(v1.x, v2.x);
-        EXPECT_FLOAT_EQ(v1.y, v2.y);
-    }
-
-    template<size_t N, size_t M>
-    void expectEq(const sb::utility::Matrix<float, N, M>& m1, const sb::utility::Matrix<float, N, M>& m2) const
-    {
-        for(size_t i = 0; i < N * M; i++)
-        {
-            EXPECT_FLOAT_EQ(*(*m1.values + i), *(*m2.values + i));
-        }
-    }
-
-    void expectEq(const Draw& d1, const Draw& d2) const
-    {
-        expectEq(d1.topLeft, d2.topLeft);
-        expectEq(d1.botRight, d2.botRight);
-
-        EXPECT_EQ(d1.transform == nullptr, d2.transform == nullptr);
-        if(d1.transform != nullptr)
-        {
-            expectEq(*d1.transform, *d2.transform);
-        }
-    }
-
-    void expectEq(const SpriteDraw::SpriteObjectPairing& p1, const SpriteDraw::SpriteObjectPairing& p2) const
-    {
-        EXPECT_EQ(p1.spriteId, p2.spriteId);
-        EXPECT_EQ(p1.objects, p2.objects);
-    }
-
-    void expectEq(const SpriteDraw& d1, const SpriteDraw& d2) const
-    {
-        expectEq((const Draw&)d1, (const Draw&)d2);
-        expectEq(d1.pairings, d2.pairings);
-    }
-
-    void expectEq(const GuiDraw& d1, const GuiDraw& d2) const
-    {
-        expectEq((const Draw&)d1, (const Draw&)d2);
-        EXPECT_EQ(d1.name, d2.name);
-    }
-
-    void expectEq(const GlyphDraw& d1, const GlyphDraw& d2) const
-    {
-        expectEq((const Draw&)d1, (const Draw&)d2);
-        EXPECT_EQ(d1.character, d2.character);
-    }
-
-    void expectEq(const TextDraw& d1, const TextDraw& d2) const
-    {
-        expectEq((const Draw&)d1, (const Draw&)d2);
-        EXPECT_EQ(d1.color.packed, d2.color.packed);
-        EXPECT_EQ(d1.isOutlined, d2.isOutlined);
-        expectEq(d1.glyphDraws, d2.glyphDraws);
-    }
-
-    void expectEq(const RectDraw& d1, const RectDraw& d2) const
-    {
-        expectEq((const Draw&)d1, (const Draw&)d2);
-        EXPECT_EQ(d1.color.packed, d2.color.packed);
-    }
-
-    void expectEq(const MiniMapDraw& d1, const MiniMapDraw& d2) const
-    {
-        expectEq((const Draw&)d1, (const Draw&)d2);
-        EXPECT_EQ(d1.pixels == nullptr, d2.pixels == nullptr);
-        if(d1.pixels != nullptr)
-        {
-            EXPECT_EQ(*d1.pixels, *d2.pixels);
-        }
-    }
-
-
-    void expectEq(const RawImage& d1, const RawImage& d2) const
-    {
-        EXPECT_EQ(d1.format, d2.format);
-        EXPECT_EQ(d1.width, d2.width);
-        EXPECT_EQ(d1.height, d2.height);
-        EXPECT_EQ(d1.pixels, d2.pixels);
-    }
-
-    template<typename T>
-    void expectEq(const std::shared_ptr<T>& p1, const std::shared_ptr<T>& p2) const
-    {
-        EXPECT_EQ(p1 == nullptr, p2 == nullptr);
-        if(p1 != nullptr)
-        {
-            expectEq(*p1, *p2);
-        }
-    }
-
-    template<typename T>
-    void expectEq(const std::list<T>& p1, const std::list<T>& p2) const
-    {
-        EXPECT_EQ(p1.size(), p2.size());
-        auto it1 = p1.begin();
-        auto it2 = p2.begin();
-        while(it1 != p1.end())
-        {
-            expectEq(*it1, *it2);
-
-            it1++;
-            it2++;
-        }
-    }
-
-    template<typename T>
-    void expectEq(const std::vector<T>& p1, const std::vector<T>& p2) const
-    {
-        EXPECT_EQ(p1.size(), p2.size());
-        for(size_t i = 0; i < p1.size(); i++)
-        {
-            expectEq(p1[i], p2[i]);
-        }
-    }
-
-    void expectEq(const Frame& f1, const Frame& f2) const
-    {
-        EXPECT_EQ(f1.hasMiniMapMoved, f2.hasMiniMapMoved);
-        EXPECT_EQ(f1.miniMapX, f2.miniMapX);
-        EXPECT_EQ(f1.miniMapY, f2.miniMapY);
-        EXPECT_EQ(f1.miniMapScreenX, f2.miniMapScreenX);
-        EXPECT_EQ(f1.miniMapScreenY, f2.miniMapScreenY);
-        EXPECT_EQ(f1.miniMapScreenWidth, f2.miniMapScreenWidth);
-        EXPECT_EQ(f1.miniMapScreenHeight, f2.miniMapScreenHeight);
-        EXPECT_EQ(f1.hasViewUpdated, f2.hasViewUpdated);
-        EXPECT_EQ(f1.viewX, f2.viewX);
-        EXPECT_EQ(f1.viewY, f2.viewY);
-        EXPECT_EQ(f1.viewWidth, f2.viewWidth);
-        EXPECT_EQ(f1.viewHeight, f2.viewHeight);
-        EXPECT_EQ(f1.width, f2.width);
-        EXPECT_EQ(f1.height, f2.height);
-
-        expectEq(f1.spriteDraws, f2.spriteDraws);
-        expectEq(f1.guiDraws, f2.guiDraws);
-        expectEq(f1.guiSpriteDraws, f2.guiSpriteDraws);
-        expectEq(f1.textDraws, f2.textDraws);
-        expectEq(f1.rectDraws, f2.rectDraws);
-//        expectEq(f1.fileIo, f2.fileIo);
-        expectEq(f1.miniMapDraws, f2.miniMapDraws);
-
-        std::shared_ptr<RawImage> flippedScreenPixels;
-        if(f1.screenPixels != nullptr)
-        {
-            QImage flippedScreen(f1.screenPixels->pixels.data(), f1.screenPixels->width, f1.screenPixels->height, QImage::Format_RGBA8888);
-            flippedScreen = flippedScreen.mirrored(false, true);
-            flippedScreenPixels.reset(new RawImage(sb::utility::PixelFormat::RGBA, flippedScreen.width(), flippedScreen.height(), flippedScreen.bits()));
-            EXPECT_EQ(flippedScreen.byteCount(), f1.screenPixels->pixels.size());
-        }
-        expectEq(flippedScreenPixels, f2.screenPixels);
-    }
 
     void expectEqAfterWriteRead(const Frame& f) const
     {
