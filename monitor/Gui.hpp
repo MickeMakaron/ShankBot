@@ -259,42 +259,6 @@ namespace GraphicsLayer
             const Data& getData();
             State getState() const;
 
-//            State getState() const;
-//            const std::list<Button>& getButtons();
-
-
-//            unsigned short getCap();
-//            unsigned short getSoul();
-//            unsigned short getMana();
-//            unsigned short getHp();
-//            float getHpLevel();
-//            float getManaLevel();
-//
-//            unsigned short getLevel();
-//            unsigned int getExperience();
-//            unsigned short getXpGainRate();
-//            unsigned short getSpeed();
-//            unsigned short getFoodMinutes();
-//            unsigned short getStaminaMinutes();
-//            unsigned short getOfflineTrainingMinutes();
-//            unsigned short getMagicLevel();
-//            unsigned short getFistFighting();
-//            unsigned short getClubFighting();
-//            unsigned short getSwordFighting();
-//            unsigned short getAxeFighting();
-//            unsigned short getDistanceFighting();
-//            unsigned short getShielding();
-//            unsigned short getFishing();
-//            unsigned short getCritChance();
-//            unsigned short getCritDamage();
-//            unsigned short getHpLeechChance();
-//            unsigned short getHpLeechAmount();
-//            unsigned short getManaLeechChance();
-//            unsigned short getManaLeechAmount();
-//
-//            const std::map<EqType, size_t>& getEquipment();
-//            const std::list<Container>& getContainers();
-
         private:
             void parseCurrentFrame();
 
@@ -302,20 +266,7 @@ namespace GraphicsLayer
             void updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
             std::shared_ptr<Button> setButtonText(const Text& text);
             void updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
-//            void updateItems(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::vector<SpriteDraw>& guiSpriteDraws);
-//            void updateItems(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::list<Text>& stackCounts);
-//            void updateEquippedItems(size_t& i, const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, const std::vector<SpriteDraw>& guiSpriteDraws);
-//            void updateContainerItems(size_t& i, const std::vector<SpriteDraw>& guiSpriteDraws);
-//            void parseContainer(size_t& i, SideBottomWindow& w, const std::vector<SpriteDraw>& guiSpriteDraws);
-//            void parseBattleWindowItems(size_t& i, SideBottomWindow& w, const std::vector<SpriteDraw>& guiSpriteDraws);
-//            void parseNpcTradeWindowItems(size_t& i, SideBottomWindow& w, const std::vector<SpriteDraw>& guiSpriteDraws);
-//            void updateSideBottomWindowItems(size_t& i, const std::vector<SpriteDraw>& guiSpriteDraws);
 
-//            void parseText(const std::vector<TextDraw>& textDraws);
-//            void parseOutfitNames(size_t& i, const std::vector<TextDraw>& textDraws);
-//            void parseChatText(size_t& i, const std::vector<TextDraw>& textDraws);
-//            void parseSideWindowText(size_t& i, const std::vector<TextDraw>& textDraws);
-//            void parseSideWindowTopText(size_t& i, const std::vector<TextDraw>& textDraws);
             void parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w);
             unsigned short parseTimeText(const std::string& str) const;
             unsigned short parsePercentageText(const std::string& str) const;
@@ -326,7 +277,6 @@ namespace GraphicsLayer
 
 
             void getRects(const std::string& name, const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, std::list<Rect>& rects) const;
-//            SideBottomWindow::Type resolveWindowType(float halfFrameWidth, float halfFrameHeight, const std::map<std::string, std::list<const GuiDraw*>>& guiDraws, int exitButtonTopLeftY) const;
 
             void parseNames(size_t& i);
             void parseChat(size_t& i);
@@ -350,45 +300,6 @@ namespace GraphicsLayer
             bool mIsCurrentFrameParsed = false;
             float mHalfFrameWidth = 0.f;
             float mHalfFrameHeight = 0.f;
-//            State mCurrentState = State::UNDEFINED;
-//            std::list<Button> mButtons;
-//            std::map<UiSection, std::list<Rect>> mUiSections;
-//            std::map<EqType, size_t> mEquipment;
-//            std::list<Container> mContainers;
-//            std::list<SideBottomWindow> mSideBottomWindows;
-//            std::unique_ptr<NpcTradeWindow> mNpcTradeWindow;
-//            std::unique_ptr<BattleWindow> mBattleWindow;
-//            std::list<std::string> mOnlineVip;
-//            std::list<std::string> mOfflineVip;
-
-//            unsigned short mCap;
-//            unsigned short mSoul;
-//            unsigned short mMana;
-//            unsigned short mHp;
-//            float mHpLevel;
-//            float mManaLevel;
-//
-//            unsigned short mLevel = 0;
-//            unsigned int mExperience = 0;
-//            unsigned short mXpGainRate = 0;
-//            unsigned short mSpeed = 0;
-//            unsigned short mFoodMinutes = 0;
-//            unsigned short mStaminaMinutes = 0;
-//            unsigned short mOfflineTrainingMinutes = 0;
-//            unsigned short mMagicLevel = 0;
-//            unsigned short mFistFighting = 0;
-//            unsigned short mClubFighting = 0;
-//            unsigned short mSwordFighting = 0;
-//            unsigned short mAxeFighting = 0;
-//            unsigned short mDistanceFighting = 0;
-//            unsigned short mShielding = 0;
-//            unsigned short mFishing = 0;
-//            unsigned short mCritChance = 0;
-//            unsigned short mCritDamage = 0;
-//            unsigned short mHpLeechChance = 0;
-//            unsigned short mHpLeechAmount = 0;
-//            unsigned short mManaLeechChance = 0;
-//            unsigned short mManaLeechAmount = 0;
 
             bool mIsEquipmentMinimized = false;
     };
