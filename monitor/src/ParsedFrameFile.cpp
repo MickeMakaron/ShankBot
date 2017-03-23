@@ -34,12 +34,10 @@
 
 ///////////////////////////////////
 // Qt
-#include "QtGui/QImage"
 #include "QtCore/QJsonDocument"
 #include "QtCore/QJsonObject"
 #include "QtCore/QJsonArray"
 #include "QtCore/QFile"
-#include "QtCore/QFileInfo"
 ///////////////////////////////////
 
 namespace GraphicsLayer
@@ -50,14 +48,12 @@ namespace ParsedFrameFile
 // Write
 ///////////////////////////////////
 
-void write(QJsonObject& o, const std::shared_ptr<RawImage>& screenPixels, const std::string& filePath);
 void write(QJsonObject& o, const std::shared_ptr<Gui::Data>& guiData);
 
 
 bool write(const ParsedFrame& f, const std::string& filePath)
 {
     QJsonObject o;
-    write(o, f.screenPixels, filePath);
     write(o, f.gui);
 
     QFile file(QString::fromStdString(filePath + ".json"));
@@ -68,24 +64,6 @@ bool write(const ParsedFrame& f, const std::string& filePath)
 
     file.write(QJsonDocument(o).toJson());
     return true;
-}
-
-
-void write(QJsonObject& o, const std::shared_ptr<RawImage>& screenPixels, const std::string& filePath)
-{
-    if(screenPixels == nullptr)
-    {
-        o["screenPixels"] = "";
-        return;
-    }
-
-    const RawImage& i = *screenPixels;
-    QImage img(i.pixels.data(), i.width, i.height, QImage::Format_RGB888);
-    img = img.mirrored(false, true);
-    QString imgPath = QString::fromStdString(filePath + ".png");
-    img.save(imgPath);
-
-    o["screenPixels"] = QFileInfo(imgPath).absoluteFilePath();
 }
 
 QJsonValue toJson(const Gui::Rect& r)
@@ -652,7 +630,6 @@ bool read(ParsedFrame& f, const std::string& filePath)
 
     QJsonObject o(QJsonDocument::fromJson(file.readAll()).object());
 
-    read(o, f.screenPixels);
     read(o, f.gui);
 
     return true;
@@ -760,11 +737,6 @@ void read(const QJsonObject& o, std::shared_ptr<Gui::Data>& guiData)
         guiData->battleWindow.reset(new Gui::BattleWindow());
         fromJson(*guiData->battleWindow, battleWindow);
     }
-}
-
-void read(const QJsonObject& o, std::shared_ptr<RawImage>& screenPixels)
-{
-
 }
 
 }

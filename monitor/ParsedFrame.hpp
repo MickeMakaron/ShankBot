@@ -30,7 +30,6 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/Gui.hpp"
-#include "monitor/RawImage.hpp"
 namespace GraphicsLayer
 {
     class TibiaContext;
@@ -48,7 +47,6 @@ namespace GraphicsLayer
     {
         const TibiaContext* context;
         std::shared_ptr<Gui::Data> gui;
-        std::shared_ptr<RawImage> screenPixels;
     };
 }
 

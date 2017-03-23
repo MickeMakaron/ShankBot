@@ -7,7 +7,7 @@
 #include "utility/utility.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
-
+#include "QtGui/QImage"
 ////////////////////////////////////////
 // Google Test
 #include "gtest/gtest.h"
@@ -46,7 +46,7 @@ public:
 
         unsigned short screenPixelsWidth = rand() % 500;
         unsigned short screenPixelsHeight = rand() % 500;
-        sb::utility::PixelFormat screenPixelsFormat = (sb::utility::PixelFormat)(rand() % 4);
+        sb::utility::PixelFormat screenPixelsFormat = sb::utility::PixelFormat::RGBA;
         std::vector<unsigned char> screenPixels(screenPixelsWidth * screenPixelsHeight * sb::utility::getBytesPerPixel(screenPixelsFormat));
         std::generate(screenPixels.begin(), screenPixels.end(), rand);
         frame.screenPixels = std::make_shared<RawImage>(screenPixelsFormat, screenPixelsHeight, screenPixelsWidth, screenPixels);
@@ -80,12 +80,13 @@ public:
         emptyFrame.rectDraws = std::make_shared<std::vector<RectDraw>>();
         emptyFrame.fileIo = std::make_shared<std::vector<FileIo>>();
         emptyFrame.miniMapDraws = std::make_shared<std::vector<MiniMapDraw>>();
-        emptyFrame.screenPixels = std::make_shared<RawImage>(sb::utility::PixelFormat::ALPHA, 0, 0, nullptr);
+        emptyFrame.screenPixels = std::make_shared<RawImage>(sb::utility::PixelFormat::RGBA, 1, 1, std::vector<unsigned char>({255, 255, 255, 255}));
     }
 
     ~FrameFileTest()
     {
         std::remove(std::string(filePath + ".bin").c_str());
+        std::remove(std::string(filePath + ".png").c_str());
     }
 
     static void fillDraw(Draw& d)
@@ -312,14 +313,23 @@ public:
         expectEq(f1.rectDraws, f2.rectDraws);
 //        expectEq(f1.fileIo, f2.fileIo);
         expectEq(f1.miniMapDraws, f2.miniMapDraws);
-        expectEq(f1.screenPixels, f2.screenPixels);
+
+        std::shared_ptr<RawImage> flippedScreenPixels;
+        if(f1.screenPixels != nullptr)
+        {
+            QImage flippedScreen(f1.screenPixels->pixels.data(), f1.screenPixels->width, f1.screenPixels->height, QImage::Format_RGBA8888);
+            flippedScreen = flippedScreen.mirrored(false, true);
+            flippedScreenPixels.reset(new RawImage(sb::utility::PixelFormat::RGBA, flippedScreen.width(), flippedScreen.height(), flippedScreen.bits()));
+            EXPECT_EQ(flippedScreen.byteCount(), f1.screenPixels->pixels.size());
+        }
+        expectEq(flippedScreenPixels, f2.screenPixels);
     }
 
     void expectEqAfterWriteRead(const Frame& f) const
     {
         EXPECT_TRUE(FrameFile::write(f, filePath));
         Frame readFrame;
-        EXPECT_TRUE(FrameFile::read(readFrame, filePath + ".bin"));
+        EXPECT_TRUE(FrameFile::read(readFrame, filePath));
 
         expectEq(f, readFrame);
     }
@@ -327,7 +337,7 @@ public:
     void expectWriteReadTrue(Frame& f) const
     {
         EXPECT_TRUE(FrameFile::write(f, filePath));
-        EXPECT_TRUE(FrameFile::read(f, filePath + ".bin"));
+        EXPECT_TRUE(FrameFile::read(f, filePath));
     }
 
 

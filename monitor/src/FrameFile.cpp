@@ -29,12 +29,19 @@
 #include "monitor/FrameFile.hpp"
 #include "monitor/Frame.hpp"
 #include "utility/utility.hpp"
+#include "utility/file.hpp"
 using namespace sb::utility;
+///////////////////////////////////
+
+///////////////////////////////////
+// Qt
+#include "QtGui/QImage"
 ///////////////////////////////////
 
 ///////////////////////////////////
 // STD C++
 #include <fstream>
+#include <cassert>
 ///////////////////////////////////
 
 namespace GraphicsLayer
@@ -448,11 +455,9 @@ void read(std::shared_ptr<RawImage>& screenPixels, std::istream& stream)
     screenPixels.reset(new RawImage(format, width, height, pixels));
 }
 
-
-bool write(const Frame& f, const std::string& filePath)
+bool writeBin(const Frame& f, const std::string& filePath)
 {
     std::ofstream file(filePath + ".bin", std::ios::binary);
-
     if(!file.good())
     {
         return false;
@@ -473,26 +478,51 @@ bool write(const Frame& f, const std::string& filePath)
     writeStream(f.width, file);
     writeStream(f.height, file);
 
-//    for(size_t i = 0; i < 10; i++)
     write(f.spriteDraws, file);
-//    for(size_t i = 0; i < 10; i++)
     write(f.guiDraws, file);
-//    for(size_t i = 0; i < 10; i++)
     write(f.guiSpriteDraws, file);
-//    for(size_t i = 0; i < 10; i++)
     write(f.textDraws, file);
-//    for(size_t i = 0; i < 10; i++)
     write(f.rectDraws, file);
     write(f.miniMapDraws, file);
-    write(f.screenPixels, file);
 
+    return !file.fail();
+}
+
+bool writeImages(const Frame& f, const std::string& filePath)
+{
+    if(f.screenPixels == nullptr)
+    {
+        return true;
+    }
+
+    const RawImage& i = *f.screenPixels;
+    assert(i.format == sb::utility::PixelFormat::RGBA);
+    QImage img(i.pixels.data(), i.width, i.height, QImage::Format_RGBA8888);
+    img = img.mirrored(false, true);
+    QString imgPath = QString::fromStdString(filePath + ".png");
+
+    return img.save(imgPath);
+}
+
+bool write(const Frame& f, const std::string& filePath)
+{
+    if(!writeBin(f, filePath))
+    {
+        return false;
+    }
+
+    if(!writeImages(f, filePath))
+    {
+        return false;
+    }
 
     return true;
 }
 
-bool read(Frame& f, const std::string& filePath)
+
+bool readBin(Frame& f, const std::string& filePath)
 {
-    std::ifstream file(filePath, std::ios::binary);
+    std::ifstream file(filePath + ".bin", std::ios::binary);
 
     if(!file.good())
     {
@@ -516,24 +546,50 @@ bool read(Frame& f, const std::string& filePath)
         readStreamSafe(f.width, file);
         readStreamSafe(f.height, file);
 
-
-//        for(size_t i = 0; i < 10; i++)
         read(f.spriteDraws, file);
-//        for(size_t i = 0; i < 10; i++)
         read(f.guiDraws, file);
-//        for(size_t i = 0; i < 10; i++)
         read(f.guiSpriteDraws, file);
-//        for(size_t i = 0; i < 10; i++)
         read(f.textDraws, file);
-//        for(size_t i = 0; i < 10; i++)
         read(f.rectDraws, file);        read(f.miniMapDraws, file);
-        read(f.screenPixels, file);
     }
     catch(...)
     {
         return false;
     }
 
+    bool isEarlyEof = file.eof();
+    file.peek();
+    return !isEarlyEof && file.eof();
+}
+
+bool readImages(Frame& f, const std::string& filePath)
+{
+    f.screenPixels = nullptr;
+
+    std::string screenPixelsPath = filePath + ".png";
+    if(!sb::utility::file::fileExists(screenPixelsPath))
+    {
+        return true;
+    }
+
+
+    QImage screenPixels(QString::fromStdString(screenPixelsPath));
+    screenPixels = screenPixels.convertToFormat(QImage::Format_RGBA8888);
+    f.screenPixels.reset(new RawImage(sb::utility::PixelFormat::RGBA, screenPixels.width(), screenPixels.height(), screenPixels.bits()));
+    return true;
+}
+
+bool read(Frame& f, const std::string& filePath)
+{
+    if(!readBin(f, filePath))
+    {
+        return false;
+    }
+
+    if(!readImages(f, filePath))
+    {
+        return false;
+    }
 
     return true;
 }
