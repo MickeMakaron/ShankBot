@@ -42,7 +42,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "utility/config.hpp"
-
+#include "utility/Buffer.hpp"
 namespace sb
 {
 namespace utility
@@ -114,6 +114,14 @@ namespace utility
     }
 
     template<typename T>
+    void readStream(T& t, Buffer& b, size_t n = 1)
+    {
+        const size_t size = sizeof(T) * n;
+        memcpy((char*)&t, &b.data[b.curr], size);
+        b.curr += size;
+    }
+
+    template<typename T>
     void readStream(T& t, const char*& stream, size_t n = 1)
     {
         const size_t size = sizeof(T) * n;
@@ -162,6 +170,7 @@ namespace utility
     SHANK_BOT_UTILITY_DECLSPEC std::array<float, 4> mulTransposedMatVec(const float lhs[4][4], const float rhs[4]);
 
     SHANK_BOT_UTILITY_DECLSPEC size_t readTibiaSizeIndicator(std::istream& stream);
+    SHANK_BOT_UTILITY_DECLSPEC size_t readTibiaSizeIndicator(Buffer& stream);
 
     SHANK_BOT_UTILITY_DECLSPEC std::string getDateTime();
 

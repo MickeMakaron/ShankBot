@@ -309,7 +309,8 @@ std::vector<size_t> rgbaToTransparencyTreeSprite(const unsigned char* rgba, size
 
 ///////////////////////////////////
 
-__declspec(dllexport) size_t readTibiaSizeIndicator(std::istream& stream)
+template<typename StreamT>
+size_t readTibiaSizeIndicatorHelper(StreamT& stream)
 {
     size_t size = 0;
     unsigned char byte;
@@ -326,6 +327,16 @@ __declspec(dllexport) size_t readTibiaSizeIndicator(std::istream& stream)
     }
 
     return size;
+}
+
+__declspec(dllexport) size_t readTibiaSizeIndicator(std::istream& stream)
+{
+    return readTibiaSizeIndicatorHelper(stream);
+}
+
+__declspec(dllexport) size_t readTibiaSizeIndicator(Buffer& stream)
+{
+    return readTibiaSizeIndicatorHelper(stream);
 }
 
 ///////////////////////////////////
