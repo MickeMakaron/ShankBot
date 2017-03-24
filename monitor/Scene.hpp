@@ -58,6 +58,7 @@ namespace GraphicsLayer
     class Scene
     {
         public:
+
             struct Object
             {
                 char tileX;
@@ -67,17 +68,6 @@ namespace GraphicsLayer
                 float screenX;
                 float screenY;
                 size_t object;
-
-//                bool operator<(const Object& other) const
-//                {
-//                    return
-//                    (
-//                        tileX != other.tileX ||
-//                        tileY != other.tileY ||
-//                        layer != other.layer ||
-//                        object != other.object
-//                    );
-//                }
 
                 bool operator==(const Object& other) const
                 {
@@ -104,6 +94,16 @@ namespace GraphicsLayer
                 std::list<Object> unknownLayerObjects;
             };
 
+            static const int VISIBILITY_OFFSET_LOW = 2;
+            static const int VISIBILITY_OFFSET_HIGH = 3;
+            static const int MAX_VISIBLE_TILES_X = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_X + VISIBILITY_OFFSET_HIGH;
+            static const int MAX_VISIBLE_TILES_Y = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_Y + VISIBILITY_OFFSET_HIGH;
+            struct Data
+            {
+                std::array<std::array<Tile, MAX_VISIBLE_TILES_Y>, MAX_VISIBLE_TILES_X> tiles;
+            };
+
+
 
         public:
             explicit Scene(const TibiaContext& context);
@@ -126,16 +126,12 @@ namespace GraphicsLayer
             void parseCurrentFrame();
 
         private:
-            static const int VISIBILITY_OFFSET_LOW = 2;
-            static const int VISIBILITY_OFFSET_HIGH = 3;
-            static const int MAX_VISIBLE_TILES_X = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_X + VISIBILITY_OFFSET_HIGH;
-            static const int MAX_VISIBLE_TILES_Y = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_Y + VISIBILITY_OFFSET_HIGH;
             static const int MAX_MOVEMENT = 10;
 
             std::shared_ptr<std::vector<SpriteDraw>> mCurrentDraws = std::make_shared<std::vector<SpriteDraw>>();
             bool mIsCurrentFrameParsed = false;
 
-            Tile mParsedCurrentFrame[MAX_VISIBLE_TILES_X][MAX_VISIBLE_TILES_Y];
+            std::array<std::array<Tile, MAX_VISIBLE_TILES_Y>, MAX_VISIBLE_TILES_X> mParsedCurrentFrame;
             const TibiaContext& mContext;
 
             short mPreviousMiniMapX = 0;
