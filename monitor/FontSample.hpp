@@ -36,7 +36,6 @@ class QPainter;
 ///////////////////////////////////
 // STD C++
 #include <string>
-#include <list>
 #include <vector>
 ///////////////////////////////////
 
@@ -67,14 +66,14 @@ namespace GraphicsLayer
         public:
             explicit FontSample(std::string family, float minPointSize, float maxPointSize, unsigned char styleFlags = Style::NORMAL);
 
-            const std::list<Glyph>& getGlyphs() const;
+            const std::vector<Glyph>& getGlyphs() const;
 
         private:
             void createGlyphSamples(std::string family, float minPointSize, float maxPointSize, unsigned char styleFlags);
             void generateGlyphs(QPainter& painter);
 
         private:
-            std::list<Glyph> mGlyphs;
+            std::vector<Glyph> mGlyphs;
     };
 }
 

@@ -58,7 +58,7 @@ namespace GraphicsLayer
                 UPtr<SequenceTree>& spriteTransparencyTree,
                 UPtr<SpriteInfo>& spriteInfo,
                 UPtr<std::vector<std::string>>& graphicsResourceNames,
-                UPtr<std::list<FontSample::Glyph>>& glyphs
+                UPtr<std::vector<FontSample::Glyph>>& glyphs
             );
 
             const std::vector<sb::tibiaassets::Object>& getObjects() const;
@@ -67,7 +67,7 @@ namespace GraphicsLayer
             const SequenceTree& getSpriteTransparencyTree() const;
             const SpriteInfo& getSpriteInfo() const;
             const std::vector<std::string>& getGraphicsResourceNames() const;
-            const std::list<FontSample::Glyph>& getGlyphs() const;
+            const std::vector<FontSample::Glyph>& getGlyphs() const;
 
         private:
             UPtr<std::vector<sb::tibiaassets::Object>> mObjects;
@@ -76,7 +76,7 @@ namespace GraphicsLayer
             UPtr<SequenceTree> mSpriteTransparencyTree;
             UPtr<SpriteInfo> mSpriteInfo;
             UPtr<std::vector<std::string>> mGraphicsResourceNames;
-            UPtr<std::list<FontSample::Glyph>> mGlyphs;
+            UPtr<std::vector<FontSample::Glyph>> mGlyphs;
     };
 }
 

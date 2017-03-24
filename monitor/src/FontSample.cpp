@@ -55,7 +55,7 @@ using namespace GraphicsLayer;
 
 namespace FontSamplePrivate
 {
-    std::list<FontSample::Glyph>* currentGlyphs = nullptr;
+    std::vector<FontSample::Glyph>* currentGlyphs = nullptr;
     FunctionDetour* subTexImgDetour = nullptr;
     char currentCharacter = 0;
     float currentPointSize = 0;
@@ -224,7 +224,7 @@ void FontSample::generateGlyphs(QPainter& painter)
     }
 }
 
-const std::list<FontSample::Glyph>& FontSample::getGlyphs() const
+const std::vector<FontSample::Glyph>& FontSample::getGlyphs() const
 {
     return mGlyphs;
 }

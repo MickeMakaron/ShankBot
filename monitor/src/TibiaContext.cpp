@@ -40,7 +40,7 @@ TibiaContext::TibiaContext
     UPtr<SequenceTree>& spriteTransparencyTree,
     UPtr<SpriteInfo>& spriteInfo,
     UPtr<std::vector<std::string>>& graphicsResourceNames,
-    UPtr<std::list<FontSample::Glyph>>& glyphs
+    UPtr<std::vector<FontSample::Glyph>>& glyphs
 )
 {
     mObjects.reset(objects.release());
@@ -82,7 +82,7 @@ const std::vector<std::string>& TibiaContext::getGraphicsResourceNames() const
     return *mGraphicsResourceNames;
 }
 
-const std::list<FontSample::Glyph>& TibiaContext::getGlyphs() const
+const std::vector<FontSample::Glyph>& TibiaContext::getGlyphs() const
 {
     return *mGlyphs;
 }
