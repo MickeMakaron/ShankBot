@@ -546,6 +546,7 @@ void fromJson(Scene::Object& o, const QJsonValue& json)
     QJsonObject obj = json.toObject();
     o.tileX = obj["x"].toInt();
     o.tileY = obj["y"].toInt();
+    o.layer = obj["layer"].toInt();
     o.isOnStack = obj["isOnStack"].toBool();
     o.screenX = obj["screenX"].toInt();
     o.screenY = obj["screenY"].toInt();
@@ -558,6 +559,7 @@ QJsonValue toJson(const Scene::Object& o)
     {
         {"x", o.tileX},
         {"y", o.tileY},
+        {"layer", o.layer},
         {"isOnStack", o.isOnStack},
         {"screenX", (int)o.screenX},
         {"screenY", (int)o.screenY},
