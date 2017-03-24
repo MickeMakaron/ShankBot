@@ -191,8 +191,8 @@ void expectEq(const Scene::Object& f1, const Scene::Object& f2)
     EXPECT_EQ(f1.object, f2.object);
     EXPECT_EQ(f1.tileX, f2.tileX);
     EXPECT_EQ(f1.tileY, f2.tileY);
-    EXPECT_FLOAT_EQ(f1.screenX, f2.screenX);
-    EXPECT_FLOAT_EQ(f1.screenY, f2.screenY);
+    EXPECT_EQ((int)f1.screenX, (int)f2.screenX);
+    EXPECT_EQ((int)f1.screenY, (int)f2.screenY);
 }
 
 void expectEq(const Scene::Tile& f1, const Scene::Tile& f2)
