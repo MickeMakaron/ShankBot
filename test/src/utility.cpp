@@ -184,9 +184,36 @@ void expectEq(const Gui::Data& f1, const Gui::Data& f2)
     expectEq(f1.battleWindow, f2.battleWindow);
 }
 
+void expectEq(const Scene::Object& f1, const Scene::Object& f2)
+{
+    EXPECT_EQ(f1.isOnStack, f2.isOnStack);
+    EXPECT_EQ(f1.layer, f2.layer);
+    EXPECT_EQ(f1.object, f2.object);
+    EXPECT_EQ(f1.tileX, f2.tileX);
+    EXPECT_EQ(f1.tileY, f2.tileY);
+    EXPECT_FLOAT_EQ(f1.screenX, f2.screenX);
+    EXPECT_FLOAT_EQ(f1.screenY, f2.screenY);
+}
+
+void expectEq(const Scene::Tile& f1, const Scene::Tile& f2)
+{
+    expectEq(f1.knownLayerObjects, f2.knownLayerObjects);
+    EXPECT_EQ(f1.height, f2.height);
+    EXPECT_EQ(f1.numLayers, f2.numLayers);
+    EXPECT_EQ(f1.stackStartLayer, f2.stackStartLayer);
+    EXPECT_EQ(f1.tileX, f2.tileX);
+    EXPECT_EQ(f1.tileY, f2.tileY);
+}
+
+void expectEq(const Scene::Data& f1, const Scene::Data& f2)
+{
+    expectEq(f1.tiles, f2.tiles);
+}
+
 void expectEq(const ParsedFrame& f1, const ParsedFrame& f2)
 {
     expectEq(f1.gui, f2.gui);
+    expectEq(f1.scene, f2.scene);
 }
 
 

@@ -49,113 +49,153 @@ public:
     ParsedFrameFileTest()
     {
         srand(0);
-        frame.gui.reset(new Gui::Data());
-        Gui::Data* gui = frame.gui.get();
+        frame.gui.reset(new Gui::Data(genGuiData()));
+        emptyFrame.gui.reset(new Gui::Data(genGuiData()));
 
-        gui->state = (Gui::State)(rand() % (size_t)Gui::State::UNDEFINED);
-        gui->cap = rand();
-        gui->soul = rand();
-        gui->mana = rand();
-        gui->hp = rand();
-        gui->hpLevel = rand();
-        gui->manaLevel = rand();
-        gui->level = rand();
-        gui->experience = rand();
-        gui->xpGainRate = rand();
-        gui->speed = rand();
-        gui->foodMinutes = rand();
-        gui->staminaMinutes = rand();
-        gui->offlineTrainingMinutes = rand();
-        gui->magicLevel = rand();
-        gui->fistLevel = rand();
-        gui->clubLevel = rand();
-        gui->swordLevel = rand();
-        gui->axeLevel = rand();
-        gui->distanceLevel = rand();
-        gui->shieldingLevel = rand();
-        gui->fishingLevel = rand();
-        gui->critChance = rand();
-        gui->critDamage = rand();
-        gui->hpLeechChance = rand();
-        gui->hpLeechAmount = rand();
-        gui->manaLeechChance = rand();
-        gui->manaLeechAmount = rand();
+        emptyFrame.gui->buttons.clear();
+        emptyFrame.gui->equipment.clear();
+        emptyFrame.gui->containers.clear();
+        emptyFrame.gui->sideBottomWindows.clear();
+        emptyFrame.gui->onlineVips.clear();
+        emptyFrame.gui->offlineVips.clear();
+
+        frame.scene.reset(new Scene::Data(genSceneData()));
+        emptyFrame.scene.reset(new Scene::Data(genSceneData()));
+        for(auto& row : emptyFrame.scene->tiles)
+        {
+            for(Scene::Tile& t : row)
+            {
+                t.knownLayerObjects.clear();
+            }
+        }
+    }
+
+    ~ParsedFrameFileTest()
+    {
+        std::remove(std::string(filePath + ".json").c_str());
+    }
+
+    static Scene::Object genSceneObject()
+    {
+        Scene::Object o;
+        o.isOnStack = rand() % 2;
+        o.layer = rand();
+        o.object = rand();
+        o.screenX = rand();
+        o.screenY = rand();
+        o.tileX = rand();
+        o.tileY = rand();
+
+        return o;
+    }
+
+    static Scene::Tile genTile()
+    {
+        Scene::Tile t;
+        t.height = rand();
+        t.numLayers = rand();
+        t.stackStartLayer = rand();
+        t.tileX = rand();
+        t.tileY = rand();
+
+        size_t numObjects = 3 + rand() % 3;
+        for(size_t i = 0; i < numObjects; i++)
+        {
+            t.knownLayerObjects.push_back(genSceneObject());
+        }
+
+        return t;
+    }
+
+    static Scene::Data genSceneData()
+    {
+        Scene::Data scene;
+
+        for(auto& row : scene.tiles)
+        {
+            for(Scene::Tile& t : row)
+            {
+
+            }
+        }
+
+        return scene;
+    }
+
+    static Gui::Data genGuiData()
+    {
+        Gui::Data gui;
+
+        gui.state = (Gui::State)(rand() % (size_t)Gui::State::UNDEFINED);
+        gui.cap = rand();
+        gui.soul = rand();
+        gui.mana = rand();
+        gui.hp = rand();
+        gui.hpLevel = rand();
+        gui.manaLevel = rand();
+        gui.level = rand();
+        gui.experience = rand();
+        gui.xpGainRate = rand();
+        gui.speed = rand();
+        gui.foodMinutes = rand();
+        gui.staminaMinutes = rand();
+        gui.offlineTrainingMinutes = rand();
+        gui.magicLevel = rand();
+        gui.fistLevel = rand();
+        gui.clubLevel = rand();
+        gui.swordLevel = rand();
+        gui.axeLevel = rand();
+        gui.distanceLevel = rand();
+        gui.shieldingLevel = rand();
+        gui.fishingLevel = rand();
+        gui.critChance = rand();
+        gui.critDamage = rand();
+        gui.hpLeechChance = rand();
+        gui.hpLeechAmount = rand();
+        gui.manaLeechChance = rand();
+        gui.manaLeechAmount = rand();
 
         for(size_t i = 0; i < (size_t)Gui::EqType::NUM_TYPES; i++)
         {
-            gui->equipment[(Gui::EqType)i] = rand();
+            gui.equipment[(Gui::EqType)i] = rand();
         }
 
         size_t numButtons = 3 + rand() % 10;
         for(size_t i = 0; i < numButtons; i++)
         {
-            gui->buttons.emplace_back(new Gui::Button(genButton()));
+            gui.buttons.emplace_back(new Gui::Button(genButton()));
         }
 
         size_t numContainers = 3 + rand() % 10;
         for(size_t i = 0; i < numContainers; i++)
         {
-            gui->containers.push_back(genContainer());
+            gui.containers.push_back(genContainer());
         }
 
 
         size_t numSideBottomWindows = 3 + rand() % 10;
         for(size_t i = 0; i < numSideBottomWindows; i++)
         {
-            gui->sideBottomWindows.emplace_back(new Gui::SideBottomWindow(genSideBottomWindow()));
+            gui.sideBottomWindows.emplace_back(new Gui::SideBottomWindow(genSideBottomWindow()));
         }
 
-        gui->npcTradeWindow.reset(new Gui::NpcTradeWindow(genNpcTradeWindow()));
-        gui->battleWindow.reset(new Gui::BattleWindow(genBattleWindow()));
+        gui.npcTradeWindow.reset(new Gui::NpcTradeWindow(genNpcTradeWindow()));
+        gui.battleWindow.reset(new Gui::BattleWindow(genBattleWindow()));
 
         size_t numOnlineVips = 5 + rand() % 3;
         for(size_t i = 0; i < numOnlineVips; i++)
         {
-            gui->onlineVips.push_back(sb::utility::randStr(5 + rand() % 10));
+            gui.onlineVips.push_back(sb::utility::randStr(5 + rand() % 10));
         }
 
         size_t numOfflineVips = 5 + rand() % 3;
         for(size_t i = 0; i < numOfflineVips; i++)
         {
-            gui->offlineVips.push_back(sb::utility::randStr(5 + rand() % 10));
+            gui.offlineVips.push_back(sb::utility::randStr(5 + rand() % 10));
         }
 
-        emptyFrame.gui.reset(new Gui::Data());
-        gui = emptyFrame.gui.get();
 
-        gui->state = (Gui::State)(rand() % (size_t)Gui::State::UNDEFINED);
-        gui->cap = rand();
-        gui->soul = rand();
-        gui->mana = rand();
-        gui->hp = rand();
-        gui->hpLevel = rand();
-        gui->manaLevel = rand();
-        gui->level = rand();
-        gui->experience = rand();
-        gui->xpGainRate = rand();
-        gui->speed = rand();
-        gui->foodMinutes = rand();
-        gui->staminaMinutes = rand();
-        gui->offlineTrainingMinutes = rand();
-        gui->magicLevel = rand();
-        gui->fistLevel = rand();
-        gui->clubLevel = rand();
-        gui->swordLevel = rand();
-        gui->axeLevel = rand();
-        gui->distanceLevel = rand();
-        gui->shieldingLevel = rand();
-        gui->fishingLevel = rand();
-        gui->critChance = rand();
-        gui->critDamage = rand();
-        gui->hpLeechChance = rand();
-        gui->hpLeechAmount = rand();
-        gui->manaLeechChance = rand();
-        gui->manaLeechAmount = rand();
-    }
-
-    ~ParsedFrameFileTest()
-    {
-        std::remove(std::string(filePath + ".json").c_str());
+        return gui;
     }
 
     static Gui::Button genButton()

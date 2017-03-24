@@ -30,6 +30,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/Gui.hpp"
+#include "monitor/Scene.hpp"
 #include "utility/Matrix.hpp"
 namespace GraphicsLayer
 {
@@ -65,6 +66,11 @@ namespace test
     void expectEq(const GraphicsLayer::Gui::SideBottomWindow& w1, const GraphicsLayer::Gui::SideBottomWindow& w2);
     void expectEq(const GraphicsLayer::Gui::Button& b1, const GraphicsLayer::Gui::Button& b2);
     void expectEq(const GraphicsLayer::Gui::Data& f1, const GraphicsLayer::Gui::Data& f2);
+
+    void expectEq(const GraphicsLayer::Scene::Tile& f1, const GraphicsLayer::Scene::Tile& f2);
+    void expectEq(const GraphicsLayer::Scene::Object& f1, const GraphicsLayer::Scene::Object& f2);
+    void expectEq(const GraphicsLayer::Scene::Data& f1, const GraphicsLayer::Scene::Data& f2);
+
     void expectEq(const GraphicsLayer::ParsedFrame& f1, const GraphicsLayer::ParsedFrame& f2);
 
     void expectEq(const GraphicsLayer::Draw& d1, const GraphicsLayer::Draw& d2);
@@ -84,6 +90,8 @@ namespace test
     void expectEq(const std::list<T>& p1, const std::list<T>& p2);
     template<typename T>
     void expectEq(const std::vector<T>& p1, const std::vector<T>& p2);
+    template<typename T, size_t N>
+    void expectEq(const std::array<T, N>& p1, const std::array<T, N>& p2);
     template<size_t N, size_t M>
     void expectEq(const sb::utility::Matrix<float, N, M>& m1, const sb::utility::Matrix<float, N, M>& m2);
 
@@ -131,6 +139,16 @@ namespace test
             return;
         }
 
+        for(size_t i = 0; i < p1.size(); i++)
+        {
+            expectEq(p1[i], p2[i]);
+        }
+    }
+
+
+    template<typename T, size_t N>
+    void expectEq(const std::array<T, N>& p1, const std::array<T, N>& p2)
+    {
         for(size_t i = 0; i < p1.size(); i++)
         {
             expectEq(p1[i], p2[i]);
