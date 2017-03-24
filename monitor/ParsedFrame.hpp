@@ -30,6 +30,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/Gui.hpp"
+#include "monitor/Scene.hpp"
 namespace GraphicsLayer
 {
     class TibiaContext;
@@ -47,6 +48,7 @@ namespace GraphicsLayer
     {
         const TibiaContext* context;
         std::shared_ptr<Gui::Data> gui;
+        std::shared_ptr<Scene::Data> scene;
     };
 }
 
