@@ -49,6 +49,7 @@ Scene::Scene(const TibiaContext& context)
 
 void Scene::update(const Frame& frame)
 {
+    mData.reset(new Data());
     if(!frame.spriteDraws->empty())
     {
         mCurrentDraws = frame.spriteDraws;
@@ -72,8 +73,7 @@ const Scene::Tile& Scene::getTile(char tileX, char tileY) const
     if(tileX < 0 || tileY < 0 || tileX >= Constants::NUM_TILES_VIEW_X || tileY >= Constants::NUM_TILES_VIEW_Y)
         THROW_RUNTIME_ERROR("Parameters out of range.");
 
-//    parseCurrentFrame();
-    return mParsedCurrentFrame[tileX + VISIBILITY_OFFSET_LOW][tileY + VISIBILITY_OFFSET_LOW];
+    return mData->tiles[tileX + VISIBILITY_OFFSET_LOW][tileY + VISIBILITY_OFFSET_LOW];
 }
 
 float Scene::getTileWidth() const
@@ -98,7 +98,7 @@ void Scene::parseCurrentFrame()
     for(size_t x = 0; x < MAX_VISIBLE_TILES_X; x++)
         for(size_t y = 0; y < MAX_VISIBLE_TILES_Y; y++)
         {
-            Tile& tile = mParsedCurrentFrame[x][y];
+            Tile& tile = mData->tiles[x][y];
             tile = Tile();
             tile.tileX = x - VISIBILITY_OFFSET_LOW;
             tile.tileY = y - VISIBILITY_OFFSET_LOW;
@@ -141,7 +141,7 @@ void Scene::parseCurrentFrame()
             assert(tileX >= -VISIBILITY_OFFSET_LOW && tileX < MAX_VISIBLE_TILES_X - VISIBILITY_OFFSET_LOW);
             assert(tileY >= -VISIBILITY_OFFSET_LOW && tileY < MAX_VISIBLE_TILES_Y - VISIBILITY_OFFSET_LOW);
 
-            Tile& tile = mParsedCurrentFrame[tileX + VISIBILITY_OFFSET_LOW][tileY + VISIBILITY_OFFSET_LOW];
+            Tile& tile = mData->tiles[tileX + VISIBILITY_OFFSET_LOW][tileY + VISIBILITY_OFFSET_LOW];
             for(const SpriteDraw::SpriteObjectPairing& pair : draw.pairings)
             {
                 assert(!pair.objects.empty());
@@ -172,7 +172,7 @@ void Scene::parseCurrentFrame()
     for(size_t x = 0; x < MAX_VISIBLE_TILES_X; x++)
         for(size_t y = 0; y < MAX_VISIBLE_TILES_Y; y++)
         {
-            Tile& tile = mParsedCurrentFrame[x][y];
+            Tile& tile = mData->tiles[x][y];
             for(Object& object : tile.knownLayerObjects)
                 object.layer = (tile.numLayers - 1) - object.layer;
         }
@@ -193,7 +193,7 @@ std::list<Scene::Object> Scene::get(const std::function<bool(const Object& objec
 //    for(size_t x = 0; x < MAX_VISIBLE_TILES_X; x++)
 //        for(size_t y = 0; y < MAX_VISIBLE_TILES_Y; y++)
 //        {
-//            const Tile& tile = mParsedCurrentFrame[x][y];
+//            const Tile& tile = mData->tiles[x][y];
 //            for(const Object& obj : tile.knownLayerObjects)
 //            {
 //                if(func(obj))
@@ -211,7 +211,7 @@ void Scene::forEach(const std::function<void(const Object& object)>& func) const
     for(size_t x = 0; x < MAX_VISIBLE_TILES_X; x++)
         for(size_t y = 0; y < MAX_VISIBLE_TILES_Y; y++)
         {
-            const Tile& tile = mParsedCurrentFrame[x][y];
+            const Tile& tile = mData->tiles[x][y];
             for(const Object& obj : tile.knownLayerObjects)
             {
                 func(obj);
@@ -226,7 +226,7 @@ void Scene::forEach(const std::function<void(const Tile& tile)>& func) const
     for(size_t x = 0; x < MAX_VISIBLE_TILES_X; x++)
         for(size_t y = 0; y < MAX_VISIBLE_TILES_Y; y++)
         {
-            func(mParsedCurrentFrame[x][y]);
+            func(mData->tiles[x][y]);
         }
 }
 
