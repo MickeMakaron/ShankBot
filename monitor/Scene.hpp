@@ -90,8 +90,6 @@ namespace GraphicsLayer
                 char numLayers = 0;
                 char height = 0;
                 char stackStartLayer = -1;
-
-                std::list<Object> unknownLayerObjects;
             };
 
             static const int VISIBILITY_OFFSET_LOW = 2;
