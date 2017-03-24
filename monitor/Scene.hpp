@@ -120,6 +120,8 @@ namespace GraphicsLayer
             float getTileWidth() const;
             float getTileHeight() const;
 
+            const Data& getData() const;
+
 
         private:
             void updateMovement(short x, short y);
@@ -131,7 +133,8 @@ namespace GraphicsLayer
             std::shared_ptr<std::vector<SpriteDraw>> mCurrentDraws = std::make_shared<std::vector<SpriteDraw>>();
             bool mIsCurrentFrameParsed = false;
 
-            std::array<std::array<Tile, MAX_VISIBLE_TILES_Y>, MAX_VISIBLE_TILES_X> mParsedCurrentFrame;
+            std::shared_ptr<Data> mData = std::make_shared<Data>();
+
             const TibiaContext& mContext;
 
             short mPreviousMiniMapX = 0;

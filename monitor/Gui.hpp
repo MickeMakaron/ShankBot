@@ -295,7 +295,7 @@ namespace GraphicsLayer
 
         private:
             const TibiaContext& mContext;
-            std::shared_ptr<Data> mData;
+            std::shared_ptr<Data> mData = std::make_shared<Data>();
             Frame mCurrentFrame;
             bool mIsCurrentFrameParsed = false;
             float mHalfFrameWidth = 0.f;
