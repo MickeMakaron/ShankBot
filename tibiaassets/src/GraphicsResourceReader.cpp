@@ -90,6 +90,33 @@ GraphicsResourceReader::~GraphicsResourceReader()
         delete[] res.pixels;
 }
 
+std::vector<std::string> GraphicsResourceReader::readNames(const std::string& path)
+{
+    QString resourcePath = QString::fromStdString(path);
+    QResource::registerResource(resourcePath);
+
+    std::vector<std::string> names;
+    std::function<void(const QString& path)> readDir =
+    [&](const QString& path)
+    {
+        QDir dir(path);
+        for(const QFileInfo& file : dir.entryInfoList())
+        {
+            if(file.isDir())
+                readDir(file.absoluteFilePath());
+            else
+            {
+                names.push_back(file.absoluteFilePath().toStdString());
+            }
+        }
+    };
+    readDir(":/");
+
+    QResource::unregisterResource(resourcePath);
+
+    return names;
+}
+
 void GraphicsResourceReader::readResources(std::string path)
 {
     QString resourcePath = QString::fromStdString(path);

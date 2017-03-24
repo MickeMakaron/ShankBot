@@ -60,6 +60,8 @@ namespace tibiaassets
 
             const std::vector<GraphicsResource>& getGraphicsResources() const;
 
+            static std::vector<std::string> readNames(const std::string& path);
+
         private:
             void readResources(std::string path);
             void printResources(std::string path) const; // DEBUGGING PURPOSES
