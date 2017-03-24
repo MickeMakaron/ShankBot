@@ -49,12 +49,14 @@ namespace ParsedFrameFile
 ///////////////////////////////////
 
 void write(QJsonObject& o, const std::shared_ptr<const Gui::Data>& guiData);
+void write(QJsonObject& o, const std::shared_ptr<const Scene::Data>& sceneData);
 
 
 bool write(const ParsedFrame& f, const std::string& filePath)
 {
     QJsonObject o;
     write(o, f.gui);
+    write(o, f.scene);
 
     QFile file(QString::fromStdString(filePath + ".json"));
     if(!file.open(QIODevice::WriteOnly))
@@ -62,8 +64,8 @@ bool write(const ParsedFrame& f, const std::string& filePath)
         return false;
     }
 
-    file.write(QJsonDocument(o).toJson());
-    return true;
+    QByteArray json = QJsonDocument(o).toJson();
+    return file.write(json) == json.size();
 }
 
 QJsonValue toJson(const Gui::Rect& r)
@@ -539,6 +541,90 @@ std::string toString(Gui::EqType t)
     }
 }
 
+void fromJson(Scene::Object& o, const QJsonValue& json)
+{
+    QJsonObject obj = json.toObject();
+    o.tileX = obj["x"].toInt();
+    o.tileY = obj["y"].toInt();
+    o.isOnStack = obj["isOnStack"].toBool();
+    o.screenX = obj["screenX"].toInt();
+    o.screenY = obj["screenY"].toInt();
+    o.object = obj["objectId"].toInt();
+}
+
+QJsonValue toJson(const Scene::Object& o)
+{
+    return QJsonObject(
+    {
+        {"x", o.tileX},
+        {"y", o.tileY},
+        {"isOnStack", o.isOnStack},
+        {"screenX", (int)o.screenX},
+        {"screenY", (int)o.screenY},
+        {"objectId", (int)o.object},
+    });
+}
+
+void fromJson(Scene::Tile& t, const QJsonValue& json)
+{
+    QJsonObject o = json.toObject();
+    QJsonArray objects = o["objects"].toArray();
+    for(QJsonValueRef v : objects)
+    {
+        t.knownLayerObjects.emplace_back();
+        fromJson(t.knownLayerObjects.back(), v);
+    }
+
+    t.tileX = o["x"].toInt();
+    t.tileY = o["y"].toInt();
+    t.height = o["height"].toInt();
+    t.numLayers = o["numLayers"].toInt();
+    t.stackStartLayer = o["stackStartLayer"].toInt();
+}
+
+QJsonValue toJson(const Scene::Tile& t)
+{
+    QJsonArray objects;
+    for(const Scene::Object& o : t.knownLayerObjects)
+    {
+        objects.push_back(toJson(o));
+    }
+
+    return QJsonObject(
+    {
+        {"x", t.tileX},
+        {"y", t.tileY},
+        {"height", t.height},
+        {"numLayers", t.numLayers},
+        {"stackStartLayer", t.stackStartLayer},
+        {"objects", objects},
+    });
+}
+
+void write(QJsonObject& o, const std::shared_ptr<const Scene::Data>& sceneData)
+{
+    if(sceneData == nullptr)
+    {
+        o["scene"] = "";
+        return;
+    }
+
+    QJsonObject scene;
+
+    QJsonArray tiles;
+    for(size_t y = 0; y < sceneData->tiles[0].size(); y++)
+    {
+        QJsonArray row;
+        for(size_t x = 0; x < sceneData->tiles.size(); x++)
+        {
+            row.push_back(toJson(sceneData->tiles[x][y]));
+        }
+        tiles.push_back(row);
+    }
+    scene["tiles"] = tiles;
+
+    o["scene"] = scene;
+}
 
 
 void write(QJsonObject& o, const std::shared_ptr<const Gui::Data>& guiData)
@@ -634,6 +720,7 @@ void write(QJsonObject& o, const std::shared_ptr<const Gui::Data>& guiData)
 // Read
 ///////////////////////////////////
 void read(const QJsonObject& o, std::shared_ptr<Gui::Data>& guiData);
+void read(const QJsonObject& o, std::shared_ptr<Scene::Data>& sceneData);
 void read(const QJsonObject& o, std::shared_ptr<RawImage>& screenPixels);
 
 bool read(ParsedFrame& f, const std::string& filePath)
@@ -647,10 +734,35 @@ bool read(ParsedFrame& f, const std::string& filePath)
     QJsonObject o(QJsonDocument::fromJson(file.readAll()).object());
 
     read(o, f.gui);
+    read(o, f.scene);
 
     return true;
 }
 
+void read(const QJsonObject& o, std::shared_ptr<Scene::Data>& sceneData)
+{
+    sceneData = nullptr;
+
+    QJsonObject scene = o["scene"].toObject();
+    if(scene.empty())
+    {
+        return;
+    }
+
+    sceneData.reset(new Scene::Data());
+
+    QJsonArray tiles = scene["tiles"].toArray();
+    size_t numRows = std::min((size_t)tiles.size(), sceneData->tiles[0].size());
+    for(size_t y = 0; y < numRows; y++)
+    {
+        QJsonArray row = tiles[y].toArray();
+        size_t numColumns = std::min((size_t)row.size(), sceneData->tiles.size());
+        for(size_t x = 0; x < numColumns; x++)
+        {
+            fromJson(sceneData->tiles[x][y], row[x]);
+        }
+    }
+}
 
 
 void read(const QJsonObject& o, std::shared_ptr<Gui::Data>& guiData)
