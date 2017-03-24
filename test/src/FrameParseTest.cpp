@@ -44,12 +44,12 @@ using namespace GraphicsLayer;
 ////////////////////////////////////////
 
 ////////////////////////////////////////
-// GuiParseTest
+// FrameParseTest
 ////////////////////////////////////////
-class GuiParseTest : public ::testing::Test
+class FrameParseTest : public ::testing::Test
 {
 public:
-    GuiParseTest()
+    FrameParseTest()
     {
         FrameFile::read(frame, framePath);
         ParsedFrameFile::read(expectFrame, expectPath);
@@ -57,7 +57,6 @@ public:
 
         std::unique_ptr<SpriteObjectBindings> bindings;
         std::unique_ptr<SequenceTree> tree;
-        std::unique_ptr<SpriteInfo> spriteInfo;
         std::unique_ptr<std::vector<std::string>> graphicsResourceNames;
         std::unique_ptr<std::list<FontSample::Glyph>> glyphs;
 
@@ -67,6 +66,8 @@ public:
 
         sb::tibiaassets::AppearancesReader appearances(appearanceses.front().path);
         auto objects = std::make_unique<std::vector<sb::tibiaassets::Object>>(appearances.getObjects());
+
+        auto spriteInfo = std::make_unique<SpriteInfo>(cat.getSpriteSheets());
         TibiaContext context
         (
             objects,
@@ -80,10 +81,11 @@ public:
 
         Gui gui(context);
         gui.update(frame);
-
         parsedFrame.gui.reset(new Gui::Data(gui.getData()));
 
-//        ParsedFrameFile::write(parsedFrame, "frames/d21p");
+        Scene scene(context);
+        scene.update(frame);
+        parsedFrame.scene.reset(new Scene::Data(scene.getData()));
     }
 
 
@@ -94,8 +96,7 @@ public:
     std::string expectPath = "frames/d21e.json";
 };
 
-TEST_F(GuiParseTest, IsSame)
+TEST_F(FrameParseTest, ParsedFrameMatchesExpectFrame)
 {
     sb::test::expectEq(parsedFrame, expectFrame);
-    ParsedFrameFile::write(parsedFrame, "frames/d21p");
 }
