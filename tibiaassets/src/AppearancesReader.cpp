@@ -52,19 +52,33 @@ const std::vector<Object>& AppearancesReader::getObjects() const
 void AppearancesReader::readAppearances(std::string path)
 {
     std::ifstream file(path, std::ios::binary);
+    if(!file.good())
+    {
+        return;
+    }
 
     file.seekg(0, file.end);
     size_t fileSize = file.tellg();
     file.seekg(0);
 
-    while(file.tellg() < fileSize)
-        mObjects.push_back(readObject(file));
+    if(fileSize == 0)
+    {
+        return;
+    }
 
+    Buffer buffer;
+    buffer.data.resize(fileSize);
+    file.read(&buffer.data[0], fileSize);
     file.close();
+
+    while(buffer.curr < buffer.data.size())
+    {
+        mObjects.push_back(readObject(buffer));
+    }
 }
 
 
-Object::FrameInfo AppearancesReader::readFrameInfo(std::istream& stream) const
+Object::FrameInfo AppearancesReader::readFrameInfo(Buffer& stream) const
 {
     Object::FrameInfo info;
     size_t size = readTibiaSizeIndicator(stream);
@@ -103,7 +117,7 @@ Object::FrameInfo AppearancesReader::readFrameInfo(std::istream& stream) const
     return info;
 }
 
-Object::AnimationInfo AppearancesReader::readAnimationInfo(std::istream& stream) const
+Object::AnimationInfo AppearancesReader::readAnimationInfo(Buffer& stream) const
 {
     Object::AnimationInfo info;
     size_t size = readTibiaSizeIndicator(stream);
@@ -160,7 +174,7 @@ Object::AnimationInfo AppearancesReader::readAnimationInfo(std::istream& stream)
 }
 
 
-Object::SpriteInfo AppearancesReader::readSpriteInfo(std::istream& stream) const
+Object::SpriteInfo AppearancesReader::readSpriteInfo(Buffer& stream) const
 {
     Object::SpriteInfo info;
     size_t size = readTibiaSizeIndicator(stream);
@@ -231,7 +245,7 @@ Object::SpriteInfo AppearancesReader::readSpriteInfo(std::istream& stream) const
 }
 
 
-Object::SomeInfo AppearancesReader::readSomeInfo(std::istream& stream) const
+Object::SomeInfo AppearancesReader::readSomeInfo(Buffer& stream) const
 {
     Object::SomeInfo info;
     size_t size = readTibiaSizeIndicator(stream);
@@ -275,7 +289,7 @@ Object::SomeInfo AppearancesReader::readSomeInfo(std::istream& stream) const
 }
 
 
-bool AppearancesReader::readBoolean(std::istream& stream) const
+bool AppearancesReader::readBoolean(Buffer& stream) const
 {
     unsigned char byte;
     readStream(byte, stream);
@@ -289,7 +303,7 @@ bool AppearancesReader::readBoolean(std::istream& stream) const
     return byte == 0x01;
 }
 
-Object::BodyRestriction AppearancesReader::readBodyRestriction(std::istream& stream) const
+Object::BodyRestriction AppearancesReader::readBodyRestriction(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -321,7 +335,7 @@ Object::BodyRestriction AppearancesReader::readBodyRestriction(std::istream& str
 
 
 
-unsigned short AppearancesReader::readWalkSpeed(std::istream& stream) const
+unsigned short AppearancesReader::readWalkSpeed(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -348,7 +362,7 @@ unsigned short AppearancesReader::readWalkSpeed(std::istream& stream) const
     return walkSpeed;
 }
 
-Object::MiniMapColor AppearancesReader::readMinimapColor(std::istream& stream) const
+Object::MiniMapColor AppearancesReader::readMinimapColor(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -404,7 +418,7 @@ Object::MiniMapColor AppearancesReader::readMinimapColor(std::istream& stream) c
     return miniMapColor;
 }
 
-void AppearancesReader::readOffset(unsigned char& x, unsigned char& y, std::istream& stream) const
+void AppearancesReader::readOffset(unsigned char& x, unsigned char& y, Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -438,7 +452,7 @@ void AppearancesReader::readOffset(unsigned char& x, unsigned char& y, std::istr
 }
 
 
-void AppearancesReader::readLightInfo(unsigned char& distance, unsigned short& color, std::istream& stream) const
+void AppearancesReader::readLightInfo(unsigned char& distance, unsigned short& color, Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -472,7 +486,7 @@ void AppearancesReader::readLightInfo(unsigned char& distance, unsigned short& c
 }
 
 
-Object::VocationRestriction AppearancesReader::readVocationRestriction(std::istream& stream) const
+Object::VocationRestriction AppearancesReader::readVocationRestriction(Buffer& stream) const
 {
     Object::VocationRestriction b;
     readStream(b, stream);
@@ -488,7 +502,7 @@ Object::VocationRestriction AppearancesReader::readVocationRestriction(std::istr
 }
 
 
-Object::ClassRestriction AppearancesReader::readClassRestriction(std::istream& stream) const
+Object::ClassRestriction AppearancesReader::readClassRestriction(Buffer& stream) const
 {
     Object::ClassRestriction b;
     readStream(b, stream);
@@ -503,7 +517,7 @@ Object::ClassRestriction AppearancesReader::readClassRestriction(std::istream& s
     return b;
 }
 
-std::string AppearancesReader::readString(std::istream& stream) const
+std::string AppearancesReader::readString(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
 
@@ -515,7 +529,7 @@ std::string AppearancesReader::readString(std::istream& stream) const
     return str;
 }
 
-Object::MarketInfo AppearancesReader::readMarketInfo(std::istream& stream) const
+Object::MarketInfo AppearancesReader::readMarketInfo(Buffer& stream) const
 {
     Object::MarketInfo info;
     size_t size = readTibiaSizeIndicator(stream);
@@ -572,7 +586,7 @@ Object::MarketInfo AppearancesReader::readMarketInfo(std::istream& stream) const
     return info;
 }
 
-unsigned char AppearancesReader::readHeight(std::istream& stream) const
+unsigned char AppearancesReader::readHeight(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -600,7 +614,7 @@ unsigned char AppearancesReader::readHeight(std::istream& stream) const
     return height;
 }
 
-void AppearancesReader::readItemUnknown15(std::istream& stream) const
+void AppearancesReader::readItemUnknown15(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -625,7 +639,7 @@ void AppearancesReader::readItemUnknown15(std::istream& stream) const
     }
 }
 
-unsigned short AppearancesReader::readMaxCharacters(std::istream& stream) const
+unsigned short AppearancesReader::readMaxCharacters(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -652,7 +666,7 @@ unsigned short AppearancesReader::readMaxCharacters(std::istream& stream) const
     return maxCharacters;
 }
 
-unsigned char AppearancesReader::readDefaultAction(std::istream& stream) const
+unsigned char AppearancesReader::readDefaultAction(Buffer& stream) const
 {
     size_t size = readTibiaSizeIndicator(stream);
     int streamStart = stream.tellg();
@@ -681,7 +695,7 @@ unsigned char AppearancesReader::readDefaultAction(std::istream& stream) const
 }
 
 
-Object::ItemInfo AppearancesReader::readItemInfo(std::istream& stream) const
+Object::ItemInfo AppearancesReader::readItemInfo(Buffer& stream) const
 {
     Object::ItemInfo info;
     size_t size = readTibiaSizeIndicator(stream);
@@ -873,7 +887,7 @@ Object::ItemInfo AppearancesReader::readItemInfo(std::istream& stream) const
     return info;
 }
 
-Object AppearancesReader::readObject(std::istream& stream) const
+Object AppearancesReader::readObject(Buffer& stream) const
 {
     Object o;
     readStream(o.type, stream);

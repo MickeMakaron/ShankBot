@@ -31,6 +31,13 @@
 // Internal ShankBot headers
 #include "tibiaassets/config.hpp"
 #include "tibiaassets/Object.hpp"
+namespace sb
+{
+namespace utility
+{
+    struct Buffer;
+}
+}
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -172,32 +179,33 @@ class SHANK_BOT_TIBIAASSETS_DECLSPEC AppearancesReader
         explicit AppearancesReader(std::string path);
         const std::vector<Object>& getObjects() const;
     private:
+
         void readAppearances(std::string path);
 
-        bool readBoolean(std::istream& stream) const;
-        std::string readString(std::istream& stream) const;
+        bool readBoolean(sb::utility::Buffer& stream) const;
+        std::string readString(sb::utility::Buffer& stream) const;
 
-        Object readObject(std::istream& stream) const;
+        Object readObject(sb::utility::Buffer& stream) const;
 
-        Object::SomeInfo readSomeInfo(std::istream& stream) const;
-        Object::SpriteInfo readSpriteInfo(std::istream& stream) const;
-        Object::AnimationInfo readAnimationInfo(std::istream& stream) const;
-        Object::FrameInfo readFrameInfo(std::istream& stream) const;
+        Object::SomeInfo readSomeInfo(sb::utility::Buffer& stream) const;
+        Object::SpriteInfo readSpriteInfo(sb::utility::Buffer& stream) const;
+        Object::AnimationInfo readAnimationInfo(sb::utility::Buffer& stream) const;
+        Object::FrameInfo readFrameInfo(sb::utility::Buffer& stream) const;
 
-        Object::ItemInfo readItemInfo(std::istream& stream) const;
-        Object::BodyRestriction readBodyRestriction(std::istream& stream) const;
-        Object::VocationRestriction readVocationRestriction(std::istream& stream) const;
-        Object::ClassRestriction readClassRestriction(std::istream& stream) const;
-        Object::MarketInfo readMarketInfo(std::istream& stream) const;
-        void readLightInfo(unsigned char& distance, unsigned short& color, std::istream& stream) const;
-        void readOffset(unsigned char& x, unsigned char& y, std::istream& stream) const;
-        unsigned short readWalkSpeed(std::istream& stream) const;
-        Object::MiniMapColor readMinimapColor(std::istream& stream) const;
-        unsigned char readHeight(std::istream& stream) const;
-        unsigned short readMaxCharacters(std::istream& stream) const;
-        unsigned char readDefaultAction(std::istream& stream) const;
+        Object::ItemInfo readItemInfo(sb::utility::Buffer& stream) const;
+        Object::BodyRestriction readBodyRestriction(sb::utility::Buffer& stream) const;
+        Object::VocationRestriction readVocationRestriction(sb::utility::Buffer& stream) const;
+        Object::ClassRestriction readClassRestriction(sb::utility::Buffer& stream) const;
+        Object::MarketInfo readMarketInfo(sb::utility::Buffer& stream) const;
+        void readLightInfo(unsigned char& distance, unsigned short& color, sb::utility::Buffer& stream) const;
+        void readOffset(unsigned char& x, unsigned char& y, sb::utility::Buffer& stream) const;
+        unsigned short readWalkSpeed(sb::utility::Buffer& stream) const;
+        Object::MiniMapColor readMinimapColor(sb::utility::Buffer& stream) const;
+        unsigned char readHeight(sb::utility::Buffer& stream) const;
+        unsigned short readMaxCharacters(sb::utility::Buffer& stream) const;
+        unsigned char readDefaultAction(sb::utility::Buffer& stream) const;
 
-        void readItemUnknown15(std::istream& stream) const;
+        void readItemUnknown15(sb::utility::Buffer& stream) const;
 
     private:
         unsigned short mNumItems;
