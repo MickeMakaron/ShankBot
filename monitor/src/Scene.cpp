@@ -271,3 +271,9 @@ char Scene::resetMovementY()
     mMovementY = 0;
     return movementY;
 }
+
+
+const Scene::Data& Scene::getData() const
+{
+    return *mData;
+}
