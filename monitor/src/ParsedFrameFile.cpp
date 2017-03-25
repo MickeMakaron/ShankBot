@@ -710,7 +710,10 @@ void write(QJsonObject& o, const std::shared_ptr<const Gui::Data>& guiData)
     gui["battle"] = guiData->battleWindow == nullptr ? QJsonObject() : toJson(*guiData->battleWindow);
 
 
-
+    gui["chat"] = QJsonObject(
+    {
+        {"input", QString::fromStdString(guiData->chatInput)},
+    });
 
 
 
@@ -865,6 +868,9 @@ void read(const QJsonObject& o, std::shared_ptr<Gui::Data>& guiData)
         guiData->battleWindow.reset(new Gui::BattleWindow());
         fromJson(*guiData->battleWindow, battleWindow);
     }
+
+    QJsonObject chat = gui["chat"].toObject();
+    guiData->chatInput = chat["input"].toString().toStdString();
 }
 
 }

@@ -154,6 +154,7 @@ public:
         gui.hpLeechAmount = rand();
         gui.manaLeechChance = rand();
         gui.manaLeechAmount = rand();
+        gui.chatInput = sb::utility::randStr(5 + rand() % 10);
 
         for(size_t i = 0; i < (size_t)Gui::EqType::NUM_TYPES; i++)
         {

@@ -249,6 +249,8 @@ namespace GraphicsLayer
                 std::shared_ptr<BattleWindow> battleWindow;
                 std::vector<std::string> onlineVips;
                 std::vector<std::string> offlineVips;
+
+                std::string chatInput;
             };
 
         public:
@@ -263,6 +265,13 @@ namespace GraphicsLayer
             void parseCurrentFrame();
 
             void updateSideBottomWindows(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
+
+            void createButtons
+            (
+                const std::map<std::string, std::list<const GuiDraw*>>& guiDraws,
+                const std::vector<std::string>& names,
+                bool isDown
+            );
             void updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
             std::shared_ptr<Button> setButtonText(const Text& text);
             void updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);

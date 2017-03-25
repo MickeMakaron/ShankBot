@@ -176,6 +176,7 @@ void expectEq(const Gui::Data& f1, const Gui::Data& f2)
     EXPECT_EQ(f1.equipment, f2.equipment);
     EXPECT_EQ(f1.onlineVips, f2.onlineVips);
     EXPECT_EQ(f1.offlineVips, f2.offlineVips);
+    EXPECT_EQ(f1.chatInput, f2.chatInput);
 
 
     expectEq(f1.containers, f2.containers);
