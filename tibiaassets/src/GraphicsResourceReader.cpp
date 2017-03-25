@@ -46,6 +46,7 @@ using namespace sb::tibiaassets;
 // Qt
 #include "QtCore/QtCore"
 #include "QtGui/QImage"
+#include "QtGui/QImageReader"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -106,7 +107,11 @@ std::vector<std::string> GraphicsResourceReader::readNames(const std::string& pa
                 readDir(file.absoluteFilePath());
             else
             {
-                names.push_back(file.absoluteFilePath().toStdString());
+                QImageReader reader(file.absoluteFilePath());
+                if(reader.format() != "")
+                {
+                    names.push_back(file.absoluteFilePath().toStdString());
+                }
             }
         }
     };
