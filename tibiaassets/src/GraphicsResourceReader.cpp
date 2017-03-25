@@ -107,10 +107,32 @@ std::vector<std::string> GraphicsResourceReader::readNames(const std::string& pa
                 readDir(file.absoluteFilePath());
             else
             {
+
                 QImageReader reader(file.absoluteFilePath());
-                if(reader.format() != "")
+                if(!reader.read().isNull())
                 {
-                    names.push_back(file.absoluteFilePath().toStdString());
+                    std::string name = file.absoluteFilePath().toStdString();
+
+                    auto nameIt = SPRITE_SHEETS.find(sb::utility::file::basename(name));
+                    if(nameIt != SPRITE_SHEETS.end())
+                    {
+                        size_t nameInsertionPos = name.rfind(".");
+                        assert(nameInsertionPos != name.npos);
+
+                        for(const std::string& suffix : nameIt->second.names)
+                        {
+                            std::string partName = name;
+                            partName.insert(nameInsertionPos, "-" + suffix);
+                            names.push_back(partName);
+                        }
+
+                    }
+                    else
+                    {
+                        names.push_back(name);
+                    }
+
+
                 }
             }
         }
