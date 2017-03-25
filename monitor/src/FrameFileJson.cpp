@@ -134,10 +134,10 @@ void toJson(QJsonObject& out, const Draw& d, const Frame& f)
         d.getScreenCoords(f.width / 2.f, f.height / 2.f, botRight.x, botRight.y, d.botRight.x, d.botRight.y);
     }
 
-    out["x"] = topLeft.x;
-    out["y"] = topLeft.y;
-    out["width"] = botRight.x - topLeft.x;
-    out["height"] = botRight.y - topLeft.y;
+    out["x"] = (int)(topLeft.x + 0.5f);
+    out["y"] = (int)(topLeft.y + 0.5f);
+    out["width"] = (int)(botRight.x - topLeft.x + 0.5f);
+    out["height"] = (int)(botRight.y - topLeft.y + 0.5f);
 }
 
 const sb::tibiaassets::Object* getNamedObject(const SpriteDraw& d, const TibiaContext& c)
@@ -160,8 +160,8 @@ const sb::tibiaassets::Object* getNamedObject(const SpriteDraw& d, const TibiaCo
 QJsonValue toJson(const SpriteDraw& d, const TibiaContext& c, const Frame& f)
 {
     QJsonObject o;
-    o["x"] = d.topLeft.x;
-    o["y"] = d.botRight.y;
+    o["x"] = (int)(d.topLeft.x + 0.5f);
+    o["y"] = (int)(d.botRight.y + 0.5f);
 
     const sb::tibiaassets::Object* object = getNamedObject(d, c);
     QJsonObject objectJson;
