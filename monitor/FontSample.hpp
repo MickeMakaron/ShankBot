@@ -55,7 +55,7 @@ namespace GraphicsLayer
             {
                 unsigned short width = 0;
                 unsigned short height = 0;
-                static const unsigned char bytesPerPixel = 1; // grayscale
+                static const unsigned char bytesPerPixel; // grayscale
                 unsigned char character = 0;
                 Style style = Style::NORMAL;
                 std::vector<unsigned char> data;

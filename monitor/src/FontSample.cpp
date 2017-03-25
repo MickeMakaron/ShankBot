@@ -53,6 +53,8 @@ using namespace GraphicsLayer;
 #include <GL/gl.h>
 ///////////////////////////////////
 
+const unsigned char FontSample::Glyph::bytesPerPixel = 1;
+
 namespace FontSamplePrivate
 {
     std::vector<FontSample::Glyph>* currentGlyphs = nullptr;
