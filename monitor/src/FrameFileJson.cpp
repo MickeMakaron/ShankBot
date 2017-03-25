@@ -123,10 +123,21 @@ QJsonValue toJson(const TextDraw& d, const Frame& f)
     });
 }
 
-void toJson(QJsonObject& out, const Draw& d)
+void toJson(QJsonObject& out, const Draw& d, const Frame& f)
 {
-    out["topLeft"] = QJsonObject({{"x", d.topLeft.x}, {"y", d.topLeft.y}});
-    out["botRight"] = QJsonObject({{"x", d.botRight.x}, {"y", d.botRight.y}});
+    Vertex topLeft = d.topLeft;
+    Vertex botRight = d.botRight;
+
+    if(d.transform != nullptr)
+    {
+        d.getScreenCoords(f.width / 2.f, f.height / 2.f, topLeft.x, topLeft.y, d.topLeft.x, d.topLeft.y);
+        d.getScreenCoords(f.width / 2.f, f.height / 2.f, botRight.x, botRight.y, d.botRight.x, d.botRight.y);
+    }
+
+    out["x"] = topLeft.x;
+    out["y"] = topLeft.y;
+    out["width"] = botRight.x - topLeft.x;
+    out["height"] = botRight.y - topLeft.y;
 }
 
 const sb::tibiaassets::Object* getNamedObject(const SpriteDraw& d, const TibiaContext& c)
@@ -146,10 +157,11 @@ const sb::tibiaassets::Object* getNamedObject(const SpriteDraw& d, const TibiaCo
     return nullptr;
 }
 
-QJsonValue toJson(const SpriteDraw& d, const TibiaContext& c)
+QJsonValue toJson(const SpriteDraw& d, const TibiaContext& c, const Frame& f)
 {
     QJsonObject o;
-    toJson(o, d);
+    o["x"] = d.topLeft.x;
+    o["y"] = d.botRight.y;
 
     const sb::tibiaassets::Object* object = getNamedObject(d, c);
     QJsonObject objectJson;
@@ -170,10 +182,10 @@ QJsonValue toJson(const SpriteDraw& d, const TibiaContext& c)
     return o;
 }
 
-QJsonValue toJson(const GuiDraw& d)
+QJsonValue toJson(const GuiDraw& d, const Frame& f)
 {
     QJsonObject o;
-    toJson(o, d);
+    toJson(o, d, f);
 
     o["name"] = QString::fromStdString(d.name);
     return o;
@@ -206,10 +218,10 @@ QJsonValue toJson(Constants::RectColor c)
     };
 }
 
-QJsonValue toJson(const RectDraw& d)
+QJsonValue toJson(const RectDraw& d, const Frame& f)
 {
     QJsonObject o;
-    toJson(o, d);
+    toJson(o, d, f);
 
     o["type"] = toJson((Constants::RectColor)d.color.packed);
     return o;
@@ -255,10 +267,10 @@ bool write(const Frame& f, const std::string& filePath, const TibiaContext& cont
 
     o["text"] = toJson(f.textDraws, f);
 
-    o["spriteDraws"] = toJson(f.spriteDraws, context);
-    o["guiSpriteDraws"] = toJson(f.guiSpriteDraws, context);
-    o["guiDraws"] = toJson(f.guiDraws);
-    o["rectDraws"] = toJson(f.rectDraws);
+    o["spriteDraws"] = toJson(f.spriteDraws, context, f);
+    o["guiSpriteDraws"] = toJson(f.guiSpriteDraws, context, f);
+    o["guiDraws"] = toJson(f.guiDraws, f);
+    o["rectDraws"] = toJson(f.rectDraws, f);
 
     QFile file(QString::fromStdString(filePath + ".json"));
     if(!file.open(QIODevice::WriteOnly))
