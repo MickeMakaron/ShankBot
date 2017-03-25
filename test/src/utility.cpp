@@ -322,5 +322,19 @@ void expectEq(const Frame& f1, const Frame& f2)
     expectEq(flippedScreenPixels, f2.screenPixels);
 }
 
+
+void expectEq(const FontSample::Glyph& f1, const FontSample::Glyph& f2)
+{
+//    EXPECT_EQ(f1.bytesPerPixel, f2.bytesPerPixel);
+    EXPECT_EQ(::GraphicsLayer::FontSample::Glyph::bytesPerPixel, FontSample::Glyph::bytesPerPixel);
+    EXPECT_EQ(f1.character, f2.character);
+    EXPECT_EQ(f1.data, f2.data);
+    EXPECT_EQ(f1.width, f2.width);
+    EXPECT_EQ(f1.height, f2.height);
+    EXPECT_FLOAT_EQ(f1.pointSize, f2.pointSize);
+    EXPECT_EQ(f1.style, f2.style);
+    EXPECT_EQ(f1.sum, f2.sum);
+}
+
 }
 }

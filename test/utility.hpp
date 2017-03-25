@@ -32,6 +32,7 @@
 #include "monitor/Gui.hpp"
 #include "monitor/Scene.hpp"
 #include "utility/Matrix.hpp"
+#include "monitor/FontSample.hpp"
 namespace GraphicsLayer
 {
     struct Vertex;
@@ -83,6 +84,10 @@ namespace test
     void expectEq(const GraphicsLayer::MiniMapDraw& d1, const GraphicsLayer::MiniMapDraw& d2);
     void expectEq(const GraphicsLayer::RawImage& d1, const GraphicsLayer::RawImage& d2);
     void expectEq(const GraphicsLayer::Frame& f1, const GraphicsLayer::Frame& f2);
+
+
+
+    void expectEq(const GraphicsLayer::FontSample::Glyph& f1, const GraphicsLayer::FontSample::Glyph& f2);
 
     template<typename T>
     void expectEq(const std::shared_ptr<T>& p1, const std::shared_ptr<T>& p2);
