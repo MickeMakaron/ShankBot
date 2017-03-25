@@ -58,7 +58,7 @@ public:
         std::unique_ptr<SpriteObjectBindings> bindings;
         std::unique_ptr<SequenceTree> tree;
         std::unique_ptr<std::vector<std::string>> graphicsResourceNames;
-        std::unique_ptr<std::list<FontSample::Glyph>> glyphs;
+        std::unique_ptr<std::vector<FontSample::Glyph>> glyphs;
 
         sb::tibiaassets::CatalogContent cat("../monitor/tibia/packages/Tibia/assets/catalog-content.json");
         const std::list<sb::tibiaassets::CatalogContent::Appearances>& appearanceses = cat.getAppearances();
