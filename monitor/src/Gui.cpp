@@ -125,57 +125,56 @@ std::vector<std::pair<size_t, Gui::Rect>> Gui::Container::getVisibleItems() cons
     return visibleItems;
 }
 
-
+void Gui::createButtons
+(
+    const std::map<std::string, std::list<const GuiDraw*>>& guiDraws,
+    const std::vector<std::string>& names,
+    bool isDown
+)
+{
+    for(const std::string& name : names)
+    {
+        auto it = guiDraws.find(name);
+        if(it != guiDraws.end())
+        {
+            for(const GuiDraw* guiDraw : it->second)
+            {
+                float x;
+                float y;
+                sb::utility::worldToScreenCoords
+                (
+                    guiDraw->topLeft.x, guiDraw->topLeft.y,
+                    *guiDraw->transform,
+                    mHalfFrameWidth, mHalfFrameHeight,
+                    x, y
+                );
+                std::shared_ptr<Button> b(new Button());
+                b->x = x;
+                b->y = y;
+                b->width = guiDraw->botRight.x - guiDraw->topLeft.x;
+                b->height = guiDraw->botRight.y - guiDraw->topLeft.y;
+                b->isDown = isDown;
+                mData->buttons.push_back(b);
+            }
+        }
+    }
+}
 
 void Gui::updateButtons(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws)
 {
-    auto it = guiDraws.find("button-9grid-idle.png");
-    if(it != guiDraws.end())
+    static const std::vector<std::string> upButtonNames =
     {
-        for(const GuiDraw* guiDraw : it->second)
-        {
-            std::shared_ptr<Button> b(new Button());
-            b->isDown = false;
-            float x;
-            float y;
-            sb::utility::worldToScreenCoords
-            (
-                guiDraw->topLeft.x, guiDraw->topLeft.y,
-                *guiDraw->transform,
-                mHalfFrameWidth, mHalfFrameHeight,
-                x, y
-            );
-            b->x = x;
-            b->y = y;
-            b->width = guiDraw->botRight.x - guiDraw->topLeft.x;
-            b->height = guiDraw->botRight.y - guiDraw->topLeft.y;
-            mData->buttons.push_back(b);
-        }
-    }
+        "button-9grid-idle.png",
+        "console-tab-passive.png",
+    };
+    static const std::vector<std::string> downButtonNames =
+    {
+        "button-9grid-pressed.png",
+        "console-tab-active.png",
+    };
 
-    it = guiDraws.find("button-9grid-pressed.png");
-    if(it != guiDraws.end())
-    {
-        for(const GuiDraw* guiDraw : it->second)
-        {
-            std::shared_ptr<Button> b(new Button());
-            b->isDown = true;
-            float x;
-            float y;
-            sb::utility::worldToScreenCoords
-            (
-                guiDraw->topLeft.x, guiDraw->topLeft.y,
-                *guiDraw->transform,
-                mHalfFrameWidth, mHalfFrameHeight,
-                x, y
-            );
-            b->x = x;
-            b->y = y;
-            b->width = guiDraw->botRight.x - guiDraw->topLeft.x;
-            b->height = guiDraw->botRight.y - guiDraw->topLeft.y;
-            mData->buttons.push_back(b);
-        }
-    }
+    createButtons(guiDraws, upButtonNames, false);
+    createButtons(guiDraws, downButtonNames, true);
 }
 
 void Gui::updateManaAndHpLevels(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws)
@@ -751,9 +750,16 @@ void Gui::parseChat(size_t& i)
             case T::INFO_TEXT:
             case T::SAY:
             case T::PM:
-            case T::SELF_PM:
             case T::CLICKABLE_NPC_TEXT:
             case T::SOUND:
+                break;
+
+            case T::SELF_PM:
+                mData->chatInput= "";
+                for(const Text& t : builder.getText())
+                {
+                    mData->chatInput += t.string;
+                }
                 break;
 
             default:
@@ -782,6 +788,12 @@ void Gui::parseChat(size_t& i)
         TextBuilder builder(d, mCurrentFrame.width, mCurrentFrame.height);
         if(builder.getTextType() != T::CHAT_TAB)
             return;
+
+        for(const Text& t : builder.getText())
+        {
+            auto tab = setButtonText(t);
+            assert(tab != nullptr);
+        }
 
 //        for(const Text& t : builder.getText())
 //            std::cout << "\t" << t.string << std::endl;
