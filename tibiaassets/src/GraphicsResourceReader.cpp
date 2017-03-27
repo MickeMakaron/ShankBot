@@ -75,7 +75,7 @@ const std::map<std::string, GraphicsResourceReader::SpriteSheet> GraphicsResourc
     {"markers.png", SpriteSheet(11, 11, {"checkmark", "questionmark", "exclamationmark", "star", "crossmark", "cross", "mouth", "brush", "sword", "flag", "lock", "bag", "skull", "dollar", "red-up", "red-down", "red-right", "red-left", "green-up", "green-down"})},
     {"vip-icons.png", SpriteSheet(12, 12, {"none-unknown", "heart", "skull", "lightning", "crosshair", "star", "yinyang", "triangle", "cross", "dollar", "balkenkreuz"})},
     {"premium-icons.png", SpriteSheet(20, 20, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"})},
-    {"spellgroup-icons.png", SpriteSheet(20, 20, {"1", "2", "3", "4"})},
+    {"spellgroup-icons.png", SpriteSheet(20, 20, {"attack", "healing", "support", "special"})},
 //    {"spell-icons.png", SpriteSheet(20, 20, {"1", "2", "3", "4"})}, // 138 st... // TODO:
 };
 
