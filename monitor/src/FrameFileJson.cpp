@@ -113,16 +113,6 @@ QJsonValue toJson(const std::list<Text>& t)
 }
 
 
-QJsonValue toJson(const TextDraw& d, const Frame& f)
-{
-    TextBuilder builder(d, f.width, f.height);
-    return QJsonObject(
-    {
-        {"type", toJson(builder.getTextType())},
-        {"text", toJson(builder.getText())},
-    });
-}
-
 void toJson(QJsonObject& out, const Draw& d, const Frame& f)
 {
     Vertex topLeft = d.topLeft;
@@ -139,6 +129,38 @@ void toJson(QJsonObject& out, const Draw& d, const Frame& f)
     out["width"] = (int)(botRight.x - topLeft.x + 0.5f);
     out["height"] = (int)(botRight.y - topLeft.y + 0.5f);
 }
+
+QJsonValue toJson(const GlyphDraw& d, const Frame& f)
+{
+    QJsonObject o;
+    toJson(o, d, f);
+
+    o["character"] = QString(d.character);
+
+    return o;
+}
+
+QJsonValue toJson(const TextDraw& d, const Frame& f)
+{
+    TextBuilder builder(d, f.width, f.height);
+
+    QJsonArray glyphs;
+    if(d.glyphDraws != nullptr)
+    {
+        for(const GlyphDraw& g : *d.glyphDraws)
+        {
+            glyphs.push_back(toJson(g, f));
+        }
+    }
+
+    return QJsonObject(
+    {
+        {"type", toJson(builder.getTextType())},
+        {"text", toJson(builder.getText())},
+        {"glyphs", glyphs},
+    });
+}
+
 
 const sb::tibiaassets::Object* getNamedObject(const SpriteDraw& d, const TibiaContext& c)
 {
