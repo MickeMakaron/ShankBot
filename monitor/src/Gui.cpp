@@ -44,28 +44,28 @@ using namespace GraphicsLayer;
 
 Gui::Gui(const TibiaContext& context)
 : mContext(context)
-, mData(new Data())
+, mGuiDrawHandlers(initGuiDrawHandlers())
 {
-
 }
 
 void Gui::update(const Frame& frame)
 {
     mCurrentFrame = frame;
-    mData.reset(new Data());
-    mData->state = mCurrentFrame.viewWidth > 0 ? State::GAME : State::MAIN_MENU;
+    mData = Data();
+    pass1 = Pass1();
+    mData.state = mCurrentFrame.viewWidth > 0 ? State::GAME : State::MAIN_MENU;
     mIsCurrentFrameParsed = false;
 }
 
 Gui::State Gui::getState() const
 {
-    return mData->state;
+    return mData.state;
 }
 
 const Gui::Data& Gui::getData()
 {
     parseCurrentFrame();
-    return *mData;
+    return mData;
 }
 
 std::vector<std::pair<size_t, Gui::Rect>> Gui::Container::getVisibleItems() const
@@ -154,7 +154,7 @@ void Gui::createButtons
                 b->width = guiDraw->botRight.x - guiDraw->topLeft.x;
                 b->height = guiDraw->botRight.y - guiDraw->topLeft.y;
                 b->isDown = isDown;
-                mData->buttons.push_back(b);
+                mData.buttons.push_back(b);
             }
         }
     }
@@ -203,13 +203,13 @@ void Gui::updateManaAndHpLevels(const std::map<std::string, std::list<const GuiD
     const GuiDraw& manaBar = *manaIt->second.front();
     const GuiDraw& manaBorder = *bordersIt->second.back();
 
-    mData->hpLevel = (hpBar.botRight.x - hpBar.topLeft.x) / (hpBorder.botRight.x - hpBorder.topLeft.x);
-    mData->manaLevel = (manaBar.botRight.x - manaBar.topLeft.x) / (manaBorder.botRight.x - manaBorder.topLeft.x);
+    mData.hpLevel = (hpBar.botRight.x - hpBar.topLeft.x) / (hpBorder.botRight.x - hpBorder.topLeft.x);
+    mData.manaLevel = (manaBar.botRight.x - manaBar.topLeft.x) / (manaBorder.botRight.x - manaBorder.topLeft.x);
 }
 
 std::shared_ptr<Gui::Button> Gui::setButtonText(const Text& text)
 {
-    for(std::shared_ptr<Button>& bPtr : mData->buttons)
+    for(std::shared_ptr<Button>& bPtr : mData.buttons)
     {
         Button& b = *bPtr;
         if(b.text == "")
@@ -239,7 +239,7 @@ void Gui::parseVipWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>&
         return;
 
     std::vector<std::string>* currentList;
-    currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mData->onlineVips : &mData->offlineVips;
+    currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mData.onlineVips : &mData.offlineVips;
 
     for(const Text& t : builder->getText())
         currentList->push_back(t.string);
@@ -252,7 +252,7 @@ void Gui::parseVipWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>&
     builder.reset(new TextBuilder((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height));
     if(builder->getTextType() == Text::Type::VIP_ONLINE || builder->getTextType() == Text::Type::VIP_OFFLINE)
     {
-        currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mData->onlineVips : &mData->offlineVips;
+        currentList = (builder->getTextType() == Text::Type::VIP_ONLINE) ? &mData.onlineVips : &mData.offlineVips;
         for(const Text& t : builder->getText())
             currentList->push_back(t.string);
 
@@ -285,13 +285,13 @@ void Gui::parseBattleWindowText(size_t& i, const std::shared_ptr<SideBottomWindo
         {
             assert(t.localX == Constants::BATTLE_WINDOW_NAME_LOCAL_X);
 
-            mData->battleWindow->outfits.emplace_back();
-            std::shared_ptr<BattleWindow::Outfit>& o = mData->battleWindow->outfits.back();
+            mData.battleWindow->outfits.emplace_back();
+            std::shared_ptr<BattleWindow::Outfit>& o = mData.battleWindow->outfits.back();
             o->name = t.string;
             if(t.type == Text::Type::NAME_BATTLE_WINDOW_HIGHLIGHTED)
             {
                 assert(text.size() == 1);
-                mData->battleWindow->selectedOutfit = o;
+                mData.battleWindow->selectedOutfit = o;
             }
         }
 
@@ -321,13 +321,13 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
     assert(it->string == "Level");
     it++;
     assert(isNumeric(it->string));
-    mData->level = strToInt(it->string);
+    mData.level = strToInt(it->string);
     it++;
 
     assert(it->string == "  Experience");
     it++;
     assert(isNumeric(it->string));
-    mData->experience = strToInt(it->string);
+    mData.experience = strToInt(it->string);
     it++;
 
     if(it->string == "  XP Gain Rate")
@@ -351,36 +351,36 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
 
         std::list<Text> xpGainRate = b.getText();
         assert(xpGainRate.size() == 1);
-        mData->xpGainRate = parsePercentageText(xpGainRate.front().string);
+        mData.xpGainRate = parsePercentageText(xpGainRate.front().string);
     }
     else
     {
-        mData->xpGainRate = parsePercentageText(it->string);
+        mData.xpGainRate = parsePercentageText(it->string);
         it++;
     }
 
     assert(it->string == "Hit Points");
     it++;
     assert(isNumeric(it->string));
-    mData->hp = strToInt(it->string);
+    mData.hp = strToInt(it->string);
     it++;
 
     assert(it->string == "Mana");
     it++;
     assert(isNumeric(it->string));
-    mData->mana = strToInt(it->string);
+    mData.mana = strToInt(it->string);
     it++;
 
     assert(it->string == "Soul Points");
     it++;
     assert(isNumeric(it->string));
-    mData->soul = strToInt(it->string);
+    mData.soul = strToInt(it->string);
     it++;
 
     assert(it->string == "Capacity");
     it++;
     assert(isNumeric(it->string));
-    mData->cap = strToInt(it->string);
+    mData.cap = strToInt(it->string);
     it++;
 
     assert(it->string == "Speed");
@@ -394,76 +394,76 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
         std::list<Text> speed = b.getText();
         assert(speed.size() == 1);
         assert(isNumeric(speed.front().string));
-        mData->speed = strToInt(speed.front().string);
+        mData.speed = strToInt(speed.front().string);
     }
     else
     {
         assert(isNumeric(it->string));
-        mData->speed = strToInt(it->string);
+        mData.speed = strToInt(it->string);
         it++;
     }
 
     assert(it->string == "Food");
     it++;
-    mData->foodMinutes = parseTimeText(it->string);
+    mData.foodMinutes = parseTimeText(it->string);
     it++;
 
     assert(it->string == "Stamina");
     it++;
-    mData->staminaMinutes = parseTimeText(it->string);
+    mData.staminaMinutes = parseTimeText(it->string);
     it++;
 
     assert(it->string == "Offline Training");
     it++;
-    mData->offlineTrainingMinutes = parseTimeText(it->string);
+    mData.offlineTrainingMinutes = parseTimeText(it->string);
     it++;
 
     assert(it->string == "Magic Level");
     it++;
     assert(isNumeric(it->string));
-    mData->magicLevel = strToInt(it->string);
+    mData.magicLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Fist Fighting");
     it++;
     assert(isNumeric(it->string));
-    mData->fistLevel = strToInt(it->string);
+    mData.fistLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Club Fighting");
     it++;
     assert(isNumeric(it->string));
-    mData->clubLevel = strToInt(it->string);
+    mData.clubLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Sword Fighting");
     it++;
     assert(isNumeric(it->string));
-    mData->swordLevel = strToInt(it->string);
+    mData.swordLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Axe Fighting");
     it++;
     assert(isNumeric(it->string));
-    mData->axeLevel = strToInt(it->string);
+    mData.axeLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Distance Fighting");
     it++;
     assert(isNumeric(it->string));
-    mData->distanceLevel = strToInt(it->string);
+    mData.distanceLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Shielding");
     it++;
     assert(isNumeric(it->string));
-    mData->shieldingLevel = strToInt(it->string);
+    mData.shieldingLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Fishing");
     it++;
     assert(isNumeric(it->string));
-    mData->fishingLevel = strToInt(it->string);
+    mData.fishingLevel = strToInt(it->string);
     it++;
 
     assert(it->string == "Critical Hit:");
@@ -471,12 +471,12 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
 
     assert(it->string == "  Chance");
     it++;
-    mData->critChance = parsePercentageText(it->string);
+    mData.critChance = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "  Extra Damage");
     it++;
-    mData->critDamage = parsePercentageText(it->string);
+    mData.critDamage = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "Hit Points Leech:");
@@ -484,12 +484,12 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
 
     assert(it->string == "  Chance");
     it++;
-    mData->hpLeechChance = parsePercentageText(it->string);
+    mData.hpLeechChance = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "  Amount");
     it++;
-    mData->hpLeechAmount = parsePercentageText(it->string);
+    mData.hpLeechAmount = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "Mana Leech:");
@@ -497,12 +497,12 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
 
     assert(it->string == "  Chance");
     it++;
-    mData->manaLeechChance = parsePercentageText(it->string);
+    mData.manaLeechChance = parsePercentageText(it->string);
     it++;
 
     assert(it->string == "  Amount");
     it++;
-    mData->manaLeechAmount = parsePercentageText(it->string);
+    mData.manaLeechAmount = parsePercentageText(it->string);
     it++;
 
     assert(it == text.end());
@@ -615,8 +615,8 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
 
     for(const Rect& r : exitButtons)
     {
-        mData->sideBottomWindows.insert(mData->sideBottomWindows.begin(), std::make_shared<SideBottomWindow>());
-        SideBottomWindow& w = *mData->sideBottomWindows.front();
+        mData.sideBottomWindows.insert(mData.sideBottomWindows.begin(), std::make_shared<SideBottomWindow>());
+        SideBottomWindow& w = *mData.sideBottomWindows.front();
 
         w.exitButton = r;
 
@@ -689,7 +689,7 @@ void Gui::updateSideBottomWindows(const std::map<std::string, std::list<const Gu
     {
         SideBottomWindow* closestWindow = nullptr;
         size_t minY = -1;
-        for(std::shared_ptr<SideBottomWindow>& wPtr : mData->sideBottomWindows)
+        for(std::shared_ptr<SideBottomWindow>& wPtr : mData.sideBottomWindows)
         {
             SideBottomWindow& w = *wPtr;
             if(!w.isMinimized && w.exitButton.pos.y < r.pos.y)
@@ -755,10 +755,10 @@ void Gui::parseChat(size_t& i)
                 break;
 
             case T::SELF_PM:
-                mData->chatInput= "";
+                mData.chatInput= "";
                 for(const Text& t : builder.getText())
                 {
-                    mData->chatInput += t.string;
+                    mData.chatInput += t.string;
                 }
                 break;
 
@@ -857,8 +857,8 @@ void Gui::parseSideWindowTopText(size_t& i)
             assert(isNumeric(soul->string));
             assert(isNumeric(cap->string));
 
-            mData->soul = strToInt(soul->string);
-            mData->cap = strToInt(cap->string);
+            mData.soul = strToInt(soul->string);
+            mData.cap = strToInt(cap->string);
 
             parsedTypes.insert(SOUL_CAP);
         }
@@ -866,10 +866,10 @@ void Gui::parseSideWindowTopText(size_t& i)
         {
             assert(text.size() >= 2);
 
-            mData->hp = strToInt(text.front().string);
+            mData.hp = strToInt(text.front().string);
             text.pop_front();
             assert(isNumeric(text.front().string));
-            mData->mana = strToInt(text.front().string);
+            mData.mana = strToInt(text.front().string);
             text.pop_front();
 
             parsedTypes.insert(HP_MANA);
@@ -903,8 +903,8 @@ void Gui::parseSideWindowTopText(size_t& i)
 
 void Gui::parseSideWindowBottomText(size_t& i)
 {
-    auto containerIt = mData->containers.begin();
-    for(std::shared_ptr<SideBottomWindow>& w : mData->sideBottomWindows)
+    auto containerIt = mData.containers.begin();
+    for(std::shared_ptr<SideBottomWindow>& w : mData.sideBottomWindows)
     {
         assert(i < mCurrentFrame.textDraws->size());
         TextBuilder builder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height);
@@ -922,7 +922,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
         else if(str == "Battle")
         {
             w->type = SideBottomWindow::Type::BATTLE;
-            mData->battleWindow.reset(new BattleWindow());
+            mData.battleWindow.reset(new BattleWindow());
             parseBattleWindowText(i, w);
         }
         else if(str == "VIP")
@@ -937,7 +937,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
         else if(str == "NPC Trade")
         {
             w->type = SideBottomWindow::Type::NPC_TRADE;
-            mData->npcTradeWindow.reset(new NpcTradeWindow());
+            mData.npcTradeWindow.reset(new NpcTradeWindow());
             parseNpcTradeWindowText(i, w);
         }
         else if(str == "Browse Field")
@@ -947,10 +947,10 @@ void Gui::parseSideWindowBottomText(size_t& i)
         else if(w->isMinimized)
         {
             w->type = SideBottomWindow::Type::CONTAINER;
-            Container& c = *mData->containers.insert(containerIt, Container());
+            Container& c = *mData.containers.insert(containerIt, Container());
             parseContainerText(i, c, str, w);
         }
-        else if(containerIt != mData->containers.end())
+        else if(containerIt != mData.containers.end())
         {
             w->type = SideBottomWindow::Type::CONTAINER;
             parseContainerText(i, *containerIt, str, w);
@@ -963,7 +963,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
 
 void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWindow>& w)
 {
-    mData->npcTradeWindow->window = w;
+    mData.npcTradeWindow->window = w;
 
     if(i >= mCurrentFrame.textDraws->size() || w->isMinimized)
         return;
@@ -972,32 +972,32 @@ void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWin
      assert(text.size() == 2 || text.size() == 3);
 
      assert(text.front().string == "Buy");
-     mData->npcTradeWindow->buyButton = setButtonText(text.front());
-     assert(mData->npcTradeWindow->buyButton);
+     mData.npcTradeWindow->buyButton = setButtonText(text.front());
+     assert(mData.npcTradeWindow->buyButton);
 
      text.pop_front();
 
      assert(text.front().string == "Sell");
-     mData->npcTradeWindow->sellButton = setButtonText(text.front());
-     assert(mData->npcTradeWindow->sellButton);
+     mData.npcTradeWindow->sellButton = setButtonText(text.front());
+     assert(mData.npcTradeWindow->sellButton);
 
      text.pop_front();
 
      if(!text.empty())
      {
         assert(text.front().string == "ok");
-        mData->npcTradeWindow->okButton = setButtonText(text.front());
-        assert(mData->npcTradeWindow->okButton);
+        mData.npcTradeWindow->okButton = setButtonText(text.front());
+        assert(mData.npcTradeWindow->okButton);
      }
 
 
 
 
-     assert(mData->npcTradeWindow->buyButton->isDown || mData->npcTradeWindow->sellButton->isDown);
-     if(mData->npcTradeWindow->buyButton->isDown)
-        mData->npcTradeWindow->currentTab = NpcTradeWindow::Tab::BUY;
+     assert(mData.npcTradeWindow->buyButton->isDown || mData.npcTradeWindow->sellButton->isDown);
+     if(mData.npcTradeWindow->buyButton->isDown)
+        mData.npcTradeWindow->currentTab = NpcTradeWindow::Tab::BUY;
      else
-        mData->npcTradeWindow->currentTab = NpcTradeWindow::Tab::SELL;
+        mData.npcTradeWindow->currentTab = NpcTradeWindow::Tab::SELL;
 
 
     assert(i < mCurrentFrame.textDraws->size());
@@ -1055,7 +1055,7 @@ void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWin
             else
                 offer.weight = strToFloat(weight);
 
-            mData->npcTradeWindow->visibleOffers.push_back(offer);
+            mData.npcTradeWindow->visibleOffers.push_back(offer);
         }
 
         assert(i < mCurrentFrame.textDraws->size());
@@ -1069,31 +1069,31 @@ void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWin
     assert(it->string == "Amount:");
     it++;
     assert(isNumeric(it->string));
-    mData->npcTradeWindow->amount = strToInt(it->string);
+    mData.npcTradeWindow->amount = strToInt(it->string);
     it++;
 
     assert(it->string == "Price:");
     it++;
     assert(isNumeric(it->string));
-    mData->npcTradeWindow->totalPrice = strToInt(it->string);
+    mData.npcTradeWindow->totalPrice = strToInt(it->string);
     it++;
 
     assert(it->string == "Gold:");
     it++;
     assert(isNumeric(it->string));
-    mData->npcTradeWindow->availableMoney = strToInt(it->string);
+    mData.npcTradeWindow->availableMoney = strToInt(it->string);
     it++;
 
     assert(it == text.end());
 
-    if(!mData->npcTradeWindow->okButton)
+    if(!mData.npcTradeWindow->okButton)
     {
         assert(i < mCurrentFrame.textDraws->size());
         text = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
         assert(text.size() == 1);
         assert(text.front().string == "ok");
-        mData->npcTradeWindow->okButton = setButtonText(text.front());
-        assert(mData->npcTradeWindow->okButton);
+        mData.npcTradeWindow->okButton = setButtonText(text.front());
+        assert(mData.npcTradeWindow->okButton);
     }
 }
 
@@ -1177,8 +1177,8 @@ void Gui::parseContainerSlots(const std::map<std::string, std::list<const GuiDra
     auto it = slotsTopLeft.rbegin();
     for(size_t i = 0; i < numContainerSlots;)
     {
-        mData->containers.emplace_back();
-        Container& c = mData->containers.back();
+        mData.containers.emplace_back();
+        Container& c = mData.containers.back();
 
         using namespace Constants;
         static const int DELTA_X = TILE_PIXEL_WIDTH + CONTAINER_SEPARATOR_PIXEL_WIDTH;
@@ -1300,23 +1300,23 @@ void Gui::parseEquippedItems(size_t& i)
             case B::TWO_HANDED:
             case B::WEAPON:
             case B::SHIELD:
-                if(mData->equipment.find(EqType::HAND1) == mData->equipment.end())
-                    mData->equipment[EqType::HAND1] = equippable;
+                if(mData.equipment.find(EqType::HAND1) == mData.equipment.end())
+                    mData.equipment[EqType::HAND1] = equippable;
                 else
                 {
-                    assert(mData->equipment.find(EqType::HAND2) == mData->equipment.end());
-                    mData->equipment[EqType::HAND2] = equippable;
+                    assert(mData.equipment.find(EqType::HAND2) == mData.equipment.end());
+                    mData.equipment[EqType::HAND2] = equippable;
                 }
                 break;
 
-            case B::HELMET: mData->equipment[EqType::HEAD] = equippable; break;
-            case B::AMULET: mData->equipment[EqType::NECK] = equippable; break;
-            case B::BACKPACK: mData->equipment[EqType::BACK] = equippable; break;
-            case B::ARMOR: mData->equipment[EqType::TORSO] = equippable; break;
-            case B::LEGS: mData->equipment[EqType::LEGS] = equippable; break;
-            case B::BOOTS: mData->equipment[EqType::FEET] = equippable; break;
-            case B::RING: mData->equipment[EqType::FINGER] = equippable; break;
-            case B::BELT: mData->equipment[EqType::HIP] = equippable; break;
+            case B::HELMET: mData.equipment[EqType::HEAD] = equippable; break;
+            case B::AMULET: mData.equipment[EqType::NECK] = equippable; break;
+            case B::BACKPACK: mData.equipment[EqType::BACK] = equippable; break;
+            case B::ARMOR: mData.equipment[EqType::TORSO] = equippable; break;
+            case B::LEGS: mData.equipment[EqType::LEGS] = equippable; break;
+            case B::BOOTS: mData.equipment[EqType::FEET] = equippable; break;
+            case B::RING: mData.equipment[EqType::FINGER] = equippable; break;
+            case B::BELT: mData.equipment[EqType::HIP] = equippable; break;
 
             default:
                 THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected body restriction: ", (int)mContext.getObjects()[equippable].itemInfo.bodyRestriction, '\n'));
@@ -1333,8 +1333,8 @@ void Gui::parseBattleWindowSprites(size_t& i, const std::shared_ptr<SideBottomWi
     assert(w->hasResizer);
     assert(w->type == SideBottomWindow::Type::BATTLE);
 
-    assert(mData->battleWindow != nullptr);
-    auto outfitIt = mData->battleWindow->outfits.begin();
+    assert(mData.battleWindow != nullptr);
+    auto outfitIt = mData.battleWindow->outfits.begin();
     while(i < draws.size())
     {
         const SpriteDraw& d = draws[i];
@@ -1342,7 +1342,7 @@ void Gui::parseBattleWindowSprites(size_t& i, const std::shared_ptr<SideBottomWi
         if(d.topLeft.x != Constants::BATTLE_WINDOW_SPRITE_LOCAL_X)
             break;
 
-        assert(outfitIt != mData->battleWindow->outfits.end());
+        assert(outfitIt != mData.battleWindow->outfits.end());
 
         for(const SpriteDraw::SpriteObjectPairing& pairing : d.pairings)
             (*outfitIt)->objects.insert(pairing.objects.begin(), pairing.objects.end());
@@ -1352,7 +1352,7 @@ void Gui::parseBattleWindowSprites(size_t& i, const std::shared_ptr<SideBottomWi
         i++;
     }
 
-    assert(outfitIt == mData->battleWindow->outfits.end());
+    assert(outfitIt == mData.battleWindow->outfits.end());
 }
 
 void Gui::parseContainerSprites(size_t& i, Container& c)
@@ -1430,9 +1430,9 @@ void Gui::parseContainerSprites(size_t& i, Container& c)
 
 void Gui::parseNpcTradeWindowSprites(size_t& i)
 {
-    assert(mData->npcTradeWindow != nullptr);
+    assert(mData.npcTradeWindow != nullptr);
     const std::vector<SpriteDraw>& draws = *mCurrentFrame.guiSpriteDraws;
-    if(i >= draws.size() || mData->npcTradeWindow->window->isMinimized)
+    if(i >= draws.size() || mData.npcTradeWindow->window->isMinimized)
         return;
 
     size_t offerIndex = 0;
@@ -1441,14 +1441,14 @@ void Gui::parseNpcTradeWindowSprites(size_t& i)
         const SpriteDraw& d = draws[i];
         if(d.topLeft.x == Constants::NPC_TRADE_LIST_SLOT_LOCAL_X)
         {
-            assert(offerIndex < mData->npcTradeWindow->visibleOffers.size());
-            NpcTradeWindow::Offer& offer = mData->npcTradeWindow->visibleOffers[offerIndex];
+            assert(offerIndex < mData.npcTradeWindow->visibleOffers.size());
+            NpcTradeWindow::Offer& offer = mData.npcTradeWindow->visibleOffers[offerIndex];
             for(const SpriteDraw::SpriteObjectPairing& pairing : d.pairings)
                 offer.objects.insert(pairing.objects.begin(), pairing.objects.end());
         }
         else if(d.topLeft.x == Constants::NPC_TRADE_CURRENT_SLOT_LOCAL_X)
         {
-            assert(offerIndex == mData->npcTradeWindow->visibleOffers.size());
+            assert(offerIndex == mData.npcTradeWindow->visibleOffers.size());
         }
         else
             return;
@@ -1463,8 +1463,8 @@ void Gui::parseGuiSpriteDraws()
     size_t i = 0;
     parseEquippedItems(i);
 
-    auto containerIt = mData->containers.begin();
-    for(const std::shared_ptr<SideBottomWindow>& w : mData->sideBottomWindows)
+    auto containerIt = mData.containers.begin();
+    for(const std::shared_ptr<SideBottomWindow>& w : mData.sideBottomWindows)
     {
         typedef SideBottomWindow::Type T;
         switch(w->type)
@@ -1474,7 +1474,7 @@ void Gui::parseGuiSpriteDraws()
                 break;
 
             case T::CONTAINER:
-                assert(containerIt != mData->containers.end());
+                assert(containerIt != mData.containers.end());
                 parseContainerSprites(i, *containerIt);
                 containerIt++;
                 break;
@@ -1489,20 +1489,326 @@ void Gui::parseGuiSpriteDraws()
     }
 }
 
+std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandlers()
+{
+    auto getRect = [&](Vertex topLeft, Vertex botRight)
+    {
+        if(botRight.x < topLeft.x || botRight.y < topLeft.y)
+        {
+            std::swap(topLeft, botRight);
+        }
+
+        IRect ir;
+        ir.x = topLeft.x + 0.5f;
+        ir.y = topLeft.y + 0.5f;
+        ir.width = botRight.x - topLeft.x + 0.5f;
+        ir.height = botRight.y - topLeft.y + 0.5f;
+
+        return ir;
+    };
+
+    auto getScreenRect = [&](const Draw& d)
+    {
+        Vertex topLeft;
+        Vertex botRight;
+        d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, topLeft.x, topLeft.y, d.topLeft.x, d.topLeft.y);
+        d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, botRight.x, botRight.y, d.botRight.x, d.botRight.y);
+
+        return getRect(topLeft, botRight);
+    };
+
+    auto getDrawRect = [&](const Draw& d)
+    {
+        DrawRect r;
+        r.local = getRect(d.topLeft, d.botRight);
+        r.screen = getScreenRect(d);
+        return r;
+    };
+
+
+
+    auto createButton = [&](const Draw& d, bool isDown, bool isEnabled = true)
+    {
+        TmpButton b;
+        b.screenRect = getScreenRect(d);
+        b.localRect = getRect(d.topLeft, d.botRight);
+        b.isDown = isDown;
+        b.isEnabled = isEnabled;
+        return b;
+    };
+
+
+    auto createButtonHandlers = [&createButton]
+    (
+        const std::vector<std::pair<std::string, TmpButton&>>& buttons,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers,
+        const std::string& down,
+        const std::string& up
+    )
+    {
+        for(auto& pair : buttons)
+        {
+            TmpButton& b = pair.second;
+            handlers[pair.first + up] = [&b, &createButton](const GuiDraw& d)
+            {
+                b = createButton(d, false);
+            };
+            handlers[pair.first + down] = [&b, &createButton](const GuiDraw& d)
+            {
+                b = createButton(d, true);
+            };
+        }
+    };
+
+    auto createButtonVecHandlers = [&createButton]
+    (
+        const std::vector<std::pair<std::string, std::vector<TmpButton>&>>& buttons,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers,
+        const std::string& down,
+        const std::string& up
+    )
+    {
+        for(auto& pair : buttons)
+        {
+            std::vector<TmpButton>& b = pair.second;
+            handlers[pair.first + up] = [&b, &createButton](const GuiDraw& d)
+            {
+                b.push_back(createButton(d, false));
+            };
+            handlers[pair.first + down] = [&b, &createButton](const GuiDraw& d)
+            {
+                b.push_back(createButton(d, true));
+            };
+        }
+    };
+
+    std::map<std::string, std::function<void(const GuiDraw&)>> handlers;
+    createButtonHandlers
+    ({
+        {"buttonbutton-sidebar-add", mData.miscButtons.addSideBar},
+        {"buttonbutton-sidebar-remove", mData.miscButtons.removeSideBar},
+
+        {"button-menu", mData.sideTopButtons.menu},
+
+        {"button-store", mData.sideTopButtons.store},
+        {"button-store-inbox", mData.sideTopButtons.storeInbox},
+        {"button-store-storexp", mData.miscButtons.storeExp},
+
+        {"button-logout", mData.sideTopButtons.logout},
+        {"button-options", mData.sideTopButtons.options},
+        {"button-unjustpoints", mData.sideTopButtons.unjustPoints},
+        {"button-questlog", mData.sideTopButtons.questLog},
+        {"button-viplist", mData.sideTopButtons.vipList},
+        {"button-battlelist", mData.sideTopButtons.battleList},
+        {"button-skills", mData.sideTopButtons.skills},
+        {"button-preywidget", mData.sideTopButtons.prey},
+
+        {"button-combat-pvp", mData.sideTopButtons.pvp},
+        {"button-combat-pvp-small", mData.sideTopButtons.pvp},
+        {"button-expert", mData.sideTopButtons.expert},
+        {"button-expert-small", mData.sideTopButtons.expert},
+        {"button-follow", mData.sideTopButtons.follow},
+        {"button-stand", mData.sideTopButtons.stand},
+        {"button-combat-defensive", mData.sideTopButtons.defensive},
+        {"button-combat-balanced", mData.sideTopButtons.balanced},
+        {"button-combat-offensive", mData.sideTopButtons.offensive},
+
+        {"button-combat-dovemode", mData.expertButtons.dove},
+        {"button-combat-redfistmode", mData.expertButtons.red},
+        {"button-combat-whitehandmode", mData.expertButtons.white},
+        {"button-combat-yellowhandmode", mData.expertButtons.yellow},
+
+
+        {"automap-button-movedown", mData.sideTopButtons.moveDown},
+        {"automap-button-moveup", mData.sideTopButtons.moveUp},
+        {"automap-button-zoomout", mData.sideTopButtons.zoomOut},
+        {"automap-button-zoomin", mData.sideTopButtons.zoomIn},
+
+        {"console-buttonignore", mData.chatButtons.ignore},
+        {"console-buttonnew", mData.chatButtons.newTab},
+        {"console-buttonmessages", mData.chatButtons.messages},
+        {"console-buttonclose", mData.chatButtons.closeTab},
+        {"console-buttonleft", mData.chatButtons.tabLeft},
+        {"console-buttonright", mData.chatButtons.tabRight},
+        {"console-buttonleft-flash", mData.chatButtons.tabLeft},
+        {"console-buttonright-flash", mData.chatButtons.tabRight},
+        {"console-buttonleft-update", mData.chatButtons.tabLeft},
+        {"console-buttonright-update", mData.chatButtons.tabRight},
+        {"console-buttonsay", mData.chatButtons.say},
+        {"console-buttonwhisper", mData.chatButtons.whisper},
+        {"console-buttonyell", mData.chatButtons.yell},
+
+
+
+        {"battlelist-monster", mData.battleListButtons.monster},
+        {"battlelist-npc", mData.battleListButtons.npc},
+        {"battlelist-party", mData.battleListButtons.party},
+        {"battlelist-players", mData.battleListButtons.player},
+        {"battlelist-skull", mData.battleListButtons.skull},
+
+
+        {"button-transfercoins", mData.miscButtons.transferCoins},
+        {"button-copytoclipboard", mData.miscButtons.clipBoard},
+    }, handlers, "-down.png", "-up.png");
+
+    createButtonVecHandlers
+    ({
+        {"max-button-small", pass1.smallMaxButtons},
+        {"max-button-small-highlight", pass1.smallMaxButtons},
+        {"min-button-small", pass1.smallMinButtons},
+        {"exit-button-small", pass1.smallExitButtons},
+        {"button-expand-12x12", pass1.expandButtons},
+        {"scrollbar-buttondown", pass1.scrollDownButtons},
+        {"scrollbar-buttonup", pass1.scrollUpButtons},
+        {"scrollbar-buttonright", pass1.scrollRightButtons},
+        {"scrollbar-buttonleft", pass1.scrollLeftButtons},
+        {"slider-buttonleft", pass1.scrollLeftButtons},
+        {"slider-buttonright", pass1.scrollRightButtons},
+
+        {"container-level-up", pass1.containerUpButtons},
+        {"container-browse-left", pass1.containerLeftButtons},
+        {"container-browse-right", pass1.containerRightButtons},
+
+        {"button-blue", pass1.blueButtons},
+        {"button-gold", pass1.goldButtons},
+        {"button-green", pass1.greenButtons},
+        {"button-grey", pass1.greyButtons},
+
+        {"button-arrow-left", pass1.outfitLeftButtons},
+        {"button-arrow-right", pass1.outfitRightButtons},
+        {"button-storeicon", pass1.outfitStoreButtons},
+    }, handlers, "-down.png", "-up.png");
+
+    const std::vector<std::pair<std::string, TmpButton&>> disabledButtons =
+    {
+        {"button-expert-disabled.png", mData.sideTopButtons.expert},
+        {"button-expert-small-disabled.png", mData.sideTopButtons.expert},
+        {"button-sidebar-add-disabled.png", mData.miscButtons.addSideBar},
+        {"button-sidebar-remove-disabled.png", mData.miscButtons.removeSideBar},
+    };
+    for(auto& pair : disabledButtons)
+    {
+        TmpButton& b = pair.second;
+        handlers[pair.first] = [&b, &createButton](const GuiDraw& d)
+        {
+            b = createButton(d, false, false);
+        };
+    }
+
+    const std::vector<std::pair<std::string, std::vector<TmpButton>&>> disabledVecButtons =
+    {
+        {"radiobutton-checked-disabled.png", pass1.radioButtons},
+    };
+    for(auto& pair : disabledVecButtons)
+    {
+        std::vector<TmpButton>& b = pair.second;
+        handlers[pair.first] = [&b, &createButton](const GuiDraw& d)
+        {
+            b.push_back(createButton(d, false, false));
+        };
+    }
+
+
+    createButtonVecHandlers
+    ({
+        {"checkbox", pass1.checkBoxes},
+        {"radiobutton", pass1.radioButtons},
+    }, handlers, "-checked.png", "-unchecked.png");
+
+    createButtonHandlers
+    ({
+        {"button-contextmenu-12x12", mData.miscButtons.contextMenu},
+    }, handlers, "-pressed.png", "-idle.png");
+
+    createButtonVecHandlers
+    ({
+        {"button-dropdown-20x20", pass1.dropDownButtons},
+    }, handlers, "-pressed.png", "-idle.png");
+
+    createButtonVecHandlers
+    ({
+        {"console-tab", pass1.chatTabs},
+    }, handlers, "-active.png", "-passive.png");
+
+    handlers["button-9grid-idle.png"] = [&](const GuiDraw& d)
+    {
+        TmpButton b = createButton(d, false);
+        if(b.screenRect.width > 3 && b.screenRect.height > 3)
+        {
+            pass1.grid9Buttons.push_back(b);
+        }
+    };
+    handlers["button-9grid-pressed.png"] = [&](const GuiDraw& d)
+    {
+        TmpButton b = createButton(d, true);
+        if(b.screenRect.width > 3 && b.screenRect.height > 3)
+        {
+            pass1.grid9Buttons.push_back(b);
+        }
+    };
+    handlers["button-textured-up.png"] = [&](const GuiDraw& d)
+    {
+        TmpButton b = createButton(d, false);
+        if(b.screenRect.width > 10 && b.screenRect.height > 10)
+        {
+            pass1.texturedButtons.push_back(b);
+        }
+    };
+    handlers["button-textured-down.png"] = [&](const GuiDraw& d)
+    {
+        TmpButton b = createButton(d, true);
+        if(b.screenRect.width > 10 && b.screenRect.height > 10)
+        {
+            pass1.texturedButtons.push_back(b);
+        }
+    };
+
+    handlers["automap-rose.png"] = [&](const GuiDraw& d)
+    {
+        mData.miniMapRose = getDrawRect(d);
+    };
+
+    return handlers;
+}
+
+
 void Gui::parseCurrentFrame()
 {
     if(mIsCurrentFrameParsed)
         return;
 
+
+
     mHalfFrameWidth = mCurrentFrame.width / 2.f;
     mHalfFrameHeight = mCurrentFrame.height / 2.f;
+
+    for(const GuiDraw& g : *mCurrentFrame.guiDraws)
+    {
+        auto foundIt = mGuiDrawHandlers.find(sb::utility::file::basename(g.name));
+        if(foundIt != mGuiDrawHandlers.end())
+        {
+            std::cout << "Handling: " << sb::utility::file::basename(g.name) << std::endl;
+            foundIt->second(g);
+        }
+        else
+        {
+            std::cout << "Unhandled: " << sb::utility::file::basename(g.name) << std::endl;
+        }
+    }
+    std::cout << "Num small min/max buttons: " << pass1.smallMinButtons.size() + pass1.smallMaxButtons.size() << std::endl;
+
+//    for(const GuiDraw& g : *mCurrentFrame.guiDraws)
+//    {
+//        std::string name = sb::utility::file::basename(g.name);
+//        if(name == )
+//    }
 
     std::map<std::string, std::list<const GuiDraw*>> guiDraws;
     for(const GuiDraw& g : *mCurrentFrame.guiDraws)
         guiDraws[sb::utility::file::basename(g.name)].push_back(&g);
 
     updateButtons(guiDraws);
-    if(mData->state == State::GAME)
+    if(mData.state == State::GAME)
     {
         updateManaAndHpLevels(guiDraws);
 
@@ -1515,7 +1821,7 @@ void Gui::parseCurrentFrame()
         parseSideWindowBottomText(textDrawsIndex);
         parseGuiSpriteDraws();
     }
-    else if(mData->state == State::MAIN_MENU)
+    else if(mData.state == State::MAIN_MENU)
     {
         for(const TextDraw& d : *mCurrentFrame.textDraws)
         {
@@ -1529,16 +1835,16 @@ void Gui::parseCurrentFrame()
     }
     else
     {
-        THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected state: ", (int)mData->state, "\n"));
+        THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected state: ", (int)mData.state, "\n"));
     }
 
 
     auto removeStart = std::remove_if
     (
-        mData->buttons.begin(), mData->buttons.end(),
+        mData.buttons.begin(), mData.buttons.end(),
         [](const std::shared_ptr<Button>& b){return (b->text == "");}
     );
-    mData->buttons.erase(removeStart, mData->buttons.end());
+    mData.buttons.erase(removeStart, mData.buttons.end());
 
 
     mIsCurrentFrameParsed = true;

@@ -71,6 +71,7 @@ namespace GraphicsLayer
                 unsigned short height;
             };
 
+
             enum class UiSection : unsigned char
             {
                 EQUIPMENT_AND_COMBAT_OPTIONS,
@@ -204,8 +205,125 @@ namespace GraphicsLayer
                 std::shared_ptr<Outfit> selectedOutfit;
             };
 
+            struct IRect
+            {
+                unsigned short x;
+                unsigned short y;
+                unsigned short width;
+                unsigned short height;
+            };
+
+            struct DrawRect
+            {
+                IRect screen;
+                IRect local;
+            };
+
+            struct TmpButton
+            {
+                IRect screenRect;
+                IRect localRect;
+                bool isDown;
+                bool isEnabled;
+            };
+
+            struct TextButton : public TmpButton
+            {
+                TextButton(){};
+                TextButton(const TmpButton& b) : TmpButton(b){}
+                TextButton& operator=(const TmpButton& b){TmpButton::operator=(b);}
+                std::string text;
+            };
+
+            struct SideTopButtons
+            {
+                TmpButton premFeaturesMinMax;
+
+                TmpButton menu;
+                TmpButton store;
+                TmpButton logout;
+                TmpButton options;
+                TmpButton unjustPoints;
+                TmpButton questLog;
+                TmpButton vipList;
+                TmpButton battleList;
+                TmpButton skills;
+                TmpButton prey;
+
+                TmpButton storeInbox;
+                TmpButton pvp;
+                TmpButton expert;
+                TmpButton follow;
+                TmpButton stand;
+                TmpButton defensive;
+                TmpButton balanced;
+                TmpButton offensive;
+                TmpButton eqMinMax;
+                TmpButton stop;
+
+                TmpButton moveDown;
+                TmpButton zoomIn;
+                TmpButton moveUp;
+                TmpButton zoomOut;
+                TmpButton rose;
+                TmpButton centre;
+            };
+
+            struct ExpertButtons
+            {
+                TmpButton dove;
+                TmpButton red;
+                TmpButton white;
+                TmpButton yellow;
+
+            };
+
+            struct ChatButtons
+            {
+                TextButton toggleChat;
+                TmpButton ignore;
+                TmpButton newTab;
+                TmpButton messages;
+                TmpButton closeTab;
+                TmpButton tabLeft;
+                TmpButton tabRight;
+
+                TmpButton say;
+                TmpButton whisper;
+                TmpButton yell;
+
+
+                std::vector<TextButton> tabs;
+                std::vector<TextButton> clickableText;
+            };
+
+            struct BattleListButtons
+            {
+                TmpButton monster;
+                TmpButton npc;
+                TmpButton party;
+                TmpButton player;
+                TmpButton skull;
+            };
+
+            struct MiscButtons
+            {
+                TmpButton transferCoins;
+                TmpButton storeExp;
+                TmpButton addSideBar;
+                TmpButton removeSideBar;
+                TmpButton clipBoard;
+                TmpButton contextMenu;
+            };
+
             struct Data
             {
+                SideTopButtons sideTopButtons;
+                ChatButtons chatButtons;
+                BattleListButtons battleListButtons;
+                ExpertButtons expertButtons;
+                MiscButtons miscButtons;
+                DrawRect miniMapRose;
                 State state = State::UNDEFINED;
                 std::vector<std::shared_ptr<Button>> buttons;
                 unsigned short cap = 0;
@@ -251,6 +369,7 @@ namespace GraphicsLayer
                 std::vector<std::string> offlineVips;
 
                 std::string chatInput;
+
             };
 
         public:
@@ -262,6 +381,8 @@ namespace GraphicsLayer
             State getState() const;
 
         private:
+            std::map<std::string, std::function<void(const GuiDraw&)>> initGuiDrawHandlers();
+
             void parseCurrentFrame();
 
             void updateSideBottomWindows(const std::map<std::string, std::list<const GuiDraw*>>& guiDraws);
@@ -304,13 +425,52 @@ namespace GraphicsLayer
 
         private:
             const TibiaContext& mContext;
-            std::shared_ptr<Data> mData = std::make_shared<Data>();
+            Data mData;
             Frame mCurrentFrame;
             bool mIsCurrentFrameParsed = false;
             float mHalfFrameWidth = 0.f;
             float mHalfFrameHeight = 0.f;
 
             bool mIsEquipmentMinimized = false;
+
+            const std::map<std::string, std::function<void(const GuiDraw&)>> mGuiDrawHandlers;
+
+            struct Pass1
+            {
+                std::vector<TmpButton> smallMinButtons;
+                std::vector<TmpButton> smallMaxButtons;
+                std::vector<TmpButton> smallExitButtons;
+                std::vector<TmpButton> expandButtons;
+                std::vector<TmpButton> scrollDownButtons;
+                std::vector<TmpButton> scrollUpButtons;
+                std::vector<TmpButton> scrollRightButtons;
+                std::vector<TmpButton> scrollLeftButtons;
+                std::vector<TmpButton> containerUpButtons;
+                std::vector<TmpButton> containerLeftButtons;
+                std::vector<TmpButton> containerRightButtons;
+
+                std::vector<TextButton> grid9Buttons;
+                std::vector<TmpButton> texturedButtons;
+                std::vector<TmpButton> blueButtons;
+                std::vector<TmpButton> goldButtons;
+                std::vector<TmpButton> greenButtons;
+                std::vector<TmpButton> greyButtons;
+
+                std::vector<TmpButton> radioButtons;
+                std::vector<TmpButton> checkBoxes;
+
+                std::vector<TmpButton> dropDownButtons;
+
+                std::vector<TmpButton> outfitLeftButtons;
+                std::vector<TmpButton> outfitRightButtons;
+                std::vector<TmpButton> outfitStoreButtons;
+
+                std::vector<TmpButton> chatTabs;
+
+
+            };
+
+            Pass1 pass1;
     };
 }
 
