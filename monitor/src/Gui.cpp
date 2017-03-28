@@ -1870,54 +1870,51 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
     }, pass1.creatureFlags, handlers);
 
 
-    auto createPlayerStateFlagHandlers = [this]
+    auto createPlayerStateFlagHandlers = []
     (
-        const std::vector<std::pair<std::string, PlayerStateFlag::Type>>& types,
-        std::vector<PlayerStateFlag>& flags,
+        const std::vector<std::pair<std::string, uint32_t>>& states,
+        uint32_t& flags,
         std::map<std::string, std::function<void(const GuiDraw&)>>& handlers
     )
     {
-        for(auto& pair : types)
+        for(auto& pair : states)
         {
-            PlayerStateFlag::Type type = pair.second;
-            handlers[pair.first] = [&flags, this, type](const GuiDraw& d)
+            uint32_t state = pair.second;
+            handlers[pair.first] = [&flags, state](const GuiDraw& d)
             {
-                PlayerStateFlag f;
-                f.rect = getDrawRect(d);
-                f.type = type;
-                flags.push_back(f);
+                flags |= state;
             };
         }
     };
 
-    using F = PlayerStateFlag::Type;
+    namespace PS = PlayerState;
     createPlayerStateFlagHandlers
     ({
-        {"player-state-flags-poisoned.png", F::POISONED},
-        {"player-state-flags-burning.png", F::BURNING},
-        {"player-state-flags-electrified.png", F::ELECTRIFIED},
-        {"player-state-flags-drunk.png", F::DRUNK},
-        {"player-state-flags-magic-shield.png", F::MAGIC_SHIELD},
-        {"player-state-flags-slowed.png", F::SLOWED},
-        {"player-state-flags-haste.png", F::HASTE},
-        {"player-state-flags-logout-block.png", F::LOGOUT_BLOCK},
-        {"player-state-flags-drowning.png", F::DROWNING},
-        {"player-state-flags-freezing.png", F::FREEZING},
-        {"player-state-flags-dazzled.png", F::DAZZLED},
-        {"player-state-flags-cursed.png", F::CURSED},
-        {"player-state-flags-strengthened.png", F::STRENGTHENED},
-        {"player-state-flags-protection-zone-block.png", F::PROTECTION_ZONE_BLOCK},
-        {"player-state-flags-protection-zone.png", F::PROTECTION_ZONE},
-        {"player-state-flags-bleeding.png", F::BLEEDING},
-        {"player-state-flags-hungry.png", F::HUNGRY},
-        {"player-state-guildwar-flag.png", F::GUILD_WAR},
-        {"player-state-playerkiller-flags-black.png", F::SKULL_BLACK},
-        {"player-state-playerkiller-flags-green.png", F::SKULL_GREEN},
-        {"player-state-playerkiller-flags-orange.png", F::SKULL_ORANGE},
-        {"player-state-playerkiller-flags-red.png", F::SKULL_RED},
-        {"player-state-playerkiller-flags-white.png", F::SKULL_WHITE},
-        {"player-state-playerkiller-flags-yellow.png", F::SKULL_YELLOW},
-    }, pass1.playerStateFlags, handlers);
+        {"player-state-flags-poisoned.png", PS::POISONED},
+        {"player-state-flags-burning.png", PS::BURNING},
+        {"player-state-flags-electrified.png", PS::ELECTRIFIED},
+        {"player-state-flags-drunk.png", PS::DRUNK},
+        {"player-state-flags-magic-shield.png", PS::MAGIC_SHIELD},
+        {"player-state-flags-slowed.png", PS::SLOWED},
+        {"player-state-flags-haste.png", PS::HASTE},
+        {"player-state-flags-logout-block.png", PS::LOGOUT_BLOCK},
+        {"player-state-flags-drowning.png", PS::DROWNING},
+        {"player-state-flags-freezing.png", PS::FREEZING},
+        {"player-state-flags-dazzled.png", PS::DAZZLED},
+        {"player-state-flags-cursed.png", PS::CURSED},
+        {"player-state-flags-strengthened.png", PS::STRENGTHENED},
+        {"player-state-flags-protection-zone-block.png", PS::PROTECTION_ZONE_BLOCK},
+        {"player-state-flags-protection-zone.png", PS::PROTECTION_ZONE},
+        {"player-state-flags-bleeding.png", PS::BLEEDING},
+        {"player-state-flags-hungry.png", PS::HUNGRY},
+        {"player-state-guildwar-flag.png", PS::GUILD_WAR},
+        {"player-state-playerkiller-flags-black.png", PS::SKULL_BLACK},
+        {"player-state-playerkiller-flags-green.png", PS::SKULL_GREEN},
+        {"player-state-playerkiller-flags-orange.png", PS::SKULL_ORANGE},
+        {"player-state-playerkiller-flags-red.png", PS::SKULL_RED},
+        {"player-state-playerkiller-flags-white.png", PS::SKULL_WHITE},
+        {"player-state-playerkiller-flags-yellow.png", PS::SKULL_YELLOW},
+    }, mData.playerStates, handlers);
 
     auto createMiniMapMarkerHandlers = [this]
     (

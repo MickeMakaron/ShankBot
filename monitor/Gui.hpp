@@ -45,6 +45,36 @@ namespace GraphicsLayer
 
 namespace GraphicsLayer
 {
+    namespace PlayerState
+    {
+        constexpr uint32_t
+            NONE                    = 0,
+            POISONED                = 1 << 0,
+            BURNING                 = 1 << 1,
+            ELECTRIFIED             = 1 << 2,
+            DRUNK                   = 1 << 3,
+            MAGIC_SHIELD            = 1 << 4,
+            SLOWED                  = 1 << 5,
+            HASTE                   = 1 << 6,
+            LOGOUT_BLOCK            = 1 << 7,
+            DROWNING                = 1 << 8,
+            FREEZING                = 1 << 9,
+            DAZZLED                 = 1 << 10,
+            CURSED                  = 1 << 11,
+            STRENGTHENED            = 1 << 12,
+            PROTECTION_ZONE_BLOCK   = 1 << 13,
+            PROTECTION_ZONE         = 1 << 14,
+            BLEEDING                = 1 << 15,
+            HUNGRY                  = 1 << 17,
+            GUILD_WAR               = 1 << 18,
+            SKULL_BLACK             = 1 << 19,
+            SKULL_GREEN             = 1 << 20,
+            SKULL_ORANGE            = 1 << 21,
+            SKULL_RED               = 1 << 22,
+            SKULL_WHITE             = 1 << 23,
+            SKULL_YELLOW            = 1 << 24;
+    };
+
     class Gui
     {
         public:
@@ -354,41 +384,6 @@ namespace GraphicsLayer
                 Type type;
             };
 
-            struct PlayerStateFlag
-            {
-                enum class Type : unsigned char
-                {
-                    POISONED,
-                    BURNING,
-                    ELECTRIFIED,
-                    DRUNK,
-                    MAGIC_SHIELD,
-                    SLOWED,
-                    HASTE,
-                    LOGOUT_BLOCK,
-                    DROWNING,
-                    FREEZING,
-                    DAZZLED,
-                    CURSED,
-                    STRENGTHENED,
-                    PROTECTION_ZONE_BLOCK,
-                    PROTECTION_ZONE,
-                    BLEEDING,
-                    HUNGRY,
-                    GUILD_WAR,
-                    SKULL_BLACK,
-                    SKULL_GREEN,
-                    SKULL_ORANGE,
-                    SKULL_RED,
-                    SKULL_WHITE,
-                    SKULL_YELLOW,
-                    NUM_TYPES,
-                };
-
-                DrawRect rect;
-                Type type;
-            };
-
             struct MiniMapMarker
             {
                 enum class Type : unsigned char
@@ -452,6 +447,7 @@ namespace GraphicsLayer
                 DrawRect miniMapCrosshair;
                 DrawRect adventurersBlessing;
                 State state = State::UNDEFINED;
+                uint32_t playerStates;
                 std::vector<std::shared_ptr<Button>> buttons;
                 unsigned short cap = 0;
                 unsigned short soul = 0;
@@ -605,7 +601,6 @@ namespace GraphicsLayer
                 DrawRect manaFill;
 
                 std::vector<CreatureFlag> creatureFlags;
-                std::vector<PlayerStateFlag> playerStateFlags;
                 std::vector<MiniMapMarker> miniMapMarkers;
                 std::vector<EmptyEquipmentSlot> emptyEquipmentSlots;
 
