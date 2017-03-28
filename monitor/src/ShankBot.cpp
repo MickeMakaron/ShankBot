@@ -37,9 +37,11 @@
 #include "tibiaassets/AppearancesReader.hpp"
 #include "monitor/Constants.hpp"
 
+
 #include "utility/utility.hpp"
 #include "monitor/OutfitAddonMerger.hpp"
 #include "monitor/CombatSquareSample.hpp"
+#include "monitor/GlyphsFile.hpp"
 using namespace GraphicsLayer;
 using namespace sb::tibiaassets;
 ///////////////////////////////////
@@ -64,6 +66,14 @@ using namespace sb::tibiaassets;
 ///////////////////////////////////
 #include "QtGui/QImage"
 //#include "messaging/ObjectResponse.hpp"
+
+
+#include "monitor/GuiParser.hpp"
+#include "monitor/FrameFile.hpp"
+#include "monitor/FrameFileJson.hpp"
+#include "monitor/ParsedFrameFile.hpp"
+#include "monitor/ParsedFrame.hpp"
+
 void ShankBot::initializeData(std::string clientDir, std::string versionControlDir)
 {
     using namespace sb::utility;
@@ -71,6 +81,7 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
     const std::string SPRITE_COLOR_TREE_PATH = STORAGE_PATH + "/tree-sprite-color.bin";
     const std::string SPRITE_TRANSPARENCY_TREE_PATH = STORAGE_PATH + "/tree-sprite-transparency.bin";
     const std::string SPRITE_OBJECT_BINDINGS_PATH = STORAGE_PATH + "/sprite-object-bindings.bin";
+    const std::string GLYPHS_PATH = STORAGE_PATH + "/glyphs.bin";
     const std::string SPRITE_INFO_PATH = STORAGE_PATH + "/sprite-info.bin";
     const std::string CATALOG_CONTENT_PATH = clientDir + "/packages/Tibia/assets/catalog-content.json";
     const std::string GRAPHICS_RESOURCES_PATH = clientDir + "/packages/Tibia/bin/graphics_resources.rcc";
@@ -101,12 +112,18 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
 //        int flerp = 0;
 //    }
 
-    std::cout << "Reading graphics resources...";
-    std::unique_ptr<GraphicsResourceReader> gResourceReader = std::make_unique<GraphicsResourceReader>(GRAPHICS_RESOURCES_PATH);
-    const std::vector<GraphicsResourceReader::GraphicsResource>& gResources = gResourceReader->getGraphicsResources();
-    auto graphicsResourceNames = std::make_unique<std::vector<std::string>>(gResources.size());
-    for(size_t i = 0; i < gResources.size(); i++)
-        graphicsResourceNames->operator[](i) = gResources[i].name;
+    std::cout << "Reading graphics resource names...";
+    auto graphicsResourceNames = std::make_unique<std::vector<std::string>>(GraphicsResourceReader::readNames(GRAPHICS_RESOURCES_PATH));
+//    {
+//        std::unique_ptr<GraphicsResourceReader> gResourceReader = std::make_unique<GraphicsResourceReader>(GRAPHICS_RESOURCES_PATH);
+//        const std::vector<GraphicsResourceReader::GraphicsResource>& gResources = gResourceReader->getGraphicsResources();
+////        assert(graphicsResourceNames->size() == gResources.size());
+//        for(size_t i = 0; i < std::min(graphicsResourceNames->size(), gResources.size()); i++)
+//        {
+//            std::cout << (*graphicsResourceNames)[i] << "\t\t" << gResources[i].name << std::endl;
+//            assert((*graphicsResourceNames)[i] == gResources[i].name);
+//        }
+//    }
     std::cout << "Done" << std::endl;
 
     if(VersionControl::hasNewVersion(clientDir, versionControlDir))
@@ -135,6 +152,8 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
         std::cout << "Done" << std::endl;
 
         std::cout << "Loading graphics resources... ";
+        std::unique_ptr<GraphicsResourceReader> gResourceReader = std::make_unique<GraphicsResourceReader>(GRAPHICS_RESOURCES_PATH);
+        const std::vector<GraphicsResourceReader::GraphicsResource>& gResources = gResourceReader->getGraphicsResources();
         for(size_t i = 0; i < gResources.size(); i++)
         {
             const GraphicsResourceReader::GraphicsResource& gRes = gResources[i];
@@ -175,6 +194,7 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
         }
         if(gResources.size() >= Constants::GRAPHICS_RESOURCE_ID_END - Constants::GRAPHICS_RESOURCE_ID_START)
             THROW_RUNTIME_ERROR("There are not enough IDs allocated for Tibia's graphics resources.");
+        gResourceReader.reset();
         std::cout << "Done" << std::endl;
 
         std::cout << "Creating sprite object bindings... ";
@@ -260,39 +280,35 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
         transparencySprites.resize(0);
         std::cout << "Done" << std::endl;
 
-
+        std::cout << "Generating glyph samples... ";
+        auto fontSample = std::make_unique<FontSample>("Verdana", 6.f, 10.f, FontSample::Style::BOLD | FontSample::Style::NORMAL);
+        auto glyphs = std::make_unique<std::vector<FontSample::Glyph>>(fontSample->getGlyphs());
+        fontSample = std::make_unique<FontSample>("Verdana", 13.f, 15.f, FontSample::Style::BOLD | FontSample::Style::NORMAL);
+        glyphs->insert(glyphs->end(), fontSample->getGlyphs().begin(), fontSample->getGlyphs().end());
+        GlyphsFile::write(*glyphs, GLYPHS_PATH);
+        fontSample.reset();
+        glyphs.reset();
+        std::cout << "Done" << std::endl;
 
         VersionControl::checkout(versionControlDir);
     }
 
+    std::cout << "Loading sprite object bindings... ";
     auto bindings = std::make_unique<SpriteObjectBindings>(SPRITE_OBJECT_BINDINGS_PATH);
-    auto spriteInfo = std::make_unique<SpriteInfo>(cat.getSpriteSheets());
+    std::cout << "Done" << std::endl;
 
+    std::cout << "Loading sprite infos... ";
+    auto spriteInfo = std::make_unique<SpriteInfo>(cat.getSpriteSheets());
+    std::cout << "Done" << std::endl;
 
     std::cout << "Loading trees... ";
     auto spriteColorTree = std::make_unique<SequenceTree>(SPRITE_COLOR_TREE_PATH);
     auto spriteTransparencyTree = std::make_unique<SequenceTree>(SPRITE_TRANSPARENCY_TREE_PATH);
     std::cout << "Done" << std::endl;
 
-//    forEachFile("draws", [&](const std::string& file)
-//    {
-//        unsigned char* data;
-//        size_t width;
-//        size_t height;
-//        readPpm(file, &data, &width, &height);
-//
-//        std::list<size_t> ids;
-//        std::vector<unsigned char> vec;
-//        vec.assign(data, width * )
-//        assert(spriteColorTree->find())
-//    });
-
-
-    std::cout << "Generating glyph samples... ";
-    auto fontSample = std::make_unique<FontSample>("Verdana", 6.f, 10.f, FontSample::Style::BOLD | FontSample::Style::NORMAL);
-    auto glyphs = std::make_unique<std::list<FontSample::Glyph>>(fontSample->getGlyphs());
-    fontSample = std::make_unique<FontSample>("Verdana", 13.f, 15.f, FontSample::Style::BOLD | FontSample::Style::NORMAL);
-    glyphs->insert(glyphs->end(), fontSample->getGlyphs().begin(), fontSample->getGlyphs().end());
+    std::cout << "Loading glyph samples... ";
+    auto glyphs = std::make_unique<std::vector<FontSample::Glyph>>();
+    GlyphsFile::read(*glyphs, GLYPHS_PATH);
     std::cout << "Done" << std::endl;
 
     mTibiaContext = std::make_unique<TibiaContext>
@@ -305,6 +321,19 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
         graphicsResourceNames,
         glyphs
     );
+
+//    {
+//        std::unique_ptr<GraphicsResourceReader> gResourceReader = std::make_unique<GraphicsResourceReader>(GRAPHICS_RESOURCES_PATH);
+//        const std::vector<GraphicsResourceReader::GraphicsResource>& gResources = gResourceReader->getGraphicsResources();
+//
+//        for(const GraphicsResourceReader::GraphicsResource& r : gResources)
+//        {
+//            QImage img(r.pixels, r.width, r.height, QImage::Format_RGBA8888);
+//            std::string path = std::string("graphicsResourcesOutTest/") + sb::utility::file::basename(r.name);
+//            img.save(QString::fromStdString(path));
+//        }
+//    }
+
 }
 
 ShankBot::ShankBot(std::string clientDir, std::string versionControlDir)
