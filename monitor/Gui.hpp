@@ -45,7 +45,7 @@ namespace GraphicsLayer
 
 namespace GraphicsLayer
 {
-    namespace PlayerState
+    namespace PlayerStateMERP
     {
         constexpr uint32_t
             NONE                    = 0,
@@ -74,6 +74,15 @@ namespace GraphicsLayer
             SKULL_WHITE             = 1 << 23,
             SKULL_YELLOW            = 1 << 24;
     };
+
+    namespace VipGroupMERP
+    {
+        constexpr uint8_t
+            NONE                = 0,
+            ENEMIES             = 1 << 0,
+            FRIENDS             = 1 << 1,
+            TRADING_PARTNERS    = 1 << 2;
+    }
 
     class Gui
     {
@@ -436,6 +445,307 @@ namespace GraphicsLayer
                 Type type;
             };
 
+            struct DefaultSideBar
+            {
+                struct MiniMap
+                {
+                    TmpButton up;
+                    TmpButton down;
+                    TmpButton zoomIn;
+                    TmpButton zoomOut;
+                    TmpButton centre;
+                    DrawRect rose;
+                    DrawRect map;
+                    DrawRect crosshair;
+
+                    std::vector<MiniMapMarker> markers;
+                };
+
+                struct StatusBar
+                {
+                    unsigned short hp;
+                    unsigned short mana;
+                    float hpPercent;
+                    float manaPercent;
+                };
+
+                struct Inventory
+                {
+                    TmpButton storeInbox;
+                    std::vector<size_t> back;
+                    std::vector<size_t> feet;
+                    std::vector<size_t> finger;
+                    std::vector<size_t> head;
+                    std::vector<size_t> hip;
+                    std::vector<size_t> leftHand;
+                    std::vector<size_t> rightHand;
+                    std::vector<size_t> legs;
+                    std::vector<size_t> neck;
+                    std::vector<size_t> torso;
+                };
+
+                struct CombatControls
+                {
+                    struct ExpertControls
+                    {
+                        TmpButton dove;
+                        TmpButton red;
+                        TmpButton white;
+                        TmpButton yellow;
+                    };
+
+                    TmpButton pvp;
+                    TmpButton expert;
+                    TmpButton follow;
+                    TmpButton stand;
+                    TmpButton defensive;
+                    TmpButton balanced;
+                    TmpButton offensive;
+                    TmpButton stop;
+
+                    std::shared_ptr<ExpertControls> expertControls;
+                };
+
+                struct ControlButtons
+                {
+                    TmpButton menu;
+                    TmpButton logout;
+                    TmpButton options;
+                    TmpButton unjustPoints;
+                    TmpButton questLog;
+                    TmpButton vipList;
+                    TmpButton battleList;
+                    TmpButton skills;
+                    TmpButton prey;
+                };
+
+                struct PremiumFeatures
+                {
+                    TmpButton minMax;
+                    bool isMinimized;
+                };
+
+                MiniMap miniMap;
+                StatusBar statusBar;
+                std::shared_ptr<Inventory> inventory;
+                CombatControls combatControls;
+                std::shared_ptr<ControlButtons> controlButtons;
+
+                TmpButton store;
+                TmpButton inventoryMinMax;
+                TmpButton controlButtonsMinMax;
+                unsigned short soul;
+                unsigned short cap;
+                uint32_t conditions;
+                bool hasAdventurersBlessing;
+            };
+
+            struct SideBarWindow
+            {
+                std::string name;
+                TmpButton exit;
+                TmpButton minMax;
+                DrawRect clientArea;
+                DrawRect titleBar;
+                bool isMinimized;
+                bool isResizable;
+            };
+
+            struct Skills : public SideBarWindow
+            {
+                unsigned short level = 0;
+                unsigned int experience = 0;
+                unsigned short xpGainRate = 0;
+                float levelPercent = 0.f;
+
+                TmpButton xpBoost;
+
+                unsigned short hp = 0;
+                unsigned short mana = 0;
+                unsigned short soul = 0;
+                unsigned short cap = 0;
+                unsigned short speed = 0;
+                unsigned short foodMinutes = 0;
+                unsigned short staminaMinutes = 0;
+                unsigned short offlineTrainingMinutes = 0;
+                unsigned short magicLevel = 0;
+                float staminaPercent = 0.f;
+                float offlineTrainingPercent = 0.f;
+                float magicLevelPercent = 0.f;
+
+
+                unsigned short fistLevel = 0;
+                unsigned short clubLevel = 0;
+                unsigned short swordLevel = 0;
+                unsigned short axeLevel = 0;
+                unsigned short distanceLevel = 0;
+                unsigned short shieldingLevel = 0;
+                unsigned short fishingLevel = 0;
+                float fistLevelPercent = 0.f;
+                float clubLevelPercent = 0.f;
+                float swordLevelPercent = 0.f;
+                float axeLevelPercent = 0.f;
+                float distanceLevelPercent = 0.f;
+                float shieldingLevelPercent = 0.f;
+                float fishingLevelPercent = 0.f;
+
+                unsigned short critChance = 0;
+                unsigned short critDamage = 0;
+
+                unsigned short hpLeechChance = 0;
+                unsigned short hpLeechAmount = 0;
+
+                unsigned short manaLeechChance = 0;
+                unsigned short manaLeechAmount = 0;
+
+            };
+
+            struct BattleList : public SideBarWindow
+            {
+                struct Filter
+                {
+                    TmpButton monster;
+                    TmpButton npc;
+                    TmpButton party;
+                    TmpButton player;
+                    TmpButton skull;
+                };
+
+                TmpButton filterMinMax;
+                Filter filter;
+                TmpButton sort;
+
+                struct Character
+                {
+                    std::string name;
+                    std::vector<size_t> objectIds;
+                    float hpPercent;
+                };
+
+                std::vector<Character> characters;
+            };
+
+            struct Vip : public SideBarWindow
+            {
+
+                struct Player
+                {
+                    enum class Mark : unsigned char
+                    {
+                        NONE,
+                        HEART,
+                        SKULL,
+                        LIGHTNING,
+                        CROSSHAIR,
+                        STAR,
+                        YINYANG,
+                        TRIANGLE,
+                        CROSS,
+                        DOLLAR,
+                        BALKENKREUZ,
+                        NUM_MARKS,
+                    };
+
+                    std::string name;
+                    bool isOnline;
+                    uint8_t groups;
+                    Mark mark;
+                };
+
+                std::vector<Player> players;
+            };
+
+            struct UnjustifiedPoints : public SideBarWindow
+            {
+                // Todo...
+            };
+
+            struct Prey : public SideBarWindow
+            {
+                // Todo...
+            };
+
+            struct ScrollBar
+            {
+                bool isHorizontal;
+                TmpButton min;
+                TmpButton max;
+                DrawRect handle;
+            };
+
+            struct BattleListFilters
+            {
+                TmpButton monster;
+                TmpButton npc;
+                TmpButton party;
+                TmpButton player;
+                TmpButton skull;
+            };
+
+
+            struct SideBarWindows
+            {
+                std::vector<TmpButton> minMaxButtons;
+                std::vector<TmpButton> exitButtons;
+                std::vector<TmpButton> contextMenuButtons;
+                std::vector<TmpButton> expandButtons;
+                std::shared_ptr<BattleListFilters> battleListFilters;
+                std::vector<ScrollBar> scrollBars;
+                std::vector<DrawRect> resizers;
+                std::vector<DrawRect> widgets;
+            };
+
+            struct GameWindow
+            {
+                std::vector<CreatureFlag> creatureFlags;
+            };
+
+            struct ChatWindow
+            {
+                std::vector<TextButton> tabs;
+                TextButton toggleChat;
+                TmpButton ignore;
+                TmpButton newTab;
+                std::shared_ptr<TmpButton> messages;
+                std::shared_ptr<TmpButton> closeTab;
+                std::shared_ptr<TmpButton> tabLeft;
+                std::shared_ptr<TmpButton> tabRight;
+
+                enum class Volume : unsigned char
+                {
+                    SAY,
+                    WHISPER,
+                    YELL,
+                    NUM_VOLUMES,
+                };
+
+                Volume currentVolume;
+                TmpButton volume;
+            };
+
+            struct SpellBar
+            {
+                TmpButton attack;
+                TmpButton healing;
+                TmpButton support;
+                TmpButton special;
+
+            };
+
+            struct GameData
+            {
+                std::vector<TextButton> textButtons;
+                DefaultSideBar defaultSideBar;
+                SideBarWindows sideBarWindows;
+                GameWindow gameWindow;
+                ChatWindow chatWindow;
+                SpellBar spellBar;
+
+
+            };
+
+
+
             struct Data
             {
                 SideTopButtons sideTopButtons;
@@ -600,7 +910,6 @@ namespace GraphicsLayer
                 DrawRect hpFill;
                 DrawRect manaFill;
 
-                std::vector<CreatureFlag> creatureFlags;
                 std::vector<MiniMapMarker> miniMapMarkers;
                 std::vector<EmptyEquipmentSlot> emptyEquipmentSlots;
 

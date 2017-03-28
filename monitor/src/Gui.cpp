@@ -1838,36 +1838,36 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
 
 
     using CF = CreatureFlag::Type;
-    createCreatureFlagHandlers
-    ({
-        {"creature-speech-flags-directions.png", CF::DIRECTIONS},
-        {"creature-speech-flags-quest.png", CF::QUEST},
-        {"creature-speech-flags-talk.png", CF::TALK},
-        {"creature-speech-flags-trade.png", CF::TRADE},
-        {"creature-state-flags-guild-war-blue", CF::GUILD_WAR_BLUE},
-        {"creature-state-flags-guild-war-green", CF::GUILD_WAR_GREEN},
-        {"creature-state-flags-guild-war-red", CF::GUILD_WAR_RED},
-        {"creature-state-flags-guild-white", CF::GUILD_WHITE},
-        {"creature-state-flags-guild-yellow", CF::GUILD_YELLOW},
-        {"creature-state-flags-lightning-red", CF::LIGHTNING_RED},
-        {"creature-state-flags-party-gray-unknown", CF::PARTY_GRAY},
-        {"creature-state-flags-party-invitee", CF::PARTY_INVITEE},
-        {"creature-state-flags-party-inviter", CF::PARTY_INVITER},
-        {"creature-state-flags-party-leader", CF::PARTY_LEADER},
-        {"creature-state-flags-party-leader-shared-xp", CF::PARTY_LEADER_SHARED_XP},
-        {"creature-state-flags-party-leader-shared-xp-fail", CF::PARTY_LEADER_SHARED_XP_FAIL},
-        {"creature-state-flags-party-member", CF::PARTY_MEMBER},
-        {"creature-state-flags-party-member-shared-xp", CF::PARTY_MEMBER_SHARED_XP},
-        {"creature-state-flags-party-member-shared-xp-fail", CF::PARTY_MEMBER_SHARED_XP_FAIL},
-        {"creature-state-flags-skull-black", CF::SKULL_BLACK},
-        {"creature-state-flags-skull-green", CF::SKULL_GREEN},
-        {"creature-state-flags-skull-orange", CF::SKULL_ORANGE},
-        {"creature-state-flags-skull-red", CF::SKULL_RED},
-        {"creature-state-flags-skull-white", CF::SKULL_WHITE},
-        {"creature-state-flags-skull-yellow", CF::SKULL_YELLOW},
-        {"creature-state-flags-summon-green", CF::SUMMON_GREEN},
-        {"creature-state-flags-summon-red", CF::SUMMON_RED},
-    }, pass1.creatureFlags, handlers);
+//    createCreatureFlagHandlers
+//    ({
+//        {"creature-speech-flags-directions.png", CF::DIRECTIONS},
+//        {"creature-speech-flags-quest.png", CF::QUEST},
+//        {"creature-speech-flags-talk.png", CF::TALK},
+//        {"creature-speech-flags-trade.png", CF::TRADE},
+//        {"creature-state-flags-guild-war-blue", CF::GUILD_WAR_BLUE},
+//        {"creature-state-flags-guild-war-green", CF::GUILD_WAR_GREEN},
+//        {"creature-state-flags-guild-war-red", CF::GUILD_WAR_RED},
+//        {"creature-state-flags-guild-white", CF::GUILD_WHITE},
+//        {"creature-state-flags-guild-yellow", CF::GUILD_YELLOW},
+//        {"creature-state-flags-lightning-red", CF::LIGHTNING_RED},
+//        {"creature-state-flags-party-gray-unknown", CF::PARTY_GRAY},
+//        {"creature-state-flags-party-invitee", CF::PARTY_INVITEE},
+//        {"creature-state-flags-party-inviter", CF::PARTY_INVITER},
+//        {"creature-state-flags-party-leader", CF::PARTY_LEADER},
+//        {"creature-state-flags-party-leader-shared-xp", CF::PARTY_LEADER_SHARED_XP},
+//        {"creature-state-flags-party-leader-shared-xp-fail", CF::PARTY_LEADER_SHARED_XP_FAIL},
+//        {"creature-state-flags-party-member", CF::PARTY_MEMBER},
+//        {"creature-state-flags-party-member-shared-xp", CF::PARTY_MEMBER_SHARED_XP},
+//        {"creature-state-flags-party-member-shared-xp-fail", CF::PARTY_MEMBER_SHARED_XP_FAIL},
+//        {"creature-state-flags-skull-black", CF::SKULL_BLACK},
+//        {"creature-state-flags-skull-green", CF::SKULL_GREEN},
+//        {"creature-state-flags-skull-orange", CF::SKULL_ORANGE},
+//        {"creature-state-flags-skull-red", CF::SKULL_RED},
+//        {"creature-state-flags-skull-white", CF::SKULL_WHITE},
+//        {"creature-state-flags-skull-yellow", CF::SKULL_YELLOW},
+//        {"creature-state-flags-summon-green", CF::SUMMON_GREEN},
+//        {"creature-state-flags-summon-red", CF::SUMMON_RED},
+//    }, pass1.creatureFlags, handlers);
 
 
     auto createPlayerStateFlagHandlers = []
@@ -1887,7 +1887,7 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
         }
     };
 
-    namespace PS = PlayerState;
+    namespace PS = PlayerStateMERP;
     createPlayerStateFlagHandlers
     ({
         {"player-state-flags-poisoned.png", PS::POISONED},
@@ -2034,6 +2034,9 @@ void Gui::parseCurrentFrame()
         }
     }
     std::cout << "Num small min/max buttons: " << pass1.smallMinButtons.size() + pass1.smallMaxButtons.size() << std::endl;
+
+
+
 
     std::map<std::string, std::list<const GuiDraw*>> guiDraws;
     for(const GuiDraw& g : *mCurrentFrame.guiDraws)
