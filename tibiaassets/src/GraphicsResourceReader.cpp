@@ -70,7 +70,7 @@ const std::map<std::string, GraphicsResourceReader::SpriteSheet> GraphicsResourc
     {"party.png", SpriteSheet(11, 11, {"inviter", "invitee", "member", "leader", "member-shared-xp", "leader-shared-xp", "member-shared-xp-fail", "leader-shared-xp-fail", "leader-shared-xp-fail", "leader-shared-xp-fail","gray-unknown"})},
     {"playerkiller.png", SpriteSheet(11, 11, {"yellow", "green", "white", "red", "black", "orange"})},
     {"player-state-playerkiller-flags.png", SpriteSheet(9, 9, {"yellow", "green", "white", "red", "black", "orange"})},
-    {"player-state-flags.png", SpriteSheet(9, 9, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17"})},
+    {"player-state-flags.png", SpriteSheet(9, 9, {"poisoned", "burning", "electrified", "drunk", "magic-shield", "slowed", "haste", "logout-block", "drowning", "freezing", "dazzled", "cursed", "strengthened", "protection-zone-block", "protection-zone", "bleeding", "hungry"})},
     {"summon.png", SpriteSheet(9, 9, {"green", "red"})},
     {"markers.png", SpriteSheet(11, 11, {"checkmark", "questionmark", "exclamationmark", "star", "crossmark", "cross", "mouth", "brush", "sword", "flag", "lock", "bag", "skull", "dollar", "red-up", "red-down", "red-right", "red-left", "green-up", "green-down"})},
     {"vip-icons.png", SpriteSheet(12, 12, {"none-unknown", "heart", "skull", "lightning", "crosshair", "star", "yinyang", "triangle", "cross", "dollar", "balkenkreuz"})},
