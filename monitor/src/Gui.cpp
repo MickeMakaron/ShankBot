@@ -1489,56 +1489,57 @@ void Gui::parseGuiSpriteDraws()
     }
 }
 
+Gui::IRect Gui::getRect(Vertex topLeft, Vertex botRight)
+
+{
+    if(botRight.x < topLeft.x || botRight.y < topLeft.y)
+    {
+        std::swap(topLeft, botRight);
+    }
+
+    IRect ir;
+    ir.x = topLeft.x + 0.5f;
+    ir.y = topLeft.y + 0.5f;
+    ir.width = botRight.x - topLeft.x + 0.5f;
+    ir.height = botRight.y - topLeft.y + 0.5f;
+
+    return ir;
+}
+
+Gui::IRect Gui::getScreenRect(const Draw& d)
+{
+    Vertex topLeft;
+    Vertex botRight;
+    d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, topLeft.x, topLeft.y, d.topLeft.x, d.topLeft.y);
+    d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, botRight.x, botRight.y, d.botRight.x, d.botRight.y);
+
+    return getRect(topLeft, botRight);
+}
+
+Gui::DrawRect Gui::getDrawRect(const Draw& d)
+
+{
+    DrawRect r;
+    r.local = getRect(d.topLeft, d.botRight);
+    r.screen = getScreenRect(d);
+    return r;
+}
+
+Gui::TmpButton Gui::createButton(const Draw& d, bool isDown, bool isEnabled)
+{
+    TmpButton b;
+    b.screenRect = getScreenRect(d);
+    b.localRect = getRect(d.topLeft, d.botRight);
+    b.isDown = isDown;
+    b.isEnabled = isEnabled;
+    return b;
+}
+
 std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandlers()
 {
-    auto getRect = [&](Vertex topLeft, Vertex botRight)
-    {
-        if(botRight.x < topLeft.x || botRight.y < topLeft.y)
-        {
-            std::swap(topLeft, botRight);
-        }
-
-        IRect ir;
-        ir.x = topLeft.x + 0.5f;
-        ir.y = topLeft.y + 0.5f;
-        ir.width = botRight.x - topLeft.x + 0.5f;
-        ir.height = botRight.y - topLeft.y + 0.5f;
-
-        return ir;
-    };
-
-    auto getScreenRect = [&](const Draw& d)
-    {
-        Vertex topLeft;
-        Vertex botRight;
-        d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, topLeft.x, topLeft.y, d.topLeft.x, d.topLeft.y);
-        d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, botRight.x, botRight.y, d.botRight.x, d.botRight.y);
-
-        return getRect(topLeft, botRight);
-    };
-
-    auto getDrawRect = [&](const Draw& d)
-    {
-        DrawRect r;
-        r.local = getRect(d.topLeft, d.botRight);
-        r.screen = getScreenRect(d);
-        return r;
-    };
 
 
-
-    auto createButton = [&](const Draw& d, bool isDown, bool isEnabled = true)
-    {
-        TmpButton b;
-        b.screenRect = getScreenRect(d);
-        b.localRect = getRect(d.topLeft, d.botRight);
-        b.isDown = isDown;
-        b.isEnabled = isEnabled;
-        return b;
-    };
-
-
-    auto createButtonHandlers = [&createButton]
+    auto createButtonHandlers = [this]
     (
         const std::vector<std::pair<std::string, TmpButton&>>& buttons,
         std::map<std::string, std::function<void(const GuiDraw&)>>& handlers,
@@ -1549,18 +1550,18 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
         for(auto& pair : buttons)
         {
             TmpButton& b = pair.second;
-            handlers[pair.first + up] = [&b, &createButton](const GuiDraw& d)
+            handlers[pair.first + up] = [&b, this](const GuiDraw& d)
             {
                 b = createButton(d, false);
             };
-            handlers[pair.first + down] = [&b, &createButton](const GuiDraw& d)
+            handlers[pair.first + down] = [&b, this](const GuiDraw& d)
             {
                 b = createButton(d, true);
             };
         }
     };
 
-    auto createButtonVecHandlers = [&createButton]
+    auto createButtonVecHandlers = [this]
     (
         const std::vector<std::pair<std::string, std::vector<TmpButton>&>>& buttons,
         std::map<std::string, std::function<void(const GuiDraw&)>>& handlers,
@@ -1571,11 +1572,11 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
         for(auto& pair : buttons)
         {
             std::vector<TmpButton>& b = pair.second;
-            handlers[pair.first + up] = [&b, &createButton](const GuiDraw& d)
+            handlers[pair.first + up] = [&b, this](const GuiDraw& d)
             {
                 b.push_back(createButton(d, false));
             };
-            handlers[pair.first + down] = [&b, &createButton](const GuiDraw& d)
+            handlers[pair.first + down] = [&b, this](const GuiDraw& d)
             {
                 b.push_back(createButton(d, true));
             };
@@ -1689,7 +1690,7 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
     for(auto& pair : disabledButtons)
     {
         TmpButton& b = pair.second;
-        handlers[pair.first] = [&b, &createButton](const GuiDraw& d)
+        handlers[pair.first] = [&b, this](const GuiDraw& d)
         {
             b = createButton(d, false, false);
         };
@@ -1702,7 +1703,7 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
     for(auto& pair : disabledVecButtons)
     {
         std::vector<TmpButton>& b = pair.second;
-        handlers[pair.first] = [&b, &createButton](const GuiDraw& d)
+        handlers[pair.first] = [&b, this](const GuiDraw& d)
         {
             b.push_back(createButton(d, false, false));
         };
@@ -1730,7 +1731,7 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
         {"console-tab", pass1.chatTabs},
     }, handlers, "-active.png", "-passive.png");
 
-    handlers["button-9grid-idle.png"] = [&](const GuiDraw& d)
+    handlers["button-9grid-idle.png"] = [this](const GuiDraw& d)
     {
         TmpButton b = createButton(d, false);
         if(b.screenRect.width > 3 && b.screenRect.height > 3)
@@ -1738,7 +1739,7 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
             pass1.grid9Buttons.push_back(b);
         }
     };
-    handlers["button-9grid-pressed.png"] = [&](const GuiDraw& d)
+    handlers["button-9grid-pressed.png"] = [this](const GuiDraw& d)
     {
         TmpButton b = createButton(d, true);
         if(b.screenRect.width > 3 && b.screenRect.height > 3)
@@ -1746,7 +1747,7 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
             pass1.grid9Buttons.push_back(b);
         }
     };
-    handlers["button-textured-up.png"] = [&](const GuiDraw& d)
+    handlers["button-textured-up.png"] = [this](const GuiDraw& d)
     {
         TmpButton b = createButton(d, false);
         if(b.screenRect.width > 10 && b.screenRect.height > 10)
@@ -1754,7 +1755,7 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
             pass1.texturedButtons.push_back(b);
         }
     };
-    handlers["button-textured-down.png"] = [&](const GuiDraw& d)
+    handlers["button-textured-down.png"] = [this](const GuiDraw& d)
     {
         TmpButton b = createButton(d, true);
         if(b.screenRect.width > 10 && b.screenRect.height > 10)
@@ -1763,10 +1764,251 @@ std::map<std::string, std::function<void(const GuiDraw&)>> Gui::initGuiDrawHandl
         }
     };
 
-    handlers["automap-rose.png"] = [&](const GuiDraw& d)
+    auto createDrawRectHandlers = [this]
+    (
+        const std::vector<std::pair<std::string, DrawRect&>> rects,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers
+    )
     {
-        mData.miniMapRose = getDrawRect(d);
+        for(auto& pair : rects)
+        {
+            DrawRect& r = pair.second;
+            handlers[pair.first] = [&r, this](const GuiDraw& d)
+            {
+                r = getDrawRect(d);
+            };
+        }
     };
+    auto createDrawRectVecHandlers = [this]
+    (
+        const std::vector<std::pair<std::string, std::vector<DrawRect>&>> rects,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers
+    )
+    {
+        for(auto& pair : rects)
+        {
+            std::vector<DrawRect>& r = pair.second;
+            handlers[pair.first] = [&r, this](const GuiDraw& d)
+            {
+                r.push_back(getDrawRect(d));
+            };
+        }
+    };
+
+    createDrawRectHandlers
+    ({
+        {"automap-rose.png", mData.miniMapRose},
+        {"automap-crosshair-dark.png", mData.miniMapCrosshair},
+        {"automap-crosshair-light.png", mData.miniMapCrosshair},
+        {"hitpoints-bar-filled.png", pass1.hpFill},
+        {"mana-bar-filled.png", pass1.manaFill},
+        {"icon-adventurers-blessing.png", mData.adventurersBlessing},
+
+     }, handlers);
+
+    createDrawRectVecHandlers
+    ({
+        {"hitpoints-manapoints-bar-border.png", pass1.hpManaBorders},
+        {"spellgroup-icons-attack.png", pass1.spellGroups},
+        {"spellgroup-icons-healing.png", pass1.spellGroups},
+        {"spellgroup-icons-support.png", pass1.spellGroups},
+        {"spellgroup-icons-special.png", pass1.spellGroups},
+
+     }, handlers);
+
+    auto createCreatureFlagHandlers = [this]
+    (
+        const std::vector<std::pair<std::string, CreatureFlag::Type>>& types,
+        std::vector<CreatureFlag>& flags,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers
+    )
+    {
+        for(auto& pair : types)
+        {
+            CreatureFlag::Type type = pair.second;
+            handlers[pair.first] = [&flags, this, type](const GuiDraw& d)
+            {
+                CreatureFlag f;
+                f.rect = getDrawRect(d);
+                f.type = type;
+                flags.push_back(f);
+            };
+        }
+    };
+
+
+    using CF = CreatureFlag::Type;
+    createCreatureFlagHandlers
+    ({
+        {"creature-speech-flags-directions.png", CF::DIRECTIONS},
+        {"creature-speech-flags-quest.png", CF::QUEST},
+        {"creature-speech-flags-talk.png", CF::TALK},
+        {"creature-speech-flags-trade.png", CF::TRADE},
+        {"creature-state-flags-guild-war-blue", CF::GUILD_WAR_BLUE},
+        {"creature-state-flags-guild-war-green", CF::GUILD_WAR_GREEN},
+        {"creature-state-flags-guild-war-red", CF::GUILD_WAR_RED},
+        {"creature-state-flags-guild-white", CF::GUILD_WHITE},
+        {"creature-state-flags-guild-yellow", CF::GUILD_YELLOW},
+        {"creature-state-flags-lightning-red", CF::LIGHTNING_RED},
+        {"creature-state-flags-party-gray-unknown", CF::PARTY_GRAY},
+        {"creature-state-flags-party-invitee", CF::PARTY_INVITEE},
+        {"creature-state-flags-party-inviter", CF::PARTY_INVITER},
+        {"creature-state-flags-party-leader", CF::PARTY_LEADER},
+        {"creature-state-flags-party-leader-shared-xp", CF::PARTY_LEADER_SHARED_XP},
+        {"creature-state-flags-party-leader-shared-xp-fail", CF::PARTY_LEADER_SHARED_XP_FAIL},
+        {"creature-state-flags-party-member", CF::PARTY_MEMBER},
+        {"creature-state-flags-party-member-shared-xp", CF::PARTY_MEMBER_SHARED_XP},
+        {"creature-state-flags-party-member-shared-xp-fail", CF::PARTY_MEMBER_SHARED_XP_FAIL},
+        {"creature-state-flags-skull-black", CF::SKULL_BLACK},
+        {"creature-state-flags-skull-green", CF::SKULL_GREEN},
+        {"creature-state-flags-skull-orange", CF::SKULL_ORANGE},
+        {"creature-state-flags-skull-red", CF::SKULL_RED},
+        {"creature-state-flags-skull-white", CF::SKULL_WHITE},
+        {"creature-state-flags-skull-yellow", CF::SKULL_YELLOW},
+        {"creature-state-flags-summon-green", CF::SUMMON_GREEN},
+        {"creature-state-flags-summon-red", CF::SUMMON_RED},
+    }, pass1.creatureFlags, handlers);
+
+
+    auto createPlayerStateFlagHandlers = [this]
+    (
+        const std::vector<std::pair<std::string, PlayerStateFlag::Type>>& types,
+        std::vector<PlayerStateFlag>& flags,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers
+    )
+    {
+        for(auto& pair : types)
+        {
+            PlayerStateFlag::Type type = pair.second;
+            handlers[pair.first] = [&flags, this, type](const GuiDraw& d)
+            {
+                PlayerStateFlag f;
+                f.rect = getDrawRect(d);
+                f.type = type;
+                flags.push_back(f);
+            };
+        }
+    };
+
+    using F = PlayerStateFlag::Type;
+    createPlayerStateFlagHandlers
+    ({
+        {"player-state-flags-poisoned.png", F::POISONED},
+        {"player-state-flags-burning.png", F::BURNING},
+        {"player-state-flags-electrified.png", F::ELECTRIFIED},
+        {"player-state-flags-drunk.png", F::DRUNK},
+        {"player-state-flags-magic-shield.png", F::MAGIC_SHIELD},
+        {"player-state-flags-slowed.png", F::SLOWED},
+        {"player-state-flags-haste.png", F::HASTE},
+        {"player-state-flags-logout-block.png", F::LOGOUT_BLOCK},
+        {"player-state-flags-drowning.png", F::DROWNING},
+        {"player-state-flags-freezing.png", F::FREEZING},
+        {"player-state-flags-dazzled.png", F::DAZZLED},
+        {"player-state-flags-cursed.png", F::CURSED},
+        {"player-state-flags-strengthened.png", F::STRENGTHENED},
+        {"player-state-flags-protection-zone-block.png", F::PROTECTION_ZONE_BLOCK},
+        {"player-state-flags-protection-zone.png", F::PROTECTION_ZONE},
+        {"player-state-flags-bleeding.png", F::BLEEDING},
+        {"player-state-flags-hungry.png", F::HUNGRY},
+        {"player-state-guildwar-flag.png", F::GUILD_WAR},
+        {"player-state-playerkiller-flags-black.png", F::SKULL_BLACK},
+        {"player-state-playerkiller-flags-green.png", F::SKULL_GREEN},
+        {"player-state-playerkiller-flags-orange.png", F::SKULL_ORANGE},
+        {"player-state-playerkiller-flags-red.png", F::SKULL_RED},
+        {"player-state-playerkiller-flags-white.png", F::SKULL_WHITE},
+        {"player-state-playerkiller-flags-yellow.png", F::SKULL_YELLOW},
+    }, pass1.playerStateFlags, handlers);
+
+    auto createMiniMapMarkerHandlers = [this]
+    (
+        const std::vector<std::pair<std::string, MiniMapMarker::Type>>& types,
+        std::vector<MiniMapMarker>& markers,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers
+    )
+    {
+        for(auto& pair : types)
+        {
+            MiniMapMarker::Type type = pair.second;
+            handlers[pair.first] = [&markers, this, type](const GuiDraw& d)
+            {
+                MiniMapMarker f;
+                f.rect = getDrawRect(d);
+                f.type = type;
+                markers.push_back(f);
+            };
+        }
+    };
+
+    using MT = MiniMapMarker::Type;
+    createMiniMapMarkerHandlers
+    ({
+        {"markers-checkmark.png", MT::CHECKMARK},
+        {"markers-questionmark.png", MT::QUESTIONMARK},
+        {"markers-exclamationmark.png", MT::EXCLAMATIONMARK},
+        {"markers-star.png", MT::STAR},
+        {"markers-crossmark.png", MT::CROSSMARK},
+        {"markers-cross.png", MT::CROSS},
+        {"markers-mouth.png", MT::MOUTH},
+        {"markers-brush.png", MT::BRUSH},
+        {"markers-sword.png", MT::SWORD},
+        {"markers-flag.png", MT::FLAG},
+        {"markers-lock.png", MT::LOCK},
+        {"markers-bag.png", MT::BAG},
+        {"markers-skull.png", MT::SKULL},
+        {"markers-dollar.png", MT::DOLLAR},
+        {"markers-red-up.png", MT::RED_UP},
+        {"markers-red-down.png", MT::RED_DOWN},
+        {"markers-red-right.png", MT::RED_RIGHT},
+        {"markers-red-left.png", MT::RED_LEFT},
+        {"markers-green-up.png", MT::GREEN_UP},
+        {"markers-green-down.png", MT::GREEN_DOWN},
+    }, pass1.miniMapMarkers, handlers);
+
+    auto createEmptyEquipmentSlotHandler = [this]
+    (
+        const std::vector<std::pair<std::string, EmptyEquipmentSlot::Type>>& types,
+        std::vector<EmptyEquipmentSlot>& slots,
+        std::map<std::string, std::function<void(const GuiDraw&)>>& handlers
+    )
+    {
+        for(auto& pair : types)
+        {
+            EmptyEquipmentSlot::Type type = pair.second;
+            handlers[pair.first] = [&slots, this, type](const GuiDraw& d)
+            {
+                EmptyEquipmentSlot f;
+                f.rect = getDrawRect(d);
+                f.type = type;
+                slots.push_back(f);
+            };
+        }
+    };
+
+    using ET = EmptyEquipmentSlot::Type;
+    createEmptyEquipmentSlotHandler
+    ({
+        {"inventory-back.png", ET::BACK},
+        {"inventory-feet.png", ET::FEET},
+        {"inventory-finger.png", ET::FINGER},
+        {"inventory-head.png", ET::HEAD},
+        {"inventory-hip.png", ET::HIP},
+        {"inventory-left-hand.png", ET::LEFT_HAND},
+        {"inventory-right-hand.png", ET::RIGHT_HAND},
+        {"inventory-legs.png", ET::LEGS},
+        {"inventory-neck.png", ET::NECK},
+        {"inventory-torso.png", ET::TORSO},
+    }, pass1.emptyEquipmentSlots, handlers);
+
+
+    handlers["containerslot.png"] = [this](const GuiDraw& d)
+    {
+        DrawRect r = getDrawRect(d);
+        if(r.screen.width > 2 && r.screen.height > 2)
+        {
+            pass1.containerSlots.push_back(r);
+        }
+    };
+
 
     return handlers;
 }
@@ -1787,7 +2029,6 @@ void Gui::parseCurrentFrame()
         auto foundIt = mGuiDrawHandlers.find(sb::utility::file::basename(g.name));
         if(foundIt != mGuiDrawHandlers.end())
         {
-            std::cout << "Handling: " << sb::utility::file::basename(g.name) << std::endl;
             foundIt->second(g);
         }
         else
@@ -1796,12 +2037,6 @@ void Gui::parseCurrentFrame()
         }
     }
     std::cout << "Num small min/max buttons: " << pass1.smallMinButtons.size() + pass1.smallMaxButtons.size() << std::endl;
-
-//    for(const GuiDraw& g : *mCurrentFrame.guiDraws)
-//    {
-//        std::string name = sb::utility::file::basename(g.name);
-//        if(name == )
-//    }
 
     std::map<std::string, std::list<const GuiDraw*>> guiDraws;
     for(const GuiDraw& g : *mCurrentFrame.guiDraws)

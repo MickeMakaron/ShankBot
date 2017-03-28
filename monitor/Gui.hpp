@@ -316,6 +316,131 @@ namespace GraphicsLayer
                 TmpButton contextMenu;
             };
 
+            struct CreatureFlag
+            {
+                enum class Type : unsigned char
+                {
+                    DIRECTIONS,
+                    QUEST,
+                    TALK,
+                    TRADE,
+                    GUILD_WAR_BLUE,
+                    GUILD_WAR_GREEN,
+                    GUILD_WAR_RED,
+                    GUILD_WHITE,
+                    GUILD_YELLOW,
+                    LIGHTNING_RED,
+                    PARTY_GRAY,
+                    PARTY_INVITEE,
+                    PARTY_INVITER,
+                    PARTY_LEADER,
+                    PARTY_LEADER_SHARED_XP,
+                    PARTY_LEADER_SHARED_XP_FAIL,
+                    PARTY_MEMBER,
+                    PARTY_MEMBER_SHARED_XP,
+                    PARTY_MEMBER_SHARED_XP_FAIL,
+                    SKULL_BLACK,
+                    SKULL_GREEN,
+                    SKULL_ORANGE,
+                    SKULL_RED,
+                    SKULL_WHITE,
+                    SKULL_YELLOW,
+                    SUMMON_GREEN,
+                    SUMMON_RED,
+                    NUM_TYPES,
+                };
+
+                DrawRect rect;
+                Type type;
+            };
+
+            struct PlayerStateFlag
+            {
+                enum class Type : unsigned char
+                {
+                    POISONED,
+                    BURNING,
+                    ELECTRIFIED,
+                    DRUNK,
+                    MAGIC_SHIELD,
+                    SLOWED,
+                    HASTE,
+                    LOGOUT_BLOCK,
+                    DROWNING,
+                    FREEZING,
+                    DAZZLED,
+                    CURSED,
+                    STRENGTHENED,
+                    PROTECTION_ZONE_BLOCK,
+                    PROTECTION_ZONE,
+                    BLEEDING,
+                    HUNGRY,
+                    GUILD_WAR,
+                    SKULL_BLACK,
+                    SKULL_GREEN,
+                    SKULL_ORANGE,
+                    SKULL_RED,
+                    SKULL_WHITE,
+                    SKULL_YELLOW,
+                    NUM_TYPES,
+                };
+
+                DrawRect rect;
+                Type type;
+            };
+
+            struct MiniMapMarker
+            {
+                enum class Type : unsigned char
+                {
+                    CHECKMARK,
+                    QUESTIONMARK,
+                    EXCLAMATIONMARK,
+                    STAR,
+                    CROSSMARK,
+                    CROSS,
+                    MOUTH,
+                    BRUSH,
+                    SWORD,
+                    FLAG,
+                    LOCK,
+                    BAG,
+                    SKULL,
+                    DOLLAR,
+                    RED_UP,
+                    RED_DOWN,
+                    RED_RIGHT,
+                    RED_LEFT,
+                    GREEN_UP,
+                    GREEN_DOWN,
+                    NUM_TYPES,
+                };
+
+                DrawRect rect;
+                Type type;
+            };
+
+            struct EmptyEquipmentSlot
+            {
+                enum class Type : unsigned char
+                {
+                    BACK,
+                    FEET,
+                    FINGER,
+                    HEAD,
+                    HIP,
+                    LEFT_HAND,
+                    RIGHT_HAND,
+                    LEGS,
+                    NECK,
+                    TORSO,
+                    NUM_TYPES,
+                };
+
+                DrawRect rect;
+                Type type;
+            };
+
             struct Data
             {
                 SideTopButtons sideTopButtons;
@@ -324,6 +449,8 @@ namespace GraphicsLayer
                 ExpertButtons expertButtons;
                 MiscButtons miscButtons;
                 DrawRect miniMapRose;
+                DrawRect miniMapCrosshair;
+                DrawRect adventurersBlessing;
                 State state = State::UNDEFINED;
                 std::vector<std::shared_ptr<Button>> buttons;
                 unsigned short cap = 0;
@@ -422,6 +549,10 @@ namespace GraphicsLayer
             void parseNpcTradeWindowSprites(size_t& i);
             void parseGuiSpriteDraws();
 
+            IRect getRect(Vertex topLeft, Vertex botRight);
+            IRect getScreenRect(const Draw& d);
+            DrawRect getDrawRect(const Draw& d);
+            TmpButton createButton(const Draw& d, bool isDown, bool isEnabled = true);
 
         private:
             const TibiaContext& mContext;
@@ -467,7 +598,18 @@ namespace GraphicsLayer
 
                 std::vector<TmpButton> chatTabs;
 
+                std::vector<DrawRect> containerSlots;
 
+                std::vector<DrawRect> hpManaBorders;
+                DrawRect hpFill;
+                DrawRect manaFill;
+
+                std::vector<CreatureFlag> creatureFlags;
+                std::vector<PlayerStateFlag> playerStateFlags;
+                std::vector<MiniMapMarker> miniMapMarkers;
+                std::vector<EmptyEquipmentSlot> emptyEquipmentSlots;
+
+                std::vector<DrawRect> spellGroups;
             };
 
             Pass1 pass1;
