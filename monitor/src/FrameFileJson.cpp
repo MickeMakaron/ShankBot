@@ -88,7 +88,8 @@ QJsonValue toJson(Text::Type t)
         case T::NAME_BATTLE_WINDOW_HIGHLIGHTED: return "NAME_BATTLE_WINDOW_HIGHLIGHTED";
 
         default:
-            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented text type: ", (int)t));
+            return "UNIMPLEMENTED";
+//            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented text type: ", (int)t));
     }
 }
 
