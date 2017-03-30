@@ -45,7 +45,7 @@ namespace GraphicsLayer
 
 namespace GraphicsLayer
 {
-namespace PlayerState
+    namespace PlayerState
     {
         constexpr uint32_t
             NONE                    = 0,
@@ -89,6 +89,14 @@ namespace PlayerState
         Vertex size;
     };
 
+    struct GuiElement
+    {
+        GuiElement(){};
+        GuiElement(const GuiDraw& draw) : draw(&draw){}
+        const GuiDraw* draw = nullptr;
+    };
+
+
     struct IRect
     {
         unsigned short x;
@@ -103,26 +111,27 @@ namespace PlayerState
         IRect local;
     };
 
-    struct TmpButton
+    struct Button : public GuiElement
     {
-        IRect screenRect;
-        IRect localRect;
+        Button(){};
+        Button(const GuiDraw& d, bool isDown, bool isEnabled = true)
+        : GuiElement(d), isDown(isDown), isEnabled(isEnabled){}
         bool isDown;
         bool isEnabled;
     };
 
-    struct TextButton : public TmpButton
+    struct MinMaxButton : public Button
     {
-        TextButton(){};
-        TextButton(const TmpButton& b) : TmpButton(b){}
-        TextButton& operator=(const TmpButton& b){TmpButton::operator=(b);}
-        std::string text;
+        MinMaxButton(){};
+        MinMaxButton(const GuiDraw& d, bool isMin, bool isDown, bool isEnabled = true)
+        : Button(d, isDown, isEnabled), isMin(isMin){}
+        bool isMin;
     };
 
     class GuiParser
     {
         public:
-            struct CreatureFlag
+            struct CreatureFlag : public GuiElement
             {
                 enum class Type : unsigned char
                 {
@@ -156,11 +165,10 @@ namespace PlayerState
                     NUM_TYPES,
                 };
 
-                DrawRect rect;
                 Type type;
             };
 
-            struct MiniMapMarker
+            struct MiniMapMarker : public GuiElement
             {
                 enum class Type : unsigned char
                 {
@@ -186,12 +194,10 @@ namespace PlayerState
                     GREEN_DOWN,
                     NUM_TYPES,
                 };
-
-                DrawRect rect;
                 Type type;
             };
 
-            struct EmptyEquipmentSlot
+            struct EmptyEquipmentSlot : public GuiElement
             {
                 enum class Type : unsigned char
                 {
@@ -208,7 +214,6 @@ namespace PlayerState
                     NUM_TYPES,
                 };
 
-                DrawRect rect;
                 Type type;
             };
 
@@ -216,13 +221,13 @@ namespace PlayerState
             {
                 struct MiniMap
                 {
-                    TmpButton up;
-                    TmpButton down;
-                    TmpButton zoomIn;
-                    TmpButton zoomOut;
-                    DrawRect rose;
-                    DrawRect map;
-                    DrawRect crosshair;
+                    Button up;
+                    Button down;
+                    Button zoomIn;
+                    Button zoomOut;
+                    GuiElement rose;
+                    GuiElement map;
+                    GuiElement crosshair;
 
                     std::vector<MiniMapMarker> markers;
                 };
@@ -237,7 +242,7 @@ namespace PlayerState
 
                 struct Inventory
                 {
-                    TmpButton storeInbox;
+                    Button storeInbox;
                     std::vector<EmptyEquipmentSlot> emptySlots;
                 };
 
@@ -245,39 +250,38 @@ namespace PlayerState
                 {
                     struct ExpertControls
                     {
-                        TmpButton dove;
-                        TmpButton red;
-                        TmpButton white;
-                        TmpButton yellow;
+                        Button dove;
+                        Button red;
+                        Button white;
+                        Button yellow;
                     };
 
-                    TmpButton pvp;
-                    TmpButton expert;
-                    TmpButton follow;
-                    TmpButton stand;
-                    TmpButton defensive;
-                    TmpButton balanced;
-                    TmpButton offensive;
+                    Button pvp;
+                    Button expert;
+                    Button follow;
+                    Button stand;
+                    Button defensive;
+                    Button balanced;
+                    Button offensive;
 
                     ExpertControls expertControls;
                 };
 
                 struct ControlButtons
                 {
-                    TmpButton menu;
-                    TmpButton logout;
-                    TmpButton options;
-                    TmpButton unjustPoints;
-                    TmpButton questLog;
-                    TmpButton vipList;
-                    TmpButton battleList;
-                    TmpButton skills;
-                    TmpButton prey;
+                    Button menu;
+                    Button logout;
+                    Button options;
+                    Button unjustPoints;
+                    Button questLog;
+                    Button vipList;
+                    Button battleList;
+                    Button skills;
+                    Button prey;
                 };
 
                 struct PremiumFeatures
                 {
-                    TmpButton minMax;
                     bool isMinimized;
                 };
 
@@ -288,34 +292,32 @@ namespace PlayerState
                 ControlButtons controlButtons;
                 PremiumFeatures premiumFeatures;
 
-                TmpButton store;
-                TmpButton inventoryMinMax;
-                TmpButton controlButtonsMinMax;
+                Button store;
+                Button controlButtonsMinMax;
                 uint32_t conditions;
                 bool hasAdventurersBlessing;
-                bool isInventoryMinimized;
             };
 
 
             struct Skills
             {
-                TmpButton xpBoost;
+                Button xpBoost;
             };
 
             struct BattleList
             {
                 struct Filter
                 {
-                    TmpButton monster;
-                    TmpButton npc;
-                    TmpButton party;
-                    TmpButton player;
-                    TmpButton skull;
+                    Button monster;
+                    Button npc;
+                    Button party;
+                    Button player;
+                    Button skull;
                 };
 
-                TmpButton filterMinMax;
+                Button filterMinMax;
                 Filter filter;
-                TmpButton sort;
+                Button sort;
             };
 
             struct Vip
@@ -349,27 +351,31 @@ namespace PlayerState
                 // Todo...
             };
 
-            struct ScrollBar
+            struct SideBarWindow
             {
-                bool isHorizontal;
-                TmpButton min;
-                TmpButton max;
-                DrawRect handle;
+                DrawRect titleBar;
+                DrawRect clientArea;
+            };
+
+            struct Container
+            {
+                std::vector<GuiElement> slots;
+            };
+
+            struct NpcTrade
+            {
+                // TODO
             };
 
             struct SideBarWindows
             {
-                std::vector<TmpButton> minButtons;
-                std::vector<TmpButton> maxButtons;
-                std::vector<TmpButton> exitButtons;
-                std::vector<DrawRect> resizers;
-                std::vector<DrawRect> widgets;
-
+                std::vector<Container> containers;
                 Skills skills;
                 BattleList battleList;
                 Vip vip;
                 UnjustifiedPoints unjustifiedPoints;
                 Prey prey;
+                NpcTrade npcTrade;
             };
 
             struct GameWindow
@@ -379,15 +385,13 @@ namespace PlayerState
 
             struct ChatWindow
             {
-                std::vector<TmpButton> tabs;
-                TextButton toggleChat;
-                TmpButton ignore;
-                TmpButton newTab;
+                Button ignore;
+                Button newTab;
 
-                TmpButton messages;
-                TmpButton closeTab;
-                TmpButton tabLeft;
-                TmpButton tabRight;
+                Button messages;
+                Button closeTab;
+                Button tabLeft;
+                Button tabRight;
 
                 enum class Volume : unsigned char
                 {
@@ -398,22 +402,24 @@ namespace PlayerState
                 };
 
                 Volume currentVolume;
-                TmpButton volume;
+                Button volume;
             };
 
             struct SpellBar
             {
-                TmpButton attack;
-                TmpButton healing;
-                TmpButton support;
-                TmpButton special;
-
+                Button attack;
+                Button healing;
+                Button support;
+                Button special;
             };
 
             struct GameData
             {
-                std::vector<TextButton> textButtons;
-                std::vector<ScrollBar> scrollBars;
+                std::vector<Button> textButtons;
+                std::vector<Button> texturedButtons;
+                std::vector<Button> tabs;
+                std::vector<MinMaxButton> minMaxButtons;
+                std::vector<Button> exitButtons;
 
                 DefaultSideBar defaultSideBar;
                 SideBarWindows sideBarWindows;
@@ -421,14 +427,14 @@ namespace PlayerState
                 ChatWindow chatWindow;
                 SpellBar spellBar;
 
-                TmpButton addSideBar;
-                TmpButton removeSideBar;
+                Button addSideBar;
+                Button removeSideBar;
             };
 
             struct MiscData
             {
-                TmpButton transferCoins;
-                TmpButton clipBoard;
+                Button transferCoins;
+                Button clipBoard;
             };
 
             struct Data
@@ -445,61 +451,24 @@ namespace PlayerState
             const Data& getData();
 
         private:
-            void runPass1();
-            void assembleScrollBars();
-            DrawRect merge(const DrawRect& r1, const DrawRect& r2) const;
-            IRect merge(const IRect& r1, const IRect& r2) const;
-            std::map<std::string, std::function<void(const GuiDraw&)>> initGuiDrawHandlers();
+            std::map<std::string, std::function<void(size_t&)>> initGuiDrawHandlers();
             IRect getRect(Vertex topLeft, Vertex botRight);
             IRect getScreenRect(const Draw& d);
             DrawRect getDrawRect(const Draw& d);
-            TmpButton createButton(const Draw& d, bool isDown, bool isEnabled = true);
-
         private:
             Data mData;
+            std::vector<std::string> mBaseNames;
+            std::shared_ptr<std::vector<GuiDraw>> mDraws;
             float mHalfFrameWidth = 0.f;
             float mHalfFrameHeight = 0.f;
 
-            const std::map<std::string, std::function<void(const GuiDraw&)>> mGuiDrawHandlers;
+            const std::map<std::string, std::function<void(size_t&)>> mGuiDrawHandlers;
 
             struct Pass1
             {
-                std::vector<TmpButton> smallMinButtons;
-                std::vector<TmpButton> smallMaxButtons;
-                std::vector<TmpButton> smallExitButtons;
-                std::vector<TmpButton> scrollDownButtons;
-                std::vector<TmpButton> scrollUpButtons;
-                std::vector<TmpButton> scrollRightButtons;
-                std::vector<TmpButton> scrollLeftButtons;
-                std::vector<DrawRect> scrollVerticalHandles;
-                std::vector<DrawRect> scrollHorizontalHandles;
-                std::vector<TmpButton> containerUpButtons;
-                std::vector<TmpButton> containerLeftButtons;
-                std::vector<TmpButton> containerRightButtons;
-
-                std::vector<TextButton> grid9Buttons;
-                std::vector<TmpButton> texturedButtons;
-                std::vector<TmpButton> blueButtons;
-                std::vector<TmpButton> goldButtons;
-                std::vector<TmpButton> greenButtons;
-                std::vector<TmpButton> greyButtons;
-
-                std::vector<TmpButton> radioButtons;
-                std::vector<TmpButton> checkBoxes;
-
-                std::vector<TmpButton> dropDownButtons;
-
-                std::vector<TmpButton> outfitLeftButtons;
-                std::vector<TmpButton> outfitRightButtons;
-                std::vector<TmpButton> outfitStoreButtons;
-
-                std::vector<DrawRect> containerSlots;
-
-                std::vector<DrawRect> hpManaBorders;
-                DrawRect hpFill;
-                DrawRect manaFill;
-
-                std::vector<DrawRect> spellGroups;
+                std::vector<GuiElement> hpManaBorders;
+                GuiElement hpFill;
+                GuiElement manaFill;
             };
 
             Pass1 pass1;
