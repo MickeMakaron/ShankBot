@@ -49,6 +49,7 @@ namespace GraphicsLayer
         Vertex topLeft;
         Vertex botRight;
         std::shared_ptr<sb::utility::Matrix<float, 4, 4>> transform;
+        unsigned short drawCallId;
 
 //        void getScreenCoords
 //        (

@@ -233,6 +233,8 @@ namespace GraphicsLayer
             std::set<unsigned int> mGlyphBufferIds;
 
             Frame mCurrentFrame;
+
+            size_t mDrawCallId;
     };
 
 }

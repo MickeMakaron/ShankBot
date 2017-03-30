@@ -889,6 +889,7 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
             const TexturedVertex& botRight = vertices[indices[i + 2]];
 
             GlyphDraw g;
+            g.drawCallId = mDrawCallId;
             g.topLeft.x = topLeft.x;
             g.topLeft.y = topLeft.y;
             g.botRight.x = botRight.x;
@@ -935,6 +936,8 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
 //
 //            mCurrentFrame.textDraws->push_back(d);
 //        }
+        d.drawCallId = mDrawCallId;
+        mDrawCallId++;
         mCurrentFrame.textDraws->push_back(d);
     }
     else // if TRIANGLE_STRIP
@@ -1022,6 +1025,7 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
                 r.botRight.y = bot;
                 r.transform = transform;
                 r.color = color;
+                r.drawCallId = mDrawCallId;
 
 //                Vertex topLeftScreen;
 //                r.getScreenCoords(float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
@@ -1036,6 +1040,7 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
 //                #endif // NDEBUG
                 i += 2;
             }
+            mDrawCallId++;
 ////
 //            for(size_t i = 0; i + 5 < drawCall.numIndices;)
 //            {
@@ -1138,6 +1143,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
             case Tile::Type::SPRITE_OBJECT_PAIRINGS:
             {
                 SpriteDraw draw;
+                draw.drawCallId = mDrawCallId;
                 draw.topLeft.x = topLeft.x;
                 draw.topLeft.y = topLeft.y;
                 draw.pairings = SpriteObjectPairingsData::fromTile(tile);
@@ -1156,6 +1162,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
 //                THROW_RUNTIME_ERROR(stringify("Unexpected tile type: ", (int)tile.getType()));
         }
     }
+    mDrawCallId++;
 }
 
 void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
@@ -1224,6 +1231,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
             case Tile::Type::SPRITE_OBJECT_PAIRINGS:
             {
                 SpriteDraw draw;
+                draw.drawCallId = mDrawCallId;
                 draw.topLeft.x = topLeft.x;
                 draw.topLeft.y = topLeft.y;
                 draw.botRight.x = botRight.x;
@@ -1236,6 +1244,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
             case Tile::Type::GRAPHICS_RESOURCE_NAMES:
             {
                 GuiDraw d;
+                d.drawCallId = mDrawCallId;
                 d.topLeft.x = topLeft.x;
                 d.topLeft.y = topLeft.y;
                 d.botRight.x = botRight.x;
@@ -1260,6 +1269,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
 
 
     }
+    mDrawCallId++;
 }
 
 void FrameParser::parseTileDraw(const DrawCall& drawCall)
@@ -1356,6 +1366,7 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall)
     mCurrentFrame.miniMapScreenHeight = screenBotRight.y - mCurrentFrame.miniMapScreenY;
 
     MiniMapDraw d;
+    d.drawCallId;
     d.topLeft.x = topLeft.x;
     d.topLeft.y = topLeft.y;
     d.botRight.x = botRight.x;
@@ -1367,6 +1378,7 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall)
     d.pixels = pixelsIt->second;
 
     mCurrentFrame.miniMapDraws->push_back(d);
+    mDrawCallId++;
 
 //    const Texture& tex = mTextures[drawCall.sourceTextureId];
 //    std::cout   << "Minimap " << drawCall.sourceTextureId << ": " << std::endl
@@ -1442,6 +1454,7 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
         mCurrentFrame.guiSpriteDraws = std::make_shared<std::vector<SpriteDraw>>();
         mCurrentFrame.fileIo = std::make_shared<std::vector<FileIo>>();
         mCurrentFrame.miniMapDraws = std::make_shared<std::vector<MiniMapDraw>>();
+        mDrawCallId = 0;
 
         mCurrentFrame.width = frame.width;
         mCurrentFrame.height = frame.height;
