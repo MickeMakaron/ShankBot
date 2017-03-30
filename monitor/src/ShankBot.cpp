@@ -58,22 +58,6 @@ using namespace sb::tibiaassets;
 #include <unistd.h>
 ///////////////////////////////////
 
-///////////////////////////////////
-// Windows
-#if defined(_WIN32)
-#include <windows.h>
-#endif // defined
-///////////////////////////////////
-#include "QtGui/QImage"
-//#include "messaging/ObjectResponse.hpp"
-
-
-#include "monitor/GuiParser.hpp"
-#include "monitor/FrameFile.hpp"
-#include "monitor/FrameFileJson.hpp"
-#include "monitor/ParsedFrameFile.hpp"
-#include "monitor/ParsedFrame.hpp"
-
 void ShankBot::initializeData(std::string clientDir, std::string versionControlDir)
 {
     using namespace sb::utility;
@@ -100,30 +84,8 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
     auto objects = std::make_unique<std::vector<Object>>(appearances.getObjects());
     std::cout << "Done" << std::endl;
 
-//    sb::messaging::ObjectResponse r;
-//    r.set(*objects);
-//    std::vector<char> data;
-//    r.toBinary(data);
-//    r.fromBinary(data.data(), data.size());
-//    for(size_t i = 0; i < 10; i++)
-//    {
-//        const sb::Object& o = r.get()[i];
-//        const sb::tibiaassets::Object& to = (*objects)[i];
-//        int flerp = 0;
-//    }
-
     std::cout << "Reading graphics resource names...";
     auto graphicsResourceNames = std::make_unique<std::vector<std::string>>(GraphicsResourceReader::readNames(GRAPHICS_RESOURCES_PATH));
-//    {
-//        std::unique_ptr<GraphicsResourceReader> gResourceReader = std::make_unique<GraphicsResourceReader>(GRAPHICS_RESOURCES_PATH);
-//        const std::vector<GraphicsResourceReader::GraphicsResource>& gResources = gResourceReader->getGraphicsResources();
-////        assert(graphicsResourceNames->size() == gResources.size());
-//        for(size_t i = 0; i < std::min(graphicsResourceNames->size(), gResources.size()); i++)
-//        {
-//            std::cout << (*graphicsResourceNames)[i] << "\t\t" << gResources[i].name << std::endl;
-//            assert((*graphicsResourceNames)[i] == gResources[i].name);
-//        }
-//    }
     std::cout << "Done" << std::endl;
 
     if(VersionControl::hasNewVersion(clientDir, versionControlDir))
@@ -321,19 +283,6 @@ void ShankBot::initializeData(std::string clientDir, std::string versionControlD
         graphicsResourceNames,
         glyphs
     );
-
-//    {
-//        std::unique_ptr<GraphicsResourceReader> gResourceReader = std::make_unique<GraphicsResourceReader>(GRAPHICS_RESOURCES_PATH);
-//        const std::vector<GraphicsResourceReader::GraphicsResource>& gResources = gResourceReader->getGraphicsResources();
-//
-//        for(const GraphicsResourceReader::GraphicsResource& r : gResources)
-//        {
-//            QImage img(r.pixels, r.width, r.height, QImage::Format_RGBA8888);
-//            std::string path = std::string("graphicsResourcesOutTest/") + sb::utility::file::basename(r.name);
-//            img.save(QString::fromStdString(path));
-//        }
-//    }
-
 }
 
 ShankBot::ShankBot(std::string clientDir, std::string versionControlDir)
@@ -350,12 +299,5 @@ void ShankBot::run()
     while(mTibiaClient->isAlive())
     {
         mTibiaClient->update();
-        size_t ms = 200;//250;
-
-        #if defined(_WIN32)
-//        Sleep(ms);
-        #else
-        usleep(ms * 1000);
-        #endif // defined
     }
 }
