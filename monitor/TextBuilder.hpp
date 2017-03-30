@@ -64,7 +64,7 @@ namespace GraphicsLayer
             explicit TextBuilder(const TextDraw& text, unsigned short frameWidth, unsigned short frameHeight);
             Text::Type getTextType() const;
             void insert(unsigned char character, short topLeftX, short topLeftY, short botRightX, short botRightY);
-            const std::list<Text>& getText();
+            const std::vector<Text>& getText() const;
 
         private:
             void setTextType();
@@ -78,7 +78,7 @@ namespace GraphicsLayer
             const TextDraw& mTextDraw;
             const float M_HALF_FRAME_WIDTH;
             const float M_HALF_FRAME_HEIGHT;
-            std::list<Text> mText;
+            std::vector<Text> mText;
             std::list<Line> mLines;
             Text::Type mTextType;
             bool mIsDisputedContextMenuOrChatTab = false;

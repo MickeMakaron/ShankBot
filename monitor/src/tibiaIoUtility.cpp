@@ -139,7 +139,7 @@ std::string assembleGreenText(const Frame& frame)
         TextBuilder builder(draw, frame.width, frame.height);
         if(builder.getTextType() == Text::Type::GREEN_TEXT)
         {
-            std::list<Text> texts = builder.getText();
+            std::vector<Text> texts = builder.getText();
             for(const Text& text : texts)
                 greenText.append(text.string);
         }

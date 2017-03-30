@@ -274,7 +274,7 @@ void Gui::parseBattleWindowText(size_t& i, const std::shared_ptr<SideBottomWindo
     while(i < mCurrentFrame.textDraws->size())
     {
         TextBuilder builder((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height);
-        const std::list<Text>& text = builder.getText();
+        const std::vector<Text>& text = builder.getText();
         if(text.empty())
             return;
 
@@ -307,7 +307,7 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
 
     TextBuilder builder((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height);
 
-    std::list<Text> text = builder.getText();
+    std::vector<Text> text = builder.getText();
     assert(!text.empty());
 
     assert(builder.getTextType() == Text::Type::GUI);
@@ -338,7 +338,7 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
         TextBuilder b((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height);
         assert(b.getTextType() == Text::Type::GUI);
 
-        std::list<Text> xpGainRate = b.getText();
+        std::vector<Text> xpGainRate = b.getText();
         assert(xpGainRate.size() == 1);
         assert(xpGainRate.front().string == "  XP Gain Rate");
     }
@@ -349,7 +349,7 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
         TextBuilder b((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height);
         assert(b.getTextType() == Text::Type::GUI);
 
-        std::list<Text> xpGainRate = b.getText();
+        std::vector<Text> xpGainRate = b.getText();
         assert(xpGainRate.size() == 1);
         mData.xpGainRate = parsePercentageText(xpGainRate.front().string);
     }
@@ -391,7 +391,7 @@ void Gui::parseSkillWindowText(size_t& i, const std::shared_ptr<SideBottomWindow
         TextBuilder b((*mCurrentFrame.textDraws)[i], mCurrentFrame.width, mCurrentFrame.height);
         assert(b.getTextType() == Text::Type::GUI);
 
-        std::list<Text> speed = b.getText();
+        std::vector<Text> speed = b.getText();
         assert(speed.size() == 1);
         assert(isNumeric(speed.front().string));
         mData.speed = strToInt(speed.front().string);
@@ -547,7 +547,7 @@ void Gui::parseDialogFramesText(size_t& i)
         if(builder.getTextType() != Text::Type::GUI)
             return;
 
-        std::list<Text> text = builder.getText();
+        std::vector<Text> text = builder.getText();
         const std::string& str = text.front().string;
         if(str == "Options")
         {
@@ -775,7 +775,7 @@ void Gui::parseChat(size_t& i)
         i++;
     }
 
-    std::list<Text> chatOn = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
+    std::vector<Text> chatOn = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
     assert(chatOn.size() == 1);
     assert(chatOn.front().string == "Chat on");
     if(!setButtonText(chatOn.front()))
@@ -819,7 +819,7 @@ void Gui::parseSideWindowTopText(size_t& i)
     using namespace sb::utility;
     while(i < mCurrentFrame.textDraws->size() && parsedTypes.size() < NUM_TYPES)
     {
-        std::list<Text> text = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
+        std::vector<Text> text = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
         assert(!text.empty());
 
 
@@ -842,9 +842,9 @@ void Gui::parseSideWindowTopText(size_t& i)
                 THROW_RUNTIME_ERROR("Expected cap/soul. Got \"" + soulCap + "\".");
 
             assert(i < mCurrentFrame.textDraws->size());
-            std::list<Text> val1 = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
+            std::vector<Text> val1 = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
             assert(i < mCurrentFrame.textDraws->size());
-            std::list<Text> val2 = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
+            std::vector<Text> val2 = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
 
             assert(val1.size() == 1);
             assert(val2.size() == 1);
@@ -867,10 +867,10 @@ void Gui::parseSideWindowTopText(size_t& i)
             assert(text.size() >= 2);
 
             mData.hp = strToInt(text.front().string);
-            text.pop_front();
+            text.erase(text.begin());
             assert(isNumeric(text.front().string));
             mData.mana = strToInt(text.front().string);
-            text.pop_front();
+            text.erase(text.begin());
 
             parsedTypes.insert(HP_MANA);
         }
@@ -911,7 +911,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
 
         assert(builder.getTextType() == Text::Type::GUI);
 
-        std::list<Text> text = builder.getText();
+        std::vector<Text> text = builder.getText();
         assert(!text.empty());
         const std::string& str = text.front().string;
         if(str == "Skills")
@@ -968,20 +968,20 @@ void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWin
     if(i >= mCurrentFrame.textDraws->size() || w->isMinimized)
         return;
 
-     std::list<Text> text = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
+     std::vector<Text> text = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
      assert(text.size() == 2 || text.size() == 3);
 
      assert(text.front().string == "Buy");
      mData.npcTradeWindow->buyButton = setButtonText(text.front());
      assert(mData.npcTradeWindow->buyButton);
 
-     text.pop_front();
+     text.erase(text.begin());
 
      assert(text.front().string == "Sell");
      mData.npcTradeWindow->sellButton = setButtonText(text.front());
      assert(mData.npcTradeWindow->sellButton);
 
-     text.pop_front();
+     text.erase(text.begin());
 
      if(!text.empty())
      {
@@ -1112,7 +1112,7 @@ void Gui::parseContainerText(size_t& i, Container& c, const std::string& str, co
 
     i++;
 
-    std::list<Text> text = builder.getText();
+    std::vector<Text> text = builder.getText();
     assert(!text.empty());
     static const float START_X = Constants::CONTAINER_FIRST_SLOT_LOCAL_X;
     const float START_Y = float(Constants::CONTAINER_FIRST_SLOT_LOCAL_Y) - c.scroll;
