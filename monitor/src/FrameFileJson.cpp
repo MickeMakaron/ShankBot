@@ -158,7 +158,7 @@ QJsonValue toJson(const TextDraw& d, const Frame& f)
     {
         {"type", toJson(builder.getTextType())},
         {"text", toJson(builder.getText())},
-        {"glyphs", glyphs},
+//        {"glyphs", glyphs},
     });
 }
 
@@ -237,7 +237,8 @@ QJsonValue toJson(Constants::RectColor c)
         case C::TEXT_CURSOR_CHAT: return "TEXT_CURSOR_CHAT";
 
         default:
-            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented rect type: ", (int)c));
+            return "UNIMPLEMENTED";
+//            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented rect type: ", (int)c));
     };
 }
 
@@ -260,10 +261,33 @@ QJsonValue toJson(const std::shared_ptr<std::vector<T>>& vecPtr, const OtherArgs
     }
 
     QJsonArray a;
-    for(const T& element : *vecPtr)
+    for(size_t i = 0; i < vecPtr->size();)
     {
-        a.push_back(toJson(element, otherArgs...));
+        QJsonArray grp;
+        const T& e1 = (*vecPtr)[i];
+        for(; i < vecPtr->size(); i++)
+        {
+            const T& e2 = (*vecPtr)[i];
+            if(e1.drawCallId == e2.drawCallId)
+            {
+                grp.push_back(toJson(e2, otherArgs...));
+            }
+            else
+            {
+                break;
+            }
+        }
+        a.push_back(QJsonObject(
+        {
+            {"drawCallId", (int)e1.drawCallId},
+            {"draws", grp},
+        }));
+
     }
+//    for(const T& element : *vecPtr)
+//    {
+//        a.push_back(toJson(element, otherArgs...));
+//    }
 
     return a;
 }
