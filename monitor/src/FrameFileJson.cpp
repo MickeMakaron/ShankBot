@@ -93,7 +93,7 @@ QJsonValue toJson(Text::Type t)
     }
 }
 
-QJsonValue toJson(const std::list<Text>& t)
+QJsonValue toJson(const std::vector<Text>& t)
 {
     QJsonArray a;
     for(const Text& text : t)
@@ -157,6 +157,8 @@ QJsonValue toJson(const TextDraw& d, const Frame& f)
     return QJsonObject(
     {
         {"type", toJson(builder.getTextType())},
+        {"isOutlined", d.isOutlined},
+        {"color", QJsonArray({d.color.r, d.color.g, d.color.b, d.color.a})},
         {"text", toJson(builder.getText())},
 //        {"glyphs", glyphs},
     });
