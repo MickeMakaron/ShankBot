@@ -46,6 +46,7 @@ TextBuilder::TextBuilder(const TextDraw& text, unsigned short frameWidth, unsign
 , M_HALF_FRAME_WIDTH(float(frameWidth) / 2.f)
 , M_HALF_FRAME_HEIGHT(float(frameHeight) / 2.f)
 {
+    build();
     setTextType();
 }
 
@@ -106,8 +107,28 @@ void TextBuilder::setTextType()
                 return;
 
             case Color::CHAT_TAB_NEW_MESSAGE: // same as CONTEXT_MENU
-                mIsDisputedContextMenuOrChatTab = true;
-                build();
+                {
+                    if(mText.size() == 1)
+                    {
+                        if(mText.front().string == "Create Mark")
+                            mTextType = Text::Type::CONTEXT_MENU;
+                        else
+                            mTextType = Text::Type::CHAT_TAB;
+                    }
+                    else if(mText.size() > 1)
+                    {
+                        auto itFirst = mText.begin();
+                        auto itSecond = itFirst;
+                        itSecond++;
+
+                        if(itSecond->localY >= itFirst->localY + itFirst->height)
+                            mTextType = Text::Type::CONTEXT_MENU;
+                        else if(!itSecond->string.empty() && itSecond->string.front() == '(')
+                            mTextType = Text::Type::CONTEXT_MENU;
+                        else
+                            mTextType = Text::Type::CHAT_TAB;
+                    }
+                }
                 return;
 
             case Color::ITEM_STACK_COUNT:
@@ -178,7 +199,6 @@ void TextBuilder::setTextType()
 
             default:
             {
-                build();
                 if(!mText.empty())
                 {
                     const std::string str = mText.front().string;
@@ -313,30 +333,6 @@ void TextBuilder::insert(unsigned char character, short topLeftX, short topLeftY
         return;
     }
 
-    if(isUppercase(character) || isNumeric(character))
-    {
-        unsigned char latestCharacter = mLines.back().characters.back();
-        if(!isUppercase(latestCharacter) && !isNumeric(latestCharacter))
-        {
-            switch(latestCharacter)
-            {
-                case ' ':
-                case '(':
-                case '+':
-                case '-':
-                case ':':
-                case ',':
-                case '[':
-                case '.':
-                    break;
-
-                default:
-                    appendLine(character, topLeftX, topLeftY, botRightX, botRightY);
-                    return;
-
-            }
-        }
-    }
     appendCharacter(character, topLeftX, topLeftY, botRightX, botRightY);
 
     return;
@@ -346,41 +342,11 @@ void TextBuilder::insert(unsigned char character, short topLeftX, short topLeftY
 
 void TextBuilder::build()
 {
-    if(mIsBuilt)
-        return;
-
     for(const GlyphDraw& glyph : *mTextDraw.glyphDraws)
         insert(glyph.character, glyph.topLeft.x, glyph.topLeft.y, glyph.botRight.x, glyph.botRight.y);
 
-    if(mIsDisputedContextMenuOrChatTab)
-    {
-        if(mLines.size() == 1)
-        {
-            std::string str;
-            for(const unsigned char& c : mLines.front().characters)
-                str.push_back(c);
-
-            if(str == "Create Mark")
-                mTextType = Text::Type::CONTEXT_MENU;
-            else
-                mTextType = Text::Type::CHAT_TAB;
-        }
-        else if(mLines.size() > 1)
-        {
-            auto itFirst = mLines.begin();
-            auto itSecond = itFirst;
-            itSecond++;
-
-            if(itSecond->topLeftY >= itFirst->botRightY)
-                mTextType = Text::Type::CONTEXT_MENU;
-            else if(!itSecond->characters.empty() && itSecond->characters.front() == '(')
-                mTextType = Text::Type::CONTEXT_MENU;
-            else
-                mTextType = Text::Type::CHAT_TAB;
-        }
-    }
-
-    std::list<Text> lines;
+    std::vector<Text> lines;
+    lines.reserve(mLines.size());
     for(const Line& line : mLines)
     {
         Text t;
@@ -401,13 +367,11 @@ void TextBuilder::build()
         lines.push_back(t);
     }
 
-    mIsBuilt = true;
     mText = lines;
 }
 
-const std::list<Text>& TextBuilder::getText()
+const std::vector<Text>& TextBuilder::getText() const
 {
-    build();
     return mText;
 }
 
