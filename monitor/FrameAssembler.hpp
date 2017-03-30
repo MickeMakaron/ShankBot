@@ -29,8 +29,9 @@
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "monitor/Gui.hpp"
+#include "monitor/GuiParser.hpp"
 #include "monitor/Scene.hpp"
+#include "monitor/TextParser.hpp"
 namespace GraphicsLayer
 {
     class TibiaContext;
@@ -52,8 +53,15 @@ namespace GraphicsLayer
             void update(const Frame& frame);
 
         private:
-            Gui mGui;
+            void assembleCurrentFrame();
+
+        private:
+            const TibiaContext& mContext;
+            GuiParser mGui;
             Scene mScene;
+            TextParser mText;
+            Frame mCurrentFrame;
+            bool mIsFrameAssembled = true;
     };
 }
 

@@ -36,8 +36,15 @@ using namespace GraphicsLayer;
 // STD C++
 ///////////////////////////////////
 
+#include "monitor/FrameFile.hpp"
+#include "monitor/FrameFileJson.hpp"
+#include "monitor/ParsedFrameFile.hpp"
+#include "monitor/ParsedFrame.hpp"
+#include "utility/utility.hpp"
+
 FrameAssembler::FrameAssembler(const TibiaContext& context)
-: mGui(context)
+: mContext(context)
+, mGui()
 , mScene(context)
 {
 
@@ -46,6 +53,43 @@ FrameAssembler::FrameAssembler(const TibiaContext& context)
 
 void FrameAssembler::update(const Frame& frame)
 {
-    mGui.update(frame);
-    mScene.update(frame);
+    mCurrentFrame = frame;
+    mIsFrameAssembled = false;
+
+    assembleCurrentFrame();
+}
+
+void FrameAssembler::assembleCurrentFrame()
+{
+    if(mIsFrameAssembled)
+    {
+        return;
+    }
+
+    static size_t id = 54;
+    static std::string filePath = "frameDumps/d" + std::to_string(id);
+
+    Frame frame;
+    GraphicsLayer::FrameFile::read(frame, filePath);
+    if(!FrameFileJson::write(frame, filePath + "frame", mContext))
+    {
+        THROW_RUNTIME_ERROR("Failed to write frame JSON file.");
+    }
+
+    mGui.parse(frame);
+    mText.parse(frame);
+//    mScene.update(frame);
+
+//    ParsedFrame pFrame;
+//    pFrame.gui.reset(new Gui::Data(mGui.getData()));
+//    pFrame.scene.reset(new Scene::Data(mScene.getData()));
+//    pFrame.context = &mContext;
+//
+//    if(!ParsedFrameFile::write(pFrame, filePath + "p"))
+//    {
+//        THROW_RUNTIME_ERROR("Failed to write parsed frame file.");
+//    }
+    exit(0);
+
+    mIsFrameAssembled = true;
 }
