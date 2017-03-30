@@ -42,35 +42,19 @@ using namespace GraphicsLayer;
 #include <cassert>
 ///////////////////////////////////
 
-GuiParser::GuiParser(const TibiaContext& context)
-: mContext(context)
-, mGuiDrawHandlers(initGuiDrawHandlers())
+GuiParser::GuiParser()
+: mGuiDrawHandlers(initGuiDrawHandlers())
 {
 }
 
-void GuiParser::update(const Frame& frame)
+void GuiParser::parse(const Frame& frame)
 {
-    mCurrentFrame = frame;
     mData = Data();
     pass1 = Pass1();
-    mIsCurrentFrameParsed = false;
-}
 
-const GuiParser::Data& GuiParser::getData()
-{
-    parseCurrentFrame();
-    return mData;
-}
-
-void GuiParser::parseCurrentFrame()
-{
-    if(mIsCurrentFrameParsed)
-        return;
-
-    mHalfFrameWidth = mCurrentFrame.width / 2.f;
-    mHalfFrameHeight = mCurrentFrame.height / 2.f;
-
-    for(const GuiDraw& g : *mCurrentFrame.guiDraws)
+    mHalfFrameWidth = frame.width / 2.f;
+    mHalfFrameHeight = frame.height / 2.f;
+    for(const GuiDraw& g : *frame.guiDraws)
     {
         auto foundIt = mGuiDrawHandlers.find(sb::utility::file::basename(g.name));
         if(foundIt != mGuiDrawHandlers.end())
@@ -82,10 +66,12 @@ void GuiParser::parseCurrentFrame()
             std::cout << "Unhandled: " << sb::utility::file::basename(g.name) << std::endl;
         }
     }
-
     runPass1();
+}
 
-    mIsCurrentFrameParsed = true;
+const GuiParser::Data& GuiParser::getData()
+{
+    return mData;
 }
 
 IRect GuiParser::merge(const IRect& r1, const IRect& r2) const

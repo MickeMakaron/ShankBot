@@ -438,16 +438,15 @@ namespace PlayerState
             };
 
         public:
-            explicit GuiParser(const TibiaContext& context);
+            explicit GuiParser();
 
-            void update(const Frame& frame);
+            void parse(const Frame& frame);
 
             const Data& getData();
 
         private:
-            void parseCurrentFrame();
             void runPass1();
-            void assembleScrollBars)=:
+            void assembleScrollBars();
             DrawRect merge(const DrawRect& r1, const DrawRect& r2) const;
             IRect merge(const IRect& r1, const IRect& r2) const;
             std::map<std::string, std::function<void(const GuiDraw&)>> initGuiDrawHandlers();
@@ -457,10 +456,7 @@ namespace PlayerState
             TmpButton createButton(const Draw& d, bool isDown, bool isEnabled = true);
 
         private:
-            const TibiaContext& mContext;
             Data mData;
-            Frame mCurrentFrame;
-            bool mIsCurrentFrameParsed = false;
             float mHalfFrameWidth = 0.f;
             float mHalfFrameHeight = 0.f;
 
