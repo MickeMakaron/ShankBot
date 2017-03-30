@@ -51,6 +51,7 @@ namespace FrameFile
 
 void write(const Draw& draw, std::ostream& stream)
 {
+    writeStream(draw.drawCallId, stream);
     writeStream(draw.topLeft, stream);
     writeStream(draw.botRight, stream);
     bool hasTransform = draw.transform != nullptr;
@@ -229,6 +230,7 @@ void write(const std::shared_ptr<RawImage>& screenPixels, std::ostream& stream)
 
 void read(Draw& draw, std::istream& stream)
 {
+    readStreamSafe(draw.drawCallId, stream);
     readStreamSafe(draw.topLeft, stream);
     readStreamSafe(draw.botRight, stream);
 
