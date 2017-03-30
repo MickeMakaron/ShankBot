@@ -71,6 +71,8 @@ namespace utility
     SHANK_BOT_UTILITY_DECLSPEC bool isLetter(unsigned char c);
     SHANK_BOT_UTILITY_DECLSPEC unsigned char toLower(unsigned char c);
     SHANK_BOT_UTILITY_DECLSPEC std::string toLower(const std::string& str);
+    SHANK_BOT_UTILITY_DECLSPEC std::vector<std::string> split(const std::string& str, char delimiter);
+
 
 
 //    void testLoadImages(std::string directory, std::list<PngImage>& images);
@@ -99,6 +101,8 @@ namespace utility
     }
 
     #define THROW_RUNTIME_ERROR(message) sb::utility::throwException<std::runtime_error>(__LINE__, __FILE__, __PRETTY_FUNCTION__, message);
+
+    #define SB_EXPECT_EQ(a, b) if((a) != (b)) THROW_RUNTIME_ERROR("Expected \"" #a "\" to be equal to \"" #b "\"");
 
 
     template<typename T>

@@ -647,6 +647,30 @@ std::vector<std::vector<size_t>> generateCommutativeCombinations(size_t numNumbe
     return combos;
 }
 
+std::vector<std::string> split(const std::string& str, char delimiter)
+{
+    std::vector<int> splitPoints;
+    splitPoints.push_back(-1);
+    for(int i = 0; i < str.size(); i++)
+    {
+        if(str[i] == delimiter)
+        {
+            splitPoints.push_back(i);
+        }
+    }
+    splitPoints.push_back(str.size());
+
+    std::vector<std::string> parts;
+    parts.reserve(splitPoints.size() - 1);
+    for(size_t i = 0; i + 1 < splitPoints.size(); i++)
+    {
+        if(splitPoints[i] + 1 < splitPoints[i + 1])
+        {
+            parts.emplace_back(&str[splitPoints[i] + 1], &str[splitPoints[i + 1]]);
+        }
+    }
+    return parts;
+}
 
 }
 }
