@@ -144,7 +144,7 @@ void forEachFile(std::string directory, std::function<void(const std::string& fi
 				#else
 				errorCode = errno;
 				#endif // _WIN32
-                SB_THROW(sb::utility::stringify("Coult not stat file at '", path, "'. Error code: ", errorCode));
+                SB_THROW("Coult not stat file at '", path, "'. Error code: ", errorCode);
 
 			}
 

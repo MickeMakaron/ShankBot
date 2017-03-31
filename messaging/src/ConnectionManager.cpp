@@ -83,7 +83,7 @@ ConnectionManager::ConnectionId ConnectionManager::poll(Event& event, size_t tim
             case S::DROPPED: event = Event::DROP; break;
 
             default:
-                SB_THROW(stringify("Unexpected state transition in message connection. From ", (int)previousState, " to ", (int)currentState));
+                SB_THROW("Unexpected state transition in message connection. From ", (int)previousState, " to ", (int)currentState);
         }
         return i;
     }
@@ -103,7 +103,7 @@ ConnectionManager::ConnectionId ConnectionManager::poll(Event& event, size_t tim
             return -1;
 
         default:
-            SB_THROW(stringify("Unexpected result when waiting for message connection events: ", result, ". Error: ", error));
+            SB_THROW("Unexpected result when waiting for message connection events: ", result, ". Error: ", error);
     }
 }
 
@@ -130,7 +130,7 @@ bool ConnectionManager::removeConnection(ConnectionId connection)
 //void ConnectionManager::registerEventCallback(Event event, const std::function<void(Connection connection)>& callback)
 //{
 //    if(event >= Event::NUM_EVENTS)
-//        SB_THROW(stringify("Invalid event: ", (int)event));
+//        SB_THROW("Invalid event: ", (int)event);
 //    mEventCallbacks[(int)event] = callback;
 //}
 

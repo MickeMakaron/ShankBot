@@ -53,11 +53,9 @@ void Input::postMessage(UINT message, WPARAM wParam, LPARAM lParam) const
 {
     if(!PostMessage(M_WINDOW, message, wParam, lParam))
     {
-        std::stringstream sstream;
-        sstream     << "Failed to post message: " << std::endl
-                    << "\tHWND: " << M_WINDOW << std::endl
-                    << "\tMessage: " << message << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Failed to post message: ", "\n",
+                 "\tHWND: ", M_WINDOW, "\n",
+                 "\tMessage: ", message, "\n");
     }
 }
 
@@ -203,9 +201,7 @@ void Input::sendMouseClick(unsigned char key, unsigned short x, unsigned short y
             break;
 
         default:
-            std::stringstream sstream;
-            sstream << "Unimplemented key: " << key << "." << std::endl;
-            SB_THROW(sstream.str());
+            SB_THROW("Unimplemented key: ", key, ".", "\n");
     }
 
     unsigned int lParamMouse = ((0 | y) << 16) | x;

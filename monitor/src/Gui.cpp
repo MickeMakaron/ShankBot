@@ -1017,7 +1017,7 @@ void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWin
         else if(text.front().type == Text::Type::DISABLED_LIST_ENTRY)
             offer.isAffordable = false;
         else
-            SB_THROW(stringify("Unexpected text type: ", (int)text.front().type));
+            SB_THROW("Unexpected text type: ", (int)text.front().type);
 
         for(auto it = text.begin(); it != text.end();)
         {
@@ -1319,7 +1319,7 @@ void Gui::parseEquippedItems(size_t& i)
             case B::BELT: mData.equipment[EqType::HIP] = equippable; break;
 
             default:
-                SB_THROW(sb::utility::stringify("Unexpected body restriction: ", (int)mContext.getObjects()[equippable].itemInfo.bodyRestriction, '\n'));
+                SB_THROW("Unexpected body restriction: ", (int)mContext.getObjects()[equippable].itemInfo.bodyRestriction, '\n');
         }
     }
 }
@@ -2070,7 +2070,7 @@ void Gui::parseCurrentFrame()
     }
     else
     {
-        SB_THROW(sb::utility::stringify("Unexpected state: ", (int)mData.state, "\n"));
+        SB_THROW("Unexpected state: ", (int)mData.state, "\n");
     }
 
 

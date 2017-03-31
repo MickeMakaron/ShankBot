@@ -99,19 +99,14 @@ Object::FrameInfo AppearancesReader::readFrameInfo(Buffer& stream) const
                 break;
 
             default:
-                std::stringstream sstream;
-                sstream << "Expected FrameInfo op code, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-                SB_THROW(sstream.str());
-                break;
+                SB_THROW("Expected FrameInfo op code, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
         }
     }
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading FrameInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading FrameInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return info;
@@ -155,19 +150,15 @@ Object::AnimationInfo AppearancesReader::readAnimationInfo(Buffer& stream) const
                 break;
 
             default:
-                std::stringstream sstream;
-                sstream << "Expected AnimationInfo op code, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-                SB_THROW(sstream.str());
+                SB_THROW("Expected AnimationInfo op code, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
                 break;
         }
     }
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading AnimationInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading AnimationInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return info;
@@ -226,19 +217,14 @@ Object::SpriteInfo AppearancesReader::readSpriteInfo(Buffer& stream) const
                 break;
 
             default:
-                std::stringstream sstream;
-                sstream << "Expected SpriteInfo op code, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-                SB_THROW(sstream.str());
-                break;
+                SB_THROW("Expected SpriteInfo op code, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
         }
     }
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading SpriteInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading SpriteInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return info;
@@ -270,19 +256,14 @@ Object::SomeInfo AppearancesReader::readSomeInfo(Buffer& stream) const
                 break;
 
              default:
-                std::stringstream sstream;
-                sstream << "Expected SomeInfo op code, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-                SB_THROW(sstream.str());
-                break;
+                SB_THROW("Expected SomeInfo op code, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
         }
     }
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading SomeInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading SomeInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return info;
@@ -295,9 +276,7 @@ bool AppearancesReader::readBoolean(Buffer& stream) const
     readStream(byte, stream);
     if(byte != 0x00 && byte != 0x01)
     {
-        std::stringstream sstream;
-        sstream << "Expected 0x00 or 0x01 value when reading boolean, got '" << (int)byte << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected 0x00 or 0x01 value when reading boolean, got '", (int)byte, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     return byte == 0x01;
@@ -312,9 +291,7 @@ Object::BodyRestriction AppearancesReader::readBodyRestriction(Buffer& stream) c
     readStream(op, stream);
     if(op != 0x08)
     {
-        std::stringstream sstream;
-        sstream << "Expected 0x08 op code when reading BodyRestriction, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected 0x08 op code when reading BodyRestriction, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     Object::BodyRestriction b;
@@ -322,10 +299,8 @@ Object::BodyRestriction AppearancesReader::readBodyRestriction(Buffer& stream) c
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading BodyRestriction starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading BodyRestriction starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return b;
@@ -344,19 +319,15 @@ unsigned short AppearancesReader::readWalkSpeed(Buffer& stream) const
     readStream(op, stream);
     if(op != GroundInfoOpCode::WALK_SPEED)
     {
-        std::stringstream sstream;
-        sstream << "Expected WALK_SPEED op code when reading GroundInfo, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected WALK_SPEED op code when reading GroundInfo, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     unsigned short walkSpeed = readTibiaSizeIndicator(stream);
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading GroundInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading GroundInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return walkSpeed;
@@ -371,14 +342,12 @@ Object::MiniMapColor AppearancesReader::readMinimapColor(Buffer& stream) const
     readStream(op, stream);
     if(op != MinimapInfoOpCode::COLOR)
     {
-        std::stringstream sstream;
-        sstream << "Expected COLOR op code when reading MinimapInfo, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected COLOR op code when reading MinimapInfo, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     unsigned short color = readTibiaSizeIndicator(stream);
     if(color > 0xff)
-        SB_THROW(stringify("Minimap color value out of range: ", color));
+        SB_THROW("Minimap color value out of range: ", color);
 
     Object::MiniMapColor miniMapColor = (Object::MiniMapColor)color;
     typedef Object::MiniMapColor C;
@@ -404,15 +373,13 @@ Object::MiniMapColor AppearancesReader::readMinimapColor(Buffer& stream) const
                 break;
 
             default:
-                SB_THROW(stringify("Unexpected mini map color: ", (int)miniMapColor));
+                SB_THROW("Unexpected mini map color: ", (int)miniMapColor);
     }
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading MinimapInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading MinimapInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return miniMapColor;
@@ -427,27 +394,21 @@ void AppearancesReader::readOffset(unsigned char& x, unsigned char& y, Buffer& s
     readStream(op, stream);
     if(op != OffsetInfoOpCode::OFFSET_X)
     {
-        std::stringstream sstream;
-        sstream << "Expected OFFSET_X op code when reading OffsetInfo, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected OFFSET_X op code when reading OffsetInfo, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
     readStream(x, stream);
 
     readStream(op, stream);
     if(op != OffsetInfoOpCode::OFFSET_Y)
     {
-        std::stringstream sstream;
-        sstream << "Expected OFFSET_Y op code when reading OffsetInfo, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected OFFSET_Y op code when reading OffsetInfo, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
     readStream(y, stream);
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading OffsetInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading OffsetInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 }
 
@@ -461,27 +422,21 @@ void AppearancesReader::readLightInfo(unsigned char& distance, unsigned short& c
     readStream(op, stream);
     if(op != LightInfoOpCode::DISTANCE)
     {
-        std::stringstream sstream;
-        sstream << "Expected DISTANCE op code when reading LightInfo, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected DISTANCE op code when reading LightInfo, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
     readStream(distance, stream);
 
     readStream(op, stream);
     if(op != LightInfoOpCode::COLOR)
     {
-        std::stringstream sstream;
-        sstream << "Expected COLOR op code when reading LightInfo, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected COLOR op code when reading LightInfo, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
     color = readTibiaSizeIndicator(stream);
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading LightInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading LightInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 }
 
@@ -493,9 +448,7 @@ Object::VocationRestriction AppearancesReader::readVocationRestriction(Buffer& s
 
     if(b >= Object::VocationRestriction::ENUM_END)
     {
-        std::stringstream sstream;
-        sstream << "Expected VocationRestriction op code, got '" << (int)b << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected VocationRestriction op code, got '", (int)b, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     return b;
@@ -509,9 +462,7 @@ Object::ClassRestriction AppearancesReader::readClassRestriction(Buffer& stream)
 
     if(b <= Object::ClassRestriction::ENUM_BEGIN || b >= Object::ClassRestriction::ENUM_END)
     {
-        std::stringstream sstream;
-        sstream << "Expected ClassRestriction op code, got '" << (int)b << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected ClassRestriction op code, got '", (int)b, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     return b;
@@ -568,19 +519,14 @@ Object::MarketInfo AppearancesReader::readMarketInfo(Buffer& stream) const
                 break;
 
              default:
-                std::stringstream sstream;
-                sstream << "Expected MarketInfo op code, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-                SB_THROW(sstream.str());
-                break;
+                SB_THROW("Expected MarketInfo op code, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
         }
     }
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading MarketInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading MarketInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return info;
@@ -595,9 +541,7 @@ unsigned char AppearancesReader::readHeight(Buffer& stream) const
     readStream(op, stream);
     if(op != HeightInfoOpCode::HEIGHT)
     {
-        std::stringstream sstream;
-        sstream << "Expected HEIGHT op code when reading HeightInfo, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected HEIGHT op code when reading HeightInfo, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     unsigned char height;
@@ -605,10 +549,8 @@ unsigned char AppearancesReader::readHeight(Buffer& stream) const
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading HeightInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading HeightInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return height;
@@ -623,19 +565,15 @@ void AppearancesReader::readItemUnknown15(Buffer& stream) const
     readStream(op, stream);
     if(op != 0x08)
     {
-        std::stringstream sstream;
-        sstream << "Expected 0x08 op code when reading ItemUnknown15, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected 0x08 op code when reading ItemUnknown15, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     size_t unknown = readTibiaSizeIndicator(stream);
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading ItemUnknown15 starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading ItemUnknown15 starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 }
 
@@ -648,19 +586,15 @@ unsigned short AppearancesReader::readMaxCharacters(Buffer& stream) const
     readStream(op, stream);
     if(op != 0x08)
     {
-        std::stringstream sstream;
-        sstream << "Expected 0x08 op code when reading MaxCharacters, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected 0x08 op code when reading MaxCharacters, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     unsigned short maxCharacters = readTibiaSizeIndicator(stream);
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading MaxCharacters starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading MaxCharacters starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return maxCharacters;
@@ -675,9 +609,7 @@ unsigned char AppearancesReader::readDefaultAction(Buffer& stream) const
     readStream(op, stream);
     if(op != 0x08)
     {
-        std::stringstream sstream;
-        sstream << "Expected 0x08 op code when reading DefaultAction, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected 0x08 op code when reading DefaultAction, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     unsigned char defaultAction;
@@ -685,10 +617,8 @@ unsigned char AppearancesReader::readDefaultAction(Buffer& stream) const
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading DefaultAction starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading DefaultAction starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return defaultAction;
@@ -869,19 +799,14 @@ Object::ItemInfo AppearancesReader::readItemInfo(Buffer& stream) const
                 break;
 
              default:
-                std::stringstream sstream;
-                sstream << "Expected ItemInfo op code, got '" << (int)op << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-                SB_THROW(sstream.str());
-                break;
+                SB_THROW("Expected ItemInfo op code, got '", (int)op, "', at position ", (int)stream.tellg() - 1, ".", "\n");
         }
     }
 
     if((int)stream.tellg() - streamStart != size)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading ItemInfo starting at position " << streamStart << "." << std::endl
-                << "Expected " << size << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading ItemInfo starting at position ", streamStart, ".", "\n",
+                 "Expected ", size, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return info;
@@ -902,10 +827,7 @@ Object AppearancesReader::readObject(Buffer& stream) const
             break;
 
          default:
-            std::stringstream sstream;
-            sstream << "Expected object type op code, got '" << (int)o.type << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-            SB_THROW(sstream.str());
-            break;
+            SB_THROW("Expected object type op code, got '", (int)o.type, "', at position ", (int)stream.tellg() - 1, ".", "\n");
     }
 
     size_t objectSize = readTibiaSizeIndicator(stream);
@@ -917,9 +839,7 @@ Object AppearancesReader::readObject(Buffer& stream) const
 
     if(op != ObjectOpCode::ID)
     {
-        std::stringstream sstream;
-        sstream << "Expected Object ID op code, got " << (int)op << ", at position " << stream.tellg() << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Expected Object ID op code, got ", (int)op, ", at position ", stream.tellg(), ".", "\n");
     }
 
     o.id = readTibiaSizeIndicator(stream);
@@ -937,19 +857,14 @@ Object AppearancesReader::readObject(Buffer& stream) const
                 break;
 
             default:
-                std::stringstream sstream;
-                sstream << "Expected an Object op code, got '" << (int)o.type << "', at position " << (int)stream.tellg() - 1 << "." << std::endl;
-                SB_THROW(sstream.str());
-                break;
+                SB_THROW("Expected an Object op code, got '", (int)o.type, "', at position ", (int)stream.tellg() - 1, ".", "\n");
         }
     }
 
     if((int)stream.tellg() - streamStart != objectSize)
     {
-        std::stringstream sstream;
-        sstream << "Size error when reading Object starting at position " << streamStart << "." << std::endl
-                << "Expected " << objectSize << " bytes, but read " << (int)stream.tellg() - streamStart << "." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Size error when reading Object starting at position ", streamStart, ".", "\n",
+                 "Expected ", objectSize, " bytes, but read ", (int)stream.tellg() - streamStart, ".", "\n");
     }
 
     return o;

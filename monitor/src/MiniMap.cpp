@@ -293,7 +293,7 @@ void MiniMap::updatePosAbsolute()
             }
             else
             {
-//                SB_THROW(stringify("Unexpected level: ", (int)otherLevel));
+//                SB_THROW("Unexpected level: ", (int)otherLevel);
             }
         }
         else if(levels.size() == 2)
@@ -301,7 +301,7 @@ void MiniMap::updatePosAbsolute()
             unsigned char dLevel = levels.back() - levels.front();
             if(dLevel != 2)
             {
-//                SB_THROW(stringify("Unepected level delta: ", (int)dLevel));
+//                SB_THROW("Unepected level delta: ", (int)dLevel);
             }
             else
             {
@@ -311,7 +311,7 @@ void MiniMap::updatePosAbsolute()
         }
         else
         {
-//            SB_THROW(stringify("Unexpected levels count: ", levels.size()));
+//            SB_THROW("Unexpected levels count: ", levels.size());
 
         }
 

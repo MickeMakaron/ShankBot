@@ -46,7 +46,7 @@ unsigned char getBytesPerPixel(const PixelFormat& format)
         case PixelFormat::RGBA: return BYTES_PER_PIXEL_RGBA;
         case PixelFormat::BGRA: return BYTES_PER_PIXEL_BGRA;
         default:
-            SB_THROW(stringify("Unimplemented pixel format: ", (int)format));
+            SB_THROW("Unimplemented pixel format: ", (int)format);
     }
 }
 

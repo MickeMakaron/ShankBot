@@ -63,7 +63,7 @@ std::shared_ptr<std::vector<char>> Requester::request(RequestResult& result, con
             case E::TIME_OUT: result = RequestResult::CONNECTION_TIME_OUT; return nullptr;
 
             default:
-                SB_THROW(sb::utility::stringify("Unexpected event: ", (int)e));
+                SB_THROW("Unexpected event: ", (int)e);
         }
     }
 
@@ -77,7 +77,7 @@ std::shared_ptr<std::vector<char>> Requester::request(RequestResult& result, con
             case E::TIME_OUT: result = RequestResult::CONNECTION_TIME_OUT; return nullptr;
 
             default:
-                SB_THROW(sb::utility::stringify("Unexpected event: ", (int)e));
+                SB_THROW("Unexpected event: ", (int)e);
 
         }
     }

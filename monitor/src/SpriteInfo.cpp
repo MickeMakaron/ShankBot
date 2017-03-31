@@ -59,9 +59,7 @@ const SpriteInfo::Info& SpriteInfo::get(unsigned int spriteId) const
     auto result = mInfo.find(spriteId);
     if(result == mInfo.end())
     {
-        std::stringstream sstream;
-        sstream << "Sprite info for sprite id '" << spriteId << "' does not exist." << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Sprite info for sprite id '", spriteId, "' does not exist.", "\n");
     }
 
     return result->second;

@@ -102,7 +102,7 @@ QJsonValue toJson(const Gui::SideBottomWindow::Type& t)
         case T::VIP: return "vip";
 
         default:
-            SB_THROW(sb::utility::stringify("Unimplemented window type: ", (int)t));
+            SB_THROW("Unimplemented window type: ", (int)t);
     }
 }
 
@@ -235,7 +235,7 @@ QJsonValue toJson(const Gui::State& s)
         case S::GAME: return "game";
 
         default:
-            SB_THROW(sb::utility::stringify("Unimplemented GUI state: ", (int)s));
+            SB_THROW("Unimplemented GUI state: ", (int)s);
     }
 }
 
@@ -289,7 +289,7 @@ QJsonValue toJson(const Gui::NpcTradeWindow::Tab& t)
         case Tab::SELL: return "sell";
 
         default:
-            SB_THROW(sb::utility::stringify("Unimplemented trade tab: ", (int)t));
+            SB_THROW("Unimplemented trade tab: ", (int)t);
     }
 }
 
@@ -537,7 +537,7 @@ std::string toString(Gui::EqType t)
         case T::HIP: return "hip";
 
         default:
-            SB_THROW(sb::utility::stringify("Unimplemented equipment type: ", (int)t));
+            SB_THROW("Unimplemented equipment type: ", (int)t);
     }
 }
 

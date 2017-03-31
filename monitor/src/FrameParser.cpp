@@ -142,9 +142,7 @@ unsigned int FrameParser::VertexBuffer::getVerticesOffset() const
         case VertexType::TEXTURED_NO_ORDER:
             return 0;
         default:
-            std::stringstream sstream;
-            sstream << "Unimplemented vertex type: " << (int)vertexType << std::endl;
-            SB_THROW(sstream.str());
+            SB_THROW("Unimplemented vertex type: ", (int)vertexType);
     }
 }
 void FrameParser::copyGlyphs(const DrawCall& drawCall)
@@ -755,7 +753,7 @@ void FrameParser::parsePixelData(const PixelData& pixelData, const unsigned char
 //        f = pixelData.format == sb::utility::PixelFormat::RGBA ? QImage::Format_RGBA8888 : QImage::Format_ARGB32;
 //    }
 //    else
-//        SB_THROW(stringify("Unimplemented format: ", (int)pixelData.format));
+//        SB_THROW("Unimplemented format: ", (int)pixelData.format);
 //
 //    QImage img(pixels, pixelData.width, pixelData.height, f);
 //
@@ -835,9 +833,7 @@ void FrameParser::parseVertexAttribPointer(const VertexAttribPointer& attrib)
                 buffer.vertexType = Type::TEXT;
                 break;
             default:
-                std::stringstream sstream;
-                sstream << "Unimplemented stride value:  " << attrib.stride << ".";
-                SB_THROW(sstream.str());
+                SB_THROW("Unimplemented stride value:  ", attrib.stride, ".");
         }
     }
 }
@@ -1159,7 +1155,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
 
             default:
                 break;
-//                SB_THROW(stringify("Unexpected tile type: ", (int)tile.getType()));
+//                SB_THROW("Unexpected tile type: ", (int)tile.getType());
         }
     }
     mDrawCallId++;
@@ -1216,14 +1212,11 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
             Vertex screenCoords;
             worldToScreenCoords(topLeft.x, topLeft.y, *transform, HALF_FRAME_WIDTH, HALF_FRAME_HEIGHT, screenCoords.x, screenCoords.y);
 
-            std::stringstream sstream;
-            sstream << "Cannot find GUI tile draw in any tilebuffer." << std::endl
-                    << "\tTexture ID: " << drawCall.sourceTextureId << " -> " << drawCall.targetTextureId << std::endl
-                    << "\tTexCoords: " << texX << "x" << texY << std::endl
-                    << "\tTexSize: " << botRight.texX * tex.width - texX << "x" << botRight.texY * tex.height - texY << std::endl
-                    << "\tDrawCoords: " << screenCoords.x << "x" << screenCoords.y << std::endl;
-
-            SB_THROW(sstream.str());
+            SB_THROW("Cannot find GUI tile draw in any tilebuffer.", "\n",
+                     "\tTexture ID: ", drawCall.sourceTextureId, " -> ", drawCall.targetTextureId, "\n",
+                     "\tTexCoords: ", texX, "x", texY, "\n",
+                     "\tTexSize: ", botRight.texX * tex.width - texX, "x", botRight.texY * tex.height - texY, "\n",
+                     "\tDrawCoords: ", screenCoords.x, "x", screenCoords.y, "\n");
         }
 
         switch(tile.getType())
@@ -1264,7 +1257,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
                 break;
 
             default:
-                SB_THROW(stringify("Invalid tile type: ", (int)tile.getType()));
+                SB_THROW("Invalid tile type: ", (int)tile.getType());
         }
 
 
@@ -1560,7 +1553,7 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
                 }
 
                 default:
-                    SB_THROW(stringify("Unimplemented message type: ", (int)message.messageType));
+                    SB_THROW("Unimplemented message type: ", (int)message.messageType);
             }
         }
 //
@@ -1593,7 +1586,7 @@ void FrameParser::parseFileIo(const SharedMemoryProtocol::FileIo& io, const char
             break;
 
         default:
-            SB_THROW(stringify("Unimplemented FileIo type: ", (int)io.type));
+            SB_THROW("Unimplemented FileIo type: ", (int)io.type);
     }
 
     mCurrentFrame.fileIo->push_back(f);

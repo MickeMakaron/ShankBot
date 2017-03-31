@@ -67,9 +67,7 @@ void GraphicsMonitorReader::waitForFrame() const
 
         case WAIT_FAILED:
         {
-            std::stringstream sstream;
-            sstream << "Failed wait. Error code: " << GetLastError() << std::endl;
-            SB_THROW(sstream.str());
+            SB_THROW("Failed wait. Error code: ", GetLastError(), "\n");
         }
 
         default:
@@ -81,9 +79,7 @@ void GraphicsMonitorReader::postFrameRequest() const
 {
     if(ReleaseSemaphore(mShm->semWrite, 1, NULL) == 0)
     {
-        std::stringstream sstream;
-        sstream << "Could not release shared memory write semaphore. Error code: " << GetLastError() << std::endl;
-        SB_THROW(sstream.str());
+        SB_THROW("Could not release shared memory write semaphore. Error code: ", GetLastError(), "\n");
     }
 }
 

@@ -164,7 +164,7 @@ void Connection::clientConnect()
             break;
 
         default:
-            SB_THROW(stringify("Failed to connect pipe. Error: ", error));
+            SB_THROW("Failed to connect pipe. Error: ", error);
     }
 }
 
@@ -286,7 +286,7 @@ void Connection::update()
 
 
         default:
-            SB_THROW(stringify("Unimplemented message connection state: ", (int)mState));
+            SB_THROW("Unimplemented message connection state: ", (int)mState);
     }
 }
 

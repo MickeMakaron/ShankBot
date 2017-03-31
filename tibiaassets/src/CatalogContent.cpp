@@ -131,8 +131,6 @@ void CatalogContent::getSpriteTileSize(SpriteSize size, unsigned char& width, un
                 return;
 
             default:
-                std::stringstream sstream;
-                sstream << "Unimplemented sprite size: " << (int)size << std::endl;
-                SB_THROW(sstream.str());
+                SB_THROW("Unimplemented sprite size: ", (int)size, "\n");
         }
 }
