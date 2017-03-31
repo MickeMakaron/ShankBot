@@ -83,11 +83,37 @@ void GuiParser::parse(const Frame& frame)
         }
     }
 
-    std::cout << "Num containers: " << mData.game.sideBarWindows.containers.size() << std::endl;
-    for(const Container& c : mData.game.sideBarWindows.containers)
+    try
     {
-        std::cout << "\tsize: " << c.slots.size() << std::endl;
+        parsePass1();
     }
+    catch(const std::runtime_error& e)
+    {
+        std::cout << "Failed to parse pass 1: \"" << e.what() << "\"." << std::endl;
+    }
+}
+
+void GuiParser::parsePass1()
+{
+    if(pass1.hpManaBorders.empty())
+    {
+        return;
+    }
+
+    SB_EXPECT_EQ(2, pass1.hpManaBorders.size());
+    SB_EXPECT_EQ(false, pass1.manaFill.draw == nullptr);
+    SB_EXPECT_EQ(false, pass1.hpFill.draw == nullptr);
+
+    const GuiDraw* border = pass1.hpManaBorders[0].draw;
+    float borderWidth = border->botRight.x - border->topLeft.x;
+
+    const GuiDraw* mana = pass1.manaFill.draw;
+    const GuiDraw* hp = pass1.hpFill.draw;
+
+    DefaultSideBar::StatusBar& sb = mData.game.defaultSideBar.statusBar;
+    sb.manaPercent = (mana ? mana->botRight.x - mana->topLeft.x : 0.f) / borderWidth;
+    sb.hpPercent = (hp ? hp->botRight.x - hp->topLeft.x : 0.f) / borderWidth;
+
 }
 
 const GuiParser::Data& GuiParser::getData()
@@ -680,6 +706,84 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
                 return;
             }
         }
+    };
+
+    handlers["widget-borderimage"] = [this](size_t& i)
+    {
+        mData.game.sideBarWindows.windows.emplace_back();
+        SideBarWindow& w = mData.game.sideBarWindows.windows.back();
+        const GuiDraw* d = &(*mDraws)[i];
+        unsigned short drawCallId = d->drawCallId;
+
+        w.titleBar.local.x = d->topLeft.x + 0.5f;
+        w.titleBar.local.y = d->topLeft.y + 0.5f;
+
+        Vertex v;
+        d->getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, v.x, v.y, d->topLeft.x, d->topLeft.y);
+        w.titleBar.screen.x = v.x + 0.5f;
+        w.titleBar.screen.y = v.y + 0.5f;
+
+        i += 3;
+        SB_EXPECT_EQ(true, i < mDraws->size());
+        d = &(*mDraws)[i];
+        SB_EXPECT_EQ("widget-borderimage", mBaseNames[i]);
+        SB_EXPECT_EQ(drawCallId, d->drawCallId);
+
+        w.titleBar.local.width = (unsigned short)(d->botRight.x + 0.5f) - w.titleBar.local.x;
+        w.titleBar.local.height = (unsigned short)(d->botRight.y + 0.5f) - w.titleBar.local.y;
+        w.titleBar.screen.width = w.titleBar.local.width;
+        w.titleBar.screen.height = w.titleBar.local.height;
+        SB_EXPECT_EQ(176, w.titleBar.local.width);
+        SB_EXPECT_EQ(15, w.titleBar.local.height);
+
+
+
+        w.clientArea = w.titleBar;
+        w.clientArea.local.y += w.titleBar.local.height;
+        w.clientArea.screen.y += w.titleBar.local.height;
+        w.clientArea.local.width = 0;
+        w.clientArea.local.height = 0;
+        w.clientArea.screen.width = 0;
+        w.clientArea.screen.height = 0;
+
+
+        i++;
+        if(i >= mDraws->size())
+        {
+            return;
+        }
+
+        d = &(*mDraws)[i];
+        if(d->drawCallId != drawCallId)
+        {
+            i--;
+            return;
+        }
+
+        SB_EXPECT_EQ("widget-borderimage", mBaseNames[i]);
+        SB_EXPECT_EQ(w.clientArea.local.x, (unsigned short)(d->topLeft.x + 0.5f));
+        SB_EXPECT_EQ(w.clientArea.local.y, (unsigned short)(d->topLeft.y + 0.5f));
+
+        while(i < mDraws->size())
+        {
+            d = &(*mDraws)[i];
+            if(d->drawCallId != drawCallId)
+            {
+                i--;
+                break;
+            }
+            i++;
+        }
+
+        d = &(*mDraws)[i];
+        SB_EXPECT_EQ("widget-borderimage", mBaseNames[i]);
+        unsigned short right = (unsigned short)(d->botRight.x + 0.5f);
+        unsigned short bot = (unsigned short)(d->botRight.y + 0.5f);
+        SB_EXPECT_EQ(w.titleBar.local.x + w.titleBar.local.width, right);
+        w.clientArea.local.width = right - w.clientArea.local.x;
+        w.clientArea.local.height = bot - w.clientArea.local.y;
+        w.clientArea.screen.width = w.clientArea.local.width;
+        w.clientArea.screen.height = w.clientArea.local.height;
     };
 
 

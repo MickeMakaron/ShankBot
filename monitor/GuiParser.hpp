@@ -234,8 +234,6 @@ namespace GraphicsLayer
 
                 struct StatusBar
                 {
-                    unsigned short hp;
-                    unsigned short mana;
                     float hpPercent;
                     float manaPercent;
                 };
@@ -370,6 +368,7 @@ namespace GraphicsLayer
             struct SideBarWindows
             {
                 std::vector<Container> containers;
+                std::vector<SideBarWindow> windows;
                 Skills skills;
                 BattleList battleList;
                 Vip vip;
@@ -451,6 +450,7 @@ namespace GraphicsLayer
             const Data& getData();
 
         private:
+            void parsePass1();
             std::map<std::string, std::function<void(size_t&)>> initGuiDrawHandlers();
             IRect getRect(Vertex topLeft, Vertex botRight);
             IRect getScreenRect(const Draw& d);
