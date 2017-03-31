@@ -88,6 +88,42 @@ namespace utility
 
     SHANK_BOT_UTILITY_DECLSPEC std::string randStr(size_t length);
 
+    template<typename T>
+    void stringifyHelper(std::ostream& stream, const T& t)
+    {
+        stream << t;
+    }
+
+    template<typename TCurrent, typename... TRemaining>
+    void stringifyHelper(std::ostream& stream, const TCurrent& currArg, const TRemaining&... remainingArgs)
+    {
+        stringifyHelper(stream, currArg);
+        stringifyHelper(stream, remainingArgs...);
+    }
+
+    template<typename... T>
+    typename std::enable_if<sizeof...(T) != 0, std::string>::type stringify(const T&... args)
+    {
+        std::stringstream sstream;
+        stringifyHelper(sstream, args...);
+        return sstream.str();
+    }
+
+    template<typename T>
+    auto tryStringify(std::stringstream& sstream, const T& t) -> decltype(sstream << t, void())
+    {
+        sstream << t;
+    }
+
+    SHANK_BOT_UTILITY_DECLSPEC auto tryStringify(std::stringstream& sstream, ...) -> decltype(void());
+
+    template<typename T>
+    std::string tryStringify(const T& t)
+    {
+        std::stringstream sstream;
+        tryStringify(sstream, t);
+        return sstream.str();
+    }
 
     template<typename ExceptionType>
     void throwException(size_t line, std::string file, std::string function, std::string message)
@@ -100,9 +136,28 @@ namespace utility
         throw ExceptionType(sstream.str());
     }
 
-    #define THROW_RUNTIME_ERROR(message) sb::utility::throwException<std::runtime_error>(__LINE__, __FILE__, __PRETTY_FUNCTION__, message);
+    template<typename A, typename B>
+    void throwExpect(std::string aStr,
+                     std::string binOpStr,
+                     std::string bStr,
+                     const A& a,
+                     const B& b,
+                     size_t line,
+                     std::string file,
+                     std::string function)
+    {
+        std::stringstream sstream;
+        sstream << std::endl
+                << "Expected \"" + aStr + " " + binOpStr + " " + bStr + "\" to evaluate to true." << std::endl
+                << "Got:     \"" + tryStringify(a) + " " + binOpStr + " " + tryStringify(b) + "\"." << std::endl;
 
-    #define SB_EXPECT_EQ(a, b) if((a) != (b)) THROW_RUNTIME_ERROR("Expected \"" #a "\" to be equal to \"" #b "\"");
+        sb::utility::throwException<std::runtime_error>(line, file, function, sstream.str());
+    }
+
+    #define SB_THROW(...) sb::utility::throwException<std::runtime_error>(__LINE__, __FILE__, __PRETTY_FUNCTION__, sb::utility::stringify(__VA_ARGS__));
+
+    #define SB_EXPECT_EQ(a, b) if((a) != (b)) SB_THROW("Expected \"" #a "\" to be equal to \"" #b "\"");
+    #define SB_EXPECT(a, binOp, b) if(!((a) binOp (b))) sb::utility::throwExpect(#a, #binOp, #b, a, b, __LINE__, __FILE__, __PRETTY_FUNCTION__);
 
 
     template<typename T>
@@ -150,7 +205,7 @@ namespace utility
     {
         if(!stream.good())
         {
-            THROW_RUNTIME_ERROR("Failed to read file stream.");
+            SB_THROW("Failed to read file stream.");
         }
         stream.read((char*)&t, sizeof(T) * n);
     }
@@ -207,27 +262,6 @@ namespace utility
         {
             out.push_back(byte[j++]);
         } while(byte[j] != 0 && j < sizeof(T));
-    }
-
-    template<typename T>
-    void stringifyHelper(std::ostream& stream, const T& t)
-    {
-        stream << t;
-    }
-
-    template<typename TCurrent, typename... TRemaining>
-    void stringifyHelper(std::ostream& stream, const TCurrent& currArg, const TRemaining&... remainingArgs)
-    {
-        stringifyHelper(stream, currArg);
-        stringifyHelper(stream, remainingArgs...);
-    }
-
-    template<typename... T>
-    typename std::enable_if<sizeof...(T) != 0, std::string>::type stringify(const T&... args)
-    {
-        std::stringstream sstream;
-        stringifyHelper(sstream, args...);
-        return sstream.str();
     }
 
 

@@ -132,7 +132,7 @@ unsigned char* grayscaleToRgb(const unsigned char* grayscale, size_t width, size
 //    DIR* dir;
 //    dir = opendir(directory.c_str());
 //    if(dir == nullptr)
-//        THROW_RUNTIME_ERROR("Cannot load images. Directory not found: '" + directory + "'.");
+//        SB_THROW("Cannot load images. Directory not found: '" + directory + "'.");
 //
 //    dirent* ent;
 //    while((ent = readdir(dir)) != nullptr)
@@ -386,7 +386,7 @@ size_t movingWindowMinDiff
 )
 {
     if(lhsWidth > rhsWidth || lhsHeight > rhsHeight)
-        THROW_RUNTIME_ERROR("LHS size cannot be higher than RHS size.");
+        SB_THROW("LHS size cannot be higher than RHS size.");
 
     const size_t NUM_ITERATIONS_X = rhsWidth - lhsWidth + 1;
     const size_t NUM_ITERATIONS_Y = rhsHeight - lhsHeight + 1;
@@ -455,6 +455,13 @@ size_t computeCenter(const unsigned char* b, size_t width, size_t height, size_t
 
 ///////////////////////////////////
 
+auto tryStringify(std::stringstream& sstream, ...) -> decltype(void())
+{
+    sstream << "n/a";
+}
+
+///////////////////////////////////
+
 size_t centerDiff
 (
     const unsigned char* lhs,
@@ -467,7 +474,7 @@ size_t centerDiff
 )
 {
     if(lhsWidth > rhsWidth || lhsHeight > rhsHeight)
-        THROW_RUNTIME_ERROR("LHS size cannot be higher than RHS size.");
+        SB_THROW("LHS size cannot be higher than RHS size.");
 
     const size_t LHS_ROW_SIZE = lhsWidth;
     const size_t RHS_ROW_SIZE = rhsWidth;
