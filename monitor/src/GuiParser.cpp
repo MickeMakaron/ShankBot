@@ -665,6 +665,35 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         {"inventory-torso", ET::TORSO},
     }, inventory.emptySlots, handlers);
 
+    auto createPreyBonusHandlers = [this]
+    (
+        const std::vector<std::pair<std::string, Prey::Bonus::Type>>& types,
+        std::vector<Prey::Bonus>& bonuses,
+        std::map<std::string, std::function<void(size_t&)>>& handlers
+    )
+    {
+        for(auto& pair : types)
+        {
+            Prey::Bonus::Type type = pair.second;
+            handlers[pair.first] = [&bonuses, this, type](size_t& i)
+            {
+                Prey::Bonus f;
+                f.draw = &(*mDraws)[i];
+                f.type = type;
+                bonuses.push_back(f);
+            };
+        }
+    };
+    using BT = Prey::Bonus::Type;
+    createPreyBonusHandlers
+    ({
+        {"prey-bonus-damage-boost-small", BT::DAMAGE_BOOST},
+        {"prey-bonus-damage-reduction-small", BT::DAMAGE_REDUCTION},
+        {"prey-bonus-improved-loot-small", BT::IMPROVED_LOOT},
+        {"prey-bonus-improved-xp-small", BT::IMPROVED_XP},
+        {"prey-bonus-none-small", BT::NONE},
+    }, prey.bonuses, handlers);
+
 
     handlers["containerslot"] = [this](size_t& i)
     {

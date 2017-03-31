@@ -346,7 +346,21 @@ namespace GraphicsLayer
 
             struct Prey
             {
-                // Todo...
+                struct Bonus : public GuiElement
+                {
+                    enum class Type : unsigned char
+                    {
+                        DAMAGE_BOOST,
+                        DAMAGE_REDUCTION,
+                        IMPROVED_LOOT,
+                        IMPROVED_XP,
+                        NONE,
+                    };
+
+                    Type type;
+                };
+
+                std::vector<Bonus> bonuses;
             };
 
             struct SideBarWindow
