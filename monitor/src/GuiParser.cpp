@@ -398,7 +398,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             {
                 return short(d.botRight.x - d.topLeft.x + 0.5f) == 1 && short(d.botRight.y - d.topLeft.y + 0.5f) == 1;
             };
-            SB_EXPECT(isCorner((*mDraws)[i]), ==, true);
+            SB_EXPECT_TRUE(isCorner((*mDraws)[i]));
 
 
             for(size_t numCorners = 0;;)
