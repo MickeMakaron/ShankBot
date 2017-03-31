@@ -779,7 +779,7 @@ void Gui::parseChat(size_t& i)
     assert(chatOn.size() == 1);
     assert(chatOn.front().string == "Chat on");
     if(!setButtonText(chatOn.front()))
-        THROW_RUNTIME_ERROR("Failed to set \"Chat on\" button.");
+        SB_THROW("Failed to set \"Chat on\" button.");
 
 //    std::cout << "Chat tabs: " << std::endl;
     while(i < mCurrentFrame.textDraws->size())
@@ -839,7 +839,7 @@ void Gui::parseSideWindowTopText(size_t& i)
             else if(soulCap == "CaP:soul:")
                 mIsEquipmentMinimized = true;
             else
-                THROW_RUNTIME_ERROR("Expected cap/soul. Got \"" + soulCap + "\".");
+                SB_THROW("Expected cap/soul. Got \"" + soulCap + "\".");
 
             assert(i < mCurrentFrame.textDraws->size());
             std::vector<Text> val1 = TextBuilder((*mCurrentFrame.textDraws)[i++], mCurrentFrame.width, mCurrentFrame.height).getText();
@@ -880,20 +880,20 @@ void Gui::parseSideWindowTopText(size_t& i)
             if(t.string == "Centre")
             {
                 if(!setButtonText(t))
-                    THROW_RUNTIME_ERROR("Failed to set \"Centre\" button.");
+                    SB_THROW("Failed to set \"Centre\" button.");
                 parsedTypes.insert(CENTRE);
 
             }
             else if(t.string == "Stop")
             {
                 if(!setButtonText(t))
-                    THROW_RUNTIME_ERROR("Failed to set \"Stop\" button.");
+                    SB_THROW("Failed to set \"Stop\" button.");
                 parsedTypes.insert(STOP);
             }
             else if(t.string == "Premium Features")
                 parsedTypes.insert(PREMIUM_FEATURES);
             else
-                THROW_RUNTIME_ERROR("Unexpected text. Got \"" + t.string + "\".");
+                SB_THROW("Unexpected text. Got \"" + t.string + "\".");
         }
     }
 
@@ -942,7 +942,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
         }
         else if(str == "Browse Field")
         {
-            THROW_RUNTIME_ERROR("Don't forget to implement Browse Field! :-)");
+            SB_THROW("Don't forget to implement Browse Field! :-)");
         }
         else if(w->isMinimized)
         {
@@ -957,7 +957,7 @@ void Gui::parseSideWindowBottomText(size_t& i)
             containerIt++;
         }
         else
-            THROW_RUNTIME_ERROR("Unexpected text: \"" + str + "\".");
+            SB_THROW("Unexpected text: \"" + str + "\".");
     }
 }
 
@@ -1017,7 +1017,7 @@ void Gui::parseNpcTradeWindowText(size_t& i, const std::shared_ptr<SideBottomWin
         else if(text.front().type == Text::Type::DISABLED_LIST_ENTRY)
             offer.isAffordable = false;
         else
-            THROW_RUNTIME_ERROR(stringify("Unexpected text type: ", (int)text.front().type));
+            SB_THROW(stringify("Unexpected text type: ", (int)text.front().type));
 
         for(auto it = text.begin(); it != text.end();)
         {
@@ -1319,7 +1319,7 @@ void Gui::parseEquippedItems(size_t& i)
             case B::BELT: mData.equipment[EqType::HIP] = equippable; break;
 
             default:
-                THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected body restriction: ", (int)mContext.getObjects()[equippable].itemInfo.bodyRestriction, '\n'));
+                SB_THROW(sb::utility::stringify("Unexpected body restriction: ", (int)mContext.getObjects()[equippable].itemInfo.bodyRestriction, '\n'));
         }
     }
 }
@@ -2070,7 +2070,7 @@ void Gui::parseCurrentFrame()
     }
     else
     {
-        THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected state: ", (int)mData.state, "\n"));
+        SB_THROW(sb::utility::stringify("Unexpected state: ", (int)mData.state, "\n"));
     }
 
 

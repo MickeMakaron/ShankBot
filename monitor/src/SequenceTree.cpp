@@ -43,7 +43,7 @@ SequenceTree::SequenceTree(const std::vector<std::vector<size_t>>& sequences, co
 : mRoot(new Node(0))
 {
     if(sequences.size() != ids.size())
-        THROW_RUNTIME_ERROR("Element count does not match ID count.");
+        SB_THROW("Element count does not match ID count.");
 
     for(size_t i = 0; i < sequences.size(); i++)
     {

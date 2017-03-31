@@ -81,7 +81,7 @@ void makeDirIfNotExists(std::string dirPath)
         if(mkdir(dirPath.c_str(), 0700) != 0)
         {
         #endif // defined
-            THROW_RUNTIME_ERROR("Could not create directory at '" + dirPath + "'.");
+            SB_THROW("Could not create directory at '" + dirPath + "'.");
         }
     }
 }
@@ -106,7 +106,7 @@ void forEachFile(std::string directory, std::function<void(const std::string& fi
         if(GetLastError() == ERROR_FILE_NOT_FOUND)
             return;
 
-        THROW_RUNTIME_ERROR("Cannot open directory at '" + directory + "'.");
+        SB_THROW("Cannot open directory at '" + directory + "'.");
     }
 
     #else
@@ -114,7 +114,7 @@ void forEachFile(std::string directory, std::function<void(const std::string& fi
     dirent* ent;
     dir = opendir(directory.c_str());
     if(dir == nullptr)
-        THROW_RUNTIME_ERROR("Cannot open directory at '" + directory + "'.");
+        SB_THROW("Cannot open directory at '" + directory + "'.");
 
     #endif // _WIN32
 
@@ -144,7 +144,7 @@ void forEachFile(std::string directory, std::function<void(const std::string& fi
 				#else
 				errorCode = errno;
 				#endif // _WIN32
-                THROW_RUNTIME_ERROR(sb::utility::stringify("Coult not stat file at '", path, "'. Error code: ", errorCode));
+                SB_THROW(sb::utility::stringify("Coult not stat file at '", path, "'. Error code: ", errorCode));
 
 			}
 
@@ -233,7 +233,7 @@ void forEachFile(std::string directory, std::function<void(const std::string& fi
             {
                 std::stringstream sstream;
                 sstream << "Could not stat file at '" << directory + "/" << ent->d_name << "'. Error code: " << errno << std::endl;
-                THROW_RUNTIME_ERROR(sstream.str());
+                SB_THROW(sstream.str());
             }
             if (S_ISDIR(s.st_mode))
 //            if(ent->d_type == DT_DIR)
@@ -295,7 +295,7 @@ bool isDir(std::string path)
 {
     struct stat st = {0};
     if(stat(path.c_str(), &st) == -1)
-        THROW_RUNTIME_ERROR("Could not open file at '" + path + "'.");
+        SB_THROW("Could not open file at '" + path + "'.");
 
     return S_ISDIR(st.st_mode);
 }
@@ -304,7 +304,7 @@ bool isFile(std::string path)
 {
     struct stat st = {0};
     if(stat(path.c_str(), &st) == -1)
-        THROW_RUNTIME_ERROR("Could not open file at '" + path + "'.");
+        SB_THROW("Could not open file at '" + path + "'.");
 
     return S_ISREG(st.st_mode);
 }
@@ -407,11 +407,11 @@ uint64_t getFileModifiedTime(const std::string& file)
                        NULL);
 
     if(hFile == INVALID_HANDLE_VALUE)
-        THROW_RUNTIME_ERROR("Failed to open file.");
+        SB_THROW("Failed to open file.");
 
     uint64_t modified;
     if(!GetFileTime(hFile, NULL, NULL, (FILETIME*)&modified))
-        THROW_RUNTIME_ERROR("Failed to get file time.");
+        SB_THROW("Failed to get file time.");
 
     CloseHandle(hFile);
 

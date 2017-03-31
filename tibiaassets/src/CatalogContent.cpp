@@ -53,7 +53,7 @@ void CatalogContent::read(std::string filePath)
 {
     using namespace sb::utility::file;
     if(!fileExists(filePath))
-        THROW_RUNTIME_ERROR("Cannot open catalog content at '" + filePath + "'. File does not exist.");
+        SB_THROW("Cannot open catalog content at '" + filePath + "'. File does not exist.");
 
 
     QFile file(QString::fromStdString(filePath));
@@ -63,7 +63,7 @@ void CatalogContent::read(std::string filePath)
     QJsonDocument catalogContent = QJsonDocument::fromJson(content.toUtf8());
 
     if(catalogContent.isNull())
-        THROW_RUNTIME_ERROR("Failed to read catalog content at '" + filePath + "'.");
+        SB_THROW("Failed to read catalog content at '" + filePath + "'.");
 
     QJsonArray array = catalogContent.array();
     std::string dir = getPath(filePath);
@@ -90,7 +90,7 @@ void CatalogContent::read(std::string filePath)
         }
         else
         {
-            THROW_RUNTIME_ERROR("Error reading catalog content. Unimplemented type.");
+            SB_THROW("Error reading catalog content. Unimplemented type.");
         }
     }
 }
@@ -133,6 +133,6 @@ void CatalogContent::getSpriteTileSize(SpriteSize size, unsigned char& width, un
             default:
                 std::stringstream sstream;
                 sstream << "Unimplemented sprite size: " << (int)size << std::endl;
-                THROW_RUNTIME_ERROR(sstream.str());
+                SB_THROW(sstream.str());
         }
 }

@@ -73,7 +73,7 @@ void FrameAssembler::assembleCurrentFrame()
     GraphicsLayer::FrameFile::read(frame, filePath);
     if(!FrameFileJson::write(frame, filePath + "frame", mContext))
     {
-        THROW_RUNTIME_ERROR("Failed to write frame JSON file.");
+        SB_THROW("Failed to write frame JSON file.");
     }
 
     mGui.parse(frame);
@@ -87,7 +87,7 @@ void FrameAssembler::assembleCurrentFrame()
 //
 //    if(!ParsedFrameFile::write(pFrame, filePath + "p"))
 //    {
-//        THROW_RUNTIME_ERROR("Failed to write parsed frame file.");
+//        SB_THROW("Failed to write parsed frame file.");
 //    }
     exit(0);
 

@@ -176,7 +176,7 @@ std::string getGreenText(GraphicsMonitorReader& reader, unsigned short screenX, 
                 return greenText;
         }
     }
-    THROW_RUNTIME_ERROR("Green text request timed out. No green text appeared.");
+    SB_THROW("Green text request timed out. No green text appeared.");
 
 }
 

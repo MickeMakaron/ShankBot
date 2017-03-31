@@ -57,7 +57,7 @@ void Input::postMessage(UINT message, WPARAM wParam, LPARAM lParam) const
         sstream     << "Failed to post message: " << std::endl
                     << "\tHWND: " << M_WINDOW << std::endl
                     << "\tMessage: " << message << std::endl;
-        THROW_RUNTIME_ERROR(sstream.str());
+        SB_THROW(sstream.str());
     }
 }
 
@@ -205,7 +205,7 @@ void Input::sendMouseClick(unsigned char key, unsigned short x, unsigned short y
         default:
             std::stringstream sstream;
             sstream << "Unimplemented key: " << key << "." << std::endl;
-            THROW_RUNTIME_ERROR(sstream.str());
+            SB_THROW(sstream.str());
     }
 
     unsigned int lParamMouse = ((0 | y) << 16) | x;
@@ -230,7 +230,7 @@ void Input::sendScroll(unsigned short x, unsigned short y, short delta, unsigned
     point.x = x;
     point.y = y;
     if(!ClientToScreen(M_WINDOW, &point))
-        THROW_RUNTIME_ERROR("Failed to get screen coords.");
+        SB_THROW("Failed to get screen coords.");
 
     unsigned int lParamMouse = ((0 | point.y) << 16) | point.x;
     unsigned int wParamMouse = ((0 | delta) << 16) | keysDown;

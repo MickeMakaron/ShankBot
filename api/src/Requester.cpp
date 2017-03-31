@@ -65,7 +65,7 @@ RequestResult Requester::frame(Frame& f)
     assert(msg::Response::readResponseType(response->data(), response->size()) == msg::Message::Type::FRAME_RESPONSE);
     msg::FrameResponse r;
     if(!r.fromBinary(response->data(), response->size()))
-        THROW_RUNTIME_ERROR("Failed to read frame response.");
+        SB_THROW("Failed to read frame response.");
     f = r.get();
     return result;
 }
@@ -94,7 +94,7 @@ RequestResult Requester::login(std::string accountName, std::string password, st
     assert(msg::Response::readResponseType(response->data(), response->size()) == msg::Message::Type::LOGIN_RESPONSE);
     msg::LoginResponse r;
     if(!r.fromBinary(response->data(), response->size()))
-        THROW_RUNTIME_ERROR("Failed to read login response.");
+        SB_THROW("Failed to read login response.");
 
     characters = r.getCharacters();
     return result;
@@ -109,7 +109,7 @@ RequestResult Requester::objects(std::vector<Object>& objs)
     assert(msg::Response::readResponseType(response->data(), response->size()) == msg::Message::Type::OBJECT_RESPONSE);
     msg::ObjectResponse r;
     if(!r.fromBinary(response->data(), response->size()))
-       THROW_RUNTIME_ERROR("Failed to read object response.");
+       SB_THROW("Failed to read object response.");
 
     objs = r.get();
     return result;

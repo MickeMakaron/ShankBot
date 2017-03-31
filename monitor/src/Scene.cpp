@@ -71,7 +71,7 @@ void Scene::update(const Frame& frame)
 const Scene::Tile& Scene::getTile(char tileX, char tileY) const
 {
     if(tileX < 0 || tileY < 0 || tileX >= Constants::NUM_TILES_VIEW_X || tileY >= Constants::NUM_TILES_VIEW_Y)
-        THROW_RUNTIME_ERROR("Parameters out of range.");
+        SB_THROW("Parameters out of range.");
 
     return mData->tiles[tileX + VISIBILITY_OFFSET_LOW][tileY + VISIBILITY_OFFSET_LOW];
 }

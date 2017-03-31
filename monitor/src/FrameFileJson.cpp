@@ -89,7 +89,7 @@ QJsonValue toJson(Text::Type t)
 
         default:
             return "UNIMPLEMENTED";
-//            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented text type: ", (int)t));
+//            SB_THROW(sb::utility::stringify("Unimplemented text type: ", (int)t));
     }
 }
 
@@ -240,7 +240,7 @@ QJsonValue toJson(Constants::RectColor c)
 
         default:
             return "UNIMPLEMENTED";
-//            THROW_RUNTIME_ERROR(sb::utility::stringify("Unimplemented rect type: ", (int)c));
+//            SB_THROW(sb::utility::stringify("Unimplemented rect type: ", (int)c));
     };
 }
 

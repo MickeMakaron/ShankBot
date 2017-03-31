@@ -61,7 +61,7 @@ const SpriteInfo::Info& SpriteInfo::get(unsigned int spriteId) const
     {
         std::stringstream sstream;
         sstream << "Sprite info for sprite id '" << spriteId << "' does not exist." << std::endl;
-        THROW_RUNTIME_ERROR(sstream.str());
+        SB_THROW(sstream.str());
     }
 
     return result->second;

@@ -62,7 +62,7 @@ Buffer& Buffer::seekg(std::streampos off, std::ios_base::seekdir way)
             break;
 
         default:
-            THROW_RUNTIME_ERROR("Unimplemented seekg.");
+            SB_THROW("Unimplemented seekg.");
     }
 
     return *this;

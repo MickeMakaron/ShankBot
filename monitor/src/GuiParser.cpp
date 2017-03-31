@@ -690,7 +690,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             }
             else
             {
-                THROW_RUNTIME_ERROR("Unexpected containerslot size: " + std::to_string(width) + "x" + std::to_string(height));
+                SB_THROW("Unexpected containerslot size: " + std::to_string(width) + "x" + std::to_string(height));
             }
 
 

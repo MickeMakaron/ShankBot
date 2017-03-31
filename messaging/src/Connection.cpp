@@ -93,7 +93,7 @@ void* Connection::createEvent() const
     HANDLE event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
     if(event == INVALID_HANDLE_VALUE)
-        THROW_RUNTIME_ERROR("Failed to create event for message connection.");
+        SB_THROW("Failed to create event for message connection.");
 
     return event;
 }
@@ -139,7 +139,7 @@ void Connection::clientConnect()
     );
 
     if(mPipe == INVALID_HANDLE_VALUE)
-        THROW_RUNTIME_ERROR("Failed to create pipe for message connection.");
+        SB_THROW("Failed to create pipe for message connection.");
 
 
     BOOL result = ConnectNamedPipe(mPipe, mOverlapped);
@@ -164,7 +164,7 @@ void Connection::clientConnect()
             break;
 
         default:
-            THROW_RUNTIME_ERROR(stringify("Failed to connect pipe. Error: ", error));
+            SB_THROW(stringify("Failed to connect pipe. Error: ", error));
     }
 }
 
@@ -286,7 +286,7 @@ void Connection::update()
 
 
         default:
-            THROW_RUNTIME_ERROR(stringify("Unimplemented message connection state: ", (int)mState));
+            SB_THROW(stringify("Unimplemented message connection state: ", (int)mState));
     }
 }
 

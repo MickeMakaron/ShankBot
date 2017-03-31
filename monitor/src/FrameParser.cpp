@@ -110,7 +110,7 @@ void FrameParser::Tile::setHeight(size_t height)
 GenericType* FrameParser::Tile::getData() const
 {
     if(!mData.get())
-        THROW_RUNTIME_ERROR("Data is null.");
+        SB_THROW("Data is null.");
 
     return mData.get();
 }
@@ -144,7 +144,7 @@ unsigned int FrameParser::VertexBuffer::getVerticesOffset() const
         default:
             std::stringstream sstream;
             sstream << "Unimplemented vertex type: " << (int)vertexType << std::endl;
-            THROW_RUNTIME_ERROR(sstream.str());
+            SB_THROW(sstream.str());
     }
 }
 void FrameParser::copyGlyphs(const DrawCall& drawCall)
@@ -653,7 +653,7 @@ void FrameParser::parseGlyphPixelData(const PixelData& pixelData, const unsigned
                 break;
 
             default:
-                THROW_RUNTIME_ERROR("Wot");
+                SB_THROW("Wot");
 
         }
 
@@ -755,7 +755,7 @@ void FrameParser::parsePixelData(const PixelData& pixelData, const unsigned char
 //        f = pixelData.format == sb::utility::PixelFormat::RGBA ? QImage::Format_RGBA8888 : QImage::Format_ARGB32;
 //    }
 //    else
-//        THROW_RUNTIME_ERROR(stringify("Unimplemented format: ", (int)pixelData.format));
+//        SB_THROW(stringify("Unimplemented format: ", (int)pixelData.format));
 //
 //    QImage img(pixels, pixelData.width, pixelData.height, f);
 //
@@ -769,7 +769,7 @@ void FrameParser::parseCopyTexture(const CopyTexture& copy)
     {
         if(mGlyphBufferIds.find(copy.targetTextureId) == mGlyphBufferIds.end())
         {
-            THROW_RUNTIME_ERROR("Glyph buffer copied to screen buffer. This should not happen.");
+            SB_THROW("Glyph buffer copied to screen buffer. This should not happen.");
         }
         copyGlyphs(copy.sourceTextureId, copy.srcX, copy.srcY, copy.targetTextureId, copy.targetX, copy.targetY, copy.width, copy.height);
     }
@@ -837,7 +837,7 @@ void FrameParser::parseVertexAttribPointer(const VertexAttribPointer& attrib)
             default:
                 std::stringstream sstream;
                 sstream << "Unimplemented stride value:  " << attrib.stride << ".";
-                THROW_RUNTIME_ERROR(sstream.str());
+                SB_THROW(sstream.str());
         }
     }
 }
@@ -848,7 +848,7 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
     {
         if(mGlyphBufferIds.find(drawCall.targetTextureId) == mGlyphBufferIds.end())
         {
-            THROW_RUNTIME_ERROR("Target of glyph buffer draw copy is not a glyph buffer.");
+            SB_THROW("Target of glyph buffer draw copy is not a glyph buffer.");
         }
         copyGlyphs(drawCall);
         return;
@@ -1159,7 +1159,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
 
             default:
                 break;
-//                THROW_RUNTIME_ERROR(stringify("Unexpected tile type: ", (int)tile.getType()));
+//                SB_THROW(stringify("Unexpected tile type: ", (int)tile.getType()));
         }
     }
     mDrawCallId++;
@@ -1223,7 +1223,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
                     << "\tTexSize: " << botRight.texX * tex.width - texX << "x" << botRight.texY * tex.height - texY << std::endl
                     << "\tDrawCoords: " << screenCoords.x << "x" << screenCoords.y << std::endl;
 
-            THROW_RUNTIME_ERROR(sstream.str());
+            SB_THROW(sstream.str());
         }
 
         switch(tile.getType())
@@ -1264,7 +1264,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
                 break;
 
             default:
-                THROW_RUNTIME_ERROR(stringify("Invalid tile type: ", (int)tile.getType()));
+                SB_THROW(stringify("Invalid tile type: ", (int)tile.getType()));
         }
 
 
@@ -1286,7 +1286,7 @@ void FrameParser::parseTileDraw(const DrawCall& drawCall)
 void FrameParser::parseUnshadedViewDraw(const DrawCall& drawCall)
 {
     if(drawCall.targetTextureId != 0)
-        THROW_RUNTIME_ERROR("Light effects are enabled. They should not be enabled.");
+        SB_THROW("Light effects are enabled. They should not be enabled.");
 
     assert(drawCall.type == DrawCall::PrimitiveType::TRIANGLE_STRIP);
     assert(drawCall.targetTextureId == 0);
@@ -1560,7 +1560,7 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
                 }
 
                 default:
-                    THROW_RUNTIME_ERROR(stringify("Unimplemented message type: ", (int)message.messageType));
+                    SB_THROW(stringify("Unimplemented message type: ", (int)message.messageType));
             }
         }
 //
@@ -1593,7 +1593,7 @@ void FrameParser::parseFileIo(const SharedMemoryProtocol::FileIo& io, const char
             break;
 
         default:
-            THROW_RUNTIME_ERROR(stringify("Unimplemented FileIo type: ", (int)io.type));
+            SB_THROW(stringify("Unimplemented FileIo type: ", (int)io.type));
     }
 
     mCurrentFrame.fileIo->push_back(f);
@@ -1618,7 +1618,7 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             return; // No reason to care about alpha.
 
         default:
-            THROW_RUNTIME_ERROR("Unimplemented pixel format for color tree.");
+            SB_THROW("Unimplemented pixel format for color tree.");
     }
 
 
@@ -1646,7 +1646,7 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             return; // No reason to care about alpha.
 
         default:
-            THROW_RUNTIME_ERROR("Unimplemented pixel format for transparency tree.");
+            SB_THROW("Unimplemented pixel format for transparency tree.");
     }
 
     std::list<size_t> ids;
@@ -1719,7 +1719,7 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             tile = CombatSquareData::createTile(data.width, data.height, combatSquares.front());
         }
         else
-            THROW_RUNTIME_ERROR("This shouldn't happen. :-)");
+            SB_THROW("This shouldn't happen. :-)");
 
         mTileCache.removeByArea(data.targetTextureId, data.texX, data.texY, data.width, data.height);
         mTileCache.set(data.targetTextureId, data.texX, data.texY, tile);

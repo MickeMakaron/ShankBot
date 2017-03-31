@@ -52,14 +52,14 @@ void GraphicsMonitorReader::waitForFrame() const
     switch(WaitForSingleObject(mShm->semRead, 500))
     {
         case WAIT_ABANDONED:
-            THROW_RUNTIME_ERROR("Wait abandoned.");
+            SB_THROW("Wait abandoned.");
 
         case WAIT_OBJECT_0:
             return;
 
         case WAIT_TIMEOUT:
             if(!mClient.isAlive())
-                THROW_RUNTIME_ERROR("Tibia client unexpectedly terminated.");
+                SB_THROW("Tibia client unexpectedly terminated.");
 
             mClient.getInput().sendPaintMessage();
             waitForFrame();
@@ -69,11 +69,11 @@ void GraphicsMonitorReader::waitForFrame() const
         {
             std::stringstream sstream;
             sstream << "Failed wait. Error code: " << GetLastError() << std::endl;
-            THROW_RUNTIME_ERROR(sstream.str());
+            SB_THROW(sstream.str());
         }
 
         default:
-            THROW_RUNTIME_ERROR("Unimplemented wait signal.");
+            SB_THROW("Unimplemented wait signal.");
     }
 }
 
@@ -83,7 +83,7 @@ void GraphicsMonitorReader::postFrameRequest() const
     {
         std::stringstream sstream;
         sstream << "Could not release shared memory write semaphore. Error code: " << GetLastError() << std::endl;
-        THROW_RUNTIME_ERROR(sstream.str());
+        SB_THROW(sstream.str());
     }
 }
 

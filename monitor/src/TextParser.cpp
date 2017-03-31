@@ -413,7 +413,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     handlers["Battle"] = [this](size_t& i)
     {
         i++;
-        THROW_RUNTIME_ERROR("NEED GUIPARSER DATA");
+        SB_THROW("NEED GUIPARSER DATA");
 //        while(i < mBuilders.size())
 //        {
 //            using T = Text::Type;

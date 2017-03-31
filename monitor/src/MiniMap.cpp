@@ -166,7 +166,7 @@ std::list<MiniMap::Tile> MiniMap::findPosAbsolute()
         unsigned int x;
         unsigned int y;
         if(!parseMiniMapColorFileName(pair.second, x, y, t.level))
-            THROW_RUNTIME_ERROR("Failed to parse mini map color file name: " + pair.second);
+            SB_THROW("Failed to parse mini map color file name: " + pair.second);
 
         t.x = x;
         t.y = y;
@@ -293,7 +293,7 @@ void MiniMap::updatePosAbsolute()
             }
             else
             {
-//                THROW_RUNTIME_ERROR(stringify("Unexpected level: ", (int)otherLevel));
+//                SB_THROW(stringify("Unexpected level: ", (int)otherLevel));
             }
         }
         else if(levels.size() == 2)
@@ -301,7 +301,7 @@ void MiniMap::updatePosAbsolute()
             unsigned char dLevel = levels.back() - levels.front();
             if(dLevel != 2)
             {
-//                THROW_RUNTIME_ERROR(stringify("Unepected level delta: ", (int)dLevel));
+//                SB_THROW(stringify("Unepected level delta: ", (int)dLevel));
             }
             else
             {
@@ -311,7 +311,7 @@ void MiniMap::updatePosAbsolute()
         }
         else
         {
-//            THROW_RUNTIME_ERROR(stringify("Unexpected levels count: ", levels.size()));
+//            SB_THROW(stringify("Unexpected levels count: ", levels.size()));
 
         }
 
@@ -319,7 +319,7 @@ void MiniMap::updatePosAbsolute()
     }
     if(level == -1)
     {
-        THROW_RUNTIME_ERROR("Failed to determine position by minimap. Probably because a user is screwing around with the window. Please stop.");
+        SB_THROW("Failed to determine position by minimap. Probably because a user is screwing around with the window. Please stop.");
     }
 
     std::list<Tile> drawnTiles = getDrawnTiles();

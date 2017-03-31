@@ -90,15 +90,15 @@ void VersionControl::prepareFiles(std::string versionControlDir)
 void VersionControl::checkClientFiles(std::string clientDir)
 {
     if(!fileExists(clientDir))
-        THROW_RUNTIME_ERROR("Could not find Tibia client directory '" + clientDir + "'.");
+        SB_THROW("Could not find Tibia client directory '" + clientDir + "'.");
 
     std::string tibiaExecutable = clientDir + CLIENT_MODULE_PATH;
     if(!fileExists(tibiaExecutable))
-        THROW_RUNTIME_ERROR("Could not find Tibia executable at '" + tibiaExecutable + "'.");
+        SB_THROW("Could not find Tibia executable at '" + tibiaExecutable + "'.");
 
     std::string tibiaPackageInfo = clientDir + TIBIA_PACKAGE_INFO_PATH;
     if(!fileExists(tibiaPackageInfo))
-        THROW_RUNTIME_ERROR("Could not find Tibia package info at '" + tibiaPackageInfo + "'.");
+        SB_THROW("Could not find Tibia package info at '" + tibiaPackageInfo + "'.");
 }
 
 
@@ -108,7 +108,7 @@ void VersionControl::checkout(std::string versionControlDir)
     std::string currentVersionPath = versionControlDir + CURRENT_VERSION_PATH;
 
     if(fileExists(currentVersionPath))
-        THROW_RUNTIME_ERROR("Already checked out.");
+        SB_THROW("Already checked out.");
 
     mVersionFile.toFile(currentVersionPath);
 }
@@ -154,7 +154,7 @@ std::string VersionControl::getTibiaVersion(std::string clientDir)
     QJsonDocument package = QJsonDocument::fromJson(content.toUtf8());
 
     if(package.isNull())
-        THROW_RUNTIME_ERROR("Failed to read Tibia package at '" + packageInfoFilePath + "'.");
+        SB_THROW("Failed to read Tibia package at '" + packageInfoFilePath + "'.");
 
     QJsonObject obj = package.object();
     return obj["version"].toString().toStdString();

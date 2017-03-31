@@ -63,7 +63,7 @@ std::shared_ptr<std::vector<char>> Requester::request(RequestResult& result, con
             case E::TIME_OUT: result = RequestResult::CONNECTION_TIME_OUT; return nullptr;
 
             default:
-                THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected event: ", (int)e));
+                SB_THROW(sb::utility::stringify("Unexpected event: ", (int)e));
         }
     }
 
@@ -77,7 +77,7 @@ std::shared_ptr<std::vector<char>> Requester::request(RequestResult& result, con
             case E::TIME_OUT: result = RequestResult::CONNECTION_TIME_OUT; return nullptr;
 
             default:
-                THROW_RUNTIME_ERROR(sb::utility::stringify("Unexpected event: ", (int)e));
+                SB_THROW(sb::utility::stringify("Unexpected event: ", (int)e));
 
         }
     }
@@ -89,7 +89,7 @@ std::shared_ptr<std::vector<char>> Requester::request(RequestResult& result, con
     assert(Message::readMessageType(response->data(), response->size()) == Message::Type::RESPONSE);
     Response r;
     if(!r.fromBinary(response->data(), response->size()))
-        THROW_RUNTIME_ERROR("Failed to read response.");
+        SB_THROW("Failed to read response.");
 
     result = r.getResult();
     return response;
