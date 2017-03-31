@@ -156,9 +156,9 @@ namespace utility
 
     #define SB_THROW(...) sb::utility::throwException<std::runtime_error>(__LINE__, __FILE__, __PRETTY_FUNCTION__, sb::utility::stringify(__VA_ARGS__));
 
-    #define SB_EXPECT_EQ(a, b) if((a) != (b)) SB_THROW("Expected \"" #a "\" to be equal to \"" #b "\"");
     #define SB_EXPECT(a, binOp, b) if(!((a) binOp (b))) sb::utility::throwExpect(#a, #binOp, #b, a, b, __LINE__, __FILE__, __PRETTY_FUNCTION__);
-
+    #define SB_EXPECT_TRUE(a) SB_EXPECT(a, ==, true)
+    #define SB_EXPECT_FALSE(a) SB_EXPECT(a, ==, false)
 
     template<typename T>
     void readStream(T& t, std::istream& stream, size_t n = 1)
