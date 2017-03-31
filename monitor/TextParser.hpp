@@ -63,8 +63,7 @@ namespace GraphicsLayer
 
             struct Prey : public SideBarWindow
             {
-                unsigned char numInactive;
-                std::vector<std::string> active;
+                std::vector<Text> names;
             };
 
             struct Vip : public SideBarWindow

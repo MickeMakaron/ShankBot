@@ -101,6 +101,11 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
     {
         std::cout << "BATTLE LIST NAME: " << name.string << std::endl;
     }
+    for(const Text& name : mData.prey.names)
+    {
+        std::cout << "PREY LIST NAME: " << name.string << std::endl;
+    }
+
 
     for(const TextDraw& d : *frame.textDraws)
     {
@@ -357,7 +362,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         SB_EXPECT(title.size(), ==, 1);
         mData.unjustifiedPoints.title = title[0];
         i++;
-        if(i < mBuilders.size())
+        if(i >= mBuilders.size())
         {
             return;
         }
@@ -377,25 +382,16 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
         mData.prey.title = title[0];
-        i++;
-        if(i < mBuilders.size())
+
+        if(mGuiData->game.sideBarWindows.prey.bonuses.empty())
         {
             return;
         }
-        const std::vector<Text>& text = mBuilders[i]->getText();
-        SB_EXPECT_FALSE(text.empty());
-        mData.prey.numInactive = 0;
-        for(const Text& t : text)
-        {
-            if(t.string == "Inactive")
-            {
-                mData.prey.numInactive++;
-            }
-            else
-            {
-                mData.prey.active.push_back(t.string);
-            }
-        }
+        i++;
+
+        SB_EXPECT(i, <, mBuilders.size());
+        SB_EXPECT(mBuilders[i]->getTextType(), ==, Text::Type::GUI);
+        mData.prey.names = mBuilders[i]->getText();
     };
 
     handlers["VIP"] = [this](size_t& i)
@@ -483,8 +479,6 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             i++;
         }
     };
-
-
 
     return handlers;
 }
