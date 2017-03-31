@@ -78,6 +78,41 @@ namespace GraphicsLayer
                 size_t selectedNameIndex = -1;
             };
 
+            struct Skills : public SideBarWindow
+            {
+                unsigned short level = 0;
+                unsigned int experience = 0;
+                unsigned short xpGainRate = 0;
+
+                unsigned short hp = 0;
+                unsigned short mana = 0;
+                unsigned short soul = 0;
+                unsigned short cap = 0;
+                unsigned short speed = 0;
+                unsigned short foodMinutes = 0;
+                unsigned short staminaMinutes = 0;
+                unsigned short offlineTrainingMinutes = 0;
+                unsigned short magicLevel = 0;
+
+
+                unsigned short fistLevel = 0;
+                unsigned short clubLevel = 0;
+                unsigned short swordLevel = 0;
+                unsigned short axeLevel = 0;
+                unsigned short distanceLevel = 0;
+                unsigned short shieldingLevel = 0;
+                unsigned short fishingLevel = 0;
+
+                unsigned short critChance = 0;
+                unsigned short critDamage = 0;
+
+                unsigned short hpLeechChance = 0;
+                unsigned short hpLeechAmount = 0;
+
+                unsigned short manaLeechChance = 0;
+                unsigned short manaLeechAmount = 0;
+            };
+
             struct Data
             {
                 std::vector<Text> names;
@@ -89,14 +124,20 @@ namespace GraphicsLayer
                 Prey prey;
                 Vip vip;
                 Battle battle;
+                Skills skills;
             };
 
         public:
             TextParser();
-            std::map<std::string, std::function<void(size_t&)>> initGuiTextHandlers();
             void parse(const Frame& frame, const GuiParser::Data& guiData);
-            void handleGuiText(size_t& i);
             const Data& getData() const;
+
+        private:
+            std::map<std::string, std::function<void(size_t&)>> initGuiTextHandlers();
+            void handleGuiText(size_t& i);
+            static unsigned short parseTimeText(const std::string& str);
+            static unsigned short parsePercentageText(const std::string& str);
+
 
         private:
             Data mData;

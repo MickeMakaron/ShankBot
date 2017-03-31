@@ -105,187 +105,6 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
     {
         std::cout << "PREY LIST NAME: " << name.string << std::endl;
     }
-
-
-    for(const TextDraw& d : *frame.textDraws)
-    {
-//        const std::vector<Text>& lines = b.getText();
-//        using Color = Constants::TextColor;
-//        Color c = (Color)d.color.packed;
-//        switch(c)
-//        {
-//            case Color::CLICKABLE_NPC_TEXT:
-//                mTextType = Text::Type::CLICKABLE_NPC_TEXT;
-//                return;
-//
-//            case Color::GREEN_TEXT:
-//                mTextType = Text::Type::GREEN_TEXT;
-//                return;
-//            case Color::INFO_TEXT:
-//                mTextType = Text::Type::INFO_TEXT;
-//                return;
-//            case Color::SAY:
-//                mTextType = Text::Type::SAY;
-//                return;
-//            case Color::PM:
-//                mTextType = Text::Type::PM;
-//                return;
-//            case Color::SELF_PM:
-//            case Color::SELF_PM_INPUT:
-//                mTextType = Text::Type::SELF_PM;
-//                return;
-//            case Color::SOUND:
-//                mTextType = Text::Type::SOUND;
-//                return;
-//
-//            default:
-//                break;
-//        }
-//
-//        if(mTextDraw.isOutlined)
-//        {
-//            switch(c)
-//            {
-//                case Color::HP_FULL:
-//                case Color::HP_LIGHT_GREEN:
-//                case Color::HP_YELLOW:
-//                case Color::HP_LIGHT_RED:
-//                case Color::HP_RED:
-//                case Color::HP_DARK_RED:
-//                    mTextType = Text::Type::NAME;
-//                    return;
-//                case Color::HP_GRAY:
-//                    mTextType = Text::Type::NAME_OBSCURED;
-//                    return;
-//
-//                case Color::CHAT_TAB_INACTIVE:
-//                case Color::CHAT_TAB_ACTIVE:
-//                case Color::CHAT_TAB_UNREAD:
-//                    mTextType = Text::Type::CHAT_TAB;
-//                    return;
-//
-//                case Color::CHAT_TAB_NEW_MESSAGE: // same as CONTEXT_MENU
-//                    mIsDisputedContextMenuOrChatTab = true;
-//                    build();
-//                    return;
-//
-//                case Color::ITEM_STACK_COUNT:
-//                    mTextType = Text::Type::ITEM_STACK_COUNT;
-//                    return;
-//
-//                case Color::SERVER_BROADCAST:
-//                    mTextType = Text::Type::SERVER_BROADCAST;
-//                    return;
-//
-//                case Color::BROADCAST:
-//                    mTextType = Text::Type::BROADCAST;
-//                    return;
-//
-//                default:
-//                    break;
-//            }
-//        }
-//        else
-//        {
-//            switch(c)
-//            {
-//                case Color::GUI:
-//                case Color::XP_GAIN_RATE_FULL:
-//                case Color::ITEM_STACK_COUNT:
-//                case Color::HP_GRAY:
-//                    mTextType = Text::Type::GUI;
-//                    return;
-//
-//                case Color::ADD_NEW_HOTKEY_ENTRY:
-//                    mTextType = Text::Type::ADD_NEW_HOTKEY_ENTRY;
-//                    return;
-//
-//                case Color::TOOLTIP:
-//                    mTextType = Text::Type::TOOLTIP;
-//                    return;
-//
-//                case Color::DISABLED_LIST_ENTRY:
-//                    mTextType = Text::Type::DISABLED_LIST_ENTRY;
-//                    return;
-//
-//                case Color::VIP_OFFLINE:
-//                    mTextType = Text::Type::VIP_OFFLINE;
-//                    return;
-//
-//                case Color::VIP_ONLINE:
-//                    mTextType = Text::Type::VIP_ONLINE;
-//                    return;
-//
-//                case Color::HOTKEY_TEXT:
-//                    mTextType = Text::Type::HOTKEY_TEXT;
-//                    return;
-//                case Color::HOTKEY_USE_ON_SELF:
-//                    mTextType = Text::Type::HOTKEY_USE_ON_SELF;
-//                    return;
-//                case Color::HOTKEY_USE_ON_TARGET:
-//                    mTextType = Text::Type::HOTKEY_USE_ON_TARGET;
-//                    return;
-//                case Color::HOTKEY_USE_WITH_CROSSHAIR:
-//                    mTextType = Text::Type::HOTKEY_USE_WITH_CROSSHAIR;
-//                    return;
-//                case Color::HOTKEY_EQUIP:
-//                    mTextType = Text::Type::HOTKEY_EQUIP;
-//                    return;
-//                case Color::STORE_NEW:
-//                    mTextType = Text::Type::STORE_NEW;
-//                    return;
-//
-//                default:
-//                {
-//                    build();
-//                    if(!mText.empty())
-//                    {
-//                        const std::string str = mText.front().string;
-//                        assert(!str.empty());
-//                        if(str == "  XP Gain Rate")
-//                        {
-//                            mTextType = Text::Type::GUI;
-//                            updateTextType();
-//                            return;
-//                        }
-//                        else if(str.back() == '%' && str.size() > 1)
-//                        {
-//                            bool isXpGainRateValue = true;
-//                            for(size_t i = 0; i < str.size() - 1; i++)
-//                                if(!isNumeric(str[i]))
-//                                {
-//                                    isXpGainRateValue = false;
-//                                    break;
-//                                }
-//                            if(isXpGainRateValue)
-//                            {
-//                                mTextType = Text::Type::GUI;
-//                                updateTextType();
-//                                return;
-//                            }
-//                        }
-//
-//                        switch(c)
-//                        {
-//                            case Color::SELECTED_TEXT:
-//                                mTextType = Text::Type::SELECTED_TEXT;
-//                                updateTextType();
-//                                return;
-//
-//                            case Color::NAME_BATTLE_WINDOW_HIGHLIGHTED:
-//                                mTextType = Text::Type::NAME_BATTLE_WINDOW_HIGHLIGHTED;
-//                                updateTextType();
-//                                return;
-//
-//                            default:
-//                                break;
-//                        }
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-    }
 }
 
 
@@ -480,6 +299,164 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         }
     };
 
+    handlers["Skills"] = [this](size_t& i)
+    {
+        const std::vector<Text>& title = mBuilders[i]->getText();
+        SB_EXPECT(title.size(), ==, 1);
+        mData.skills.title = title[0];
+        i++;
+        if(i >= mBuilders.size())
+        {
+            return;
+        }
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        auto it = text.begin();
+        if(it->string != "Level")
+        {
+            i--;
+            return;
+        }
+        using namespace sb::utility;
+        Skills& s = mData.skills;
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT_TRUE(isNumeric(it->string));
+        s.level = strToInt(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "  Experience");
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT_TRUE(isNumeric(it->string));
+        s.experience = strToInt(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        if(it->string == "  XP Gain Rate")
+        {
+            SB_EXPECT(++it, !=, text.end());
+        }
+        else
+        {
+            SB_EXPECT(++i, <, mBuilders.size());
+            SB_EXPECT(mBuilders[i]->getTextType(), ==, Text::Type::GUI);
+            SB_EXPECT(mBuilders[i]->getText().size(), ==, 1);
+            SB_EXPECT(mBuilders[i]->getText().front().string, ==, "  XP Gain Rate");
+        }
+
+        if(it->string == "Hit Points")
+        {
+            it--;
+            SB_EXPECT(++i, <, mBuilders.size());
+            SB_EXPECT(mBuilders[i]->getTextType(), ==, Text::Type::GUI);
+            const std::vector<Text>& xpGainRate = mBuilders[i]->getText();
+
+            SB_EXPECT(xpGainRate.size(), ==, 1);
+            s.xpGainRate = parsePercentageText(xpGainRate.front().string);
+        }
+        else
+        {
+            s.xpGainRate = parsePercentageText(it->string);
+        }
+
+        auto readNumeric = [](std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& field)
+        {
+            SB_EXPECT(++it, !=, text.end());
+            SB_EXPECT(it->string, ==, field);
+            SB_EXPECT(++it, !=, text.end());
+            SB_EXPECT_TRUE(isNumeric(it->string));
+            return strToInt(it->string);
+        };
+
+        s.hp = readNumeric(it, text, "Hit Points");
+        s.mana = readNumeric(it, text, "Mana");
+        s.soul = readNumeric(it, text, "Soul Points");
+        s.cap = readNumeric(it, text, "Capacity");
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "Speed");
+
+        SB_EXPECT(++it, !=, text.end());
+        if(it->string == "Food")
+        {
+            SB_EXPECT(++i, <, mBuilders.size());
+            SB_EXPECT(mBuilders[i]->getTextType(), ==, Text::Type::GUI);
+            const std::vector<Text>& speed = mBuilders[i]->getText();
+
+            SB_EXPECT(speed.size(), ==, 1);
+            SB_EXPECT_TRUE(isNumeric(speed.front().string));
+            s.speed = strToInt(speed.front().string);
+        }
+        else
+        {
+            SB_EXPECT_TRUE(isNumeric(it->string));
+            s.speed = strToInt(it->string);
+        }
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "Food");
+        SB_EXPECT(++it, !=, text.end());
+        s.foodMinutes = parseTimeText(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "Stamina");
+        SB_EXPECT(++it, !=, text.end());
+        s.staminaMinutes = parseTimeText(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string.find("Offline Training"), ==, 0);
+        std::string offlineTrainingMinutes = it->string.substr(std::string("Offline Training").size());
+        s.staminaMinutes = parseTimeText(offlineTrainingMinutes);
+
+        s.magicLevel = readNumeric(it, text, "Magic Level");
+        s.fistLevel = readNumeric(it, text, "Fist Fighting");
+        s.clubLevel = readNumeric(it, text, "Club Fighting");
+        s.swordLevel = readNumeric(it, text, "Sword Fighting");
+        s.axeLevel = readNumeric(it, text, "Axe Fighting");
+        s.distanceLevel = readNumeric(it, text, "Distance Fighting");
+        s.shieldingLevel = readNumeric(it, text, "Shielding");
+        s.fishingLevel = readNumeric(it, text, "Fishing");
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "Critical Hit:");
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "  Chance");
+        SB_EXPECT(++it, !=, text.end());
+        s.critChance = parsePercentageText(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "  Extra Damage");
+        SB_EXPECT(++it, !=, text.end());
+        s.critDamage = parsePercentageText(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "Hit Points Leech:");
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "  Chance");
+        SB_EXPECT(++it, !=, text.end());
+        s.hpLeechChance = parsePercentageText(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "  Amount");
+        SB_EXPECT(++it, !=, text.end());
+        s.hpLeechAmount = parsePercentageText(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "Mana Leech:");
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "  Chance");
+        SB_EXPECT(++it, !=, text.end());
+        s.manaLeechChance = parsePercentageText(it->string);
+
+        SB_EXPECT(++it, !=, text.end());
+        SB_EXPECT(it->string, ==, "  Amount");
+        SB_EXPECT(++it, !=, text.end());
+        s.manaLeechAmount = parsePercentageText(it->string);
+
+        SB_EXPECT(++it, ==, text.end());
+    };
+
     return handlers;
 }
 
@@ -490,3 +467,29 @@ const TextParser::Data& TextParser::getData() const
 }
 
 
+
+unsigned short TextParser::parseTimeText(const std::string& str)
+{
+    size_t colonPos = str.find(':');
+    SB_EXPECT(colonPos, !=, str.npos);
+
+    std::string hours = str.substr(0, colonPos);
+    std::string minutes = str.substr(colonPos + 1);
+
+    using namespace sb::utility;
+    SB_EXPECT_TRUE(isNumeric(hours));
+    SB_EXPECT_TRUE(isNumeric(minutes));
+    return strToInt(hours) * 60 + strToInt(minutes);
+}
+
+unsigned short TextParser::parsePercentageText(const std::string& str)
+{
+    SB_EXPECT(str.size(), >, 1);
+    SB_EXPECT(str.back(), ==, '%');
+
+    std::string percentage = str.substr(0, str.size() - 1);
+
+    using namespace sb::utility;
+    SB_EXPECT_TRUE(isNumeric(percentage));
+    return strToInt(percentage);
+}
