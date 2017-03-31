@@ -32,6 +32,7 @@
 #include "monitor/Text.hpp"
 #include "monitor/TextBuilder.hpp"
 #include "monitor/Draw.hpp"
+#include "monitor/GuiParser.hpp"
 namespace GraphicsLayer
 {
     struct Frame;
@@ -50,26 +51,32 @@ namespace GraphicsLayer
     class TextParser
     {
         public:
-            struct UnjustifiedPoints
+            struct SideBarWindow
+            {
+                Text title;
+            };
+
+            struct UnjustifiedPoints : public SideBarWindow
             {
                 unsigned short open;
             };
 
-            struct Prey
+            struct Prey : public SideBarWindow
             {
                 unsigned char numInactive;
                 std::vector<std::string> active;
             };
 
-            struct Vip
+            struct Vip : public SideBarWindow
             {
                 std::vector<Text> online;
                 std::vector<Text> offline;
             };
 
-            struct Battle
+            struct Battle : public SideBarWindow
             {
                 std::vector<Text> names;
+                size_t selectedNameIndex = -1;
             };
 
             struct Data
@@ -77,16 +84,18 @@ namespace GraphicsLayer
                 std::vector<Text> names;
                 std::vector<Text> chatTabs;
                 std::vector<Text> clickableNpcText;
+                std::vector<SideBarWindow> sideBarWindows;
 
                 UnjustifiedPoints unjustifiedPoints;
                 Prey prey;
                 Vip vip;
+                Battle battle;
             };
 
         public:
             TextParser();
             std::map<std::string, std::function<void(size_t&)>> initGuiTextHandlers();
-            void parse(const Frame& frame);
+            void parse(const Frame& frame, const GuiParser::Data& guiData);
             void handleGuiText(size_t& i);
             const Data& getData() const;
 
@@ -94,6 +103,7 @@ namespace GraphicsLayer
             Data mData;
             std::shared_ptr<std::vector<TextDraw>> mDraws;
             std::vector<std::shared_ptr<TextBuilder>> mBuilders;
+            const GuiParser::Data* mGuiData;
             const std::map<std::string, std::function<void(size_t&)>> mGuiTextHandlers;
     };
 }

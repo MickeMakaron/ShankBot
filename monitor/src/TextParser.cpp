@@ -45,11 +45,12 @@ TextParser::TextParser()
 }
 
 
-void TextParser::parse(const Frame& frame)
+void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
 {
     mData = Data();
     mBuilders.clear();
     mDraws = frame.textDraws;
+    mGuiData = &guiData;
 
 
     //    mHalfFrameWidth = frame.width / 2.f;
@@ -95,6 +96,12 @@ void TextParser::parse(const Frame& frame)
         }
 
     }
+
+    for(const Text& name : mData.battle.names)
+    {
+        std::cout << "BATTLE LIST NAME: " << name.string << std::endl;
+    }
+
     for(const TextDraw& d : *frame.textDraws)
     {
 //        const std::vector<Text>& lines = b.getText();
@@ -346,6 +353,9 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
 
     handlers["Unjustified Points"] = [this](size_t& i)
     {
+        const std::vector<Text>& title = mBuilders[i]->getText();
+        SB_EXPECT(title.size(), ==, 1);
+        mData.unjustifiedPoints.title = title[0];
         i++;
         if(i < mBuilders.size())
         {
@@ -364,6 +374,9 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
 
     handlers["Prey"] = [this](size_t& i)
     {
+        const std::vector<Text>& title = mBuilders[i]->getText();
+        SB_EXPECT(title.size(), ==, 1);
+        mData.prey.title = title[0];
         i++;
         if(i < mBuilders.size())
         {
@@ -387,6 +400,9 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
 
     handlers["VIP"] = [this](size_t& i)
     {
+        const std::vector<Text>& title = mBuilders[i]->getText();
+        SB_EXPECT(title.size(), ==, 1);
+        mData.vip.title = title[0];
         i++;
         while(i < mBuilders.size())
         {
@@ -412,28 +428,60 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
 
     handlers["Battle"] = [this](size_t& i)
     {
+        const std::vector<Text>& title = mBuilders[i]->getText();
+        SB_EXPECT(title.size(), ==, 1);
+        mData.battle.title = title[0];
         i++;
-        SB_THROW("NEED GUIPARSER DATA");
-//        while(i < mBuilders.size())
-//        {
-//            using T = Text::Type;
-//            switch(mBuilders[i]->getType())
-//            {
-//                case T::VIP_OFFLINE:
-//                    mData.vip.offline = mBuilders[i]->getText();
-//                    break;
-//
-//                case T::VIP_ONLINE:
-//                    mData.vip.online = mBuilders[i]->getText();
-//                    break;
-//
-//                default:
-//                    i--;
-//                    return;
-//            }
-//
-//            i++;
-//        }
+        std::map<std::string, unsigned short> names;
+        for(const Text& t : mData.names)
+        {
+            auto foundIt = names.find(t.string);
+            if(foundIt == names.end())
+            {
+                names[t.string] = 1;
+            }
+            else
+            {
+                foundIt->second++;
+            }
+        }
+
+        while(i < mBuilders.size())
+        {
+            const std::vector<Text>& text = mBuilders[i]->getText();
+            using T = Text::Type;
+            switch(mBuilders[i]->getTextType())
+            {
+                case T::GUI:
+                    for(const Text& t : text)
+                    {
+                        auto foundIt = names.find(t.string);
+
+                        if(foundIt == names.end())
+                        {
+                            i--;
+                            return;
+                        }
+
+                        SB_EXPECT(foundIt->second, >, 0);
+                        foundIt->second--;
+                    }
+                    mData.battle.names.insert(mData.battle.names.end(), text.begin(), text.end());
+                    break;
+
+                case T::NAME_BATTLE_WINDOW_HIGHLIGHTED:
+                    SB_EXPECT(text.size(), ==, 1);
+                    SB_EXPECT(mData.battle.selectedNameIndex, ==, -1);
+                    mData.battle.selectedNameIndex = mData.battle.names.size();
+                    mData.battle.names.push_back(text[0]);
+                    break;
+
+                default:
+                    i--;
+                    return;
+            }
+            i++;
+        }
     };
 
 

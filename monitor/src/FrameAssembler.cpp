@@ -77,7 +77,7 @@ void FrameAssembler::assembleCurrentFrame()
     }
 
     mGui.parse(frame);
-    mText.parse(frame);
+    mText.parse(frame, mGui.getData());
 //    mScene.update(frame);
 
 //    ParsedFrame pFrame;
