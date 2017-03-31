@@ -100,9 +100,9 @@ void GuiParser::parsePass1()
         return;
     }
 
-    SB_EXPECT_EQ(2, pass1.hpManaBorders.size());
-    SB_EXPECT_EQ(false, pass1.manaFill.draw == nullptr);
-    SB_EXPECT_EQ(false, pass1.hpFill.draw == nullptr);
+    SB_EXPECT(pass1.hpManaBorders.size(), ==, 2);
+    SB_EXPECT(pass1.manaFill.draw, !=, nullptr);
+    SB_EXPECT(pass1.hpFill.draw, !=, nullptr);
 
     const GuiDraw* border = pass1.hpManaBorders[0].draw;
     float borderWidth = border->botRight.x - border->topLeft.x;
@@ -398,12 +398,12 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             {
                 return short(d.botRight.x - d.topLeft.x + 0.5f) == 1 && short(d.botRight.y - d.topLeft.y + 0.5f) == 1;
             };
-            SB_EXPECT_EQ(true, isCorner((*mDraws)[i]));
+            SB_EXPECT(isCorner((*mDraws)[i]), ==, true);
 
 
             for(size_t numCorners = 0;;)
             {
-                SB_EXPECT_EQ(true, i < mDraws->size());
+                SB_EXPECT(i, <, mDraws->size());
                 if(isCorner((*mDraws)[i]))
                 {
                     numCorners++;
@@ -674,9 +674,9 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         while(i < mDraws->size())
         {
             i += 4;
-            SB_EXPECT_EQ(true, i < mDraws->size());
+            SB_EXPECT(i, <, mDraws->size());
             const GuiDraw& d = (*mDraws)[i];
-            SB_EXPECT_EQ("containerslot", mBaseNames[i]);
+            SB_EXPECT(mBaseNames[i], ==, "containerslot");
 
             short width = d.botRight.x - d.topLeft.x + 0.5f;
             short height = d.botRight.y - d.topLeft.y + 0.5f;
@@ -724,17 +724,17 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         w.titleBar.screen.y = v.y + 0.5f;
 
         i += 3;
-        SB_EXPECT_EQ(true, i < mDraws->size());
+        SB_EXPECT(i, <, mDraws->size());
         d = &(*mDraws)[i];
-        SB_EXPECT_EQ("widget-borderimage", mBaseNames[i]);
-        SB_EXPECT_EQ(drawCallId, d->drawCallId);
+        SB_EXPECT(mBaseNames[i], ==, "widget-borderimage");
+        SB_EXPECT(d->drawCallId, ==, drawCallId);
 
         w.titleBar.local.width = (unsigned short)(d->botRight.x + 0.5f) - w.titleBar.local.x;
         w.titleBar.local.height = (unsigned short)(d->botRight.y + 0.5f) - w.titleBar.local.y;
         w.titleBar.screen.width = w.titleBar.local.width;
         w.titleBar.screen.height = w.titleBar.local.height;
-        SB_EXPECT_EQ(176, w.titleBar.local.width);
-        SB_EXPECT_EQ(15, w.titleBar.local.height);
+        SB_EXPECT(w.titleBar.local.width, ==, 176);
+        SB_EXPECT(w.titleBar.local.height, ==, 15);
 
 
 
@@ -760,9 +760,9 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             return;
         }
 
-        SB_EXPECT_EQ("widget-borderimage", mBaseNames[i]);
-        SB_EXPECT_EQ(w.clientArea.local.x, (unsigned short)(d->topLeft.x + 0.5f));
-        SB_EXPECT_EQ(w.clientArea.local.y, (unsigned short)(d->topLeft.y + 0.5f));
+        SB_EXPECT(mBaseNames[i], ==, "widget-borderimage");
+        SB_EXPECT(w.clientArea.local.x, ==, (unsigned short)(d->topLeft.x + 0.5f));
+        SB_EXPECT(w.clientArea.local.y, ==, (unsigned short)(d->topLeft.y + 0.5f));
 
         while(i < mDraws->size())
         {
@@ -776,10 +776,10 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         }
 
         d = &(*mDraws)[i];
-        SB_EXPECT_EQ("widget-borderimage", mBaseNames[i]);
+        SB_EXPECT(mBaseNames[i], ==, "widget-borderimage");
         unsigned short right = (unsigned short)(d->botRight.x + 0.5f);
         unsigned short bot = (unsigned short)(d->botRight.y + 0.5f);
-        SB_EXPECT_EQ(w.titleBar.local.x + w.titleBar.local.width, right);
+        SB_EXPECT(right, ==, w.titleBar.local.x + w.titleBar.local.width);
         w.clientArea.local.width = right - w.clientArea.local.x;
         w.clientArea.local.height = bot - w.clientArea.local.y;
         w.clientArea.screen.width = w.clientArea.local.width;

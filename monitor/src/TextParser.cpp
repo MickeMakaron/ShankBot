@@ -352,12 +352,12 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             return;
         }
         const std::vector<Text>& text = mBuilders[i]->getText();
-        SB_EXPECT_EQ(1, text.size());
+        SB_EXPECT(text.size(), ==, 1);
 
         std::vector<std::string> parts = sb::utility::split(text[0].string, ' ');
-        SB_EXPECT_EQ(2, parts.size());
-        SB_EXPECT_EQ("Open:", parts[0]);
-        SB_EXPECT_EQ(true, sb::utility::isNumeric(parts[1]));
+        SB_EXPECT(parts.size(), ==, 2);
+        SB_EXPECT(parts[0], ==, "Open:");
+        SB_EXPECT(sb::utility::isNumeric(parts[1]), ==, true);
 
         mData.unjustifiedPoints.open = sb::utility::strToInt(parts[1]);
     };
@@ -370,7 +370,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             return;
         }
         const std::vector<Text>& text = mBuilders[i]->getText();
-        SB_EXPECT_EQ(false, text.empty());
+        SB_EXPECT(text.empty(), ==, false);
         mData.prey.numInactive = 0;
         for(const Text& t : text)
         {
