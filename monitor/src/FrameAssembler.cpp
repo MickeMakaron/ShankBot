@@ -66,7 +66,7 @@ void FrameAssembler::assembleCurrentFrame()
         return;
     }
 
-    static size_t id = 54;
+    static size_t id = 0;
     static std::string filePath = "frameDumps/d" + std::to_string(id);
 
     Frame frame;
@@ -78,6 +78,8 @@ void FrameAssembler::assembleCurrentFrame()
 
     mGui.parse(frame);
     mText.parse(frame, mGui.getData());
+    mRect.parse(frame);
+
 //    mScene.update(frame);
 
 //    ParsedFrame pFrame;

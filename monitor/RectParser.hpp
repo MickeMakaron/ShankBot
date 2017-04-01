@@ -24,47 +24,65 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef GRAPHICS_LAYER_FRAME_ASSEMBLER_HPP
-#define GRAPHICS_LAYER_FRAME_ASSEMBLER_HPP
+#ifndef GRAPHICS_LAYER_RECT_PARSER_HPP
+#define GRAPHICS_LAYER_RECT_PARSER_HPP
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "monitor/GuiParser.hpp"
-#include "monitor/Scene.hpp"
-#include "monitor/TextParser.hpp"
-#include "monitor/RectParser.hpp"
+#include "Draw.hpp"
 namespace GraphicsLayer
 {
-    class TibiaContext;
     struct Frame;
 }
 ///////////////////////////////////
 
 ///////////////////////////////////
 // STD C++
+#include <memory>
+#include <vector>
 ///////////////////////////////////
 
 namespace GraphicsLayer
 {
-    class FrameAssembler
+    class RectParser
     {
         public:
-            FrameAssembler(const TibiaContext& context);
+            struct Rect
+            {
+                Rect(){}
+                Rect(const RectDraw& draw) : draw(&draw){}
+                const RectDraw* draw = nullptr;
+            };
 
-            void update(const Frame& frame);
+            struct Bar
+            {
+                Rect border;
+                Rect fill;
+                float percent;
+            };
+
+            struct Data
+            {
+                std::vector<std::vector<Bar>> bars;
+                std::vector<Bar> hpBars;
+                std::vector<Rect> textInputFields;
+            };
+
+        public:
+            explicit RectParser();
+
+            void parse(const Frame& frame);
+
+            const Data& getData();
 
         private:
-            void assembleCurrentFrame();
+            void insertBar(const Bar& b);
 
         private:
-            const TibiaContext& mContext;
-            GuiParser mGui;
-            Scene mScene;
-            TextParser mText;
-            RectParser mRect;
-            Frame mCurrentFrame;
-            bool mIsFrameAssembled = true;
+            Data mData;
+            std::shared_ptr<std::vector<RectDraw>> mDraws;
     };
 }
 
-#endif // GRAPHICS_LAYER_FRAME_ASSEMBLER_HPP
+
+#endif // GRAPHICS_LAYER_RECT_PARSER_HPP
