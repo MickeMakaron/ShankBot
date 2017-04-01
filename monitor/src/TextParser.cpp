@@ -162,7 +162,7 @@ void TextParser::handleDefaultSideBarText(size_t& i)
             SB_EXPECT(text.size(), ==, 2);
             i += 2;
             SB_EXPECT(i, <, mBuilders.size());
-            mData.isInventoryMinimized = it->string == "Cap:";
+            mData.isInventoryMinimized = it->string == "CaP:";
             if(mData.isInventoryMinimized)
             {
                 SB_EXPECT(text[1].string, ==, "soul:");
