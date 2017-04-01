@@ -72,42 +72,52 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
         }
     );
 
-    for(size_t i = 0; i < mDraws->size(); i++)
+    for(size_t i = 0; i < mDraws->size();)
     {
-        const TextBuilder& b = *mBuilders[i];
-        using T = Text::Type;
-        switch(b.getTextType())
+        try
         {
-            case T::NAME:
-                mData.names.insert(mData.names.end(), b.getText().begin(), b.getText().end());
-                break;
-
-            case T::CLICKABLE_NPC_TEXT:
-                mData.clickableNpcText = b.getText();
-                break;
-
-            case T::CHAT_TAB:
-                do
+            for(; i < mDraws->size(); i++)
+            {
+                const TextBuilder& b = *mBuilders[i];
+                using T = Text::Type;
+                switch(b.getTextType())
                 {
-                    mData.chatTabs.insert(mData.chatTabs.end(), b.getText().begin(), b.getText().end());
-                    i++;
-                } while(i < mBuilders.size() && mBuilders[i]->getTextType() == T::CHAT_TAB);
-                handleDefaultSideBarText(i);
-                break;
+                    case T::NAME:
+                        mData.names.insert(mData.names.end(), b.getText().begin(), b.getText().end());
+                        break;
 
-            case T::GUI:
-                handleGuiText(i);
-                break;
+                    case T::CLICKABLE_NPC_TEXT:
+                        mData.clickableNpcText = b.getText();
+                        break;
 
-            default:
-                std::cout << "Unhandled text (type=" << (int)b.getTextType() << "): " << std::endl;
-                for(const Text& t : b.getText())
-                {
-                    std::cout << "\t" << t.string << std::endl;
+                    case T::CHAT_TAB:
+                        do
+                        {
+                            mData.chatTabs.insert(mData.chatTabs.end(), b.getText().begin(), b.getText().end());
+                            i++;
+                        } while(i < mBuilders.size() && mBuilders[i]->getTextType() == T::CHAT_TAB);
+                        handleDefaultSideBarText(i);
+                        break;
+
+                    case T::GUI:
+                        handleGuiText(i);
+                        break;
+
+                    default:
+        //                std::cout << "Unhandled text (type=" << (int)b.getTextType() << "): " << std::endl;
+        //                for(const Text& t : b.getText())
+        //                {
+        //                    std::cout << "\t" << t.string << std::endl;
+        //                }
+                        break;
                 }
-                break;
+            }
         }
-
+        catch(const std::runtime_error& e)
+        {
+            std::cout << "Failed to handle text: " << e.what() << std::endl;
+            i++;
+        }
     }
 
     for(const Text& name : mData.battle.names)
@@ -197,6 +207,11 @@ void TextParser::handleDefaultSideBarText(size_t& i)
             else if(it->string == "Premium Features")
             {
                 parsedTypes.insert(PREMIUM_FEATURES);
+                mData.isPremiumFeaturesMinimized = (std::distance(it, text.end()) == 1);
+                if(!mData.isPremiumFeaturesMinimized)
+                {
+                    break;
+                }
             }
             else
             {
@@ -232,25 +247,17 @@ void TextParser::handleGuiText(size_t& i)
         }
         else
         {
-            std::cout << "Unhandled GUI text: " << std::endl;
-            for(const Text& t : text)
-            {
-                std::cout << "\t" << t.string << std::endl;
-            }
+//            std::cout << "Unhandled GUI text: " << std::endl;
+//            for(const Text& t : text)
+//            {
+//                std::cout << "\t" << t.string << std::endl;
+//            }
         }
 
         return;
     }
 
-    try
-    {
-        foundIt->second(i);
-    }
-    catch(const std::runtime_error& e)
-    {
-        std::cout << "Failed to handle GUI text: \"" << e.what() << "\"." << std::endl;
-        return;
-    }
+    foundIt->second(i);
 }
 
 void TextParser::handleContainerText(size_t& i)

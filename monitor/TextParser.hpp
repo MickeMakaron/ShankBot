@@ -131,6 +131,7 @@ namespace GraphicsLayer
                 unsigned short cap;
                 unsigned short hp;
                 unsigned short mana;
+                bool isPremiumFeaturesMinimized;
                 std::vector<Text> clickableNpcText;
                 std::vector<Container> containers;
 
