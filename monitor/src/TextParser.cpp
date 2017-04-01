@@ -179,17 +179,25 @@ void TextParser::handleDefaultSideBarText(size_t& i)
         }
         else if(isNumeric(it->string))
         {
-            SB_EXPECT(text.size(), >=, 2);
+            if(it->type == Text::Type::ITEM_STACK_COUNT)
+            {
+                mData.inventoryStackCounts.insert(mData.inventoryStackCounts.end(), text.begin(), text.end());
+                it = text.end();
+            }
+            else
+            {
+                SB_EXPECT(text.size(), >=, 2);
 
-            SB_EXPECT_TRUE(isNumeric(it->string));
-            mData.hp = strToInt(it->string);
+                SB_EXPECT_TRUE(isNumeric(it->string));
+                mData.hp = strToInt(it->string);
 
-            SB_EXPECT(++it, !=, text.end());
-            SB_EXPECT_TRUE(isNumeric(it->string));
-            mData.mana = strToInt(it->string);
+                SB_EXPECT(++it, !=, text.end());
+                SB_EXPECT_TRUE(isNumeric(it->string));
+                mData.mana = strToInt(it->string);
 
-            it++;
-            parsedTypes.insert(HP_MANA);
+                it++;
+                parsedTypes.insert(HP_MANA);
+            }
         }
 
         while(it != text.end())

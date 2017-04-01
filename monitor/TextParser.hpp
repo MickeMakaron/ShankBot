@@ -134,6 +134,7 @@ namespace GraphicsLayer
                 bool isPremiumFeaturesMinimized;
                 std::vector<Text> clickableNpcText;
                 std::vector<Container> containers;
+                std::vector<Text> inventoryStackCounts;
 
                 UnjustifiedPoints unjustifiedPoints;
                 Prey prey;
