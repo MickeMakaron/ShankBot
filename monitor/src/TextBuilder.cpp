@@ -253,6 +253,7 @@ void TextBuilder::setTextType()
             << " (" << (int)mTextDraw.color.r << " " << (int)mTextDraw.color.g << " " << (int)mTextDraw.color.b << " " << (int)mTextDraw.color.a << "). "
             << "Outlined: " << (mTextDraw.isOutlined ? "yes" : "no") << std::endl;
     std::cout << sstream.str();
+    mTextType = Text::Type::UNKNOWN;
 //    SB_THROW(sstream.str());
 }
 
