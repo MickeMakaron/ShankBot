@@ -48,6 +48,10 @@ TextBuilder::TextBuilder(const TextDraw& text, unsigned short frameWidth, unsign
 {
     build();
     setTextType();
+    for(Text& t : mText)
+    {
+        t.type = mTextType;
+    }
 }
 
 void TextBuilder::setTextType()
@@ -366,9 +370,6 @@ void TextBuilder::build()
         t.string.reserve(line.characters.size());
         for(const unsigned char& c : line.characters)
             t.string.push_back(c);
-
-        t.type = mTextType;
-
         lines.push_back(t);
     }
 
