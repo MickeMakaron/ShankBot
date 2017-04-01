@@ -718,7 +718,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             {
                 c.slots.emplace_back(d);
             }
-            else if(width == 32 && height == 18)
+            else if((width == 32 && height == 18))
             {
                 // soul/cap slot
             }
