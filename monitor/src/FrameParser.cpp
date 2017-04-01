@@ -1743,6 +1743,8 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
                 std::stringstream sstream;
                 sstream << "recFail/" << failCount++ << ".png";
                 img.save(QString::fromStdString(sstream.str()));
+
+                std::cout << "Failed to recognize pixel data. A dump has been written to \"" << sstream.str() << "\"." << std::endl;
             }
 
             return;
