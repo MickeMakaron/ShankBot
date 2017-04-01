@@ -115,6 +115,7 @@ namespace GraphicsLayer
             STORE_NEW = Color({247, 175, 72, 255}).packed,
             VIP_OFFLINE = Color({248, 96, 96, 255}).packed,
             VIP_ONLINE = Color({96, 248, 96, 255}).packed,
+            VIP_GROUP = Color({248, 248, 248, 255}).packed,
             ADD_NEW_HOTKEY_ENTRY = Color({255, 0, 0, 255}).packed,
             CONTEXT_MENU = CHAT_TAB_NEW_MESSAGE,
             NAME_BATTLE_WINDOW_HIGHLIGHTED = CHAT_TAB_NEW_MESSAGE,

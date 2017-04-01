@@ -178,6 +178,10 @@ void TextBuilder::setTextType()
                 mTextType = Text::Type::VIP_ONLINE;
                 return;
 
+            case Color::VIP_GROUP:
+                mTextType = Text::Type::VIP_GROUP;
+                return;
+
             case Color::HOTKEY_TEXT:
                 mTextType = Text::Type::HOTKEY_TEXT;
                 return;

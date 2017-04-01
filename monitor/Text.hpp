@@ -65,6 +65,7 @@ namespace GraphicsLayer
             STORE_NEW,
             VIP_OFFLINE,
             VIP_ONLINE,
+            VIP_GROUP,
             ADD_NEW_HOTKEY_ENTRY,
             NAME_BATTLE_WINDOW_HIGHLIGHTED
         };
