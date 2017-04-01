@@ -80,6 +80,10 @@ void TextBuilder::setTextType()
             mTextType = Text::Type::SOUND;
             return;
 
+        case Color::BROADCAST:
+            mTextType = Text::Type::BROADCAST;
+            return;
+
         default:
             break;
     }
@@ -137,10 +141,6 @@ void TextBuilder::setTextType()
 
             case Color::SERVER_BROADCAST:
                 mTextType = Text::Type::SERVER_BROADCAST;
-                return;
-
-            case Color::BROADCAST:
-                mTextType = Text::Type::BROADCAST;
                 return;
 
             default:
