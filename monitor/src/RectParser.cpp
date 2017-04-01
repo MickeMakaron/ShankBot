@@ -150,6 +150,15 @@ void RectParser::parse(const Frame& frame)
                     mData.textInputFields.emplace_back(d);
                     break;
 
+                case C::TEXT_CURSOR_CHAT_LOCAL:
+                case C::TEXT_CURSOR_CHAT_NO_LOCAL:
+                    SB_EXPECT(short(d.botRight.x - d.topLeft.x), ==, 1);
+                    SB_EXPECT(short(d.botRight.y - d.topLeft.y), ==, 13);
+                    mData.chatInputCursor = Rect(d);
+                    break;
+
+
+
                 default:
                     printUnhandled(i);
                     break;

@@ -221,7 +221,7 @@ QJsonValue toJson(Constants::RectColor c)
     using C = Constants::RectColor;
     switch(c)
     {
-        case C::HP_GRAY: return "HP_GRAY/GUI_TEXT_UNDERLINE/TEXT_CURSOR_MENUS";
+        case C::HP_GRAY: return "HP_GRAY/GUI_TEXT_UNDERLINE/TEXT_CURSOR_MENUS/TOOLTIP_FILL";
 
         case C::HP_FULL: return "HP_FULL/HP_FULL_BATTLE_LIST/SKILL_BAR_GREEN";
 
@@ -235,8 +235,9 @@ QJsonValue toJson(Constants::RectColor c)
         case C::LIST_MENU_BACKGROUND: return "LIST_MENU_BACKGROUND/LIST_MENU_UNSELECTED_ENTRY_BOX";
         case C::LIST_MENU_SELECTED_ENTRY_BOX: return "LIST_MENU_SELECTED_ENTRY_BOX";
         case C::SKILL_BAR_GREEN_FULL: return "SKILL_BAR_GREEN_FULL";
-        case C::HP_BACKGROUND: return "HP_BACKGROUND/SCENE_CLEAR_COLOR";
-        case C::TEXT_CURSOR_CHAT: return "TEXT_CURSOR_CHAT";
+        case C::HP_BACKGROUND: return "HP_BACKGROUND/SCENE_CLEAR_COLOR/TOOLTIP_BORDER";
+        case C::TEXT_CURSOR_CHAT_LOCAL: return "TEXT_CURSOR_CHAT_LOCAL";
+        case C::TEXT_CURSOR_CHAT_NO_LOCAL: return "TEXT_CURSOR_CHAT_NO_LOCAL";
 
         default:
             return "UNIMPLEMENTED";

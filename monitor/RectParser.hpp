@@ -66,6 +66,7 @@ namespace GraphicsLayer
                 std::vector<std::vector<Bar>> bars;
                 std::vector<Bar> hpBars;
                 std::vector<Rect> textInputFields;
+                Rect chatInputCursor;
             };
 
         public:
