@@ -55,10 +55,10 @@ void RectParser::parse(const Frame& frame)
     auto printUnhandled = [this](size_t i)
     {
         const RectDraw& d = (*mDraws)[i];
-        std::cout   << "Unhandled: " << i << std::endl
-                    << "\tdraw call id: " << d.drawCallId << std::endl
-                    << "\t" << d.topLeft.x << "x" << d.topLeft.y << " (" << d.botRight.x - d.topLeft.x << "x" << d.botRight.y - d.topLeft.y << ")" << std::endl
-                    << "\t" << (int)d.color.r << " " << (int)d.color.g << " " << (int)d.color.b << " " << (int)d.color.a << std::endl;
+//        std::cout   << "Unhandled: " << i << std::endl
+//                    << "\tdraw call id: " << d.drawCallId << std::endl
+//                    << "\t" << d.topLeft.x << "x" << d.topLeft.y << " (" << d.botRight.x - d.topLeft.x << "x" << d.botRight.y - d.topLeft.y << ")" << std::endl
+//                    << "\t" << (int)d.color.r << " " << (int)d.color.g << " " << (int)d.color.b << " " << (int)d.color.a << std::endl;
     };
     for(size_t i = 0; i < mDraws->size(); i++)
     {
@@ -81,32 +81,14 @@ void RectParser::parse(const Frame& frame)
                     if(intHeight == 3 || intHeight == 2)
                     {
                         i++;
-                        if(i >= mDraws->size())
-                        {
-                            break;
-                        }
+                        SB_EXPECT(i, <, mDraws->size());
+
                         const RectDraw& border = (*mDraws)[i];
                         SB_EXPECT(d.drawCallId, ==, border.drawCallId);
                         SB_EXPECT(border.color.packed, ==, (int)C::HP_BACKGROUND);
-                        bool isHpBar = intHeight == 2;
-                        if(isHpBar)
-                        {
-                            SB_EXPECT(short(border.botRight.y - border.topLeft.y + 0.5f), ==, 4);
-                        }
-                        else
-                        {
-                            SB_EXPECT(short(border.botRight.y - border.topLeft.y + 0.5f), ==, 5);
-                        }
 
-                        Bar b;
-                        b.border.draw = &border;
-                        b.fill.draw = &d;
-
-                        float borderWidth = border.botRight.x - border.topLeft.x;
-                        float fillWidth = d.botRight.x - d.topLeft.x;
-                        b.percent = fillWidth / (borderWidth - 2.f);
-
-                        if(isHpBar)
+                        Bar b = mergeBarBorderAndFill(border, d);
+                        if(intHeight == 2)
                         {
                             mData.hpBars.push_back(b);
                         }
@@ -130,6 +112,21 @@ void RectParser::parse(const Frame& frame)
                         Bar b;
                         b.border.draw = &d;
                         b.percent = 0.f;
+
+                        i++;
+                        if(i < mDraws->size() && (*mDraws)[i].drawCallId == d.drawCallId)
+                        {
+                            const RectDraw& fill = (*mDraws)[i];
+                            if(short(fill.topLeft.x - d.topLeft.x + 0.5f) == 1 && short(fill.topLeft.y - d.topLeft.y + 0.5f) == 1)
+                            {
+                                b = mergeBarBorderAndFill(d, fill);
+                            }
+                            else
+                            {
+                                i--;
+                            }
+                        }
+
                         if(intHeight == 4)
                         {
                             mData.hpBars.push_back(b);
@@ -188,6 +185,21 @@ void RectParser::parse(const Frame& frame)
         const RectDraw& d = *r.draw;
         std::cout << "TEXT INPUT FIELD: " << d.botRight.x - d.topLeft.x << "x" << d.botRight.y - d.topLeft.y << std::endl;
     }
+}
+
+RectParser::Bar RectParser::mergeBarBorderAndFill(const RectDraw& border, const RectDraw& fill)
+{
+    SB_EXPECT(short(border.botRight.y - border.topLeft.y + 0.5f) - short(fill.botRight.y - fill.topLeft.y), ==, 2);
+
+    Bar b;
+    b.border.draw = &border;
+    b.fill.draw = &fill;
+
+    float borderWidth = border.botRight.x - border.topLeft.x;
+    float fillWidth = fill.botRight.x - fill.topLeft.x;
+    b.percent = fillWidth / (borderWidth - 2.f);
+
+    return b;
 }
 
 void RectParser::insertBar(const Bar& b)

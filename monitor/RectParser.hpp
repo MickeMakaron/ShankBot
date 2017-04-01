@@ -78,6 +78,7 @@ namespace GraphicsLayer
 
         private:
             void insertBar(const Bar& b);
+            static Bar mergeBarBorderAndFill(const RectDraw& border, const RectDraw& fill);
 
         private:
             Data mData;
