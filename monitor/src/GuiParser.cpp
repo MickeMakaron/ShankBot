@@ -54,6 +54,11 @@ void GuiParser::parse(const Frame& frame)
     mDraws = frame.guiDraws;
     mBaseNames.clear();
 
+    if(mDraws == nullptr)
+    {
+        return;
+    }
+
     mHalfFrameWidth = frame.width / 2.f;
     mHalfFrameHeight = frame.height / 2.f;
 
@@ -79,7 +84,7 @@ void GuiParser::parse(const Frame& frame)
         }
         else
         {
-            std::cout << "Unhandled: " << mBaseNames[i] << std::endl;
+//            std::cout << "Unhandled: " << mBaseNames[i] << std::endl;
         }
     }
 
