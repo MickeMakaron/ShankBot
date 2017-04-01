@@ -79,7 +79,7 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
         switch(b.getTextType())
         {
             case T::NAME:
-                mData.names = b.getText();
+                mData.names.insert(mData.names.end(), b.getText().begin(), b.getText().end());
                 break;
 
             case T::CLICKABLE_NPC_TEXT:
@@ -87,11 +87,24 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
                 break;
 
             case T::CHAT_TAB:
-                mData.chatTabs = b.getText();
+                do
+                {
+                    mData.chatTabs.insert(mData.chatTabs.end(), b.getText().begin(), b.getText().end());
+                    i++;
+                } while(i < mBuilders.size() && mBuilders[i]->getTextType() == T::CHAT_TAB);
+                handleDefaultSideBarText(i);
                 break;
 
             case T::GUI:
                 handleGuiText(i);
+                break;
+
+            default:
+                std::cout << "Unhandled text (type=" << (int)b.getTextType() << "): " << std::endl;
+                for(const Text& t : b.getText())
+                {
+                    std::cout << "\t" << t.string << std::endl;
+                }
                 break;
         }
 
@@ -105,6 +118,97 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
     {
         std::cout << "PREY LIST NAME: " << name.string << std::endl;
     }
+
+    std::cout << "centre: " << mData.centre.string << std::endl;
+    std::cout << "stop: " << mData.stop.string << std::endl;
+    std::cout << "inv min: " << mData.isInventoryMinimized << std::endl;
+    std::cout << "soul: " << mData.soul << std::endl;
+    std::cout << "cap: " << mData.cap << std::endl;
+    std::cout << "hp: " << mData.hp << std::endl;
+    std::cout << "mana: " << mData.mana << std::endl;
+}
+
+void TextParser::handleDefaultSideBarText(size_t& i)
+{
+    enum Type : unsigned char
+    {
+        CENTRE,
+        HP_MANA,
+        PREMIUM_FEATURES,
+        SOUL_CAP,
+        STOP,
+        NUM_TYPES,
+    };
+    std::set<Type> parsedTypes;
+
+
+    using namespace sb::utility;
+    while(i < mBuilders.size() && parsedTypes.size() < NUM_TYPES)
+    {
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        auto it = text.begin();
+        if(it->string == "soul:" || it->string == "CaP:")
+        {
+            SB_EXPECT(text.size(), ==, 2);
+            i += 2;
+            SB_EXPECT(i, <, mBuilders.size());
+            mData.isInventoryMinimized = it->string == "Cap:";
+            if(mData.isInventoryMinimized)
+            {
+                SB_EXPECT(text[1].string, ==, "soul:");
+                readSoulAndCap(*mBuilders[i], *mBuilders[i - 1]);
+            }
+            else
+            {
+                SB_EXPECT(text[1].string, ==, "CaP:");
+                readSoulAndCap(*mBuilders[i - 1], *mBuilders[i]);
+            }
+
+            parsedTypes.insert(Type::SOUL_CAP);
+            it = text.end();
+        }
+        else if(isNumeric(it->string))
+        {
+            SB_EXPECT(text.size(), >=, 2);
+
+            SB_EXPECT_TRUE(isNumeric(it->string));
+            mData.hp = strToInt(it->string);
+
+            SB_EXPECT(++it, !=, text.end());
+            SB_EXPECT_TRUE(isNumeric(it->string));
+            mData.mana = strToInt(it->string);
+
+            it++;
+            parsedTypes.insert(HP_MANA);
+        }
+
+        while(it != text.end())
+        {
+            if(it->string == "Centre")
+            {
+                mData.centre = *it;
+                parsedTypes.insert(CENTRE);
+            }
+            else if(it->string == "Stop")
+            {
+                mData.stop = *it;
+                parsedTypes.insert(STOP);
+            }
+            else if(it->string == "Premium Features")
+            {
+                parsedTypes.insert(PREMIUM_FEATURES);
+            }
+            else
+            {
+                SB_THROW("Unexpected text. Got \"" + it->string + "\".");
+            }
+            it++;
+        }
+        i++;
+    }
+    i--;
+
+    SB_EXPECT(parsedTypes.size(), ==, NUM_TYPES);
 }
 
 
@@ -122,11 +226,19 @@ void TextParser::handleGuiText(size_t& i)
     auto foundIt = mGuiTextHandlers.find(h);
     if(foundIt == mGuiTextHandlers.end())
     {
-        std::cout << "Unhandled GUI text: " << std::endl;
-        for(const Text& t : text)
+        if(mData.containers.size() < mGuiData->game.sideBarWindows.containers.size())
         {
-            std::cout << "\t" << t.string << std::endl;
+            handleContainerText(i);
         }
+        else
+        {
+            std::cout << "Unhandled GUI text: " << std::endl;
+            for(const Text& t : text)
+            {
+                std::cout << "\t" << t.string << std::endl;
+            }
+        }
+
         return;
     }
 
@@ -139,34 +251,26 @@ void TextParser::handleGuiText(size_t& i)
         std::cout << "Failed to handle GUI text: \"" << e.what() << "\"." << std::endl;
         return;
     }
+}
 
-    if(h == "Unjustified Points")
+void TextParser::handleContainerText(size_t& i)
+{
+    const std::vector<Text>& title = mBuilders[i]->getText();
+    SB_EXPECT(title.size(), ==, 1);
+
+    mData.containers.emplace_back();
+    Container& c = mData.containers.back();
+
+    c.title = title[0];
+
+    i++;
+    if(i < mBuilders.size() && mBuilders[i]->getTextType() == Text::Type::ITEM_STACK_COUNT)
     {
-
+        c.counts = mBuilders[i]->getText();
     }
-    else if(h == "Prey")
+    else
     {
-
-    }
-    else if(h == "Skills")
-    {
-
-    }
-    else if(h == "VIP")
-    {
-
-    }
-    else if(h == "Battle")
-    {
-
-    }
-    else if(h == "Your Store Inbox")
-    {
-
-    }
-    else if(h == "Prey")
-    {
-
+        i--;
     }
 }
 
@@ -457,7 +561,72 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         SB_EXPECT(++it, ==, text.end());
     };
 
+    handlers["Chat on"] = [this](size_t& i)
+    {
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        SB_EXPECT(text.size(), ==, 1);
+        mData.isChatOn = true;
+        mData.toggleChat = text[0];
+    };
+    handlers["Chat off"] = [this](size_t& i)
+    {
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        SB_EXPECT(text.size(), ==, 1);
+        mData.isChatOn = false;
+        mData.toggleChat = text[0];
+    };
+
+    handlers["Centre"] = [this](size_t& i)
+    {
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        SB_EXPECT(text.size(), ==, 2);
+        SB_EXPECT(text[1].string, ==, "Stop");
+        mData.centre = text[0];
+        mData.stop = text[1];
+    };
+
+
+
+    handlers["soul:"] = [this](size_t& i)
+    {
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        SB_EXPECT(text.size(), ==, 2);
+        SB_EXPECT(text[1].string, ==, "CaP:");
+
+        i += 2;
+        SB_EXPECT(i, <, mBuilders.size());
+        readSoulAndCap(*mBuilders[i - 1], *mBuilders[i]);
+    };
+
+    handlers["CaP:"] = [this](size_t& i)
+    {
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        SB_EXPECT(text.size(), ==, 2);
+        SB_EXPECT(text[1].string, ==, "soul:");
+
+        i += 2;
+        SB_EXPECT(i, <, mBuilders.size());
+        readSoulAndCap(*mBuilders[i], *mBuilders[i - 1]);
+    };
+
+
+
     return handlers;
+}
+
+void TextParser::readSoulAndCap(const TextBuilder& soul, const TextBuilder& cap)
+{
+    const std::vector<Text>& soulText = soul.getText();
+    const std::vector<Text>& capText = cap.getText();
+
+    SB_EXPECT(soulText.size(), ==, 1);
+    SB_EXPECT(capText.size(), ==, 1);
+
+    SB_EXPECT_TRUE(sb::utility::isNumeric(soulText[0].string));
+    SB_EXPECT_TRUE(sb::utility::isNumeric(capText[0].string));
+
+    mData.soul = sb::utility::strToInt(soulText[0].string);
+    mData.cap = sb::utility::strToInt(capText[0].string);
 }
 
 

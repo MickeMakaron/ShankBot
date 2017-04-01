@@ -113,12 +113,26 @@ namespace GraphicsLayer
                 unsigned short manaLeechAmount = 0;
             };
 
+            struct Container : public SideBarWindow
+            {
+                std::vector<Text> counts;
+            };
+
             struct Data
             {
                 std::vector<Text> names;
                 std::vector<Text> chatTabs;
+                Text toggleChat;
+                bool isChatOn;
+                Text centre;
+                Text stop;
+                bool isInventoryMinimized;
+                unsigned short soul;
+                unsigned short cap;
+                unsigned short hp;
+                unsigned short mana;
                 std::vector<Text> clickableNpcText;
-                std::vector<SideBarWindow> sideBarWindows;
+                std::vector<Container> containers;
 
                 UnjustifiedPoints unjustifiedPoints;
                 Prey prey;
@@ -135,8 +149,11 @@ namespace GraphicsLayer
         private:
             std::map<std::string, std::function<void(size_t&)>> initGuiTextHandlers();
             void handleGuiText(size_t& i);
+            void handleDefaultSideBarText(size_t& i);
+            void handleContainerText(size_t& i);
             static unsigned short parseTimeText(const std::string& str);
             static unsigned short parsePercentageText(const std::string& str);
+            void readSoulAndCap(const TextBuilder& soul, const TextBuilder& cap);
 
 
         private:
