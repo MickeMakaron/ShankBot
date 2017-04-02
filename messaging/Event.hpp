@@ -44,6 +44,14 @@ namespace messaging
     enum class EventType : unsigned char
     {
         HP_CHANGE,
+        MANA_CHANGE,
+        SOUL_CHANGE,
+        CAP_CHANGE,
+        PLAYER_CONDITION_CHANGE,
+
+        UINT16_CHANGE,
+        UINT32_CHANGE,
+        FLOAT32_CHANGE,
         NUM_TYPES,
         INVALID,
     };

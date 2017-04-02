@@ -41,11 +41,36 @@ namespace sb
 {
 namespace messaging
 {
+    template<> struct EventData<EventType::FLOAT32_CHANGE>
+    {
+        float oldVal;
+        float newVal;
+    };
+
+    template<> struct EventData<EventType::UINT16_CHANGE>
+    {
+        uint16_t oldVal;
+        uint16_t newVal;
+    };
+
+    template<> struct EventData<EventType::UINT32_CHANGE>
+    {
+        uint32_t oldVal;
+        uint32_t newVal;
+    };
+
     template<> struct EventData<EventType::HP_CHANGE>
     {
         float oldPercent;
         float newPercent;
+        uint16_t oldVal;
+        uint16_t newVal;
     };
+
+    template<> struct EventData<EventType::MANA_CHANGE> : public EventData<EventType::HP_CHANGE>{};
+    template<> struct EventData<EventType::CAP_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
+    template<> struct EventData<EventType::SOUL_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
+    template<> struct EventData<EventType::PLAYER_CONDITION_CHANGE> : public EventData<EventType::UINT32_CHANGE>{};
 }
 }
 
