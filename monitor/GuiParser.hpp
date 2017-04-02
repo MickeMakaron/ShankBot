@@ -120,12 +120,89 @@ namespace GraphicsLayer
         bool isEnabled;
     };
 
+
     struct MinMaxButton : public Button
     {
         MinMaxButton(){};
         MinMaxButton(const GuiDraw& d, bool isMin, bool isDown, bool isEnabled = true)
         : Button(d, isDown, isEnabled), isMin(isMin){}
         bool isMin;
+    };
+
+    struct UniqueButton : public Button
+    {
+        enum class Type : unsigned char
+        {
+            MINI_MAP_UP,
+            MINI_MAP_DOWN,
+            MINI_MAP_ZOOM_IN,
+            MINI_MAP_ZOOM_OUT,
+
+            INVENTORY_STORE_INBOX,
+
+            COMBAT_EXPERT_DOVE,
+            COMBAT_EXPERT_RED,
+            COMBAT_EXPERT_WHITE,
+            COMBAT_EXPERT_YELLOW,
+            COMBAT_PVP,
+            COMBAT_EXPERT,
+            COMBAT_FOLLOW,
+            COMBAT_STAND,
+            COMBAT_DEFENSIVE,
+            COMBAT_BALANCED,
+            COMBAT_OFFENSIVE,
+
+            CONTROL_MIN_MAX,
+            CONTROL_LOGOUT,
+            CONTROL_OPTIONS,
+            CONTROL_UNJUSTIFIED_POINTS,
+            CONTROL_QUEST_LOG,
+            CONTROL_VIP,
+            CONTROL_BATTLE,
+            CONTROL_SKILLS,
+            CONTROL_PREY,
+            DEFAULT_SIDE_BAR_STORE,
+
+            SKILLS_XP_BOOST,
+
+            BATTLE_MONSTER,
+            BATTLE_NPC,
+            BATTLE_PARTY,
+            BATTLE_PLAYER,
+            BATTLE_SKULL,
+            BATTLE_FILTER_MIN_MAX,
+            BATTLE_SORT,
+
+            CHAT_IGNORE,
+            CHAT_NEW_TAB,
+            CHAT_SERVER_MESSAGES,
+            CHAT_CLOSE_TAB,
+            CHAT_TAB_LEFT,
+            CHAT_TAB_RIGHT,
+            CHAT_SAY,
+            CHAT_WHISPER,
+            CHAT_YELL,
+
+            SPELL_BAR_ATTACK,
+            SPELL_BAR_HEALING,
+            SPELL_BAR_SUPPORT,
+            SPELL_BAR_SPECIAL,
+
+            SIDE_BAR_ADD,
+            SIDE_BAR_REMOVE,
+
+            TRANSFER_COINS,
+            CLIP_BOARD,
+
+            NUM_TYPES,
+            INVALID,
+        };
+
+        UniqueButton(){};
+        UniqueButton(const GuiDraw& d, Type type, bool isDown, bool isEnabled = true)
+        : Button(d, isDown, isEnabled), type(type){}
+
+        Type type = Type::INVALID;
     };
 
     class GuiParser
@@ -221,10 +298,6 @@ namespace GraphicsLayer
             {
                 struct MiniMap
                 {
-                    Button up;
-                    Button down;
-                    Button zoomIn;
-                    Button zoomOut;
                     GuiElement rose;
                     GuiElement map;
                     GuiElement crosshair;
@@ -240,42 +313,7 @@ namespace GraphicsLayer
 
                 struct Inventory
                 {
-                    Button storeInbox;
                     std::vector<EmptyEquipmentSlot> emptySlots;
-                };
-
-                struct CombatControls
-                {
-                    struct ExpertControls
-                    {
-                        Button dove;
-                        Button red;
-                        Button white;
-                        Button yellow;
-                    };
-
-                    Button pvp;
-                    Button expert;
-                    Button follow;
-                    Button stand;
-                    Button defensive;
-                    Button balanced;
-                    Button offensive;
-
-                    ExpertControls expertControls;
-                };
-
-                struct ControlButtons
-                {
-                    Button menu;
-                    Button logout;
-                    Button options;
-                    Button unjustPoints;
-                    Button questLog;
-                    Button vipList;
-                    Button battleList;
-                    Button skills;
-                    Button prey;
                 };
 
                 struct PremiumFeatures
@@ -286,36 +324,10 @@ namespace GraphicsLayer
                 MiniMap miniMap;
                 StatusBar statusBar;
                 Inventory inventory;
-                CombatControls combatControls;
-                ControlButtons controlButtons;
                 PremiumFeatures premiumFeatures;
 
-                Button store;
-                Button controlButtonsMinMax;
                 uint32_t conditions;
                 bool hasAdventurersBlessing;
-            };
-
-
-            struct Skills
-            {
-                Button xpBoost;
-            };
-
-            struct BattleList
-            {
-                struct Filter
-                {
-                    Button monster;
-                    Button npc;
-                    Button party;
-                    Button player;
-                    Button skull;
-                };
-
-                Button filterMinMax;
-                Filter filter;
-                Button sort;
             };
 
             struct Vip
@@ -337,11 +349,6 @@ namespace GraphicsLayer
                 };
 
                 std::vector<Mark> marks;
-            };
-
-            struct UnjustifiedPoints
-            {
-                // Todo...
             };
 
             struct Prey
@@ -383,10 +390,7 @@ namespace GraphicsLayer
             {
                 std::vector<Container> containers;
                 std::vector<SideBarWindow> windows;
-                Skills skills;
-                BattleList battleList;
                 Vip vip;
-                UnjustifiedPoints unjustifiedPoints;
                 Prey prey;
                 NpcTrade npcTrade;
             };
@@ -394,28 +398,6 @@ namespace GraphicsLayer
             struct GameWindow
             {
                 std::vector<CreatureFlag> creatureFlags;
-            };
-
-            struct ChatWindow
-            {
-                Button ignore;
-                Button newTab;
-
-                Button messages;
-                Button closeTab;
-                Button tabLeft;
-                Button tabRight;
-
-                enum class Volume : unsigned char
-                {
-                    SAY,
-                    WHISPER,
-                    YELL,
-                    NUM_VOLUMES,
-                };
-
-                Volume currentVolume;
-                Button volume;
             };
 
             struct SpellBar
@@ -433,15 +415,13 @@ namespace GraphicsLayer
                 std::vector<Button> tabs;
                 std::vector<MinMaxButton> minMaxButtons;
                 std::vector<Button> exitButtons;
+                std::array<UniqueButton, (size_t)UniqueButton::Type::NUM_TYPES> uniqueButtons;
 
                 DefaultSideBar defaultSideBar;
                 SideBarWindows sideBarWindows;
                 GameWindow gameWindow;
-                ChatWindow chatWindow;
                 SpellBar spellBar;
 
-                Button addSideBar;
-                Button removeSideBar;
             };
 
             struct MiscData

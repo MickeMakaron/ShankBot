@@ -214,90 +214,126 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
     DefaultSideBar& dsb = gd.defaultSideBar;
     SideBarWindows& sbw = gd.sideBarWindows;
     GameWindow& gw = gd.gameWindow;
-    ChatWindow& cw = gd.chatWindow;
     SpellBar& sb = gd.spellBar;
-    Skills& skills = sbw.skills;
-    BattleList& battleList = sbw.battleList;
     Vip& vip = sbw.vip;
-    UnjustifiedPoints& unjustifiedPoints = sbw.unjustifiedPoints;
     Prey& prey = sbw.prey;
     DefaultSideBar::MiniMap& miniMap = dsb.miniMap;
     DefaultSideBar::Inventory& inventory = dsb.inventory;
-    DefaultSideBar::CombatControls& combatControls = dsb.combatControls;
-    DefaultSideBar::ControlButtons& controlButtons = dsb.controlButtons;
     DefaultSideBar::PremiumFeatures& premiumFeatures = dsb.premiumFeatures;
-    DefaultSideBar::CombatControls::ExpertControls& expertControls = combatControls.expertControls;
     MiscData& misc = mData.misc;
     std::map<std::string, std::function<void(size_t&)>> handlers;
-    createButtonHandlers
+    auto createUniqueButtonHandlers = [this](const std::vector<std::pair<std::string, UniqueButton::Type>>& buttons,
+                                             std::map<std::string, std::function<void(size_t&)>>& handlers,
+                                             const std::string& down,
+                                             const std::string& up)
+    {
+        for(auto& pair : buttons)
+        {
+            UniqueButton::Type type = pair.second;
+            handlers[pair.first + up] = [type, this](size_t& i)
+            {
+                mData.game.uniqueButtons[(size_t)type] = UniqueButton((*mDraws)[i], type, false);
+            };
+            handlers[pair.first + down] = [type, this](size_t& i)
+            {
+                mData.game.uniqueButtons[(size_t)type] = UniqueButton((*mDraws)[i], type, true);
+            };
+        }
+    };
+
+    using UBT = UniqueButton::Type;
+    createUniqueButtonHandlers
     ({
-        {"button-sidebar-add", gd.addSideBar},
-        {"button-sidebar-remove", gd.removeSideBar},
+        {"automap-button-movedown", UBT::MINI_MAP_DOWN},
+        {"automap-button-moveup", UBT::MINI_MAP_UP},
+        {"automap-button-zoomout", UBT::MINI_MAP_ZOOM_OUT},
+        {"automap-button-zoomin", UBT::MINI_MAP_ZOOM_IN},
 
-        {"button-menu", dsb.controlButtonsMinMax},
-
-        {"button-store", dsb.store},
-        {"button-store-inbox", inventory.storeInbox},
-        {"button-store-storexp", skills.xpBoost},
-
-        {"button-logout", controlButtons.logout},
-        {"button-options", controlButtons.options},
-        {"button-unjustpoints", controlButtons.unjustPoints},
-        {"button-questlog", controlButtons.questLog},
-        {"button-viplist", controlButtons.vipList},
-        {"button-battlelist", controlButtons.battleList},
-        {"button-skills", controlButtons.skills},
-        {"button-preywidget", controlButtons.prey},
-
-        {"button-combat-pvp", combatControls.pvp},
-        {"button-combat-pvp-small", combatControls.pvp},
-        {"button-expert", combatControls.expert},
-        {"button-expert-small", combatControls.expert},
-        {"button-follow", combatControls.follow},
-        {"button-stand", combatControls.stand},
-        {"button-combat-defensive", combatControls.defensive},
-        {"button-combat-balanced", combatControls.balanced},
-        {"button-combat-offensive", combatControls.offensive},
-
-        {"button-combat-dovemode", expertControls.dove},
-        {"button-combat-redfistmode", expertControls.red},
-        {"button-combat-whitehandmode", expertControls.white},
-        {"button-combat-yellowhandmode", expertControls.yellow},
+        {"button-store-inbox", UBT::INVENTORY_STORE_INBOX},
 
 
-        {"automap-button-movedown", miniMap.down},
-        {"automap-button-moveup", miniMap.up},
-        {"automap-button-zoomout", miniMap.zoomOut},
-        {"automap-button-zoomin", miniMap.zoomIn},
-
-        {"console-buttonignore", cw.ignore},
-        {"console-buttonnew", cw.newTab},
-        {"console-buttonmessages", cw.messages},
-        {"console-buttonclose", cw.closeTab},
-        {"console-buttonleft", cw.tabLeft},
-        {"console-buttonright", cw.tabRight},
-        {"console-buttonleft-flash", cw.tabLeft},
-        {"console-buttonright-flash", cw.tabRight},
-        {"console-buttonleft-update", cw.tabLeft},
-        {"console-buttonright-update", cw.tabRight},
-        {"console-buttonsay", cw.volume},
-        {"console-buttonwhisper", cw.volume},
-        {"console-buttonyell", cw.volume},
+        {"button-combat-dovemode", UBT::COMBAT_EXPERT_DOVE},
+        {"button-combat-redfistmode", UBT::COMBAT_EXPERT_RED},
+        {"button-combat-whitehandmode", UBT::COMBAT_EXPERT_WHITE},
+        {"button-combat-yellowhandmode", UBT::COMBAT_EXPERT_YELLOW},
+        {"button-combat-pvp", UBT::COMBAT_PVP},
+        {"button-combat-pvp-small", UBT::COMBAT_PVP},
+        {"button-expert", UBT::COMBAT_EXPERT},
+        {"button-expert-small", UBT::COMBAT_EXPERT},
+        {"button-follow", UBT::COMBAT_FOLLOW},
+        {"button-stand", UBT::COMBAT_STAND},
+        {"button-combat-defensive", UBT::COMBAT_DEFENSIVE},
+        {"button-combat-balanced", UBT::COMBAT_BALANCED},
+        {"button-combat-offensive", UBT::COMBAT_OFFENSIVE},
 
 
+        {"button-menu", UBT::CONTROL_MIN_MAX},
+        {"button-logout", UBT::CONTROL_LOGOUT},
+        {"button-options", UBT::CONTROL_OPTIONS},
+        {"button-unjustpoints", UBT::CONTROL_UNJUSTIFIED_POINTS},
+        {"button-questlog", UBT::CONTROL_QUEST_LOG},
+        {"button-viplist", UBT::CONTROL_VIP},
+        {"button-battlelist", UBT::CONTROL_BATTLE},
+        {"button-skills", UBT::CONTROL_SKILLS},
+        {"button-preywidget", UBT::CONTROL_PREY},
 
-        {"battlelist-monster", battleList.filter.monster},
-        {"battlelist-npc", battleList.filter.npc},
-        {"battlelist-party", battleList.filter.party},
-        {"battlelist-players", battleList.filter.player},
-        {"battlelist-skull", battleList.filter.skull},
-        {"button-expand-12x12", battleList.filterMinMax},
+        {"button-store", UBT::DEFAULT_SIDE_BAR_STORE},
 
+        {"button-store-storexp", UBT::SKILLS_XP_BOOST},
 
-        {"button-transfercoins", misc.transferCoins},
-        {"button-copytoclipboard", misc.clipBoard},
+        {"battlelist-monster", UBT::BATTLE_MONSTER},
+        {"battlelist-npc", UBT::BATTLE_NPC},
+        {"battlelist-party", UBT::BATTLE_PARTY},
+        {"battlelist-players", UBT::BATTLE_PLAYER},
+        {"battlelist-skull", UBT::BATTLE_SKULL},
+        {"button-expand-12x12", UBT::BATTLE_FILTER_MIN_MAX},
+
+        {"console-buttonignore", UBT::CHAT_IGNORE},
+        {"console-buttonnew", UBT::CHAT_NEW_TAB},
+        {"console-buttonmessages", UBT::CHAT_SERVER_MESSAGES},
+        {"console-buttonclose", UBT::CHAT_CLOSE_TAB},
+        {"console-buttonleft", UBT::CHAT_TAB_LEFT},
+        {"console-buttonright", UBT::CHAT_TAB_RIGHT},
+        {"console-buttonleft-flash", UBT::CHAT_TAB_LEFT},
+        {"console-buttonright-flash", UBT::CHAT_TAB_RIGHT},
+        {"console-buttonleft-update", UBT::CHAT_TAB_LEFT},
+        {"console-buttonright-update", UBT::CHAT_TAB_RIGHT},
+        {"console-buttonsay", UBT::CHAT_SAY},
+        {"console-buttonwhisper", UBT::CHAT_WHISPER},
+        {"console-buttonyell", UBT::CHAT_YELL},
+
+//            SPELL_BAR_ATTACK,
+//            SPELL_BAR_HEALING,
+//            SPELL_BAR_SUPPORT,
+//            SPELL_BAR_SPECIAL,
+
+        {"button-sidebar-add", UBT::SIDE_BAR_ADD},
+        {"button-sidebar-remove", UBT::SIDE_BAR_REMOVE},
+
+        {"button-transfercoins", UBT::TRANSFER_COINS},
+        {"button-copytoclipboard", UBT::CLIP_BOARD},
     }, handlers, "-down", "-up");
 
+    createUniqueButtonHandlers
+    ({
+        {"button-contextmenu-12x12", UBT::BATTLE_SORT},
+    }, handlers, "-pressed", "-idle");
+
+    const std::vector<std::pair<std::string, UniqueButton::Type>> disabledUniqueButtons =
+    {
+        {"button-expert-disabled", UBT::COMBAT_EXPERT},
+        {"button-expert-small-disabled", UBT::COMBAT_EXPERT},
+        {"button-sidebar-add-disabled", UBT::SIDE_BAR_ADD},
+        {"button-sidebar-remove-disabled", UBT::SIDE_BAR_REMOVE},
+    };
+    for(auto& pair : disabledUniqueButtons)
+    {
+        UniqueButton::Type type = pair.second;
+        handlers[pair.first] = [type, this](size_t& i)
+        {
+            mData.game.uniqueButtons[(size_t)type] = UniqueButton((*mDraws)[i], type, false, false);
+        };
+    }
 
     auto createMinMaxButtonHandlers = [this]
     (
@@ -347,21 +383,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         {"exit-button-small", gd.exitButtons},
     }, handlers, "-down", "-up");
 
-    const std::vector<std::pair<std::string, Button&>> disabledButtons =
-    {
-        {"button-expert-disabled", combatControls.expert},
-        {"button-expert-small-disabled", combatControls.expert},
-        {"button-sidebar-add-disabled", gd.addSideBar},
-        {"button-sidebar-remove-disabled", gd.removeSideBar},
-    };
-    for(auto& pair : disabledButtons)
-    {
-        Button& b = pair.second;
-        handlers[pair.first] = [&b, this](size_t& i)
-        {
-            b = Button((*mDraws)[i], false, false);
-        };
-    }
+
 
     const std::vector<std::pair<std::string, std::vector<Button>&>> disabledVecButtons =
     {
@@ -380,10 +402,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
     ({
     }, handlers, "-checked", "-unchecked");
 
-    createButtonHandlers
-    ({
-        {"button-contextmenu-12x12", battleList.sort},
-    }, handlers, "-pressed", "-idle");
+
 
     createButtonVecHandlers
     ({
