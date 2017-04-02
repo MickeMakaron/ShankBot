@@ -56,6 +56,7 @@ namespace messaging
                 ATTACK_REQUEST,
                 OBJECT_RESPONSE,
                 OBJECT_REQUEST,
+                EVENT,
                 INVALID,
             };
 
