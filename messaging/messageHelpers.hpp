@@ -1,0 +1,188 @@
+// {SHANK_BOT_LICENSE_BEGIN}
+/****************************************************************
+****************************************************************
+*
+* ShankBot - Automation software for the MMORPG Tibia.
+* Copyright (C) 2016-2017 Mikael Hernvall
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Contact:
+*       mikael.hernvall@gmail.com
+*
+****************************************************************
+****************************************************************/
+// {SHANK_BOT_LICENSE_END}
+#ifndef SB_MESSAGING_MESSAGE_HELPERS_HPP
+#define SB_MESSAGING_MESSAGE_HELPERS_HPP
+
+///////////////////////////////////
+// Internal ShankBot headers
+#include "messaging/config.hpp"
+///////////////////////////////////
+
+///////////////////////////////////
+// STD C++
+#include <tuple>
+#include <vector>
+///////////////////////////////////
+
+namespace sb
+{
+namespace messaging
+{
+    template<size_t i, typename FunctionT, typename... Elements>
+    typename std::enable_if<i >= sizeof...(Elements), bool>::type
+    forEachHelper(std::tuple<Elements...>& elements, const FunctionT& function)
+    {
+        return true;
+    }
+
+    template<size_t i, typename FunctionT, typename... Elements>
+    typename std::enable_if<i < sizeof...(Elements), bool>::type
+    forEachHelper(std::tuple<Elements...>& elements, const FunctionT& function)
+    {
+        if(!forEach(std::get<i>(elements), function))
+        {
+            return false;
+        }
+        return forEachHelper<i + 1>(elements, function);
+    }
+
+    template<typename FunctionT, typename... Elements>
+    bool forEach(std::tuple<Elements...>& elements, const FunctionT& function)
+    {
+        return forEachHelper<0>(elements, function);
+    }
+
+
+    template<typename FunctionT, typename Element>
+    bool forEach(Element& t, const FunctionT& function)
+    {
+        return function(t);
+    }
+
+    template<typename T>
+    void toBinary(const T& t, std::vector<char>& stream)
+    {
+        stream.insert(stream.end(), (char*)&t, ((char*)&t) + sizeof(t));
+    }
+
+    template<typename T>
+    void toBinary(std::vector<T>& t, std::vector<char>& stream, void*)
+    {
+        unsigned short size = t.size();
+        stream.insert(stream.end(), (char*)&size, ((char*)&size) + sizeof(size));
+        stream.insert(stream.end(), (char*)t.data(), (char*)(t.data() + size));
+        std::cout << "rep count: " << size << std::endl;
+        for(size_t i = 0; i < size; i++)
+        {
+            std::cout << "\t" << t[i] << std::endl;
+        }
+    }
+
+    template<typename T>
+    void toBinary(std::vector<std::vector<T>>& t, std::vector<char>& stream, std::vector<T>*)
+    {
+        unsigned short size = t.size();
+        stream.insert(stream.end(), (char*)&size, ((char*)&size) + sizeof(size));
+        for(std::vector<T>& m : t)
+        {
+            toBinary(m, stream, m.data());
+        }
+    }
+
+    template<typename T>
+    void toBinary(std::vector<T>& t, std::vector<char>& stream)
+    {
+        toBinary(t, stream, t.data());
+    }
+
+
+    template<typename T>
+    bool fromBinary(T& t, const char*& buffer, size_t& size)
+    {
+        if(size < sizeof(t))
+        {
+            return false;
+        }
+        memcpy((char*)&t, buffer, sizeof(t));
+        buffer += sizeof(t);
+        size -= sizeof(t);
+
+        return true;
+    }
+
+
+
+    template<typename T>
+    bool fromBinary(std::vector<T>& t, const char*& buffer, size_t& bSize, void*)
+    {
+        unsigned short size;
+        if(bSize < sizeof(size))
+        {
+            return false;
+        }
+        memcpy(&size, buffer, sizeof(size));
+        buffer += sizeof(size);
+        bSize -= sizeof(size);
+        if(bSize < sizeof(T) * size)
+        {
+            return false;
+        }
+        t.resize(size);
+        memcpy(t.data(), buffer, sizeof(T) * size);
+        buffer += sizeof(T) * size;
+        bSize -= sizeof(T) * size;
+
+        return true;
+    }
+
+
+    template<typename T>
+    bool fromBinary(std::vector<std::vector<T>>& t, const char*& buffer, size_t& bSize, std::vector<T>*)
+    {
+        unsigned short size;
+        if(bSize < sizeof(size))
+        {
+            return false;
+        }
+        memcpy(&size, buffer, sizeof(size));
+        buffer += sizeof(size);
+        bSize -= sizeof(size);
+        t.resize(size);
+        for(std::vector<T>& m : t)
+        {
+            if(!fromBinary(m, buffer, bSize, m.data()))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    template<typename T>
+    bool fromBinary(std::vector<T>& t, const char*& buffer, size_t& bSize)
+    {
+        return fromBinary(t, buffer, bSize, t.data());
+    }
+
+
+
+}
+}
+
+
+#endif // SB_MESSAGING_MESSAGE_HELPERS_HPP
