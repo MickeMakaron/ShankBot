@@ -67,7 +67,8 @@ namespace messaging
     template<NewEventType type>
     struct NewEvent;
     #define SB_EVENT(eventType, ...) template<> struct NewEvent<eventType> : public EventBase<eventType, __VA_ARGS__>
-
+    #define SB_EVENT_LAYOUT(name, ...) template<NewEventType type> struct name : public EventBase<type, __VA_ARGS__>
+    #define SB_EVENT_COPY_LAYOUT(layout, eventType) template<> struct NewEvent<eventType> : public layout<eventType>
 }
 }
 
