@@ -24,8 +24,8 @@
 ****************************************************************
 ****************************************************************/
 // {SHANK_BOT_LICENSE_END}
-#ifndef SB_MESSAGING_MESSAGE_HELPERS_HPP
-#define SB_MESSAGING_MESSAGE_HELPERS_HPP
+#ifndef SB_MESSAGING_SERIALIZABLE_HPP
+#define SB_MESSAGING_SERIALIZABLE_HPP
 
 ///////////////////////////////////
 // Internal ShankBot headers
@@ -180,9 +180,84 @@ namespace messaging
     }
 
 
+    template<typename... Fields>
+    struct Serializable
+    {
+        std::tuple<Fields...> data;
 
+        #define SB_ACCESSOR(name, index) auto& name() {return std::get<index>(this->data);}
+
+        void toBinary(std::vector<char>& stream) const
+        {
+            std::tuple<Fields...>* d = (std::tuple<Fields...>*)&data;
+            forEach(*d, [&stream](auto& e){::sb::messaging::toBinary(e, stream); return true;});
+        }
+
+        size_t fromBinary(const char* buffer, size_t size)
+        {
+            size_t startSize = size;
+            if(forEach(data, [&buffer, &size](auto& e)
+            {
+                return ::sb::messaging::fromBinary(e, buffer, size);
+            }))
+            {
+                return startSize - size;
+            }
+
+            return -1;
+        }
+
+        template<typename... OtherFields>
+        bool operator==(const Serializable<OtherFields...>& other) const
+        {
+            return data == other.data;
+        }
+    };
+
+    template<typename FunctionT, typename... Elements>
+    bool forEach(Serializable<Elements...>& e, const FunctionT& function)
+    {
+        return forEach(e.data, function);
+    }
+
+    template<typename T, typename... Fields>
+    void toBinary(std::vector<T>& t, std::vector<char>& stream, Serializable<Fields...>*)
+    {
+        unsigned short size = t.size();
+        stream.insert(stream.end(), (char*)&size, ((char*)&size) + sizeof(size));
+        for(T& m : t)
+        {
+            m.toBinary(stream);
+        }
+    }
+
+    template<typename T, typename... Fields>
+    bool fromBinary(std::vector<T>& t, const char*& buffer, size_t& bSize, Serializable<Fields...>*)
+    {
+        unsigned short size;
+        if(bSize < sizeof(size))
+        {
+            return false;
+        }
+        size = *buffer;
+        buffer += sizeof(size);
+        bSize -= sizeof(size);
+        t.resize(size);
+        for(T& m : t)
+        {
+            size_t bytesRead = m.fromBinary(buffer, bSize);
+            if(bytesRead == (size_t)-1)
+            {
+                return false;
+            }
+
+            buffer += bytesRead;
+            bSize -= bytesRead;
+        }
+        return true;
+    }
 }
 }
 
 
-#endif // SB_MESSAGING_MESSAGE_HELPERS_HPP
+#endif // SB_MESSAGING_SERIALIZABLE_HPP
