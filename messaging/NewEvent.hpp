@@ -41,6 +41,7 @@ namespace sb
 {
 namespace messaging
 {
+    #define SB_EVENT_ACCESSOR(name, index) SB_MESSAGE_ACCESSOR(name, index + 1)
     enum class NewEventType : unsigned char
     {
         HP_CHANGE,
@@ -56,12 +57,17 @@ namespace messaging
         INVALID,
     };
 
-    template<typename... Fields>
-    struct NewEvent : public NewMessage<NewEventType, Fields...>
+    template<NewEventType type, typename... Fields>
+    struct EventBase : public MessageBase<MessageType::EVENT, NewEventType, Fields...>
     {
-        #define SB_EVENT_ACCESSOR(name, index) SB_MESSAGE_ACCESSOR(name, index + 1)
+        EventBase(){eventType() = type;}
         SB_MESSAGE_ACCESSOR(eventType, 0);
     };
+
+    template<NewEventType type>
+    struct NewEvent;
+    #define SB_EVENT(eventType, ...) template<> struct NewEvent<eventType> : public EventBase<eventType, __VA_ARGS__>
+
 }
 }
 
