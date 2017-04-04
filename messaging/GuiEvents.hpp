@@ -30,7 +30,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "messaging/config.hpp"
-#include "messaging/Event.hpp"
+#include "messaging/NewEvent.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -41,36 +41,45 @@ namespace sb
 {
 namespace messaging
 {
-    template<> struct EventData<EventType::FLOAT32_CHANGE>
+    namespace layout
     {
-        float oldVal;
-        float newVal;
-    };
+        SB_EVENT_LAYOUT(Float32Change, float, float)
+        {
+            SB_EVENT_ACCESSOR(oldVal, 0);
+            SB_EVENT_ACCESSOR(newVal, 1);
+        };
 
-    template<> struct EventData<EventType::UINT16_CHANGE>
-    {
-        uint16_t oldVal;
-        uint16_t newVal;
-    };
+        SB_EVENT_LAYOUT(Uint16Change, uint16_t, uint16_t)
+        {
+            SB_EVENT_ACCESSOR(oldVal, 0);
+            SB_EVENT_ACCESSOR(newVal, 1);
+        };
 
-    template<> struct EventData<EventType::UINT32_CHANGE>
-    {
-        uint32_t oldVal;
-        uint32_t newVal;
-    };
+        SB_EVENT_LAYOUT(Uint32Change, uint32_t, uint32_t)
+        {
+            SB_EVENT_ACCESSOR(oldVal, 0);
+            SB_EVENT_ACCESSOR(newVal, 1);
+        };
 
-    template<> struct EventData<EventType::HP_CHANGE>
-    {
-        float oldPercent;
-        float newPercent;
-        uint16_t oldVal;
-        uint16_t newVal;
-    };
+        SB_EVENT_LAYOUT(Uint16PercentChange, float, float, uint16_t, uint16_t)
+        {
+            SB_EVENT_ACCESSOR(oldPercent, 0);
+            SB_EVENT_ACCESSOR(newPercent, 1);
+            SB_EVENT_ACCESSOR(oldVal, 2);
+            SB_EVENT_ACCESSOR(newVal, 3);
+        };
+    }
 
-    template<> struct EventData<EventType::MANA_CHANGE> : public EventData<EventType::HP_CHANGE>{};
-    template<> struct EventData<EventType::CAP_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
-    template<> struct EventData<EventType::SOUL_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
-    template<> struct EventData<EventType::PLAYER_CONDITION_CHANGE> : public EventData<EventType::UINT32_CHANGE>{};
+    SB_EVENT_COPY_LAYOUT(layout::Uint16PercentChange, NewEventType::HP_CHANGE){};
+    SB_EVENT_COPY_LAYOUT(layout::Uint16PercentChange, NewEventType::MANA_CHANGE){};
+    SB_EVENT_COPY_LAYOUT(layout::Uint16Change, NewEventType::CAP_CHANGE){};
+    SB_EVENT_COPY_LAYOUT(layout::Uint16Change, NewEventType::SOUL_CHANGE){};
+    SB_EVENT_COPY_LAYOUT(layout::Uint32Change, NewEventType::PLAYER_CONDITION_CHANGE){};
+//    template<> struct NewEvent<NewEventType::MANA_CHANGE> : public decltype(eventCopyHelper<NewEventType::MANA_CHANGE>(std::declval<NewEvent<NewEventType::HP_CHANGE>>()))
+//    template<> struct EventData<EventType::MANA_CHANGE> : public EventData<EventType::HP_CHANGE>{};
+//    template<> struct EventData<EventType::CAP_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
+//    template<> struct EventData<EventType::SOUL_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
+//    template<> struct EventData<EventType::PLAYER_CONDITION_CHANGE> : public EventData<EventType::UINT32_CHANGE>{};
 }
 }
 
