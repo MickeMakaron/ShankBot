@@ -67,7 +67,8 @@ namespace GraphicsLayer
             VIP_ONLINE,
             VIP_GROUP,
             ADD_NEW_HOTKEY_ENTRY,
-            NAME_BATTLE_WINDOW_HIGHLIGHTED
+            NAME_BATTLE_WINDOW_HIGHLIGHTED,
+            INVALID,
         };
 
         float x = 0;
@@ -77,7 +78,7 @@ namespace GraphicsLayer
         float width = 0;
         float height = 0;
         std::string string;
-        Type type;
+        Type type = Type::INVALID;
     };
 }
 
