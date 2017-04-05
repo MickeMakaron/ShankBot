@@ -75,11 +75,6 @@ namespace messaging
     SB_EVENT_COPY_LAYOUT(layout::Uint16Change, NewEventType::CAP_CHANGE){};
     SB_EVENT_COPY_LAYOUT(layout::Uint16Change, NewEventType::SOUL_CHANGE){};
     SB_EVENT_COPY_LAYOUT(layout::Uint32Change, NewEventType::PLAYER_CONDITION_CHANGE){};
-//    template<> struct NewEvent<NewEventType::MANA_CHANGE> : public decltype(eventCopyHelper<NewEventType::MANA_CHANGE>(std::declval<NewEvent<NewEventType::HP_CHANGE>>()))
-//    template<> struct EventData<EventType::MANA_CHANGE> : public EventData<EventType::HP_CHANGE>{};
-//    template<> struct EventData<EventType::CAP_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
-//    template<> struct EventData<EventType::SOUL_CHANGE> : public EventData<EventType::UINT16_CHANGE>{};
-//    template<> struct EventData<EventType::PLAYER_CONDITION_CHANGE> : public EventData<EventType::UINT32_CHANGE>{};
 }
 }
 
