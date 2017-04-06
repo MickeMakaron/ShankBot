@@ -168,6 +168,31 @@ void RectParser::parse(const Frame& frame)
 
     }
 
+    for(const std::vector<Bar>& bars : mData.bars)
+    {
+        short x = bars[0].border.draw->topLeft.x + 0.5f;
+        switch(x)
+        {
+            case 41:
+                SB_EXPECT_TRUE(mData.preyBars.empty());
+                mData.preyBars = bars;
+                break;
+
+            case 6:
+                SB_EXPECT_TRUE(mData.skillBars.empty());
+                mData.skillBars = bars;
+                break;
+
+            case 22:
+                SB_EXPECT_TRUE(mData.battleBars.empty());
+                mData.battleBars = bars;
+                break;
+
+            default:
+                SB_THROW("Unexpected bar X offset: ", x);
+        }
+    }
+
     for(const Bar& bar : mData.hpBars)
     {
         std::cout << "HP BAR: " << bar.percent * 100.f << "%" << std::endl;

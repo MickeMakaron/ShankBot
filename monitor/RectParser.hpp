@@ -64,6 +64,9 @@ namespace GraphicsLayer
             struct Data
             {
                 std::vector<std::vector<Bar>> bars;
+                std::vector<Bar> skillBars;
+                std::vector<Bar> battleBars;
+                std::vector<Bar> preyBars;
                 std::vector<Bar> hpBars;
                 std::vector<Rect> textInputFields;
                 Rect chatInputCursor;
