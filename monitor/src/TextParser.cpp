@@ -382,19 +382,31 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
 
         while(i < mBuilders.size())
         {
-            const std::vector<Text>& text = mBuilders[i]->getText();
+            std::vector<Text> text = mBuilders[i]->getText();
             using T = Text::Type;
             switch(mBuilders[i]->getTextType())
             {
                 case T::GUI:
-                    for(const Text& t : text)
+                    for(Text& t : text)
                     {
                         auto foundIt = names.find(t.string);
 
                         if(foundIt == names.end())
                         {
-                            i--;
-                            return;
+                            if(t.string.back() != '-')
+                            {
+                                i--;
+                                return;
+                            }
+                            std::string prefix = t.string.substr(0, t.string.size() - 1);
+                            foundIt = names.lower_bound(prefix);
+                            if(foundIt == names.end() || foundIt->first.compare(0, prefix.size(), prefix) != 0)
+                            {
+                                i--;
+                                return;
+                            }
+
+                            t.string = foundIt->first;
                         }
 
                         SB_EXPECT(foundIt->second, >, 0);
