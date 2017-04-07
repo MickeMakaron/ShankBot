@@ -153,6 +153,7 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
         const std::vector<Text>& names = text.battle.names;
         const std::vector<RectParser::Bar>& bars = rect.battleBars;
 
+
         SB_EXPECT(sprites.size(), ==, names.size());
         SB_EXPECT(bars.size(), ==, names.size());
 
@@ -330,7 +331,7 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
         std::vector<size_t> validIndices;
         for(size_t i = 0; i < names.size(); i++)
         {
-            if(names[i].string != "Invalid")
+            if(names[i].string != "Inactive")
             {
                 validIndices.push_back(i);
             }
