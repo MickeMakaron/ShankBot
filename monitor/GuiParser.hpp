@@ -374,6 +374,8 @@ namespace GraphicsLayer
             {
                 DrawRect titleBar;
                 DrawRect clientArea;
+
+                bool isMinimized() const {return clientArea.local.height == 0;}
             };
 
             struct Container
