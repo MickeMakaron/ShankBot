@@ -353,6 +353,40 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
 
     };
 
+    auto parseSkills = [&](const GuiParser::SideBarWindow& window)
+    {
+        mData.skills.reset(new SkillsWindow());
+        assignWindow(*mData.skills, window);
+
+        if(mData.skills->isMinimized)
+        {
+            return;
+        }
+
+        mData.skills->values = text.skills.values;
+        mData.skills->percentages.fill(-1.f);
+
+        if(rect.skillBars.empty())
+        {
+            return;
+        }
+
+        const std::vector<RectParser::Bar>& bars = rect.skillBars;
+        const auto& y = text.skills.yCoords;
+        SB_EXPECT(bars.front().border.draw->topLeft.y, >, y.front());
+        SB_EXPECT(bars.back().border.draw->topLeft.y, <, y.back());
+
+        for(size_t i = 0, iBar = 0; i + 1 < y.size() && iBar < bars.size(); i++)
+        {
+            short barY = bars[iBar].border.draw->topLeft.y + 0.5f;
+            if(barY > y[i] && barY < y[i + 1])
+            {
+                mData.skills->percentages[i] = bars[iBar].percent;
+                iBar++;
+            }
+        }
+    };
+
     try
     {
 
@@ -383,6 +417,7 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
                     break;
 
                 case T::SKILLS:
+                    parseSkills(window);
                     break;
 
                 case T::UNJUSTIFIED_POINTS:

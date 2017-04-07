@@ -113,6 +113,12 @@ namespace GraphicsLayer
         std::vector<Bonus> bonuses;
     };
 
+    struct SkillsWindow : public SideBarWindow
+    {
+        std::array<unsigned int, (size_t)SkillField::NUM_FIELDS> values;
+        std::array<float, (size_t)SkillField::NUM_FIELDS> percentages;
+    };
+
     class SideBarWindowAssembler
     {
         public:
@@ -122,6 +128,7 @@ namespace GraphicsLayer
                 std::shared_ptr<BattleWindow> battle;
                 std::shared_ptr<VipWindow> vip;
                 std::shared_ptr<PreyWindow> prey;
+                std::shared_ptr<SkillsWindow> skills;
                 std::vector<ContainerWindow> containers;
             };
 
