@@ -454,7 +454,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             return;
         }
         using namespace sb::utility;
-        using F = Skills::Field;
+        using F = SkillField;
         auto& s = mData.skills.values;
         auto& y = mData.skills.yCoords;
 
@@ -471,25 +471,25 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             SB_EXPECT(++it, !=, text.end());
         };
 
-        auto setNumeric = [&setField](Skills::Field field, const Text& text)
+        auto setNumeric = [&setField](SkillField field, const Text& text)
         {
             SB_EXPECT_TRUE(isNumeric(text.string));
             setField(strToInt, field, text);
         };
 
-        auto readNumeric = [&expectStr, &setNumeric](Skills::Field field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
+        auto readNumeric = [&expectStr, &setNumeric](SkillField field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
         {
             expectStr(it, text, fieldStr);
             setNumeric(field, *it);
         };
 
-        auto readTime = [&expectStr, &setField](Skills::Field field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
+        auto readTime = [&expectStr, &setField](SkillField field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
         {
             expectStr(it, text, fieldStr);
             setField(parseTimeText, field, *it);
         };
 
-        auto readPercent = [&expectStr, &setField](Skills::Field field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
+        auto readPercent = [&expectStr, &setField](SkillField field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
         {
             expectStr(it, text, fieldStr);
             setField(parsePercentageText, field, *it);

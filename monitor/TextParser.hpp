@@ -48,6 +48,37 @@ namespace GraphicsLayer
 
 namespace GraphicsLayer
 {
+    enum class SkillField : unsigned char
+    {
+        LEVEL,
+        EXPERIENCE,
+        XP_GAIN_RATE,
+        HP,
+        MANA,
+        SOUL,
+        CAP,
+        SPEED,
+        FOOD_MINUTES,
+        STAMINA_MINUTES,
+        OFFLINE_TRAINING_MINUTES,
+        MAGIC_LEVEL,
+        FIST_LEVEL,
+        CLUB_LEVEL,
+        SWORD_LEVEL,
+        AXE_LEVEL,
+        DISTANCE_LEVEL,
+        SHIELDING_LEVEL,
+        FISHING_LEVEL,
+        CRIT_CHANCE,
+        CRIT_DAMAGE,
+        HP_LEECH_CHANCE,
+        HP_LEECH_AMOUNT,
+        MANA_LEECH_CHANCE,
+        MANA_LEECH_AMOUNT,
+        NUM_FIELDS,
+        INVALID,
+    };
+
     class TextParser
     {
         public:
@@ -91,39 +122,10 @@ namespace GraphicsLayer
 
             struct Skills : public SideBarWindow
             {
-                enum class Field : unsigned char
-                {
-                    LEVEL,
-                    EXPERIENCE,
-                    XP_GAIN_RATE,
-                    HP,
-                    MANA,
-                    SOUL,
-                    CAP,
-                    SPEED,
-                    FOOD_MINUTES,
-                    STAMINA_MINUTES,
-                    OFFLINE_TRAINING_MINUTES,
-                    MAGIC_LEVEL,
-                    FIST_LEVEL,
-                    CLUB_LEVEL,
-                    SWORD_LEVEL,
-                    AXE_LEVEL,
-                    DISTANCE_LEVEL,
-                    SHIELDING_LEVEL,
-                    FISHING_LEVEL,
-                    CRIT_CHANCE,
-                    CRIT_DAMAGE,
-                    HP_LEECH_CHANCE,
-                    HP_LEECH_AMOUNT,
-                    MANA_LEECH_CHANCE,
-                    MANA_LEECH_AMOUNT,
-                    NUM_FIELDS,
-                    INVALID,
-                };
 
-                std::array<unsigned int, (size_t)Field::NUM_FIELDS> values;
-                std::array<short, (size_t)Field::NUM_FIELDS> yCoords;
+
+                std::array<unsigned int, (size_t)SkillField::NUM_FIELDS> values;
+                std::array<short, (size_t)SkillField::NUM_FIELDS> yCoords;
             };
 
             struct Container : public SideBarWindow
