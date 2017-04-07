@@ -36,6 +36,7 @@ using namespace GraphicsLayer;
 ///////////////////////////////////
 // STD C++
 #include <iostream>
+#include <algorithm>
 ///////////////////////////////////
 
 RectParser::RectParser()
@@ -126,6 +127,10 @@ void RectParser::parse(const Frame& frame)
                                 i--;
                             }
                         }
+                        else
+                        {
+                            i--;
+                        }
 
                         if(intHeight == 4)
                         {
@@ -168,8 +173,15 @@ void RectParser::parse(const Frame& frame)
 
     }
 
-    for(const std::vector<Bar>& bars : mData.bars)
+    for(std::vector<Bar>& bars : mData.bars)
     {
+        if(bars.size() > 1)
+        {
+            if(bars[0].border.draw->topLeft.y > bars[1].border.draw->topLeft.y)
+            {
+                std::reverse(bars.begin(), bars.end());
+            }
+        }
         short x = bars[0].border.draw->topLeft.x + 0.5f;
         switch(x)
         {
