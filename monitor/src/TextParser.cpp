@@ -249,7 +249,12 @@ void TextParser::handleGuiText(size_t& i)
     auto foundIt = mGuiTextHandlers.find(h);
     if(foundIt == mGuiTextHandlers.end())
     {
-        if(mData.containers.size() < mGuiData->game.sideBarWindows.containers.size())
+        size_t numContainers = mGuiData->game.sideBarWindows.containers.size();
+        if(!mData.isInventoryMinimized && numContainers > 0 && mGuiData->game.sideBarWindows.containers[0].slots[0].draw->topLeft.x > 6.f)
+        {
+            numContainers--;
+        }
+        if(mData.containers.size() < numContainers)
         {
             handleContainerText(i);
         }
