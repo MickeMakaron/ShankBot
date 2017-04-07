@@ -119,6 +119,7 @@ void GuiParser::parsePass1()
     sb.manaPercent = (mana ? mana->botRight.x - mana->topLeft.x : 0.f) / borderWidth;
     sb.hpPercent = (hp ? hp->botRight.x - hp->topLeft.x : 0.f) / borderWidth;
 
+    std::reverse(mData.game.sideBarWindows.containers.begin(), mData.game.sideBarWindows.containers.end());
 }
 
 const GuiParser::Data& GuiParser::getData()
@@ -750,7 +751,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             i += 5;
             if(i >= mDraws->size() || (*mDraws)[i].drawCallId != drawCallId || mBaseNames[i] != "containerslot")
             {
-
+                std::reverse(c.slots.begin(), c.slots.end());
                 i--;
                 if(c.slots.empty())
                 {
