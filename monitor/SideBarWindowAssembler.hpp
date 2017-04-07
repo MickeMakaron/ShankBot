@@ -94,7 +94,7 @@ namespace GraphicsLayer
     {
         struct Item
         {
-            unsigned short count = 0;
+            unsigned short count = 1;
             const SpriteDraw* sprite = nullptr;
         };
 
