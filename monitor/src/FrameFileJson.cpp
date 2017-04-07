@@ -186,7 +186,9 @@ QJsonValue toJson(const SpriteDraw& d, const TibiaContext& c, const Frame& f)
 {
     QJsonObject o;
     o["x"] = (int)(d.topLeft.x + 0.5f);
-    o["y"] = (int)(d.botRight.y + 0.5f);
+    o["y"] = (int)(d.topLeft.y + 0.5f);
+    o["width"] = (int)(d.botRight.x - d.topLeft.x + 0.5f);
+    o["height"] = (int)(d.botRight.y - d.topLeft.y + 0.5f);
 
     const sb::tibiaassets::Object* object = getNamedObject(d, c);
     QJsonObject objectJson;
@@ -211,6 +213,8 @@ QJsonValue toJson(const GuiDraw& d, const Frame& f)
 {
     QJsonObject o;
     toJson(o, d, f);
+    o["localX"] = (short)(d.topLeft.x + 0.5f);
+    o["localY"] = (short)(d.topLeft.y + 0.5f);
 
     o["name"] = QString::fromStdString(d.name);
     return o;
@@ -249,6 +253,10 @@ QJsonValue toJson(const RectDraw& d, const Frame& f)
 {
     QJsonObject o;
     toJson(o, d, f);
+    o["xf"] = d.topLeft.x;
+    o["yf"] = d.topLeft.y;
+    o["widthf"] = d.botRight.x - d.topLeft.x;
+    o["heightf"] = d.botRight.y - d.topLeft.y;
 
     o["type"] = toJson((Constants::RectColor)d.color.packed);
     return o;
