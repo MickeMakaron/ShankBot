@@ -91,37 +91,39 @@ namespace GraphicsLayer
 
             struct Skills : public SideBarWindow
             {
-                unsigned short level = 0;
-                unsigned int experience = 0;
-                unsigned short xpGainRate = 0;
+                enum class Field : unsigned char
+                {
+                    LEVEL,
+                    EXPERIENCE,
+                    XP_GAIN_RATE,
+                    HP,
+                    MANA,
+                    SOUL,
+                    CAP,
+                    SPEED,
+                    FOOD_MINUTES,
+                    STAMINA_MINUTES,
+                    OFFLINE_TRAINING_MINUTES,
+                    MAGIC_LEVEL,
+                    FIST_LEVEL,
+                    CLUB_LEVEL,
+                    SWORD_LEVEL,
+                    AXE_LEVEL,
+                    DISTANCE_LEVEL,
+                    SHIELDING_LEVEL,
+                    FISHING_LEVEL,
+                    CRIT_CHANCE,
+                    CRIT_DAMAGE,
+                    HP_LEECH_CHANCE,
+                    HP_LEECH_AMOUNT,
+                    MANA_LEECH_CHANCE,
+                    MANA_LEECH_AMOUNT,
+                    NUM_FIELDS,
+                    INVALID,
+                };
 
-                unsigned short hp = 0;
-                unsigned short mana = 0;
-                unsigned short soul = 0;
-                unsigned short cap = 0;
-                unsigned short speed = 0;
-                unsigned short foodMinutes = 0;
-                unsigned short staminaMinutes = 0;
-                unsigned short offlineTrainingMinutes = 0;
-                unsigned short magicLevel = 0;
-
-
-                unsigned short fistLevel = 0;
-                unsigned short clubLevel = 0;
-                unsigned short swordLevel = 0;
-                unsigned short axeLevel = 0;
-                unsigned short distanceLevel = 0;
-                unsigned short shieldingLevel = 0;
-                unsigned short fishingLevel = 0;
-
-                unsigned short critChance = 0;
-                unsigned short critDamage = 0;
-
-                unsigned short hpLeechChance = 0;
-                unsigned short hpLeechAmount = 0;
-
-                unsigned short manaLeechChance = 0;
-                unsigned short manaLeechAmount = 0;
+                std::array<unsigned int, (size_t)Field::NUM_FIELDS> values;
+                std::array<short, (size_t)Field::NUM_FIELDS> yCoords;
             };
 
             struct Container : public SideBarWindow

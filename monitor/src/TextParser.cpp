@@ -454,18 +454,51 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             return;
         }
         using namespace sb::utility;
-        Skills& s = mData.skills;
+        using F = Skills::Field;
+        auto& s = mData.skills.values;
+        auto& y = mData.skills.yCoords;
+
+        auto setField = [this](const auto& valFunc, F field, const Text& text)
+        {
+            mData.skills.values[(size_t)field] = valFunc(text.string);
+            mData.skills.yCoords[(size_t)field] = text.localY + 0.5f;
+        };
+
+        auto expectStr = [](std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
+        {
+            SB_EXPECT(++it, !=, text.end());
+            SB_EXPECT(it->string, ==, fieldStr);
+            SB_EXPECT(++it, !=, text.end());
+        };
+
+        auto setNumeric = [&setField](Skills::Field field, const Text& text)
+        {
+            SB_EXPECT_TRUE(isNumeric(text.string));
+            setField(strToInt, field, text);
+        };
+
+        auto readNumeric = [&expectStr, &setNumeric](Skills::Field field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
+        {
+            expectStr(it, text, fieldStr);
+            setNumeric(field, *it);
+        };
+
+        auto readTime = [&expectStr, &setField](Skills::Field field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
+        {
+            expectStr(it, text, fieldStr);
+            setField(parseTimeText, field, *it);
+        };
+
+        auto readPercent = [&expectStr, &setField](Skills::Field field, std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)
+        {
+            expectStr(it, text, fieldStr);
+            setField(parsePercentageText, field, *it);
+        };
 
         SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT_TRUE(isNumeric(it->string));
-        s.level = strToInt(it->string);
+        setNumeric(F::LEVEL, *it);
 
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "  Experience");
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT_TRUE(isNumeric(it->string));
-        s.experience = strToInt(it->string);
-
+        readNumeric(F::EXPERIENCE, it, text, "  Experience");
         SB_EXPECT(++it, !=, text.end());
         if(it->string == "  XP Gain Rate")
         {
@@ -487,31 +520,19 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             const std::vector<Text>& xpGainRate = mBuilders[i]->getText();
 
             SB_EXPECT(xpGainRate.size(), ==, 1);
-            s.xpGainRate = parsePercentageText(xpGainRate.front().string);
+            setField(parsePercentageText, F::XP_GAIN_RATE, xpGainRate.front());
         }
         else
         {
-            s.xpGainRate = parsePercentageText(it->string);
+            setField(parsePercentageText, F::XP_GAIN_RATE, *it);
         }
 
-        auto readNumeric = [](std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& field)
-        {
-            SB_EXPECT(++it, !=, text.end());
-            SB_EXPECT(it->string, ==, field);
-            SB_EXPECT(++it, !=, text.end());
-            SB_EXPECT_TRUE(isNumeric(it->string));
-            return strToInt(it->string);
-        };
+        readNumeric(F::HP, it, text, "Hit Points");
+        readNumeric(F::MANA, it, text, "Mana");
+        readNumeric(F::SOUL, it, text, "Soul Points");
+        readNumeric(F::CAP, it, text, "Capacity");
 
-        s.hp = readNumeric(it, text, "Hit Points");
-        s.mana = readNumeric(it, text, "Mana");
-        s.soul = readNumeric(it, text, "Soul Points");
-        s.cap = readNumeric(it, text, "Capacity");
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "Speed");
-
-        SB_EXPECT(++it, !=, text.end());
+        expectStr(it, text, "Speed");
         if(it->string == "Food")
         {
             SB_EXPECT(++i, <, mBuilders.size());
@@ -519,77 +540,47 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
             const std::vector<Text>& speed = mBuilders[i]->getText();
 
             SB_EXPECT(speed.size(), ==, 1);
-            SB_EXPECT_TRUE(isNumeric(speed.front().string));
-            s.speed = strToInt(speed.front().string);
+            setNumeric(F::SPEED, speed.front());
         }
         else
         {
-            SB_EXPECT_TRUE(isNumeric(it->string));
-            s.speed = strToInt(it->string);
+            setNumeric(F::SPEED, *it);
         }
 
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "Food");
-        SB_EXPECT(++it, !=, text.end());
-        s.foodMinutes = parseTimeText(it->string);
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "Stamina");
-        SB_EXPECT(++it, !=, text.end());
-        s.staminaMinutes = parseTimeText(it->string);
+        readTime(F::FOOD_MINUTES, it, text, "Food");
+        readTime(F::STAMINA_MINUTES, it, text, "Stamina");
 
         SB_EXPECT(++it, !=, text.end());
         SB_EXPECT(it->string.find("Offline Training"), ==, 0);
         std::string offlineTrainingMinutes = it->string.substr(std::string("Offline Training").size());
-        s.staminaMinutes = parseTimeText(offlineTrainingMinutes);
+        setField([&offlineTrainingMinutes](const std::string& str){return parseTimeText(offlineTrainingMinutes);},
+                 F::OFFLINE_TRAINING_MINUTES,
+                 *it);
 
-        s.magicLevel = readNumeric(it, text, "Magic Level");
-        s.fistLevel = readNumeric(it, text, "Fist Fighting");
-        s.clubLevel = readNumeric(it, text, "Club Fighting");
-        s.swordLevel = readNumeric(it, text, "Sword Fighting");
-        s.axeLevel = readNumeric(it, text, "Axe Fighting");
-        s.distanceLevel = readNumeric(it, text, "Distance Fighting");
-        s.shieldingLevel = readNumeric(it, text, "Shielding");
-        s.fishingLevel = readNumeric(it, text, "Fishing");
+
+        readNumeric(F::MAGIC_LEVEL, it, text, "Magic Level");
+        readNumeric(F::FIST_LEVEL, it, text, "Fist Fighting");
+        readNumeric(F::CLUB_LEVEL, it, text, "Club Fighting");
+        readNumeric(F::SWORD_LEVEL, it, text, "Sword Fighting");
+        readNumeric(F::AXE_LEVEL, it, text, "Axe Fighting");
+        readNumeric(F::DISTANCE_LEVEL, it, text, "Distance Fighting");
+        readNumeric(F::SHIELDING_LEVEL, it, text, "Shielding");
+        readNumeric(F::FISHING_LEVEL, it, text, "Fishing");
 
         SB_EXPECT(++it, !=, text.end());
         SB_EXPECT(it->string, ==, "Critical Hit:");
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "  Chance");
-        SB_EXPECT(++it, !=, text.end());
-        s.critChance = parsePercentageText(it->string);
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "  Extra Damage");
-        SB_EXPECT(++it, !=, text.end());
-        s.critDamage = parsePercentageText(it->string);
+        readPercent(F::CRIT_CHANCE, it, text, "  Chance");
+        readPercent(F::CRIT_DAMAGE, it, text, "  Extra Damage");
 
         SB_EXPECT(++it, !=, text.end());
         SB_EXPECT(it->string, ==, "Hit Points Leech:");
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "  Chance");
-        SB_EXPECT(++it, !=, text.end());
-        s.hpLeechChance = parsePercentageText(it->string);
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "  Amount");
-        SB_EXPECT(++it, !=, text.end());
-        s.hpLeechAmount = parsePercentageText(it->string);
+        readPercent(F::HP_LEECH_CHANCE, it, text, "  Chance");
+        readPercent(F::HP_LEECH_AMOUNT, it, text, "  Amount");
 
         SB_EXPECT(++it, !=, text.end());
         SB_EXPECT(it->string, ==, "Mana Leech:");
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "  Chance");
-        SB_EXPECT(++it, !=, text.end());
-        s.manaLeechChance = parsePercentageText(it->string);
-
-        SB_EXPECT(++it, !=, text.end());
-        SB_EXPECT(it->string, ==, "  Amount");
-        SB_EXPECT(++it, !=, text.end());
-        s.manaLeechAmount = parsePercentageText(it->string);
+        readPercent(F::MANA_LEECH_CHANCE, it, text, "  Chance");
+        readPercent(F::MANA_LEECH_AMOUNT, it, text, "  Amount");
 
         SB_EXPECT(++it, ==, text.end());
     };
