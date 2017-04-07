@@ -62,7 +62,15 @@ namespace GraphicsLayer
             ALL     = PLAYER | NPC | MONSTER | SKULL | PARTY;
     };
 
-    struct BattleWindow
+    struct SideBarWindow
+    {
+        IRect titleBar;
+        IRect clientArea;
+
+        bool isMinimized;
+    };
+
+    struct BattleWindow : public SideBarWindow
     {
         struct Character
         {
@@ -71,14 +79,38 @@ namespace GraphicsLayer
             const SpriteDraw* draw = nullptr;
         };
 
-        IRect titleBar;
-        IRect clientArea;
-
-
-
         uint8_t filter = BattleFilter::UNKNOWN;
         std::vector<Character> characters;
         size_t selectedCharacterIndex = -1;
+    };
+
+    struct VipWindow : public SideBarWindow
+    {
+        std::vector<Text> online;
+        std::vector<Text> offline;
+    };
+
+    struct ContainerWindow : public SideBarWindow
+    {
+        struct Item
+        {
+            unsigned short count = 0;
+            const SpriteDraw* sprite = nullptr;
+        };
+
+        std::vector<Item> items;
+        unsigned short capacity = 0;
+    };
+
+    struct PreyWindow : public SideBarWindow
+    {
+        struct Bonus
+        {
+            Text name;
+            float percent;
+        };
+
+        std::vector<Bonus> bonuses;
     };
 
     class SideBarWindowAssembler
@@ -88,6 +120,9 @@ namespace GraphicsLayer
             struct Data
             {
                 std::shared_ptr<BattleWindow> battle;
+                std::shared_ptr<VipWindow> vip;
+                std::shared_ptr<PreyWindow> prey;
+                std::vector<ContainerWindow> containers;
             };
 
         public:
@@ -98,7 +133,7 @@ namespace GraphicsLayer
 
         private:
             bool windowContains(const GuiParser::SideBarWindow& w, const Draw& d) const;
-            size_t getWindow(const std::vector<GuiParser::SideBarWindow>& windows, const Draw& draw) const;
+            std::vector<GuiParser::SideBarWindow>::const_iterator pairWindowWithTitle(const std::vector<GuiParser::SideBarWindow>& windows, const Text& text) const;
 
 
         private:

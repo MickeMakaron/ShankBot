@@ -29,6 +29,7 @@
 #include "monitor/SideBarWindowAssembler.hpp"
 #include "monitor/Frame.hpp"
 #include "monitor/TibiaContext.hpp"
+#include "utility/utility.hpp"
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -36,6 +37,8 @@ using namespace GraphicsLayer;
 ///////////////////////////////////
 // STD C++
 #include <cassert>
+#include <algorithm>
+#include <iostream>
 ///////////////////////////////////
 
 
@@ -76,17 +79,34 @@ bool SideBarWindowAssembler::windowContains(const GuiParser::SideBarWindow& w, c
     return true;
 }
 
-size_t SideBarWindowAssembler::getWindow(const std::vector<GuiParser::SideBarWindow>& windows, const Draw& draw) const
+std::vector<GuiParser::SideBarWindow>::const_iterator SideBarWindowAssembler::pairWindowWithTitle(const std::vector<GuiParser::SideBarWindow>& windows, const Text& title) const
 {
-    for(size_t i = 0; i < windows.size(); i++)
+    unsigned short x = title.x + 0.5f;
+    unsigned short y = title.y + 0.5f;
+
+    std::vector<std::vector<GuiParser::SideBarWindow>::const_iterator> its;
+    for(auto it = windows.begin(); it != windows.end(); it++)
     {
-        if(windowContains(windows[i], draw))
+        if(it->titleBar.screen.y <= y && it->titleBar.screen.x <= x)
         {
-            return i;
+            its.push_back(it);
         }
     }
 
-    return -1;
+    if(its.empty())
+    {
+        return windows.end();
+    }
+
+    return *std::min_element(its.begin(), its.end(), [x, y](const auto& w1, const auto& w2)
+    {
+        unsigned short dx1 = x - w1->titleBar.screen.x;
+        unsigned short dy1 = y - w1->titleBar.screen.y;
+        unsigned short dx2 = x - w2->titleBar.screen.x;
+        unsigned short dy2 = y - w2->titleBar.screen.y;
+
+        return dx1 * dx1 + dy1 * dy1 < dx2 * dx2 + dy2 * dy2;
+    });
 }
 
 
@@ -97,56 +117,376 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
     mHalfFrameWidth = float(frame.width) / 2.f;
     mHalfFrameHeight = float(frame.height) / 2.f;
 
-    std::vector<GuiParser::SideBarWindow> windows = gui.game.sideBarWindows.windows;
-    if(text.battle.title.type != Text::Type::INVALID)
+    size_t iGuiSprite = 0;
+    size_t iSlot = 0;
+    if(!text.isInventoryMinimized && !guiSprite.drawGroups.empty() && guiSprite.drawGroups[0][0]->topLeft.x > 20.f)
+    {
+        iGuiSprite++;
+        iSlot++;
+    }
+
+    auto assignWindow = [](SideBarWindow& w, const GuiParser::SideBarWindow& window)
+    {
+        w.titleBar = window.titleBar.screen;
+        w.clientArea = window.clientArea.screen;
+        w.isMinimized = window.isMinimized();
+    };
+
+    auto parseBattle = [&](const GuiParser::SideBarWindow& window, size_t& iGuiSprite)
     {
         mData.battle.reset(new BattleWindow());
+        assignWindow(*mData.battle, window);
 
-        const std::vector<RectParser::Bar>* battleBars = nullptr;
-        const std::vector<const SpriteDraw*>* sprites = nullptr;
-        for(const std::vector<RectParser::Bar>& bars : rect.bars)
+        if(mData.battle->isMinimized)
         {
-            const RectDraw* draw = bars[0].border.draw;
-            assert(draw != nullptr);
+            return;
+        }
 
-            size_t i = getWindow(windows, *draw);
-            if(i < windows.size())
+        if(text.battle.names.empty())
+        {
+            return;
+        }
+
+        const std::vector<const SpriteDraw*> sprites = guiSprite.drawGroups[iGuiSprite];
+        iGuiSprite++;
+
+        const std::vector<Text>& names = text.battle.names;
+        const std::vector<RectParser::Bar>& bars = rect.battleBars;
+
+        SB_EXPECT(sprites.size(), ==, names.size());
+        SB_EXPECT(bars.size(), ==, names.size());
+
+        if(names.size() > 1)
+        {
+            SB_EXPECT(sprites[0]->topLeft.y, <, sprites[1]->topLeft.y);
+            SB_EXPECT(names[0].y, <, names[1].y);
+            SB_EXPECT(bars[0].border.draw->topLeft.y, <, bars[1].border.draw->topLeft.y);
+        }
+
+        mData.battle->characters.resize(bars.size());
+        for(size_t i = 0; i < bars.size(); i++)
+        {
+            BattleWindow::Character& c = mData.battle->characters[i];
+            c.draw = sprites[i];
+            c.name = names[i].string;
+            c.hpPercent = bars[i].percent;
+        }
+        mData.battle->selectedCharacterIndex = text.battle.selectedNameIndex;
+        SB_EXPECT_TRUE(mData.battle->selectedCharacterIndex == -1 || mData.battle->selectedCharacterIndex < mData.battle->characters.size());
+
+        if(gui.game.uniqueButtons[(size_t)UniqueButton::Type::BATTLE_MONSTER].type != UniqueButton::Type::INVALID)
+        {
+            uint8_t& filter = mData.battle->filter;
+            const auto& ubs = gui.game.uniqueButtons;
+
+            filter = BattleFilter::NONE;
+            using T = UniqueButton::Type;
+            namespace F = BattleFilter;
+            if(ubs[(size_t)T::BATTLE_MONSTER].isDown)
             {
-                for(const std::vector<const SpriteDraw*> draws : guiSprite.drawGroups)
-                {
-                    if(windowContains(windows[i], *draws[0]))
-                    {
-                        sprites = &draws;
-                        break;
-                    }
-                }
-                assert(sprites != nullptr);
-                battleBars = &bars;
-                mData.battle->titleBar = windows[i].titleBar.screen;
-                mData.battle->clientArea = windows[i].clientArea.screen;
-                windows.erase(windows.begin() + i);
-                break;
+                filter |= F::MONSTER;
+            }
+            if(ubs[(size_t)T::BATTLE_NPC].isDown)
+            {
+                filter |= F::NPC;
+            }
+            if(ubs[(size_t)T::BATTLE_PARTY].isDown)
+            {
+                filter |= F::PARTY;
+            }
+            if(ubs[(size_t)T::BATTLE_PLAYER].isDown)
+            {
+                filter |= F::PLAYER;
+            }
+            if(ubs[(size_t)T::BATTLE_SKULL].isDown)
+            {
+                filter |= F::SKULL;
+            }
+        }
+    };
+
+    auto parseVip = [&](const GuiParser::SideBarWindow& window)
+    {
+        mData.vip.reset(new VipWindow());
+        assignWindow(*mData.vip, window);
+
+        mData.vip->online = text.vip.online;
+        mData.vip->offline = text.vip.offline;
+        if(mData.vip->isMinimized)
+        {
+            SB_EXPECT_TRUE(mData.vip->online.empty());
+            SB_EXPECT_TRUE(mData.vip->offline.empty());
+        }
+    };
+
+    auto parseContainer = [&](const GuiParser::SideBarWindow& window, size_t& iSlot, size_t& iGuiSprite, size_t& iCount)
+    {
+        mData.containers.emplace_back();
+        ContainerWindow& c = mData.containers.back();
+
+        assignWindow(c, window);
+
+        if(c.isMinimized)
+        {
+            return;
+        }
+
+        SB_EXPECT(iSlot, <, gui.game.sideBarWindows.containers.size());
+        const std::vector<GuiElement>& slots = gui.game.sideBarWindows.containers[iSlot].slots;
+        iSlot++;
+        if(iGuiSprite >= guiSprite.drawGroups.size())
+        {
+            return;
+        }
+
+        if(guiSprite.drawGroups[iGuiSprite].size() == 1 && guiSprite.drawGroups[iGuiSprite][0]->topLeft.x < 6.f)
+        {
+            iGuiSprite++;
+            if(iGuiSprite >= guiSprite.drawGroups.size())
+            {
+                return;
             }
         }
 
-
-        if(battleBars != nullptr)
+        const std::vector<const SpriteDraw*>& sprites = guiSprite.drawGroups[iGuiSprite];
+        c.capacity = slots.size();
+        c.items.resize(sprites.size());
+        const std::vector<Text>* counts = nullptr;
+        size_t iCountText = 0;
+        size_t iCountSize = 0;
+        if(iCount < text.containers.size())
         {
-            assert(battleBars->size() <= text.battle.names.size());
-            assert(battleBars->size() <= sprites->size());
-            mData.battle->characters.reserve(battleBars->size());
-            for(size_t i = 0; i < battleBars->size(); i++)
+            counts = &text.containers[iCount].counts;
+            iCountSize = counts->size();
+        }
+
+        for(size_t i = 0; i < sprites.size(); i++)
+        {
+            const SpriteDraw& sprite = *sprites[i];
+            Vertex topLeft = slots[i].draw->topLeft;
+            Vertex botRight = slots[i].draw->botRight;
+            topLeft.x -= 0.0001f;
+            topLeft.y -= 0.0001f;
+            botRight.x += 0.0001f;
+            botRight.y += 0.0001f;
+            if(sprite.topLeft.x > topLeft.x &&
+               sprite.topLeft.y > topLeft.y &&
+               sprite.botRight.x < botRight.x &&
+               sprite.botRight.y < botRight.y)
             {
-                BattleWindow::Character c;
-                c.draw = (*sprites)[i];
-                c.name = text.battle.names[i].string;
-                c.hpPercent = (*battleBars)[i].percent;
-                mData.battle->characters.push_back(c);
+                c.items[i].sprite = &sprite;
             }
-            mData.battle->selectedCharacterIndex = text.battle.selectedNameIndex;
-            assert(mData.battle->selectedCharacterIndex == -1 || mData.battle->selectedCharacterIndex < mData.battle->characters.size());
+            else
+            {
+                c.items.clear();
+                return;
+            }
+
+            if(iCountText < iCountSize)
+            {
+                const Text& text = (*counts)[iCountText];
+                if(text.localX > topLeft.x &&
+                   text.localY > topLeft.y &&
+                   text.localX < botRight.x &&
+                   text.localY < botRight.y)
+                {
+                    const std::string& count = text.string;
+                    SB_EXPECT_TRUE(sb::utility::isNumeric(count));
+                    c.items[i].count = sb::utility::strToInt(count);
+
+                    iCountText++;
+                }
+            }
+        }
+
+        if(counts != nullptr && iCountText >= iCountSize)
+        {
+            iCount++;
+        }
+        iGuiSprite++;
+
+
+    };
+
+    auto parsePrey = [&](const GuiParser::SideBarWindow& window, size_t& iGuiSprite)
+    {
+        mData.prey.reset(new PreyWindow());
+        assignWindow(*mData.prey, window);
+
+        if(mData.prey->isMinimized)
+        {
+            return;
+        }
+
+
+        const std::vector<Text>& names = text.prey.names;
+        const std::vector<RectParser::Bar>& bars = rect.preyBars;
+        const std::vector<GuiParser::Prey::Bonus>& bonuses = gui.game.sideBarWindows.prey.bonuses;
+
+        SB_EXPECT_FALSE(names.empty());
+        SB_EXPECT(bars.size(), ==, names.size());
+        SB_EXPECT(bars.size(), ==, bonuses.size());
+
+        std::vector<size_t> validIndices;
+        for(size_t i = 0; i < names.size(); i++)
+        {
+            if(names[i].string != "Invalid")
+            {
+                validIndices.push_back(i);
+            }
+        }
+
+        if(!validIndices.empty())
+        {
+            SB_EXPECT(iGuiSprite, <, guiSprite.drawGroups.size());
+            SB_EXPECT(validIndices.size(), ==, guiSprite.drawGroups[iGuiSprite].size());
+            iGuiSprite++;
+        }
+
+        mData.prey->bonuses.resize(names.size());
+        for(size_t i = 0; i < names.size(); i++)
+        {
+            PreyWindow::Bonus& b = mData.prey->bonuses[i];
+            b.name = names[i];
+            b.percent = bars[i].percent;
+        }
+
+    };
+
+    try
+    {
+
+        SB_EXPECT(gui.game.sideBarWindows.windows.size(), ==, text.windowOrder.size());
+        size_t iCount = 0;
+        for(size_t iWindow = 0; iWindow < gui.game.sideBarWindows.windows.size(); iWindow++)
+        {
+            const GuiParser::SideBarWindow& window = gui.game.sideBarWindows.windows[iWindow];
+
+            using T = TextParser::SideBarWindowType;
+            T windowType = text.windowOrder[iWindow];
+            switch(windowType)
+            {
+                case T::BATTLE:
+                    parseBattle(window, iGuiSprite);
+                    break;
+
+                case T::VIP:
+                    parseVip(window);
+                    break;
+
+                case T::CONTAINER:
+                    parseContainer(window, iSlot, iGuiSprite, iCount);
+                    break;
+
+                case T::PREY:
+                    parsePrey(window, iGuiSprite);
+                    break;
+
+                case T::SKILLS:
+                    break;
+
+                case T::UNJUSTIFIED_POINTS:
+                    break;
+
+                default:
+                    SB_THROW("Unimplemented window type: ", (int)windowType);
+            }
         }
     }
+    catch(const std::runtime_error& e)
+    {
+        std::cout << "Failed to assemble side bar window: " << e.what() << std::endl;
+    }
+
+//
+//    std::vector<GuiParser::SideBarWindow> windows = gui.game.sideBarWindows.windows;
+//    if(text.battle.title.type != Text::Type::INVALID)
+//    {
+//        mData.battle.reset(new BattleWindow());
+//
+//        SB_EXPECT()
+//
+//        const std::vector<RectParser::Bar>* battleBars = nullptr;
+//        const std::vector<const SpriteDraw*>* sprites = nullptr;
+//        for(const std::vector<RectParser::Bar>& bars : rect.bars)
+//        {
+//            const RectDraw* draw = bars[0].border.draw;
+//            assert(draw != nullptr);
+//
+//            size_t i = pairWindowWithTitle(windows, *draw);
+//            if(i < windows.size())
+//            {
+//                for(const std::vector<const SpriteDraw*> draws : guiSprite.drawGroups)
+//                {
+//                    if(windowContains(windows[i], *draws[0]))
+//                    {
+//                        sprites = &draws;
+//                        break;
+//                    }
+//                }
+//                assert(sprites != nullptr);
+//                battleBars = &bars;
+//                mData.battle->titleBar = windows[i].titleBar.screen;
+//                mData.battle->clientArea = windows[i].clientArea.screen;
+//                windows.erase(windows.begin() + i);
+//                break;
+//            }
+//        }
+//
+//
+//        if(battleBars != nullptr)
+//        {
+//            assert(battleBars->size() <= text.battle.names.size());
+//            assert(battleBars->size() <= sprites->size());
+//            mData.battle->characters.reserve(battleBars->size());
+//            for(size_t i = 0; i < battleBars->size(); i++)
+//            {
+//                BattleWindow::Character c;
+//                c.draw = (*sprites)[i];
+//                c.name = text.battle.names[i].string;
+//                c.hpPercent = (*battleBars)[i].percent;
+//                mData.battle->characters.push_back(c);
+//            }
+//            mData.battle->selectedCharacterIndex = text.battle.selectedNameIndex;
+//            assert(mData.battle->selectedCharacterIndex == -1 || mData.battle->selectedCharacterIndex < mData.battle->characters.size());
+//        }
+//
+//        if(gui.game.uniqueButtons[(size_t)UniqueButton::Type::BATTLE_MONSTER].type != UniqueButton::Type::INVALID)
+//        {
+//            uint8_t& filter = mData.battle->filter;
+//            const auto& ubs = gui.game.uniqueButtons;
+//
+//            filter = BattleFilter::NONE;
+//            using T = UniqueButton::Type;
+//            namespace F = BattleFilter;
+//            if(ubs[(size_t)T::BATTLE_MONSTER].isDown)
+//            {
+//                filter |= F::MONSTER;
+//            }
+//            if(ubs[(size_t)T::BATTLE_NPC].isDown)
+//            {
+//                filter |= F::NPC;
+//            }
+//            if(ubs[(size_t)T::BATTLE_PARTY].isDown)
+//            {
+//                filter |= F::PARTY;
+//            }
+//            if(ubs[(size_t)T::BATTLE_PLAYER].isDown)
+//            {
+//                filter |= F::PLAYER;
+//            }
+//            if(ubs[(size_t)T::BATTLE_SKULL].isDown)
+//            {
+//                filter |= F::SKULL;
+//            }
+//        }
+//    }
+//
+//    if(text.vip.title.type != Text::Type::INVALID)
+//    {
+//        mData.vip.reset(new VipWindow());
+//        size_t i = getWindow(windows, text)
+//    }
 }
 
 const SideBarWindowAssembler::Data& SideBarWindowAssembler::getData() const
