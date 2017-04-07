@@ -51,6 +51,17 @@ namespace GraphicsLayer
     class TextParser
     {
         public:
+            enum class SideBarWindowType : unsigned char
+            {
+                UNJUSTIFIED_POINTS,
+                PREY,
+                SKILLS,
+                BATTLE,
+                VIP,
+                NPC_TRADE,
+                CONTAINER,
+                BROWSE_FIELD,
+            };
             struct SideBarWindow
             {
                 Text title;
@@ -135,6 +146,8 @@ namespace GraphicsLayer
                 std::vector<Text> clickableNpcText;
                 std::vector<Container> containers;
                 std::vector<Text> inventoryStackCounts;
+                std::vector<SideBarWindowType> windowOrder;
+
 
                 UnjustifiedPoints unjustifiedPoints;
                 Prey prey;

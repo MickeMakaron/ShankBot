@@ -273,6 +273,7 @@ void TextParser::handleContainerText(size_t& i)
     const std::vector<Text>& title = mBuilders[i]->getText();
     SB_EXPECT(title.size(), ==, 1);
 
+    mData.windowOrder.push_back(SideBarWindowType::CONTAINER);
     mData.containers.emplace_back();
     Container& c = mData.containers.back();
 
@@ -298,6 +299,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
+        mData.windowOrder.push_back(SideBarWindowType::UNJUSTIFIED_POINTS);
         mData.unjustifiedPoints.title = title[0];
         i++;
         if(i >= mBuilders.size())
@@ -319,6 +321,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
+        mData.windowOrder.push_back(SideBarWindowType::PREY);
         mData.prey.title = title[0];
 
         if(mGuiData->game.sideBarWindows.prey.bonuses.empty())
@@ -336,6 +339,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
+        mData.windowOrder.push_back(SideBarWindowType::VIP);
         mData.vip.title = title[0];
         i++;
         while(i < mBuilders.size())
@@ -364,6 +368,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
+        mData.windowOrder.push_back(SideBarWindowType::BATTLE);
         mData.battle.title = title[0];
         i++;
         std::map<std::string, unsigned short> names;
@@ -434,6 +439,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
+        mData.windowOrder.push_back(SideBarWindowType::SKILLS);
         mData.skills.title = title[0];
         i++;
         if(i >= mBuilders.size())
