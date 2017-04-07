@@ -751,11 +751,20 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             i += 5;
             if(i >= mDraws->size() || (*mDraws)[i].drawCallId != drawCallId || mBaseNames[i] != "containerslot")
             {
-                std::reverse(c.slots.begin(), c.slots.end());
                 i--;
                 if(c.slots.empty())
                 {
                     mData.game.sideBarWindows.containers.pop_back();
+                }
+
+                if(c.slots.size() > 1)
+                {
+                    const Vertex& v1 = c.slots.front().draw->topLeft;
+                    const Vertex& v2 = c.slots.back().draw->topLeft;
+                    if(v1.x > v2.x || v1.y > v2.y)
+                    {
+                        std::reverse(c.slots.begin(), c.slots.end());
+                    }
                 }
                 return;
             }
