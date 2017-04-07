@@ -65,7 +65,7 @@ public:
         {
             for(Scene::Tile& t : row)
             {
-                t.knownLayerObjects.clear();
+                t.objects.clear();
             }
         }
     }
@@ -101,7 +101,7 @@ public:
         size_t numObjects = 3 + rand() % 3;
         for(size_t i = 0; i < numObjects; i++)
         {
-            t.knownLayerObjects.push_back(genSceneObject());
+            t.objects.push_back(genSceneObject());
         }
 
         return t;

@@ -64,32 +64,18 @@ namespace GraphicsLayer
                 char tileX;
                 char tileY;
                 char layer;
-                bool isOnStack = false;
                 float screenX;
                 float screenY;
                 size_t object;
-
-                bool operator==(const Object& other) const
-                {
-                    return
-                    (
-                        tileX == other.tileX &&
-                        tileY == other.tileY &&
-                        layer == other.layer &&
-                        object == other.object
-                    );
-                }
             };
 
 
             struct Tile
             {
-                std::list<Object> knownLayerObjects;
+                std::vector<Object> objects;
                 char tileX;
                 char tileY;
                 char numLayers = 0;
-                char height = 0;
-                char stackStartLayer = -1;
             };
 
             static const int VISIBILITY_OFFSET_LOW = 2;
@@ -99,6 +85,10 @@ namespace GraphicsLayer
             struct Data
             {
                 std::array<std::array<Tile, MAX_VISIBLE_TILES_Y>, MAX_VISIBLE_TILES_X> tiles;
+                bool isMovingX;
+                bool isMovingY;
+                short offsetX;
+                short offsetY;
             };
 
 
@@ -124,6 +114,8 @@ namespace GraphicsLayer
         private:
             void updateMovement(short x, short y);
             void parseCurrentFrame();
+            const SpriteDraw* findFirstGroundTile() const;
+
 
         private:
             static const int MAX_MOVEMENT = 10;

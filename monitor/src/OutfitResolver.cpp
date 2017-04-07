@@ -85,7 +85,7 @@ std::list<Scene::Object> OutfitResolver::getVisibleOutfits(Scene& scene) const
     std::list<Scene::Object> visibleOutfits;
     scene.forEach([&](const Scene::Tile& tile)
     {
-        for(auto it = tile.knownLayerObjects.rbegin(); it != tile.knownLayerObjects.rend(); it++)
+        for(auto it = tile.objects.rbegin(); it != tile.objects.rend(); it++)
         {
             const Object& o = mContext.getObjects()[it->object];
             if(o.type == Object::Type::OUTFIT)

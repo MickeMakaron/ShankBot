@@ -547,7 +547,6 @@ void fromJson(Scene::Object& o, const QJsonValue& json)
     o.tileX = obj["x"].toInt();
     o.tileY = obj["y"].toInt();
     o.layer = obj["layer"].toInt();
-    o.isOnStack = obj["isOnStack"].toBool();
     o.screenX = obj["screenX"].toInt();
     o.screenY = obj["screenY"].toInt();
     o.object = obj["objectId"].toInt();
@@ -560,7 +559,6 @@ QJsonValue toJson(const Scene::Object& o)
         {"x", o.tileX},
         {"y", o.tileY},
         {"layer", o.layer},
-        {"isOnStack", o.isOnStack},
         {"screenX", (int)o.screenX},
         {"screenY", (int)o.screenY},
         {"objectId", (int)o.object},
@@ -573,21 +571,19 @@ void fromJson(Scene::Tile& t, const QJsonValue& json)
     QJsonArray objects = o["objects"].toArray();
     for(QJsonValueRef v : objects)
     {
-        t.knownLayerObjects.emplace_back();
-        fromJson(t.knownLayerObjects.back(), v);
+        t.objects.emplace_back();
+        fromJson(t.objects.back(), v);
     }
 
     t.tileX = o["x"].toInt();
     t.tileY = o["y"].toInt();
-    t.height = o["height"].toInt();
     t.numLayers = o["numLayers"].toInt();
-    t.stackStartLayer = o["stackStartLayer"].toInt();
 }
 
 QJsonValue toJson(const Scene::Tile& t)
 {
     QJsonArray objects;
-    for(const Scene::Object& o : t.knownLayerObjects)
+    for(const Scene::Object& o : t.objects)
     {
         objects.push_back(toJson(o));
     }
@@ -596,9 +592,7 @@ QJsonValue toJson(const Scene::Tile& t)
     {
         {"x", t.tileX},
         {"y", t.tileY},
-        {"height", t.height},
         {"numLayers", t.numLayers},
-        {"stackStartLayer", t.stackStartLayer},
         {"objects", objects},
     });
 }

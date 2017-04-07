@@ -198,7 +198,7 @@ void expectEq(const Scene::Object& f1, const Scene::Object& f2)
 
 void expectEq(const Scene::Tile& f1, const Scene::Tile& f2)
 {
-    expectEq(f1.knownLayerObjects, f2.knownLayerObjects);
+    expectEq(f1.objects, f2.objects);
     EXPECT_EQ(f1.height, f2.height);
     EXPECT_EQ(f1.numLayers, f2.numLayers);
     EXPECT_EQ(f1.stackStartLayer, f2.stackStartLayer);
