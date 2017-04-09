@@ -72,7 +72,7 @@ namespace utility
     SHANK_BOT_UTILITY_DECLSPEC unsigned char toLower(unsigned char c);
     SHANK_BOT_UTILITY_DECLSPEC std::string toLower(const std::string& str);
     SHANK_BOT_UTILITY_DECLSPEC std::vector<std::string> split(const std::string& str, char delimiter);
-
+    SHANK_BOT_UTILITY_DECLSPEC int round(float f);
 
 
 //    void testLoadImages(std::string directory, std::list<PngImage>& images);

@@ -679,5 +679,12 @@ std::vector<std::string> split(const std::string& str, char delimiter)
     return parts;
 }
 
+int round(float f)
+{
+    return f + (f < 0.f ? -0.5f : 0.5f);
+}
+
+
+
 }
 }
