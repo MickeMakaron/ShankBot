@@ -31,6 +31,7 @@
 #include "utility/utility.hpp"
 #include "monitor/Constants.hpp"
 using namespace GraphicsLayer;
+using namespace sb::utility;
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -78,7 +79,7 @@ void RectParser::parse(const Frame& frame)
                 case C::HP_DARK_RED:
                 case C::SKILL_BAR_GREEN_FULL:
                 {
-                    short intHeight = d.botRight.y - d.topLeft.y + 0.5f;
+                    short intHeight = round(d.botRight.y - d.topLeft.y);
                     if(intHeight == 3 || intHeight == 2)
                     {
                         i++;
@@ -107,7 +108,7 @@ void RectParser::parse(const Frame& frame)
 
                 case C::HP_BACKGROUND:
                 {
-                    short intHeight = d.botRight.y - d.topLeft.y + 0.5f;
+                    short intHeight = round(d.botRight.y - d.topLeft.y);
                     if(intHeight == 5 || intHeight == 4)
                     {
                         Bar b;
@@ -118,7 +119,7 @@ void RectParser::parse(const Frame& frame)
                         if(i < mDraws->size() && (*mDraws)[i].drawCallId == d.drawCallId)
                         {
                             const RectDraw& fill = (*mDraws)[i];
-                            if(short(fill.topLeft.x - d.topLeft.x + 0.5f) == 1 && short(fill.topLeft.y - d.topLeft.y + 0.5f) == 1)
+                            if(round(fill.topLeft.x - d.topLeft.x) == 1 && round(fill.topLeft.y - d.topLeft.y) == 1)
                             {
                                 b = mergeBarBorderAndFill(d, fill);
                             }
@@ -154,8 +155,8 @@ void RectParser::parse(const Frame& frame)
 
                 case C::TEXT_CURSOR_CHAT_LOCAL:
                 case C::TEXT_CURSOR_CHAT_NO_LOCAL:
-                    SB_EXPECT(short(d.botRight.x - d.topLeft.x), ==, 1);
-                    SB_EXPECT(short(d.botRight.y - d.topLeft.y), ==, 13);
+                    SB_EXPECT(round(d.botRight.x - d.topLeft.x), ==, 1);
+                    SB_EXPECT(round(d.botRight.y - d.topLeft.y), ==, 13);
                     mData.chatInputCursor = Rect(d);
                     break;
 
@@ -182,7 +183,7 @@ void RectParser::parse(const Frame& frame)
                 std::reverse(bars.begin(), bars.end());
             }
         }
-        short x = bars[0].border.draw->topLeft.x + 0.5f;
+        short x = round(bars[0].border.draw->topLeft.x);
         switch(x)
         {
             case 41:
@@ -205,28 +206,28 @@ void RectParser::parse(const Frame& frame)
         }
     }
 
-    for(const Bar& bar : mData.hpBars)
-    {
-        std::cout << "HP BAR: " << bar.percent * 100.f << "%" << std::endl;
-    }
-    for(const std::vector<Bar>& bars : mData.bars)
-    {
-        std::cout << "BAR GROUP: " << std::endl;
-        for(const Bar& bar : bars)
-        {
-            std::cout << "\tBAR: " << bar.percent * 100.f << "%" << std::endl;
-        }
-    }
-    for(const Rect& r : mData.textInputFields)
-    {
-        const RectDraw& d = *r.draw;
-        std::cout << "TEXT INPUT FIELD: " << d.botRight.x - d.topLeft.x << "x" << d.botRight.y - d.topLeft.y << std::endl;
-    }
+//    for(const Bar& bar : mData.hpBars)
+//    {
+//        std::cout << "HP BAR: " << bar.percent * 100.f << "%" << std::endl;
+//    }
+//    for(const std::vector<Bar>& bars : mData.bars)
+//    {
+//        std::cout << "BAR GROUP: " << std::endl;
+//        for(const Bar& bar : bars)
+//        {
+//            std::cout << "\tBAR: " << bar.percent * 100.f << "%" << std::endl;
+//        }
+//    }
+//    for(const Rect& r : mData.textInputFields)
+//    {
+//        const RectDraw& d = *r.draw;
+//        std::cout << "TEXT INPUT FIELD: " << d.botRight.x - d.topLeft.x << "x" << d.botRight.y - d.topLeft.y << std::endl;
+//    }
 }
 
 RectParser::Bar RectParser::mergeBarBorderAndFill(const RectDraw& border, const RectDraw& fill)
 {
-    SB_EXPECT(short(border.botRight.y - border.topLeft.y + 0.5f) - short(fill.botRight.y - fill.topLeft.y), ==, 2);
+    SB_EXPECT(round(border.botRight.y - border.topLeft.y) - round(fill.botRight.y - fill.topLeft.y), ==, 2);
 
     Bar b;
     b.border.draw = &border;

@@ -120,22 +120,22 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
         }
     }
 
-    for(const Text& name : mData.battle.names)
-    {
-        std::cout << "BATTLE LIST NAME: " << name.string << std::endl;
-    }
-    for(const Text& name : mData.prey.names)
-    {
-        std::cout << "PREY LIST NAME: " << name.string << std::endl;
-    }
-
-    std::cout << "centre: " << mData.centre.string << std::endl;
-    std::cout << "stop: " << mData.stop.string << std::endl;
-    std::cout << "inv min: " << mData.isInventoryMinimized << std::endl;
-    std::cout << "soul: " << mData.soul << std::endl;
-    std::cout << "cap: " << mData.cap << std::endl;
-    std::cout << "hp: " << mData.hp << std::endl;
-    std::cout << "mana: " << mData.mana << std::endl;
+//    for(const Text& name : mData.battle.names)
+//    {
+//        std::cout << "BATTLE LIST NAME: " << name.string << std::endl;
+//    }
+//    for(const Text& name : mData.prey.names)
+//    {
+//        std::cout << "PREY LIST NAME: " << name.string << std::endl;
+//    }
+//
+//    std::cout << "centre: " << mData.centre.string << std::endl;
+//    std::cout << "stop: " << mData.stop.string << std::endl;
+//    std::cout << "inv min: " << mData.isInventoryMinimized << std::endl;
+//    std::cout << "soul: " << mData.soul << std::endl;
+//    std::cout << "cap: " << mData.cap << std::endl;
+//    std::cout << "hp: " << mData.hp << std::endl;
+//    std::cout << "mana: " << mData.mana << std::endl;
 }
 
 void TextParser::handleDefaultSideBarText(size_t& i)
@@ -466,7 +466,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         auto setField = [this](const auto& valFunc, F field, const Text& text)
         {
             mData.skills.values[(size_t)field] = valFunc(text.string);
-            mData.skills.yCoords[(size_t)field] = text.localY + 0.5f;
+            mData.skills.yCoords[(size_t)field] = round(text.localY);
         };
 
         auto expectStr = [](std::vector<Text>::const_iterator& it, const std::vector<Text>& text, const std::string& fieldStr)

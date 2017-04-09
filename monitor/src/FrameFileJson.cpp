@@ -125,10 +125,10 @@ void toJson(QJsonObject& out, const Draw& d, const Frame& f)
         d.getScreenCoords(f.width / 2.f, f.height / 2.f, botRight.x, botRight.y, d.botRight.x, d.botRight.y);
     }
 
-    out["x"] = (int)(topLeft.x + 0.5f);
-    out["y"] = (int)(topLeft.y + 0.5f);
-    out["width"] = (int)(botRight.x - topLeft.x + 0.5f);
-    out["height"] = (int)(botRight.y - topLeft.y + 0.5f);
+    out["x"] = round(topLeft.x);
+    out["y"] = round(topLeft.y);
+    out["width"] = round(botRight.x - topLeft.x);
+    out["height"] = round(botRight.y - topLeft.y);
 }
 
 QJsonValue toJson(const GlyphDraw& d, const Frame& f)
@@ -185,10 +185,10 @@ const sb::tibiaassets::Object* getNamedObject(const SpriteDraw& d, const TibiaCo
 QJsonValue toJson(const SpriteDraw& d, const TibiaContext& c, const Frame& f)
 {
     QJsonObject o;
-    o["x"] = (int)(d.topLeft.x + 0.5f);
-    o["y"] = (int)(d.topLeft.y + 0.5f);
-    o["width"] = (int)(d.botRight.x - d.topLeft.x + 0.5f);
-    o["height"] = (int)(d.botRight.y - d.topLeft.y + 0.5f);
+    o["x"] = round(d.topLeft.x);
+    o["y"] = round(d.topLeft.y);
+    o["width"] = round(d.botRight.x - d.topLeft.x);
+    o["height"] = round(d.botRight.y - d.topLeft.y);
 
     const sb::tibiaassets::Object* object = getNamedObject(d, c);
     QJsonObject objectJson;
@@ -213,8 +213,8 @@ QJsonValue toJson(const GuiDraw& d, const Frame& f)
 {
     QJsonObject o;
     toJson(o, d, f);
-    o["localX"] = (short)(d.topLeft.x + 0.5f);
-    o["localY"] = (short)(d.topLeft.y + 0.5f);
+    o["localX"] = round(d.topLeft.x);
+    o["localY"] = round(d.topLeft.y);
 
     o["name"] = QString::fromStdString(d.name);
     return o;

@@ -31,6 +31,7 @@
 #include "monitor/TibiaContext.hpp"
 #include "utility/utility.hpp"
 using namespace GraphicsLayer;
+using namespace sb::utility;
 ///////////////////////////////////
 
 
@@ -53,8 +54,8 @@ bool SideBarWindowAssembler::windowContains(const GuiParser::SideBarWindow& w, c
     Vertex topLeft;
     d.getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, topLeft.x, topLeft.y);
 
-    unsigned short x = topLeft.x + 0.5f;
-    unsigned short y = topLeft.y + 0.5f;
+    unsigned short x = round(topLeft.x);
+    unsigned short y = round(topLeft.y);
 
     if(x < w.clientArea.screen.x)
     {
@@ -81,8 +82,8 @@ bool SideBarWindowAssembler::windowContains(const GuiParser::SideBarWindow& w, c
 
 std::vector<GuiParser::SideBarWindow>::const_iterator SideBarWindowAssembler::pairWindowWithTitle(const std::vector<GuiParser::SideBarWindow>& windows, const Text& title) const
 {
-    unsigned short x = title.x + 0.5f;
-    unsigned short y = title.y + 0.5f;
+    unsigned short x = round(title.x);
+    unsigned short y = round(title.y);
 
     std::vector<std::vector<GuiParser::SideBarWindow>::const_iterator> its;
     for(auto it = windows.begin(); it != windows.end(); it++)
@@ -379,7 +380,7 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
 
         for(size_t i = 0, iBar = 0; i + 1 < y.size() && iBar < bars.size(); i++)
         {
-            short barY = bars[iBar].border.draw->topLeft.y + 0.5f;
+            short barY = round(bars[iBar].border.draw->topLeft.y);
             if(barY > y[i] && barY < y[i + 1])
             {
                 mData.skills->percentages[i] = bars[iBar].percent;

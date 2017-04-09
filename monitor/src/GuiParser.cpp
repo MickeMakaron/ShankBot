@@ -32,6 +32,7 @@
 #include "utility/file.hpp"
 #include "monitor/TibiaContext.hpp"
 using namespace sb::tibiaassets;
+using namespace sb::utility;
 using namespace GraphicsLayer;
 ///////////////////////////////////
 
@@ -65,7 +66,7 @@ void GuiParser::parse(const Frame& frame)
     mBaseNames.resize(mDraws->size());
     std::transform(mDraws->begin(), mDraws->end(), mBaseNames.begin(), [](const GuiDraw& d)
     {
-        return sb::utility::file::basenameNoExt(d.name);
+        return file::basenameNoExt(d.name);
     });
 
     for(size_t i = 0; i < mDraws->size(); i++)
@@ -136,10 +137,10 @@ IRect GuiParser::getRect(Vertex topLeft, Vertex botRight)
     }
 
     IRect ir;
-    ir.x = topLeft.x + 0.5f;
-    ir.y = topLeft.y + 0.5f;
-    ir.width = botRight.x - topLeft.x + 0.5f;
-    ir.height = botRight.y - topLeft.y + 0.5f;
+    ir.x = round(topLeft.x);
+    ir.y = round(topLeft.y);
+    ir.width = round(botRight.x - topLeft.x);
+    ir.height = round(botRight.y - topLeft.y);
 
     return ir;
 }
@@ -421,7 +422,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             size_t iStart = i;
             static const auto isCorner = [](const GuiDraw& d)
             {
-                return short(d.botRight.x - d.topLeft.x + 0.5f) == 1 && short(d.botRight.y - d.topLeft.y + 0.5f) == 1;
+                return round(d.botRight.x - d.topLeft.x) == 1 && round(d.botRight.y - d.topLeft.y) == 1;
             };
             SB_EXPECT_TRUE(isCorner((*mDraws)[i]));
 
@@ -732,8 +733,8 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
             const GuiDraw& d = (*mDraws)[i];
             SB_EXPECT(mBaseNames[i], ==, "containerslot");
 
-            short width = d.botRight.x - d.topLeft.x + 0.5f;
-            short height = d.botRight.y - d.topLeft.y + 0.5f;
+            short width = round(d.botRight.x - d.topLeft.x);
+            short height = round(d.botRight.y - d.topLeft.y);
             if(width == 32 && height == 32)
             {
                 c.slots.emplace_back(d);
@@ -778,13 +779,13 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         const GuiDraw* d = &(*mDraws)[i];
         unsigned short drawCallId = d->drawCallId;
 
-        w.titleBar.local.x = d->topLeft.x + 0.5f;
-        w.titleBar.local.y = d->topLeft.y + 0.5f;
+        w.titleBar.local.x = round(d->topLeft.x);
+        w.titleBar.local.y = round(d->topLeft.y);
 
         Vertex v;
         d->getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, v.x, v.y, d->topLeft.x, d->topLeft.y);
-        w.titleBar.screen.x = v.x + 0.5f;
-        w.titleBar.screen.y = v.y + 0.5f;
+        w.titleBar.screen.x = round(v.x);
+        w.titleBar.screen.y = round(v.y);
 
         i += 3;
         SB_EXPECT(i, <, mDraws->size());
@@ -792,8 +793,8 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         SB_EXPECT(mBaseNames[i], ==, "widget-borderimage");
         SB_EXPECT(d->drawCallId, ==, drawCallId);
 
-        w.titleBar.local.width = (unsigned short)(d->botRight.x + 0.5f) - w.titleBar.local.x;
-        w.titleBar.local.height = (unsigned short)(d->botRight.y + 0.5f) - w.titleBar.local.y;
+        w.titleBar.local.width = round(d->botRight.x) - w.titleBar.local.x;
+        w.titleBar.local.height = round(d->botRight.y) - w.titleBar.local.y;
         w.titleBar.screen.width = w.titleBar.local.width;
         w.titleBar.screen.height = w.titleBar.local.height;
         SB_EXPECT(w.titleBar.local.width, ==, 176);
@@ -824,8 +825,8 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         }
 
         SB_EXPECT(mBaseNames[i], ==, "widget-borderimage");
-        SB_EXPECT(w.clientArea.local.x, ==, (unsigned short)(d->topLeft.x + 0.5f));
-        SB_EXPECT(w.clientArea.local.y, ==, (unsigned short)(d->topLeft.y + 0.5f));
+        SB_EXPECT(w.clientArea.local.x, ==, round(d->topLeft.x));
+        SB_EXPECT(w.clientArea.local.y, ==, round(d->topLeft.y));
 
         while(i < mDraws->size())
         {
@@ -840,8 +841,8 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
 
         d = &(*mDraws)[i];
         SB_EXPECT(mBaseNames[i], ==, "widget-borderimage");
-        unsigned short right = (unsigned short)(d->botRight.x + 0.5f);
-        unsigned short bot = (unsigned short)(d->botRight.y + 0.5f);
+        unsigned short right = round(d->botRight.x);
+        unsigned short bot = round(d->botRight.y);
         SB_EXPECT(right, ==, w.titleBar.local.x + w.titleBar.local.width);
         w.clientArea.local.width = right - w.clientArea.local.x;
         w.clientArea.local.height = bot - w.clientArea.local.y;

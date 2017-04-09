@@ -233,8 +233,8 @@ void MiniMap::getMiniMapScreenTopLeft(float halfFrameWidth, float halfFrameHeigh
     float screenOffsetX;
     float screenOffsetY;
     d.getScreenCoords(halfFrameWidth, halfFrameHeight, screenOffsetX, screenOffsetY, 0, 0);
-    x = screenOffsetX + 0.5f;
-    y = screenOffsetY + 0.5f;
+    x = round(screenOffsetX);
+    y = round(screenOffsetY);
 }
 
 #include <iostream>
