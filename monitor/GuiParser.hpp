@@ -29,8 +29,9 @@
 
 ///////////////////////////////////
 // Internal ShankBot headers
-#include "Frame.hpp"
-#include "Text.hpp"
+#include "monitor/Frame.hpp"
+#include "monitor/Text.hpp"
+#include "utility/Rect.hpp"
 namespace GraphicsLayer
 {
     class TibiaContext;
@@ -83,26 +84,12 @@ namespace GraphicsLayer
             FRIENDS             = 1 << 1,
             TRADING_PARTNERS    = 1 << 2;
     }
-    struct Rect
-    {
-        Vertex pos;
-        Vertex size;
-    };
 
     struct GuiElement
     {
         GuiElement(){};
         GuiElement(const GuiDraw& draw) : draw(&draw){}
         const GuiDraw* draw = nullptr;
-    };
-
-
-    struct IRect
-    {
-        unsigned short x;
-        unsigned short y;
-        unsigned short width;
-        unsigned short height;
     };
 
     struct DrawRect
