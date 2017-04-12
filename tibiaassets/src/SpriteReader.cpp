@@ -153,6 +153,48 @@ std::vector<unsigned char> SpriteReader::decompressTibiaLzma(std::string path) c
     return decompressedFile;
 }
 
+SpriteReader::Sprite SpriteReader::getSprite(unsigned int id) const
+{
+    auto sheetIt = std::find_if(mCatalog.getSpriteSheets().begin(),
+                                mCatalog.getSpriteSheets().end(),
+                                [id](const CatalogContent::SpriteSheet& sheet)
+                                {
+                                    return id >= sheet.firstSpriteId && id <= sheet.lastSpriteId;
+                                });
+
+    if(sheetIt == mCatalog.getSpriteSheets().end())
+    {
+        Sprite s;
+        s.pixels = nullptr;
+        s.id = 0;
+        return s;
+    }
+
+    Sprite s;
+    s.area = sheetIt->area;
+    s.id = id;
+    CatalogContent::getSpriteTileSize(sheetIt->spriteSize, s.tileWidth, s.tileHeight);
+
+    std::vector<unsigned char> data = decompressTibiaLzma(sheetIt->path + ".lzma");
+    QImage decompressedSpriteSheet = QImage::fromData(data.data(), data.size());
+    decompressedSpriteSheet = decompressedSpriteSheet.convertToFormat(QImage::Format_RGBA8888);
+
+    const size_t SPRITE_SHEET_PIXEL_WIDTH = decompressedSpriteSheet.width();
+    const size_t SPRITE_SHEET_PIXEL_HEIGHT = decompressedSpriteSheet.height();
+    const size_t SPRITE_PIXEL_WIDTH = s.tileWidth * constants::TILE_PIXEL_WIDTH;
+    const size_t SPRITE_PIXEL_HEIGHT = s.tileHeight * constants::TILE_PIXEL_HEIGHT;
+    size_t spriteIndex = id - sheetIt->firstSpriteId;
+    size_t spritesPerRow = SPRITE_SHEET_PIXEL_WIDTH / SPRITE_PIXEL_WIDTH;
+    size_t x = (spriteIndex % spritesPerRow) * SPRITE_PIXEL_WIDTH;
+    size_t y = (spriteIndex / spritesPerRow) * SPRITE_PIXEL_HEIGHT;
+
+    QImage sprite = decompressedSpriteSheet.copy(x, y, SPRITE_PIXEL_WIDTH, SPRITE_PIXEL_HEIGHT);
+    s.pixels = new unsigned char[sprite.byteCount()];
+    memcpy((void*)s.pixels, sprite.bits(), sprite.byteCount());
+
+    return s;
+}
+
 
 void SpriteReader::forEachSprite(std::function<bool(const Sprite& spr)> func) const
 {

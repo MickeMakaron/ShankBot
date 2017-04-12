@@ -69,6 +69,7 @@ namespace tibiaassets
         public:
             explicit SpriteReader(const CatalogContent& catalog);
             void forEachSprite(std::function<bool(const Sprite& spr)> func) const;
+            Sprite getSprite(unsigned int id) const;
 
         private:
             bool validateTibiaLzmaHeader(std::istream& stream) const;
