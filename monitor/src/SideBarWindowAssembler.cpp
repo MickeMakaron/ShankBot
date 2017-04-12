@@ -423,6 +423,8 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
                     break;
 
                 case T::UNJUSTIFIED_POINTS:
+                    mData.unjustifiedPoints.reset(new UnjustifiedPointsWindow());
+                    assignWindow(*mData.unjustifiedPoints, window);
                     break;
 
                 default:

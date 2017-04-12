@@ -119,6 +119,11 @@ namespace GraphicsLayer
         std::array<float, (size_t)SkillField::NUM_FIELDS> percentages;
     };
 
+    struct UnjustifiedPointsWindow : public SideBarWindow
+    {
+
+    };
+
     class SideBarWindowAssembler
     {
         public:
@@ -129,6 +134,7 @@ namespace GraphicsLayer
                 std::shared_ptr<VipWindow> vip;
                 std::shared_ptr<PreyWindow> prey;
                 std::shared_ptr<SkillsWindow> skills;
+                std::shared_ptr<UnjustifiedPointsWindow> unjustifiedPoints;
                 std::vector<ContainerWindow> containers;
             };
 
