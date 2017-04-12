@@ -62,32 +62,57 @@ namespace GraphicsLayer
 
             struct Object
             {
+                size_t drawOrder;
                 std::vector<const sb::tibiaassets::Object*> disputes;
             };
 
             struct NonGridObject : public Object
             {
+                IRect localBounds;
                 IRect screenBounds;
             };
 
             struct Tile
             {
-                IRect screenBounds;
                 std::vector<Object> objects;
+                bool isObscured = true;
+
+                // Data below is only valid if isObscured is false.
+                bool isWalkable = true;
+                unsigned short speed = 0;
             };
 
             static const int VISIBILITY_OFFSET_LOW = 2;
             static const int VISIBILITY_OFFSET_HIGH = 3;
             static const int MAX_VISIBLE_TILES_X = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_X + VISIBILITY_OFFSET_HIGH;
             static const int MAX_VISIBLE_TILES_Y = VISIBILITY_OFFSET_LOW + Constants::NUM_TILES_VIEW_Y + VISIBILITY_OFFSET_HIGH;
-            struct Data
+            struct Layer
             {
                 std::array<std::array<Tile, MAX_VISIBLE_TILES_Y>, MAX_VISIBLE_TILES_X> gridObjects;
                 std::vector<NonGridObject> characters;
                 std::vector<NonGridObject> projectiles;
+
+
+            };
+
+            struct Draw
+            {
+                size_t spriteId;
+                unsigned short x;
+                unsigned short y;
+                unsigned short layer;
+            };
+
+            struct Data
+            {
+                std::vector<Layer> layers;
                 short offsetX;
                 short offsetY;
                 IRect screenBounds;
+                float tileWidth;
+                float tileHeight;
+                std::vector<Draw> draws; //debug
+                unsigned short playerLayer;
             };
 
 
