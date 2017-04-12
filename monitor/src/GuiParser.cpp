@@ -121,6 +121,7 @@ void GuiParser::parsePass1()
     sb.hpPercent = (hp ? hp->botRight.x - hp->topLeft.x : 0.f) / borderWidth;
 
     std::reverse(mData.game.sideBarWindows.containers.begin(), mData.game.sideBarWindows.containers.end());
+    std::reverse(mData.game.sideBarWindows.windows.begin(), mData.game.sideBarWindows.windows.end());
 }
 
 const GuiParser::Data& GuiParser::getData()
