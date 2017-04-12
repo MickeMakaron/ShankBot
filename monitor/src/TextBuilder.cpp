@@ -85,7 +85,15 @@ void TextBuilder::setTextType()
             return;
 
         case Color::BROADCAST:
-            mTextType = Text::Type::BROADCAST;
+            assert(!mText.empty());
+            if(mText.front().string == "  XP Gain Rate")
+            {
+                mTextType = Text::Type::GUI;
+            }
+            else
+            {
+                mTextType = Text::Type::BROADCAST;
+            }
             return;
 
         default:
