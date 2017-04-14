@@ -359,7 +359,9 @@ void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldD
         {
             movedFoundIt = std::find_if(found.begin(), found.end(), [l](const ContainerWindow* f)
             {
-                return std::abs(f->titleBar.x - l->titleBar.x) < l->titleBar.width;
+                return  isContainerEqual(*l, *f) &&
+                        isContainerContentsEqual(*l, *f) &&
+                        std::abs(f->titleBar.x - l->titleBar.x) < l->titleBar.width;
             });
 
             return movedFoundIt != found.end();
