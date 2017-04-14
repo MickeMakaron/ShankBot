@@ -228,6 +228,18 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
 
         assignWindow(c, window);
 
+        if(iGuiSprite < guiSprite.drawGroups.size())
+        {
+            Vertex iconTopLeft;
+            guiSprite.drawGroups[iGuiSprite][0]->getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, iconTopLeft.x, iconTopLeft.y);
+            int dIconLeft = round(iconTopLeft.x) - c.titleBar.x;
+            int dIconTop = round(iconTopLeft.y) - c.titleBar.y;
+            if(guiSprite.drawGroups[iGuiSprite].size() == 1 && dIconLeft > 0 && dIconLeft < 6 && dIconTop > 0 && dIconTop < 6)
+            {
+                iGuiSprite++;
+            }
+        }
+
         if(c.isMinimized)
         {
             return;
@@ -236,26 +248,14 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
         SB_EXPECT(iSlot, <, gui.game.sideBarWindows.containers.size());
         const std::vector<GuiElement>& slots = gui.game.sideBarWindows.containers[iSlot].slots;
         iSlot++;
+        c.capacity = slots.size();
+
         if(iGuiSprite >= guiSprite.drawGroups.size())
         {
             return;
         }
 
-        Vertex iconTopLeft;
-        guiSprite.drawGroups[iGuiSprite][0]->getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, iconTopLeft.x, iconTopLeft.y);
-        int dIconLeft = round(iconTopLeft.x) - c.titleBar.x;
-        int dIconTop = round(iconTopLeft.y) - c.titleBar.y;
-        if(guiSprite.drawGroups[iGuiSprite].size() == 1 && dIconLeft > 0 && dIconLeft < 6 && dIconTop > 0 && dIconTop < 6)
-        {
-            iGuiSprite++;
-            if(iGuiSprite >= guiSprite.drawGroups.size())
-            {
-                return;
-            }
-        }
-
         const std::vector<const SpriteDraw*>& sprites = guiSprite.drawGroups[iGuiSprite];
-        c.capacity = slots.size();
         c.items.resize(sprites.size());
         const std::vector<Text>* counts = nullptr;
         size_t iCountText = 0;
