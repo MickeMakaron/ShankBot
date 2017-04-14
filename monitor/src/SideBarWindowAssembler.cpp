@@ -241,7 +241,11 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
             return;
         }
 
-        if(guiSprite.drawGroups[iGuiSprite].size() == 1 && guiSprite.drawGroups[iGuiSprite][0]->topLeft.x < 6.f)
+        Vertex iconTopLeft;
+        guiSprite.drawGroups[iGuiSprite][0]->getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, iconTopLeft.x, iconTopLeft.y);
+        int dIconLeft = round(iconTopLeft.x) - c.titleBar.x;
+        int dIconTop = round(iconTopLeft.y) - c.titleBar.y;
+        if(guiSprite.drawGroups[iGuiSprite].size() == 1 && dIconLeft > 0 && dIconLeft < 6 && dIconTop > 0 && dIconTop < 6)
         {
             iGuiSprite++;
             if(iGuiSprite >= guiSprite.drawGroups.size())
@@ -398,7 +402,7 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
         {
             const GuiParser::SideBarWindow& window = gui.game.sideBarWindows.windows[iWindow];
 
-            using T = TextParser::SideBarWindowType;
+            using T = SideBarWindow::Type;
             T windowType = text.windowOrder[iWindow];
             switch(windowType)
             {
