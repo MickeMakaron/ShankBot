@@ -33,6 +33,7 @@
 #include "monitor/GuiSpriteParser.hpp"
 #include "monitor/TextParser.hpp"
 #include "monitor/RectParser.hpp"
+#include "monitor/SideBarWindow.hpp"
 namespace GraphicsLayer
 {
     class TibiaContext;
@@ -49,81 +50,6 @@ namespace GraphicsLayer
 
 namespace GraphicsLayer
 {
-    namespace BattleFilter
-    {
-        static constexpr uint8_t
-            NONE    = 0,
-            PLAYER  = 1 << 0,
-            NPC     = 1 << 1,
-            MONSTER = 1 << 2,
-            SKULL   = 1 << 3,
-            PARTY   = 1 << 4,
-            UNKNOWN = 1 << 5,
-            ALL     = PLAYER | NPC | MONSTER | SKULL | PARTY;
-    };
-
-    struct SideBarWindow
-    {
-        IRect titleBar;
-        IRect clientArea;
-
-        bool isMinimized;
-    };
-
-    struct BattleWindow : public SideBarWindow
-    {
-        struct Character
-        {
-            std::string name;
-            float hpPercent;
-            const SpriteDraw* draw = nullptr;
-        };
-
-        uint8_t filter = BattleFilter::UNKNOWN;
-        std::vector<Character> characters;
-        size_t selectedCharacterIndex = -1;
-    };
-
-    struct VipWindow : public SideBarWindow
-    {
-        std::vector<Text> online;
-        std::vector<Text> offline;
-    };
-
-    struct ContainerWindow : public SideBarWindow
-    {
-        struct Item
-        {
-            unsigned short count = 1;
-            const SpriteDraw* sprite = nullptr;
-        };
-
-        std::vector<Item> items;
-        unsigned short capacity = 0;
-    };
-
-    struct PreyWindow : public SideBarWindow
-    {
-        struct Bonus
-        {
-            Text name;
-            float percent;
-        };
-
-        std::vector<Bonus> bonuses;
-    };
-
-    struct SkillsWindow : public SideBarWindow
-    {
-        std::array<unsigned int, (size_t)SkillField::NUM_FIELDS> values;
-        std::array<float, (size_t)SkillField::NUM_FIELDS> percentages;
-    };
-
-    struct UnjustifiedPointsWindow : public SideBarWindow
-    {
-
-    };
-
     class SideBarWindowAssembler
     {
         public:
