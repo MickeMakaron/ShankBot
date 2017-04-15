@@ -74,10 +74,20 @@ namespace GraphicsLayer
             bool windowContains(const GuiParser::SideBarWindow& w, const Draw& d) const;
             std::vector<GuiParser::SideBarWindow>::const_iterator pairWindowWithTitle(const std::vector<GuiParser::SideBarWindow>& windows, const Text& text) const;
 
+            void assignWindow(SideBarWindow& w, const GuiParser::SideBarWindow& window);
+            void parseBattle(const GuiParser::SideBarWindow& window, size_t& iGuiSprite);
+            void parseVip(const GuiParser::SideBarWindow& window);
+            void parseContainer(const GuiParser::SideBarWindow& window, size_t& iSlot, size_t& iGuiSprite, size_t& iCount);
+            void parsePrey(const GuiParser::SideBarWindow& window, size_t& iGuiSprite);
+            void parseSkills(const GuiParser::SideBarWindow& window);
 
         private:
             const TibiaContext& mContext;
             Data mData;
+            const GuiParser::Data* mGui;
+            const TextParser::Data* mText;
+            const RectParser::Data* mRect;
+            const GuiSpriteParser::Data* mGuiSprite;
             float mHalfFrameWidth;
             float mHalfFrameHeight;
     };
