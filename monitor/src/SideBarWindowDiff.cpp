@@ -50,9 +50,9 @@ SideBarWindowDiff::SideBarWindowDiff(const SideBarWindowAssembler::Data& oldData
     parseContainers(oldData.containers, newData.containers);
 }
 
-const std::vector<SideBarWindowDiff::Event>& SideBarWindowDiff::getEvents() const
+const SideBarWindowDiff::Data& SideBarWindowDiff::getData() const
 {
-    return mEvents;
+    return mData;
 }
 
 bool SideBarWindowDiff::isContainerEqual(const ContainerWindow& w1, const ContainerWindow& w2)
@@ -183,21 +183,21 @@ bool SideBarWindowDiff::isContainerContentsMoved(const ContainerWindow& oldW, co
 
 void SideBarWindowDiff::parse(const SideBarWindow* oldW, const SideBarWindow* newW, SideBarWindow::Type type)
 {
-    Event e;
+    WindowEvent e;
     e.windowType = type;
     if((oldW == nullptr) != (newW == nullptr))
     {
         if(oldW == nullptr)
         {
-            e.type = Event::Type::OPEN;
+            e.type = WindowEvent::Type::OPEN;
             e.newWindow = newW;
         }
         else
         {
-            e.type = Event::Type::CLOSE;
+            e.type = WindowEvent::Type::CLOSE;
             e.oldWindow = oldW;
         }
-        mEvents.push_back(e);
+        mData.windowEvents.push_back(e);
         return;
     }
 
@@ -210,19 +210,19 @@ void SideBarWindowDiff::parse(const SideBarWindow* oldW, const SideBarWindow* ne
     e.newWindow = newW;
     if(oldW->titleBar.x != newW->titleBar.x || oldW->titleBar.y != newW->titleBar.y)
     {
-        e.type = Event::Type::MOVE;
-        mEvents.push_back(e);
+        e.type = WindowEvent::Type::MOVE;
+        mData.windowEvents.push_back(e);
     }
 
     if(oldW->isMinimized != newW->isMinimized)
     {
-        e.type = oldW->isMinimized ? Event::Type::MAX : Event::Type::MIN;
-        mEvents.push_back(e);
+        e.type = oldW->isMinimized ? WindowEvent::Type::MAX : WindowEvent::Type::MIN;
+        mData.windowEvents.push_back(e);
     }
     else if(oldW->clientArea.height != newW->clientArea.height)
     {
-        e.type = Event::Type::RESIZE;
-        mEvents.push_back(e);
+        e.type = WindowEvent::Type::RESIZE;
+        mData.windowEvents.push_back(e);
     }
 }
 

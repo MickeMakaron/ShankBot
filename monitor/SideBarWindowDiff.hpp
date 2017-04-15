@@ -42,7 +42,7 @@ namespace GraphicsLayer
     class SideBarWindowDiff
     {
         public:
-            struct Event
+            struct WindowEvent
             {
                 enum class Type : unsigned char
                 {
@@ -64,10 +64,15 @@ namespace GraphicsLayer
                 const SideBarWindow* newWindow = nullptr;
             };
 
+            struct Data
+            {
+                std::vector<WindowEvent> windowEvents;
+            };
+
         public:
             SideBarWindowDiff(const SideBarWindowAssembler::Data& oldData, const SideBarWindowAssembler::Data& newData);
 
-            const std::vector<Event>& getEvents() const;
+            const Data& getData() const;
 
         private:
             void parse(const SideBarWindow* oldW, const SideBarWindow* newW, SideBarWindow::Type type);
@@ -81,7 +86,7 @@ namespace GraphicsLayer
             static bool isContainerContentsMoved(const ContainerWindow& oldW, const ContainerWindow& newW);
 
         private:
-            std::vector<Event> mEvents;
+            Data mData;
     };
 }
 
