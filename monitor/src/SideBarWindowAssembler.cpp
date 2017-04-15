@@ -390,6 +390,10 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
         }
     }
 
+    SB_EXPECT(iCount, <, mText->containers.size());
+    const std::vector<Text>& counts = mText->containers[iCount].counts;
+    iCount++;
+
     if(c.isMinimized)
     {
         return;
@@ -407,15 +411,7 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
 
     const std::vector<const SpriteDraw*>& sprites = mGuiSprite->drawGroups[iGuiSprite];
     c.items.resize(sprites.size());
-    const std::vector<Text>* counts = nullptr;
     size_t iCountText = 0;
-    size_t iCountSize = 0;
-    if(iCount < mText->containers.size())
-    {
-        counts = &mText->containers[iCount].counts;
-        iCountSize = counts->size();
-    }
-
     for(size_t i = 0; i < sprites.size(); i++)
     {
         const SpriteDraw& sprite = *sprites[i];
@@ -438,9 +434,9 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
             return;
         }
 
-        if(iCountText < iCountSize)
+        if(iCountText < counts.size())
         {
-            const Text& text = (*counts)[iCountText];
+            const Text& text = counts[iCountText];
             if(text.localX > topLeft.x &&
                text.localY > topLeft.y &&
                text.localX < botRight.x &&
@@ -455,13 +451,8 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
         }
     }
 
-    if(counts != nullptr && iCountText >= iCountSize)
-    {
-        iCount++;
-    }
+    SB_EXPECT(iCountText, ==, counts.size());
     iGuiSprite++;
-
-
 }
 
 void SideBarWindowAssembler::parsePrey(const GuiParser::SideBarWindow& window, size_t& iGuiSprite)
