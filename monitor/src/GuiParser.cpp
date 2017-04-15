@@ -105,10 +105,7 @@ void GuiParser::parsePass1()
     {
         return;
     }
-
     SB_EXPECT(pass1.hpManaBorders.size(), ==, 2);
-    SB_EXPECT(pass1.manaFill.draw, !=, nullptr);
-    SB_EXPECT(pass1.hpFill.draw, !=, nullptr);
 
     const GuiDraw* border = pass1.hpManaBorders[0].draw;
     float borderWidth = border->botRight.x - border->topLeft.x;

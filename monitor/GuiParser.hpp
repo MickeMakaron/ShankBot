@@ -294,8 +294,8 @@ namespace GraphicsLayer
 
                 struct StatusBar
                 {
-                    float hpPercent;
-                    float manaPercent;
+                    float hpPercent = 0.f;
+                    float manaPercent = 0.f;
                 };
 
                 struct Inventory
