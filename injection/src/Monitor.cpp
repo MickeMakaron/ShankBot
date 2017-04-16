@@ -556,6 +556,8 @@ void Monitor::appendScreenPixelsToDataBuffer()
     p.messageType = Message::MessageType::SCREEN_PIXELS;
     appendToDataBuffer(p);
     appendToDataBuffer(pixels, size);
+
+    delete[] pixels;
 }
 
 WindowProc Monitor::getWindowProc(HWND window)
