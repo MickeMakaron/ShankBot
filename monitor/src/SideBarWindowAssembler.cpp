@@ -403,18 +403,48 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
     const std::vector<GuiElement>& slots = mGui->game.sideBarWindows.containers[iSlot].slots;
     iSlot++;
     c.capacity = slots.size();
+    SB_EXPECT(c.capacity, >, 0);
 
     if(iGuiSprite >= mGuiSprite->drawGroups.size())
     {
         return;
     }
 
+
+
+    static const int SLOT_SPACING_X = Constants::TILE_PIXEL_WIDTH + Constants::CONTAINER_SEPARATOR_PIXEL_WIDTH;
+    static const int SLOT_SPACING_Y = Constants::TILE_PIXEL_HEIGHT + Constants::CONTAINER_SEPARATOR_PIXEL_WIDTH;
     const std::vector<const SpriteDraw*>& sprites = mGuiSprite->drawGroups[iGuiSprite];
-    c.items.resize(sprites.size());
-    size_t iCountText = 0;
-    for(size_t i = 0; i < sprites.size(); i++)
+
+    int maxElementX = 0;
+    int maxElementY = 0;
+    if(!sprites.empty())
     {
-        const SpriteDraw& sprite = *sprites[i];
+        maxElementX = std::max(round(sprites.back()->topLeft.x), maxElementX);
+        maxElementY = std::max(round(sprites.back()->topLeft.y), maxElementY);
+    }
+    if(!counts.empty())
+    {
+        maxElementX = std::max(round(counts.back().localX), maxElementX);
+        maxElementY = std::max(round(counts.back().localY), maxElementY);
+    }
+
+    const int firstSlotX = round(slots[0].draw->topLeft.x);
+    const int firstSlotY = round(slots[0].draw->topLeft.y);
+    size_t maxElementSlotX = (maxElementX - firstSlotX) / SLOT_SPACING_X;
+    size_t maxElementSlotY = (maxElementY - firstSlotY) / SLOT_SPACING_Y;
+    size_t numItems = maxElementSlotX + maxElementSlotY * Constants::CONTAINER_WIDTH + 1;
+
+    if(numItems > c.capacity)
+    {
+        return;
+    }
+    c.items.resize(numItems);
+
+    size_t iSprite = 0;
+    for(size_t i = 0; i < slots.size() && iSprite < sprites.size(); i++, iSprite++)
+    {
+        const SpriteDraw& sprite = *sprites[iSprite];
         Vertex topLeft = slots[i].draw->topLeft;
         Vertex botRight = slots[i].draw->botRight;
         topLeft.x -= 0.0001f;
@@ -430,27 +460,74 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
         }
         else
         {
-            c.items.clear();
-            return;
-        }
-
-        if(iCountText < counts.size())
-        {
-            const Text& text = counts[iCountText];
-            if(text.localX > topLeft.x &&
-               text.localY > topLeft.y &&
-               text.localX < botRight.x &&
-               text.localY < botRight.y)
+            if(sprite.topLeft.y < topLeft.y)
             {
-                const std::string& count = text.string;
-                SB_EXPECT_TRUE(sb::utility::isNumeric(count));
-                c.items[i].count = sb::utility::strToInt(count);
+                c.items.clear();
+                return;
+            }
+            int beginSlotX = (round(topLeft.x) - firstSlotX) / SLOT_SPACING_X;
+            int beginSlotY = (round(topLeft.y) - firstSlotY) / SLOT_SPACING_Y;
+            int endSlotX = (round(sprite.topLeft.x) - firstSlotX) / SLOT_SPACING_X;
+            int endSlotY = (round(sprite.topLeft.y) - firstSlotY) / SLOT_SPACING_Y;
 
-                iCountText++;
+            int dX = endSlotX - beginSlotX;
+            int dY = endSlotY - beginSlotY;
+
+            int numSlotIndicesAway = dX + Constants::CONTAINER_WIDTH * dY;
+            if(numSlotIndicesAway == 0)
+            {
+                c.items.clear();
+                return;
+            }
+
+            i += numSlotIndicesAway;
+            if(i >= slots.size())
+            {
+                c.items.clear();
+                return;
+            }
+
+            topLeft = slots[i].draw->topLeft;
+            botRight= slots[i].draw->botRight;
+            topLeft.x -= 0.0001f;
+            topLeft.y -= 0.0001f;
+            botRight.x += 0.0001f;
+            botRight.y += 0.0001f;
+            if(sprite.topLeft.x > topLeft.x &&
+               sprite.topLeft.y > topLeft.y &&
+               sprite.botRight.x < botRight.x &&
+               sprite.botRight.y < botRight.y)
+            {
+                c.items[i].sprite = &sprite;
+            }
+            else
+            {
+                c.items.clear();
+                return;
             }
         }
     }
 
+    size_t iCountText = 0;
+    for(size_t i = 0; i < c.items.size() && iCountText < counts.size(); i++)
+    {
+        const Vertex& topLeft = slots[i].draw->topLeft;
+        const Vertex& botRight = slots[i].draw->botRight;
+
+        const Text& text = counts[iCountText];
+        if(text.localX > topLeft.x &&
+           text.localY > topLeft.y &&
+           text.localX < botRight.x &&
+           text.localY < botRight.y)
+        {
+            const std::string& count = text.string;
+            SB_EXPECT_TRUE(sb::utility::isNumeric(count));
+            c.items[i].count = sb::utility::strToInt(count);
+            iCountText++;
+        }
+    }
+
+    SB_EXPECT(iSprite, ==, sprites.size());
     SB_EXPECT(iCountText, ==, counts.size());
     iGuiSprite++;
 }
