@@ -64,29 +64,73 @@ namespace GraphicsLayer
                 const SideBarWindow* newWindow = nullptr;
             };
 
+            struct ContainerItemEvent
+            {
+                enum class Type : unsigned char
+                {
+                    ADD,
+                    REMOVE,
+                    MOVE,
+                    STACK_DECREASE,
+                    STACK_INCREASE,
+
+                    NUM_TYPES,
+                    INVALID,
+                };
+
+                Type type = Type::INVALID;
+                const ContainerWindow* oldWindow = nullptr;
+                const ContainerWindow* newWindow = nullptr;
+                unsigned short iOld = -1;
+                unsigned short iNew = -1;
+            };
+
             struct Data
             {
                 std::vector<WindowEvent> windowEvents;
+                std::vector<ContainerItemEvent> containerItemEvents;
             };
 
         public:
-            SideBarWindowDiff(const SideBarWindowAssembler::Data& oldData, const SideBarWindowAssembler::Data& newData);
+            SideBarWindowDiff();
 
+            void parse(const Frame& frame, const SideBarWindowAssembler::Data& data);
             const Data& getData() const;
 
         private:
             void parse(const SideBarWindow* oldW, const SideBarWindow* newW, SideBarWindow::Type type);
             void parseContainers(const std::vector<ContainerWindow>& oldData, const std::vector<ContainerWindow>& newData);
+            bool isContainerContentsMoved(const ContainerWindow& oldW, const ContainerWindow& newW);
 
 
             static bool isContainerEqual(const ContainerWindow& w1, const ContainerWindow& w2);
-            static bool isSpriteDrawEqual(const SpriteDraw& d1, const SpriteDraw& d2);
+            static bool isSpriteDrawEqual(const SpriteDraw* oldW, const SpriteDraw* newW);
             static bool isItemEqual(const ContainerWindow::Item& i1, const ContainerWindow::Item& i2);
             static bool isContainerContentsEqual(const ContainerWindow& w1, const ContainerWindow& w2);
-            static bool isContainerContentsMoved(const ContainerWindow& oldW, const ContainerWindow& newW);
 
         private:
+            struct DiffFrame
+            {
+                Frame frame; // Need this to keep Draw pointers alive in data
+                std::shared_ptr<SideBarWindowAssembler::Data> data;
+            };
+
+            struct PendingContainerItemEvent
+            {
+                ContainerItemEvent::Type type = ContainerItemEvent::Type::INVALID;
+                DiffFrame oldFrame;
+                DiffFrame newFrame;
+                const ContainerWindow* oldWindow = nullptr;
+                const ContainerWindow* newWindow = nullptr;
+            };
+
             Data mData;
+            DiffFrame mPreviousFrame;
+            DiffFrame mCurrentFrame;
+            DiffFrame mPreviousEqualFrame;
+            bool mHasPendingInequality = false;
+            std::vector<PendingContainerItemEvent> mPendingContainerItemEvents;
+            std::vector<PendingContainerItemEvent> mPendingContainerItemEventsFrontBuffer;
     };
 }
 
