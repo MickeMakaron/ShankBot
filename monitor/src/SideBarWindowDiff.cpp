@@ -257,110 +257,134 @@ bool SideBarWindowDiff::isContainerContentsMoved(const ContainerWindow& oldW, co
         return false;
     }
 
-    std::vector<size_t> nullIndices;
     size_t iSpriteMismatch = 0;
     for(; iSpriteMismatch < newItems.size(); iSpriteMismatch++)
     {
-        if(simulatedNewItems[iSpriteMismatch].sprite == nullptr)
-        {
-            nullIndices.push_back(iSpriteMismatch);
-        }
-        else if(!isSpriteDrawEqual(simulatedNewItems[iSpriteMismatch].sprite, newItems[iSpriteMismatch].sprite))
+        if(!isSpriteDrawEqual(simulatedNewItems[iSpriteMismatch].sprite, newItems[iSpriteMismatch].sprite))
         {
             break;
         }
     }
 
-
+    std::vector<ContainerItemEvent> events;
+    size_t iMove = -1;
     if(dSize != 0)
     {
         if(iSpriteMismatch < newItems.size())
         {
-            if(dSize == 1)
-            {
-                for(iSpriteMismatch = 1; iSpriteMismatch < oldItems.size(); iSpriteMismatch++)
-                {
-                    if(oldItems[iSpriteMismatch].sprite == nullptr)
-                    {
-                    }
-                    else if(!isSpriteDrawEqual(oldItems[iSpriteMismatch].sprite, newItems[iSpriteMismatch].sprite))
-                    {
-                        break;
-                    }
-                }
-                if(iSpriteMismatch < oldItems.size())
-                {
-                    return false;
-                }
-
-                PendingContainerItemEvent e;
-                e.oldWindow = &oldW;
-                e.newWindow = &newW;
-                e.oldFrame = mPreviousFrame;
-                e.newFrame = mCurrentFrame;
-                mPendingContainerItemEvents.push_back(e);
-                return true;
-            }
-            else
-            {
-                if(iSpriteMismatch == iRemovedItem)
-                {
-                    iSpriteMismatch++;
-                    for(; iSpriteMismatch < newItems.size(); iSpriteMismatch++)
-                    {
-                        if(simulatedNewItems[iSpriteMismatch].sprite == nullptr)
-                        {
-                        }
-                        else if(!isItemEqual(simulatedNewItems[iSpriteMismatch], newItems[iSpriteMismatch]))
-                        {
-                            break;
-                        }
-                    }
-
-                    if(iSpriteMismatch < newItems.size())
-                    {
-                        return false;
-                    }
-                    if(!isSpriteDrawEqual(oldItems[iRemovedItem].sprite, newItems[iRemovedItem].sprite))
-                    {
-                        return false;
-                    }
-
-                    PendingContainerItemEvent e;
-                    e.oldWindow = &oldW;
-                    e.newWindow = &newW;
-                    e.oldFrame = mPreviousFrame;
-                    e.newFrame = mCurrentFrame;
-                    mPendingContainerItemEvents.push_back(e);
-                    return true;
-                }
-            }
             return false;
         }
 
-        std::vector<size_t> countMismatchIndices;
-        for(size_t i = 0; i < newItems.size(); i++)
+        ContainerItemEvent e;
+        e.oldWindow = &oldW;
+        e.newWindow = &newW;
+        if(dSize == 1)
         {
-            if(simulatedNewItems[i].count != newItems[i].count)
+            e.type = ContainerItemEvent::Type::ADD;
+            e.iNew = 0;
+        }
+        else
+        {
+            e.type = ContainerItemEvent::Type::REMOVE;
+            assert(iRemovedItem < oldItems.size());
+            e.iOld = iRemovedItem;
+        }
+        events.push_back(e);
+    }
+    else
+    {
+        if(iSpriteMismatch < newItems.size())
+        {
+            size_t iSpriteMismatchBegin = iSpriteMismatch;
+            for(iSpriteMismatch = newItems.size() - 1; iSpriteMismatch > 0; iSpriteMismatch--)
             {
-                countMismatchIndices.push_back(i);
+                if(!isSpriteDrawEqual(simulatedNewItems[iSpriteMismatch].sprite, newItems[iSpriteMismatch].sprite))
+                {
+                    break;
+                }
             }
-        }
-        if(countMismatchIndices.size() > 2)
-        {
-            return false;
-        }
-
-        if(countMismatchIndices.size() == 2)
-        {
-            int d0 = newItems[countMismatchIndices[0]].count - simulatedNewItems[countMismatchIndices[0]].count;
-            int d1 = newItems[countMismatchIndices[1]].count - simulatedNewItems[countMismatchIndices[1]].count;
-            if(d0 != -d1)
+            size_t iSpriteMismatchEnd = iSpriteMismatch;
+            for(iSpriteMismatch = iSpriteMismatchBegin; iSpriteMismatch < iSpriteMismatchEnd; iSpriteMismatch++)
+            {
+                if(!isSpriteDrawEqual(simulatedNewItems[iSpriteMismatch].sprite, newItems[iSpriteMismatch + 1].sprite))
+                {
+                    break;
+                }
+            }
+            if(iSpriteMismatch != iSpriteMismatchEnd)
             {
                 return false;
             }
-        }
 
+            const ContainerWindow::Item& item1 = simulatedNewItems[iSpriteMismatchEnd];
+            const ContainerWindow::Item& item2 = newItems[0];
+            if(!isSpriteDrawEqual(item1.sprite, item2.sprite))
+            {
+                return false;
+            }
+            int i = iSpriteMismatchEnd;
+            while(iSpriteMismatchEnd < simulatedNewItems.size() &&
+                  !isItemEqual(simulatedNewItems[iSpriteMismatchEnd], item2) &&
+                  isSpriteDrawEqual(simulatedNewItems[iSpriteMismatchEnd].sprite, item1.sprite))
+            {
+                iSpriteMismatchEnd--;
+            }
+            if(iSpriteMismatchEnd == 0 || !isItemEqual(simulatedNewItems[iSpriteMismatchEnd], item2))
+            {
+                return false;
+            }
+            ContainerItemEvent e;
+            e.type = ContainerItemEvent::Type::MOVE;
+            e.oldWindow = &oldW;
+            e.newWindow = &newW;
+            e.iOld = iSpriteMismatchEnd;
+            e.iNew = 0;
+            events.push_back(e);
+            std::rotate(simulatedNewItems.begin(),
+                        simulatedNewItems.begin() + iSpriteMismatchEnd,
+                        simulatedNewItems.begin() + iSpriteMismatchEnd + 1);
+            iMove = iSpriteMismatchEnd;
+        }
+    }
+
+    std::vector<size_t> countMismatchIndices;
+    for(size_t i = 0; i < newItems.size(); i++)
+    {
+        if(simulatedNewItems[i].count != newItems[i].count)
+        {
+            countMismatchIndices.push_back(i);
+        }
+    }
+    if(countMismatchIndices.size() > 2)
+    {
+        return false;
+    }
+
+    if(countMismatchIndices.size() == 2)
+    {
+        size_t i0 = countMismatchIndices[0];
+        size_t i1 = countMismatchIndices[1];
+
+        const ContainerWindow::Item& oldItem0 = simulatedNewItems[i0];
+        const ContainerWindow::Item& oldItem1 = simulatedNewItems[i1];
+        const ContainerWindow::Item& newItem0 = newItems[i0];
+        const ContainerWindow::Item& newItem1 = newItems[i1];
+        int d0 = newItem0.count - oldItem0.count;
+        int d1 = newItem1.count - oldItem1.count;
+        if(d0 != -d1)
+        {
+            return false;
+        }
+        if(!isSpriteDrawEqual(oldItem0.sprite, newItem0.sprite) ||
+           !isSpriteDrawEqual(oldItem1.sprite, newItem1.sprite) ||
+           !isSpriteDrawEqual(oldItem0.sprite, oldItem1.sprite))
+        {
+            return false;
+        }
+    }
+
+    if(dSize != 0)
+    {
         int iOffset = (dSize == 1 ? -1 : 0);
         for(const size_t i : countMismatchIndices)
         {
@@ -379,175 +403,28 @@ bool SideBarWindowDiff::isContainerContentsMoved(const ContainerWindow& oldW, co
             {
                 e.type = ContainerItemEvent::Type::STACK_DECREASE;
             }
-            mData.containerItemEvents.push_back(e);
+            events.push_back(e);
         }
-
-        for(const size_t i : nullIndices)
-        {
-            ContainerItemEvent e;
-            e.type = ContainerItemEvent::Type::ADD;
-            e.oldWindow = &oldW;
-            e.newWindow = &newW;
-            e.iOld = i + iOffset + (i < iRemovedItem ? 0 : 1);
-            e.iNew = i;
-            mData.containerItemEvents.push_back(e);
-        }
-
-        ContainerItemEvent e;
-        e.oldWindow = &oldW;
-        e.newWindow = &newW;
-        if(dSize == 1)
-        {
-            e.type = ContainerItemEvent::Type::ADD;
-            e.iNew = 0;
-        }
-        else
-        {
-            e.type = ContainerItemEvent::Type::REMOVE;
-            assert(iRemovedItem < oldItems.size());
-            e.iOld = iRemovedItem;
-        }
-        mData.containerItemEvents.push_back(e);
-
-        return true;
     }
     else
     {
-        if(iSpriteMismatch == 0)
-        {
-            for(iSpriteMismatch = newItems.size() - 1; iSpriteMismatch > 0; iSpriteMismatch--)
-            {
-                if(simulatedNewItems[iSpriteMismatch].sprite == nullptr)
-                {
-                    nullIndices.push_back(iSpriteMismatch);
-                }
-                else if(!isSpriteDrawEqual(simulatedNewItems[iSpriteMismatch].sprite, newItems[iSpriteMismatch].sprite))
-                {
-                    break;
-                }
-            }
-            if(iSpriteMismatch == 0)
-            {
-                // Sprite replacement bug, possibly.
-                PendingContainerItemEvent e;
-                e.type = ContainerItemEvent::Type::MOVE;
-                e.oldWindow = &oldW;
-                e.newWindow = &newW;
-                e.oldFrame = mPreviousFrame;
-                e.newFrame = mCurrentFrame;
-                mPendingContainerItemEvents.push_back(e);
-                return true;
-            }
-
-            size_t iSpriteMismatchEnd = iSpriteMismatch;
-            std::vector<size_t> mismatchIndices;
-            mismatchIndices.push_back(0);
-            for(iSpriteMismatch = 0; iSpriteMismatch < iSpriteMismatchEnd; iSpriteMismatch++)
-            {
-                if(simulatedNewItems[iSpriteMismatch].sprite == nullptr)
-                {
-                    nullIndices.push_back(iSpriteMismatch);
-                }
-                else if(!isSpriteDrawEqual(simulatedNewItems[iSpriteMismatch].sprite, newItems[iSpriteMismatch + 1].sprite))
-                {
-//                    mismatchIndices.push_back(iSpriteMismatch + 1);
-//                    iSpriteMismatch++;
-                    break;
-                }
-            }
-            if(iSpriteMismatch != iSpriteMismatchEnd)
-            {
-                return false;
-            }
-
-            const ContainerWindow::Item& item1 = simulatedNewItems[iSpriteMismatchEnd];
-            const ContainerWindow::Item& item2 = newItems[0];
-            if(!isSpriteDrawEqual(item1.sprite, item2.sprite))
-            {
-                return false;
-            }
-            ContainerItemEvent e;
-            e.type = ContainerItemEvent::Type::MOVE;
-            e.oldWindow = &oldW;
-            e.newWindow = &newW;
-            e.iOld = iSpriteMismatchEnd;
-            e.iNew = 0;
-            mData.containerItemEvents.push_back(e);
-
-            for(const size_t i : nullIndices)
-            {
-                ContainerItemEvent e;
-                e.type = ContainerItemEvent::Type::ADD;
-                e.oldWindow = &oldW;
-                e.newWindow = &newW;
-                e.iOld = i;
-                e.iNew = (i < iSpriteMismatchEnd ? i + 1 : i);
-                mData.containerItemEvents.push_back(e);
-            }
-            return true;
-        }
-        else if(iSpriteMismatch < newItems.size())
-        {
-            return false;
-        }
-
-        std::vector<size_t> countMismatchIndices;
-        for(size_t i = 0; i < newItems.size(); i++)
-        {
-            if(simulatedNewItems[i].count != newItems[i].count)
-            {
-                countMismatchIndices.push_back(i);
-            }
-        }
-        if(countMismatchIndices.size() > 2)
-        {
-            PendingContainerItemEvent e;
-            e.oldWindow = &oldW;
-            e.newWindow = &newW;
-            e.oldFrame = mPreviousFrame;
-            e.newFrame = mCurrentFrame;
-            mPendingContainerItemEvents.push_back(e);
-            return true;
-        }
-
-        if(countMismatchIndices.size() == 2)
-        {
-            size_t i0 = countMismatchIndices[0];
-            size_t i1 = countMismatchIndices[1];
-            if(std::abs(int(i1 - i0)) == 1)
-            {
-                PendingContainerItemEvent e;
-                e.oldWindow = &oldW;
-                e.newWindow = &newW;
-                e.oldFrame = mPreviousFrame;
-                e.newFrame = mCurrentFrame;
-                mPendingContainerItemEvents.push_back(e);
-                return true;
-            }
-            const ContainerWindow::Item& oldItem0 = simulatedNewItems[i0];
-            const ContainerWindow::Item& oldItem1 = simulatedNewItems[i1];
-            const ContainerWindow::Item& newItem0 = newItems[i0];
-            const ContainerWindow::Item& newItem1 = newItems[i1];
-            int d0 = newItem0.count - oldItem0.count;
-            int d1 = newItem1.count - oldItem1.count;
-            if(d0 != -d1)
-            {
-                return false;
-            }
-            if(!isSpriteDrawEqual(oldItem0.sprite, newItem0.sprite) ||
-               !isSpriteDrawEqual(oldItem1.sprite, newItem1.sprite) ||
-               !isSpriteDrawEqual(oldItem0.sprite, oldItem1.sprite))
-            {
-                return false;
-            }
-        }
-
         for(const size_t i : countMismatchIndices)
         {
             ContainerItemEvent e;
             e.oldWindow = &oldW;
             e.newWindow = &newW;
-            e.iOld = i;
+            if(i == 0)
+            {
+                e.iOld = (iMove < oldW.items.size() ? iMove : i);
+            }
+            else if(i <= iMove)
+            {
+                e.iOld = (iMove < oldW.items.size() ? i - 1 : i);
+            }
+            else
+            {
+                e.iOld = i;
+            }
             e.iNew = i;
             int d = newW.items[e.iNew].count - oldW.items[e.iOld].count;
             assert(d != 0);
@@ -559,333 +436,13 @@ bool SideBarWindowDiff::isContainerContentsMoved(const ContainerWindow& oldW, co
             {
                 e.type = ContainerItemEvent::Type::STACK_DECREASE;
             }
-            mData.containerItemEvents.push_back(e);
+            events.push_back(e);
         }
-
-        for(const size_t i : nullIndices)
-        {
-            ContainerItemEvent e;
-            e.type = ContainerItemEvent::Type::ADD;
-            e.oldWindow = &oldW;
-            e.newWindow = &newW;
-            e.iOld = i;
-            e.iNew = i;
-            mData.containerItemEvents.push_back(e);
-        }
-        return true;
     }
 
-    return false;
-//
-//    if(dSize == 1)
-//    {
-//        iNewBegin = 1;
-//    }
-//    else if(dSize == -1)
-//    {
-//        iOldBegin = 1; // Nope...
-//    }
-//    else
-//    {
-//        iOldBegin = 1;
-//        iNewBegin = 1;
-//    }
-//    assert(oldItems.size() - iOldBegin == newItems.size() - iNewBegin);
-//    assert(iOldBegin + dSize == iNewBegin);
-//    std::vector<size_t> oldNullIndices;
-//    size_t iOld = iOldBegin;
-//    for(size_t iNew = iNewBegin; iOld < oldItems.size(); iOld++, iNew++)
-//    {
-//        if(oldItems[iOld].sprite == nullptr)
-//        {
-//            oldNullIndices.push_back(iOld);
-//        }
-//        else if(!isSpriteDrawEqual(oldItems[iOld].sprite, newItems[iNew].sprite))
-//        {
-//            break;
-//        }
-//    }
-//
-//    if(dSize != 0)
-//    {
-//        if(iOld < oldItems.size())
-//        {
-//            return false;
-//        }
-//
-//        std::vector<size_t> oldCountMismatchIndices;
-//        for(size_t i = iOldBegin, iNew = iNewBegin; i < oldItems.size(); i++, iNew++)
-//        {
-//            if(oldItems[i].count != newItems[iNew].count)
-//            {
-//                oldCountMismatchIndices.push_back(i);
-//            }
-//        }
-//        if(oldCountMismatchIndices.size() > 2)
-//        {
-//            return false;
-//        }
-//
-//        if(oldCountMismatchIndices.size() == 2)
-//        {
-//            int d0 = newItems[oldCountMismatchIndices[0] + dSize].count - [oldCountMismatchIndices[0]].count;
-//            int d1 = newItems[oldCountMismatchIndices[1] + dSize].count - [oldCountMismatchIndices[1]].count;
-//            if(d0 != -d1)
-//            {
-//                return false;
-//            }
-//        }
-//
-//        for(const size_t i : oldCountMismatchIndices)
-//        {
-//            ContainerItemEvent e;
-//            e.oldWindow = &oldW;
-//            e.newWindow = &newW;
-//            e.iOld = i;
-//            e.iNew = i + dSize;
-//            int d = newW.items[e.iNew].count - oldW.items[e.iOld].count;
-//            assert(d != 0);
-//            if(d > 0)
-//            {
-//                e.type == ContainerItemEvent::Type::STACK_INCREASE;
-//            }
-//            else
-//            {
-//                e.type == ContainerItemEvent::Type::STACK_DECREASE;
-//            }
-//            mData.containerItemEvents.push_back(e);
-//        }
-//
-//        ContainerItemEvent e;
-//        e.type = dSize == 1 ? ContainerItemEvent::Type::ADD : ContainerItemEvent::Type::REMOVE;
-//        e.oldWindow = &oldW;
-//        e.newWindow = &newW;
-//        e.iOld = 0;
-//        e.iNew = 0;
-//        mData.containerItemEvents.push_back(e);
-//        return true;
-//    }
-//
-//
-//
-//    if(dSize == 0)
-//    {
-//        bool areStacksEqual = std::equal(oldItems.begin(),
-//                                         oldItems.end()
-//                                         newItems.begin(),
-//                                         [](const ContainerWindow::Item& i1, const ContainerWindow::Item& i2)
-//                                         {
-//                                            return i1.count == i2.count;
-//                                         });
-////
-////        if(oldCountMismatchIndices.empty())
-////        {
-////
-////        }
-////        if(oldItems[0].sprite == nullptr)
-////        {
-////            oldNullIndices.insert(oldNullIndices.begin(), 0);
-////        }
-////        else if(!isSpriteDrawEqual(oldItems[0].sprite, newItems[0].sprite))
-////        {
-////
-////        }
-////        int stackOffset = 0;
-////        iOld = iOldStackBegin;
-////        for(size_t iNew = iNewStackBegin; iOld < oldStackIndices.size(); iOld++, iNew++)
-////        {
-////            int offset = newStackIndices[i] - oldStackIndices[i];
-////            if(stackOffset == 0)
-////            {
-////                stackOffset = offset;
-////            }
-////            else if(offset != stackOffset)
-////            {
-////                return false;
-////            }
-////        }
-//    }
-//
-//    for(const size_t i : oldNullIndices)
-//    {
-//        ContainerItemEvent e;
-//        e.type == ContainerItemEvent::Type::ADD;
-//        e.oldWindow = &oldW;
-//        e.newWindow = &newW;
-//        e.iOld = i;
-//        e.iNew = i + dSize;
-//        mData.containerItemEvents.push_back(e);
-//    }
-//
-//
-//
-//
-//    if(dSize == 0)
-//    {
-//        bool isFirstSpriteEqual = isSpriteDrawEqual(oldItems[0].sprite, newItems[0].sprite);
-//        size_t j = 1;
-//        for(; j < oldItems.size(); j++)
-//        {
-//            if(!isSpriteDrawEqual(oldItems[j].sprite, newItems[j].sprite))
-//            {
-//                break;
-//            }
-//        }
-//        if(j == oldItems.size()) // All sprites same. Must have moved item between stacks.
-//        {
-//            if(!isFirstSpriteEqual)
-//            {
-//                const SpriteDraw* overWritingSprite = newItems[0].sprite;
-//                auto sourceIt = std::find_if(oldItems.begin() + 1,
-//                                             oldItems.end(),
-//                                             [overWritingSprite](const ContainerWindow::Item& item)
-//                {
-//                    return isSpriteDrawEqual(overWritingSprite, item.sprite);
-//                });
-//                if(sourceIt == oldItems.end())
-//                {
-//
-//                }
-//            }
-//
-//            std::vector<size_t> mismatches;
-//            for(j = 0; j < newItems.size(); j++)
-//            {
-//                if(oldItems[j].count != newItems[j].count)
-//                {
-//                    mismatches.push_back(j);
-//                }
-//            }
-//
-//            assert(mismatches.size() != 0);
-//
-//            if(mismatches.size() > 2)
-//            {
-//                return false;
-//            }
-//
-//            for(const size_t itemIndex : mismatches)
-//            {
-//                int d = newW.items[itemIndex].count - oldW.items[itemIndex].count;
-//                assert(d != 0);
-//                ContainerItemEvent e;
-//                e.oldWindow = &oldW;
-//                e.newWindow = &newW;
-//                e.iOld = itemIndex;
-//                e.iNew = itemIndex;
-//                if(d > 0)
-//                {
-//                    e.type == ContainerItemEvent::Type::STACK_INCREASE;
-//                }
-//                else
-//                {
-//                    e.type == ContainerItemEvent::Type::STACK_DECREASE;
-//                }
-//                mData.containerItemEvents.push_back(e);
-//            }
-//            return true;
-//        }
-//        else
-//        {
-//            const ContainerWindow::Item* movedItem = nullptr;
-//            size_t iMovedItemOld = -1;
-//            for(j = 0; j + 1 < newItems.size(); j++)
-//            {
-//                if(!isItemEqual(oldItems[j], newItems[j + 1]))
-//                {
-//                    iMovedItemOld = j;
-//                    j++;
-//                    for(; j < newItems.size(); j++)
-//                    {
-//                        if(!isItemEqual(oldItems[j], newItems[j]))
-//                        {
-//                            return false;
-//                        }
-//                    }
-//                    break;
-//                }
-//            }
-//
-//            if(iMovedItemOld >= oldItems.size() || !isItemEqual(oldItems[iMovedItemOld], newItems[0]))
-//            {
-//                return false;
-//            }
-//
-//            ContainerItemEvent e;
-//            e.type = ContainerItemEvent::Type::MOVE;
-//            e.oldWindow = &oldW;
-//            e.newWindow = &newW;
-//            e.iOld = iMovedItemOld;
-//            e.iNew = 0;
-//            mData.containerItemEvents.push_back(e);
-//            return true;
-//        }
-//    }
-//    else
-//    {
-//        int dSize = newItems.size() - oldItems.size();
-//        if(dSize > 1 || dSize < -1)
-//        {
-//            return false;
-//        }
-//
-//        size_t iOld = dSize > 0 ? 0 : -dSize;
-//        size_t iNew = dSize > 0 ? dSize : 0;
-//        assert(iNew - iOld == dSize);
-//        std::vector<size_t> countMismatchesOld;
-//        for(; iOld < oldItems.size(); iOld++, iNew++)
-//        {
-//            assert(iNew < newItems.size());
-//            if(!isSpriteDrawEqual(oldItems[iOld].sprite, newItems[iNew].sprite))
-//            {
-//                break;
-//            }
-//
-//            if(oldItems[iOld].count != newItems[iNew].count)
-//            {
-//                countMismatchesOld.push_back(iOld);
-//            }
-//        }
-//        if(iOld < oldItems.size())
-//        {
-//            return false;
-//        }
-//
-//        if(countMismatchesOld.size() > 2)
-//        {
-//            return false;
-//        }
-//
-//        for(const size_t oldItemIndex : countMismatchesOld)
-//        {
-//            ContainerItemEvent e = ContainerItemEvent();
-//            e.oldWindow = &oldW;
-//            e.newWindow = &newW;
-//            e.iOld = oldItemIndex;
-//            e.iNew = oldItemIndex + dSize;
-//            int d = newW.items[e.iNew].count - oldW.items[e.iOld].count;
-//            assert(d != 0);
-//            if(d > 0)
-//            {
-//                e.type == ContainerItemEvent::Type::STACK_INCREASE;
-//            }
-//            else
-//            {
-//                e.type == ContainerItemEvent::Type::STACK_DECREASE;
-//            }
-//            mData.containerItemEvents.push_back(e);
-//        }
-//
-//        ContainerItemEvent e;
-//        e.type = dSize == 1 ? ContainerItemEvent::Type::ADD : ContainerItemEvent::Type::REMOVE;
-//        e.newWindow = &newW;
-//        e.iNew = 0;
-//        mData.containerItemEvents.push_back(e);
-//
-//        return true;
-//    }
-//
-//    return false;
+
+    mData.containerItemEvents.insert(mData.containerItemEvents.end(), events.begin(), events.end());
+    return true;
 };
 
 void SideBarWindowDiff::parse(const SideBarWindow* oldW, const SideBarWindow* newW, SideBarWindow::Type type)
