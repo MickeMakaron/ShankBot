@@ -101,6 +101,20 @@ void GuiParser::parse(const Frame& frame)
 
 void GuiParser::parsePass1()
 {
+    std::reverse(mData.game.sideBarWindows.containers.begin(), mData.game.sideBarWindows.containers.end());
+
+    std::vector<SideBarWindow>& windows = mData.game.sideBarWindows.windows;
+    std::reverse(windows.begin(), windows.end());
+    if(windows.size() > 2 && mData.game.sideBarWindows.isWindowBeingMoved)
+    {
+
+        if(windows[0].titleBar.screen.x < windows[1].titleBar.screen.x ||
+           windows[0].titleBar.screen.y > windows[1].titleBar.screen.y)
+        {
+            std::reverse(windows.begin(), windows.end() - 1);
+        }
+    }
+
     if(pass1.hpManaBorders.empty())
     {
         return;
@@ -117,8 +131,7 @@ void GuiParser::parsePass1()
     sb.manaPercent = (mana ? mana->botRight.x - mana->topLeft.x : 0.f) / borderWidth;
     sb.hpPercent = (hp ? hp->botRight.x - hp->topLeft.x : 0.f) / borderWidth;
 
-    std::reverse(mData.game.sideBarWindows.containers.begin(), mData.game.sideBarWindows.containers.end());
-    std::reverse(mData.game.sideBarWindows.windows.begin(), mData.game.sideBarWindows.windows.end());
+
 }
 
 const GuiParser::Data& GuiParser::getData()
@@ -795,7 +808,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         w.titleBar.local.height = round(d->botRight.y) - w.titleBar.local.y;
         w.titleBar.screen.width = w.titleBar.local.width;
         w.titleBar.screen.height = w.titleBar.local.height;
-        SB_EXPECT(w.titleBar.local.width, ==, 176);
+        SB_EXPECT(w.titleBar.local.width, ==, Constants::SIDE_BAR_PIXEL_WIDTH);
         SB_EXPECT(w.titleBar.local.height, ==, 15);
 
 
@@ -850,6 +863,31 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         SB_EXPECT(w.clientArea.local.height, >, 0);
         w.clientArea.screen.width = w.clientArea.local.width;
         w.clientArea.screen.height = w.clientArea.local.height;
+    };
+
+    handlers["2pixel-up-frame-borderimage-dark"] = [this](size_t& i)
+    {
+        const GuiDraw* d = &(*mDraws)[i];
+        short left = round(d->topLeft.x);
+        short top = round(d->topLeft.y);
+        i++;
+        while(i < mDraws->size())
+        {
+            d = &(*mDraws)[i];
+            if(mBaseNames[i] != "2pixel-up-frame-borderimage-dark")
+            {
+                i--;
+                d = &(*mDraws)[i];
+                break;
+            }
+            i++;
+        }
+        short right = round(d->botRight.x);
+        short bot = round(d->botRight.y);
+
+        SB_EXPECT(right - left, ==, Constants::SIDE_BAR_PIXEL_WIDTH);
+        SB_EXPECT(bot, >, top);
+        mData.game.sideBarWindows.isWindowBeingMoved = true;
     };
 
 

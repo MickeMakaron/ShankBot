@@ -382,6 +382,8 @@ namespace GraphicsLayer
                 Vip vip;
                 Prey prey;
                 NpcTrade npcTrade;
+
+                bool isWindowBeingMoved = false;
             };
 
             struct GameWindow
