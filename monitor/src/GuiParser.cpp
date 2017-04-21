@@ -105,13 +105,23 @@ void GuiParser::parsePass1()
 
     std::vector<SideBarWindow>& windows = mData.game.sideBarWindows.windows;
     std::reverse(windows.begin(), windows.end());
-    if(windows.size() > 2 && mData.game.sideBarWindows.isWindowBeingMoved)
+    if(windows.size() > 2)
     {
-
-        if(windows[0].titleBar.screen.x < windows[1].titleBar.screen.x ||
-           windows[0].titleBar.screen.y > windows[1].titleBar.screen.y)
+        bool doReverse = false;
+        int dx = windows[1].titleBar.screen.x - windows[0].titleBar.screen.x;
+        int dy = windows[1].titleBar.screen.y - windows[0].titleBar.screen.y;
+        if(dx == 0)
         {
-            std::reverse(windows.begin(), windows.end() - 1);
+            doReverse = (dy < 0);
+        }
+        else
+        {
+            doReverse = (dx > 0);
+        }
+
+        if(doReverse)
+        {
+            std::reverse(windows.begin(), (mData.game.sideBarWindows.isWindowBeingMoved ? windows.end() - 1 : windows.end()));
         }
     }
 
