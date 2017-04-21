@@ -461,6 +461,20 @@ void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldD
         return;
     }
 
+    isEqual = std::equal(oldData.begin(),
+                         oldData.end(),
+                         newData.begin(),
+                         [](const ContainerWindow& oldW, const ContainerWindow& newW)
+                         {
+                             return oldW.titleBar.x == newW.titleBar.x &&
+                                    oldW.titleBar.y == newW.titleBar.y &&
+                                    oldW.clientArea.height == newW.clientArea.height;
+                         });
+    if(isEqual)
+    {
+        return;
+    }
+
     if(oldData.empty())
     {
         for(const ContainerWindow& w : newData)
