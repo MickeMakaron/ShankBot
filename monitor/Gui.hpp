@@ -73,7 +73,7 @@ namespace GraphicsLayer
             SKULL_RED               = 1 << 22,
             SKULL_WHITE             = 1 << 23,
             SKULL_YELLOW            = 1 << 24;
-    };
+    }
 
     namespace VipGroupMERP
     {

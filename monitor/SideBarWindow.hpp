@@ -92,7 +92,7 @@ namespace GraphicsLayer
             PARTY   = 1 << 4,
             UNKNOWN = 1 << 5,
             ALL     = PLAYER | NPC | MONSTER | SKULL | PARTY;
-    };
+    }
 
     struct SideBarWindow
     {

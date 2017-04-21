@@ -74,7 +74,7 @@ namespace GraphicsLayer
             SKULL_RED               = 1 << 22,
             SKULL_WHITE             = 1 << 23,
             SKULL_YELLOW            = 1 << 24;
-    };
+    }
 
     namespace VipGroup
     {
@@ -87,7 +87,7 @@ namespace GraphicsLayer
 
     struct GuiElement
     {
-        GuiElement(){};
+        GuiElement(){}
         GuiElement(const GuiDraw& draw) : draw(&draw){}
         const GuiDraw* draw = nullptr;
     };
@@ -100,7 +100,7 @@ namespace GraphicsLayer
 
     struct Button : public GuiElement
     {
-        Button(){};
+        Button(){}
         Button(const GuiDraw& d, bool isDown, bool isEnabled = true)
         : GuiElement(d), isDown(isDown), isEnabled(isEnabled){}
         bool isDown;
@@ -110,7 +110,7 @@ namespace GraphicsLayer
 
     struct MinMaxButton : public Button
     {
-        MinMaxButton(){};
+        MinMaxButton(){}
         MinMaxButton(const GuiDraw& d, bool isMin, bool isDown, bool isEnabled = true)
         : Button(d, isDown, isEnabled), isMin(isMin){}
         bool isMin;
@@ -185,7 +185,7 @@ namespace GraphicsLayer
             INVALID,
         };
 
-        UniqueButton(){};
+        UniqueButton(){}
         UniqueButton(const GuiDraw& d, Type type, bool isDown, bool isEnabled = true)
         : Button(d, isDown, isEnabled), type(type){}
 
