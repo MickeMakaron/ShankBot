@@ -44,6 +44,8 @@ namespace GraphicsLayer
         const unsigned char CONTAINER_SEPARATOR_PIXEL_WIDTH = 5;
         const unsigned char CONTAINER_WIDTH = 4;
 
+        const unsigned short SIDE_BAR_PIXEL_WIDTH = 176;
+
 
         const int SIDE_BOTTOM_WINDOW_CLIENT_SCREEN_LEFT_OFFSET_X = 172; // Offset from the right side of the windows' client area.
         const int SIDE_BOTTOM_WINDOW_CLIENT_SCREEN_RIGHT_OFFSET_X = 4;
