@@ -41,6 +41,7 @@ SideBarWindowDiff::SideBarWindowDiff()
 {
     mPreviousFrame.data.reset(new SideBarWindowAssembler::Data());
     mPreviousEqualFrame.data.reset(new SideBarWindowAssembler::Data());
+    mCurrentEqualFrame.data.reset(new SideBarWindowAssembler::Data());
 }
 
 void SideBarWindowDiff::parse(const Frame& frame, const SideBarWindowAssembler::Data& data)
@@ -49,9 +50,6 @@ void SideBarWindowDiff::parse(const Frame& frame, const SideBarWindowAssembler::
 
     mCurrentFrame.frame = frame;
     mCurrentFrame.data.reset(new SideBarWindowAssembler::Data(data));
-
-    mPendingContainerItemEventsFrontBuffer.clear();
-    mPendingContainerItemEventsFrontBuffer.swap(mPendingContainerItemEvents);
 
     using T = SideBarWindow::Type;
     parse(mPreviousFrame.data->battle.get(), mCurrentFrame.data->battle.get(), T::BATTLE);
@@ -119,22 +117,6 @@ bool SideBarWindowDiff::isContainerContentsEqual(const ContainerWindow& w1, cons
 
 bool SideBarWindowDiff::isContainerContentsMoved(const ContainerWindow& oldW, const ContainerWindow& newW)
 {
-    auto pendingContainerItemEventIt = std::find_if(mPendingContainerItemEventsFrontBuffer.begin(),
-                                                    mPendingContainerItemEventsFrontBuffer.end(),
-                                                    [&oldW](const PendingContainerItemEvent& e)
-    {
-        return e.newWindow == &oldW;
-    });
-    if(pendingContainerItemEventIt != mPendingContainerItemEventsFrontBuffer.end())
-    {
-        PendingContainerItemEvent e = *pendingContainerItemEventIt;
-        mPendingContainerItemEventsFrontBuffer.erase(pendingContainerItemEventIt);
-        size_t size = mPendingContainerItemEvents.size();
-        bool result = isContainerContentsMoved(*e.oldWindow, newW);
-        assert(size == mPendingContainerItemEvents.size());
-        return result;
-    }
-
     const std::vector<ContainerWindow::Item>& oldItems = oldW.items;
     const std::vector<ContainerWindow::Item>& newItems = newW.items;
     assert(!(oldItems.empty() && newItems.empty()));
@@ -187,41 +169,6 @@ bool SideBarWindowDiff::isContainerContentsMoved(const ContainerWindow& oldW, co
     {
         return false;
     }
-
-//    size_t iOldStackBegin = 0;
-//    size_t iNewStackBegin = 0;
-//    if(dNumStacks == 1)
-//    {
-//        iNewStackBegin = 1;
-//    }
-//    else if(dNumStacks == -1)
-//    {
-//        iOldStackBegin = 1;
-//    }
-//    assert(oldStackIndices.size() - iOldStackBegin == newStackIndices.size() - iNewStackBegin);
-//    assert(iOldStackBegin + dNumStacks == iNewStackBegin);
-//    std::vector<size_t> oldCountMismatchIndices;
-//    for(size_t iOld = iOldBegin, iNew = iNewBegin; iOld < oldStackIndices.size(); iOld++, iNew++)
-//    {
-//        if(oldItems[iOld].count != newItems[iNew].count)
-//        {
-//            oldCountMismatchIndices.push_back(iOld);
-//        }
-//    }
-//    if(oldCountMismatchIndices.size() > 2)
-//    {
-//        return false;
-//    }
-//
-//    if(oldCountMismatchIndices.size() == 2)
-//    {
-//        int d0 = newItems[oldCountMismatchIndices[0] + dNumItems].count - [oldCountMismatchIndices[0]].count;
-//        int d1 = newItems[oldCountMismatchIndices[1] + dNumItems].count - [oldCountMismatchIndices[1]].count;
-//        if(d0 != -d1)
-//        {
-//            return false;
-//        }
-//    }
 
     size_t iOldBegin = 0;
     size_t iNewBegin = 0;
@@ -493,6 +440,33 @@ void SideBarWindowDiff::parse(const SideBarWindow* oldW, const SideBarWindow* ne
 void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldData, const std::vector<ContainerWindow>& newData)
 {
     using T = SideBarWindow::Type;
+
+
+    bool isEqual =  oldData.size() == newData.size() &&
+                    std::equal(oldData.begin(),
+                               oldData.end(),
+                               newData.begin(),
+                               [](const ContainerWindow& oldW, const ContainerWindow& newW)
+                               {
+                                   return isContainerEqual(oldW, newW) && isContainerContentsEqual(oldW, newW);
+                               });
+
+    if(isEqual)
+    {
+        mPreviousEqualFrame = mCurrentEqualFrame;
+        mCurrentEqualFrame = mCurrentFrame;
+        if(!mHasPendingInequality)
+        {
+            return;
+        }
+    }
+    else
+    {
+        mHasPendingInequality = true;
+        return;
+    }
+
+    mHasPendingInequality = false;
     if(oldData.empty())
     {
         for(const ContainerWindow& w : newData)
@@ -510,34 +484,6 @@ void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldD
         }
         return;
     }
-
-    bool isEqual = oldData.size() == newData.size();
-    if(isEqual)
-    {
-        isEqual = std::equal(oldData.begin(),
-                             oldData.end(),
-                             newData.begin(),
-                             [](const ContainerWindow& oldW, const ContainerWindow& newW)
-                             {
-                                 return isContainerEqual(oldW, newW) && isContainerContentsEqual(oldW, newW);
-                             });
-    }
-
-    if(isEqual)
-    {
-        if(!mHasPendingInequality)
-        {
-            mPreviousEqualFrame = mCurrentFrame;
-            return;
-        }
-    }
-    else
-    {
-        mHasPendingInequality = true;
-        return;
-    }
-
-    mHasPendingInequality = false;
 
     const std::vector<ContainerWindow>& previousEqualData = mPreviousEqualFrame.data->containers;
     std::vector<const ContainerWindow*> oldContainers(previousEqualData.size());

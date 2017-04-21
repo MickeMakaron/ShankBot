@@ -115,22 +115,12 @@ namespace GraphicsLayer
                 std::shared_ptr<SideBarWindowAssembler::Data> data;
             };
 
-            struct PendingContainerItemEvent
-            {
-                ContainerItemEvent::Type type = ContainerItemEvent::Type::INVALID;
-                DiffFrame oldFrame;
-                DiffFrame newFrame;
-                const ContainerWindow* oldWindow = nullptr;
-                const ContainerWindow* newWindow = nullptr;
-            };
-
             Data mData;
             DiffFrame mPreviousFrame;
             DiffFrame mCurrentFrame;
             DiffFrame mPreviousEqualFrame;
+            DiffFrame mCurrentEqualFrame;
             bool mHasPendingInequality = false;
-            std::vector<PendingContainerItemEvent> mPendingContainerItemEvents;
-            std::vector<PendingContainerItemEvent> mPendingContainerItemEventsFrontBuffer;
     };
 }
 
