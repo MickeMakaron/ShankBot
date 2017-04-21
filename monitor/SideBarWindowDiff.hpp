@@ -120,7 +120,6 @@ namespace GraphicsLayer
             DiffFrame mCurrentFrame;
             DiffFrame mPreviousEqualFrame;
             DiffFrame mCurrentEqualFrame;
-            bool mHasPendingInequality = false;
     };
 }
 

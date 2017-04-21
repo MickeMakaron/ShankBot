@@ -455,18 +455,12 @@ void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldD
     {
         mPreviousEqualFrame = mCurrentEqualFrame;
         mCurrentEqualFrame = mCurrentFrame;
-        if(!mHasPendingInequality)
-        {
-            return;
-        }
     }
     else
     {
-        mHasPendingInequality = true;
         return;
     }
 
-    mHasPendingInequality = false;
     if(oldData.empty())
     {
         for(const ContainerWindow& w : newData)
@@ -486,15 +480,16 @@ void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldD
     }
 
     const std::vector<ContainerWindow>& previousEqualData = mPreviousEqualFrame.data->containers;
+    const std::vector<ContainerWindow>& currentEqualData = mCurrentEqualFrame.data->containers;
     std::vector<const ContainerWindow*> oldContainers(previousEqualData.size());
-    std::vector<const ContainerWindow*> newContainers(newData.size());
+    std::vector<const ContainerWindow*> newContainers(currentEqualData.size());
     std::transform(previousEqualData.begin(),
                    previousEqualData.end(),
                    oldContainers.begin(),
                    [](const ContainerWindow& w){return &w;});
 
-    std::transform(newData.begin(),
-                   newData.end(),
+    std::transform(currentEqualData.begin(),
+                   currentEqualData.end(),
                    newContainers.begin(),
                    [](const ContainerWindow& w){return &w;});
 
