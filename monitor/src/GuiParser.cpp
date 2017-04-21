@@ -829,7 +829,9 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         while(i < mDraws->size())
         {
             d = &(*mDraws)[i];
-            if(d->drawCallId != drawCallId)
+            int h0 = round((*mDraws)[i - 1].botRight.y - (*mDraws)[i - 1].topLeft.y);
+            int h1 = round(d->botRight.y - d->topLeft.y);
+            if(d->drawCallId != drawCallId || (h0 == 4 && h1 == 15))
             {
                 i--;
                 break;
@@ -844,6 +846,8 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         SB_EXPECT(right, ==, w.titleBar.local.x + w.titleBar.local.width);
         w.clientArea.local.width = right - w.clientArea.local.x;
         w.clientArea.local.height = bot - w.clientArea.local.y;
+        SB_EXPECT(w.clientArea.local.width, >, 0);
+        SB_EXPECT(w.clientArea.local.height, >, 0);
         w.clientArea.screen.width = w.clientArea.local.width;
         w.clientArea.screen.height = w.clientArea.local.height;
     };
