@@ -57,6 +57,79 @@ Monitor* monitor = nullptr;
 void hookExtendedOpenGlFunctions(const std::string& module, HDC hdc, HGLRC hglrc);
 void hookModuleExports(HINSTANCE module, LPCSTR moduleName);
 
+
+void APIENTRY attachShader(GLuint program, GLuint shader)
+{
+    static DetourHolder& detour = injection->getDetour(attachShader);
+    detour.callAs(attachShader, program, shader);
+
+    std::cout << "Attach shader to program: " << shader << "->" << program << std::endl;
+}
+
+void APIENTRY shaderSource(GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
+{
+    static DetourHolder& detour = injection->getDetour(shaderSource);
+    detour.callAs(shaderSource, shader, count, string, length);
+
+    std::cout << "Shader source: " << shader << std::endl;
+    for(size_t i = 0; i < count; i++)
+    {
+        if(length[i] < 0)
+            std::cout << string[i];
+        else
+        {
+            std::string str;
+            str.assign(string[i], length[i]);
+            std::cout << str;
+        }
+    }
+    std::cout << std::endl << std::endl;
+}
+
+void APIENTRY enable(GLenum cap)
+{
+    static DetourHolder& detour = injection->getDetour(enable);
+    if(cap == GL_DEPTH_TEST)
+    {
+        monitor->setDepthTest(true);
+    }
+    detour.callAs(enable, cap);
+}
+
+void APIENTRY disable(GLenum cap)
+{
+    static DetourHolder& detour = injection->getDetour(disable);
+    if(cap == GL_DEPTH_TEST)
+    {
+        monitor->setDepthTest(false);
+    }
+    detour.callAs(disable, cap);
+}
+
+void APIENTRY depthFunc(GLenum func)
+{
+    static DetourHolder& detour = injection->getDetour(depthFunc);
+    monitor->setDepthFunc(func);
+    detour.callAs(depthFunc, func);
+}
+
+void APIENTRY depthMask(GLboolean flag)
+{
+    static DetourHolder& detour = injection->getDetour(depthMask);
+    monitor->setDepthMask(flag);
+    detour.callAs(depthMask, flag);
+}
+
+void APIENTRY depthRange(GLclampd zNear, GLclampd zFar)
+{
+    static DetourHolder& detour = injection->getDetour(depthRange);
+    monitor->setDepthRange(zNear, zFar);
+    detour.callAs(depthRange, zNear, zFar);
+}
+
+
+
+
 void APIENTRY viewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
     static DetourHolder& detour = injection->getDetour(viewport);
@@ -343,6 +416,11 @@ void inject()
         DetourHolder("glViewport", viewport),
         DetourHolder("glCopyTexImage2D", copyTexImage),
         DetourHolder("glCopyTexSubImage2D", copyTexSubImage),
+        DetourHolder("glEnable", enable),
+        DetourHolder("glDisable", disable),
+        DetourHolder("glDepthFunc", depthFunc),
+        DetourHolder("glDepthMask", depthMask),
+        DetourHolder("glDepthRange", depthRange),
     });
     injection->setModuleDetours("gdi32.dll",
     {
@@ -361,6 +439,8 @@ void inject()
         DetourHolder("glUniform4fv", uniform4fv),
         DetourHolder("glUniformMatrix4fv", uniformMatrix4fv),
         DetourHolder("glBlendColor", blendColor),
+//        DetourHolder("glAttachShader", attachShader),
+//        DetourHolder("glShaderSource", shaderSource),
     });
     injection->setModuleDetours("kernel32.dll",
     {
