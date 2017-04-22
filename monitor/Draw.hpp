@@ -50,6 +50,10 @@ namespace GraphicsLayer
         Vertex botRight;
         std::shared_ptr<sb::utility::Matrix<float, 4, 4>> transform;
         unsigned short drawCallId;
+        bool isDepthTestEnabled = false;
+        bool isDepthWriteEnabled = true;
+        bool hasOrder = false;
+        float order = 0.f;
 
 //        void getScreenCoords
 //        (

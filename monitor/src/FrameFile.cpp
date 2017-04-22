@@ -61,6 +61,10 @@ void write(const Draw& draw, std::ostream& stream)
         return;
     }
     writeStream(*draw.transform, stream);
+    writeStream(draw.isDepthTestEnabled, stream);
+    writeStream(draw.isDepthWriteEnabled, stream);
+    writeStream(draw.hasOrder, stream);
+    writeStream(draw.order, stream);
 }
 
 void write(const std::shared_ptr<std::vector<SpriteDraw>>& draws, std::ostream& stream)
@@ -244,6 +248,11 @@ void read(Draw& draw, std::istream& stream)
 
     draw.transform.reset(new Matrix<float, 4, 4>());
     readStreamSafe(*draw.transform, stream);
+
+    readStreamSafe(draw.isDepthTestEnabled, stream);
+    readStreamSafe(draw.isDepthWriteEnabled, stream);
+    readStreamSafe(draw.hasOrder, stream);
+    readStreamSafe(draw.order, stream);
 }
 
 void read(std::shared_ptr<std::vector<SpriteDraw>>& draws, std::istream& stream)
