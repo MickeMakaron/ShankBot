@@ -104,6 +104,27 @@ void Monitor::appendToDataBuffer(const char* data, size_t size)
     mDataBuffer.insert(mDataBuffer.end(), data, data + size);
 }
 
+void Monitor::setDepthTest(bool doEnable)
+{
+    mIsDepthTestEnabled = doEnable;
+}
+
+void Monitor::setDepthFunc(GLenum func)
+{
+    THROW_ASSERT(func == GL_LESS);
+}
+
+void Monitor::setDepthMask(bool doEnable)
+{
+    mIsDepthWriteEnabled = doEnable;
+}
+
+void Monitor::setDepthRange(double near, double far)
+{
+    THROW_ASSERT(false);
+}
+
+
 void Monitor::setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
     THROW_ASSERT(x == 0 && y == 0);
@@ -173,6 +194,8 @@ void Monitor::appendDrawArraysToDataBuffer(GLenum mode, GLint indicesOffset, GLs
     drawCall.indicesOffset = indicesOffset;
     drawCall.numIndices = count;
     drawCall.type = DrawCall::PrimitiveType::TRIANGLE_FAN;
+    drawCall.isDepthTestEnabled = mIsDepthTestEnabled;
+    drawCall.isDepthWriteEnabled = mIsDepthWriteEnabled;
 
     if(mBoundFramebuffer != 0)
     {
@@ -228,6 +251,8 @@ void Monitor::appendDrawElementsToDataBuffer(GLenum mode, const GLvoid* indicesO
     drawCall.blendColor = mCurrentBlendColor;
     drawCall.indicesOffset = (unsigned int)indicesOffset;
     drawCall.numIndices = count;
+    drawCall.isDepthTestEnabled = mIsDepthTestEnabled;
+    drawCall.isDepthWriteEnabled = mIsDepthWriteEnabled;
     switch(mode)
     {
         case GL_TRIANGLES:

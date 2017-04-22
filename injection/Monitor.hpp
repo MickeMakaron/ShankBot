@@ -59,6 +59,10 @@ namespace GraphicsLayer
         public:
             explicit Monitor();
 
+            void setDepthTest(bool doEnable);
+            void setDepthFunc(GLenum func);
+            void setDepthMask(bool doEnable);
+            void setDepthRange(double near, double far);
             void setViewport(GLint x, GLint y, GLsizei width, GLsizei height);
             void setPixelStore(GLenum pname, GLint param);
             void setProgram(GLuint program);
@@ -154,6 +158,8 @@ namespace GraphicsLayer
             GLsizei mCurrentViewportWidth = 0;
             GLsizei mCurrentViewportHeight = 0;
             GLenum mCurrentUnpackAlignment = 4;
+            bool mIsDepthTestEnabled = false;
+            bool mIsDepthWriteEnabled = true;
 
             GLuint mTileSheetTextureId = 0;
 
