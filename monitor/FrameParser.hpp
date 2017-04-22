@@ -81,6 +81,7 @@ namespace GraphicsLayer
                 };
 
                 unsigned int getVerticesOffset() const;
+                unsigned int getOrdersOffset() const;
 
                 VertexType vertexType = VertexType::UNDEFINED;
                 std::map<unsigned char, SharedMemoryProtocol::VertexAttribPointer> attribPointers;

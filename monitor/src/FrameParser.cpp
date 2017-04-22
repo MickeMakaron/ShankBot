@@ -145,6 +145,24 @@ unsigned int FrameParser::VertexBuffer::getVerticesOffset() const
             SB_THROW("Unimplemented vertex type: ", (int)vertexType);
     }
 }
+
+unsigned int FrameParser::VertexBuffer::getOrdersOffset() const
+{
+    switch(vertexType)
+    {
+        case VertexType::TEXTURED:
+        case VertexType::COLORED:
+        {
+            auto it = attribPointers.find(2);
+            assert(it != attribPointers.end());
+            return it->second.offset;
+        }
+
+        default:
+            SB_THROW("Unimplemented vertex type: ", (int)vertexType);
+    }
+}
+
 void FrameParser::copyGlyphs(const DrawCall& drawCall)
 {
     assert(drawCall.type == DrawCall::PrimitiveType::TRIANGLE_FAN);
@@ -873,6 +891,7 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
         assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
 
         TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
+        VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
 //        VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
         VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
 //        TextBuilder textBuilder(r, g, b, a);
@@ -885,7 +904,11 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
             const TexturedVertex& botRight = vertices[indices[i + 2]];
 
             GlyphDraw g;
+            g.hasOrder = true;
+            g.order = orders[indices[i]];
             g.drawCallId = mDrawCallId;
+            g.isDepthTestEnabled = drawCall.isDepthTestEnabled;
+            g.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
             g.topLeft.x = topLeft.x;
             g.topLeft.y = topLeft.y;
             g.botRight.x = botRight.x;
@@ -932,7 +955,13 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
 //
 //            mCurrentFrame.textDraws->push_back(d);
 //        }
+
+        d.hasOrder = true;
+        d.order = d.glyphDraws->empty() ? 0.f : d.glyphDraws->front().order;
         d.drawCallId = mDrawCallId;
+        d.isDepthTestEnabled = drawCall.isDepthTestEnabled;
+        d.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
+
         mDrawCallId++;
         mCurrentFrame.textDraws->push_back(d);
     }
@@ -964,6 +993,7 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
 {
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     ColoredVertex* vertices = (ColoredVertex*)((char*)buffer.data + buffer.getVerticesOffset());
+    VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const ShaderProgram& program = mShaderPrograms[drawCall.programId];
     std::shared_ptr<Matrix<float, 4, 4>> transform = std::make_shared<Matrix<float, 4, 4>>(program.transform);
@@ -1021,7 +1051,11 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
                 r.botRight.y = bot;
                 r.transform = transform;
                 r.color = color;
+                r.hasOrder = true;
+                r.order = orders[indices[i]];
                 r.drawCallId = mDrawCallId;
+                r.isDepthTestEnabled = drawCall.isDepthTestEnabled;
+                r.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
 
 //                Vertex topLeftScreen;
 //                r.getScreenCoords(float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
@@ -1112,6 +1146,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
+    VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const Texture& tex = mTextures[drawCall.sourceTextureId];
     const size_t numDraws = drawCall.numIndices / 6;
@@ -1142,6 +1177,10 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
                 draw.drawCallId = mDrawCallId;
                 draw.topLeft.x = topLeft.x;
                 draw.topLeft.y = topLeft.y;
+                draw.hasOrder = true;
+                draw.order = orders[indices[i]];
+                draw.isDepthTestEnabled = drawCall.isDepthTestEnabled;
+                draw.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
                 draw.pairings = SpriteObjectPairingsData::fromTile(tile);
                 mCurrentFrame.spriteDraws->push_back(draw);
                 break;
@@ -1167,6 +1206,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
+    VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const Texture& tex = mTextures[drawCall.sourceTextureId];
     const unsigned short HALF_FRAME_WIDTH = mCurrentFrame.width / 2;
@@ -1224,6 +1264,8 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
             case Tile::Type::SPRITE_OBJECT_PAIRINGS:
             {
                 SpriteDraw draw;
+                draw.hasOrder = true;
+                draw.order = orders[indices[i]];
                 draw.drawCallId = mDrawCallId;
                 draw.topLeft.x = topLeft.x;
                 draw.topLeft.y = topLeft.y;
@@ -1231,12 +1273,16 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
                 draw.botRight.y = botRight.y;
                 draw.pairings = SpriteObjectPairingsData::fromTile(tile);
                 draw.transform = transform;
+                draw.isDepthTestEnabled = drawCall.isDepthTestEnabled;
+                draw.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
                 mCurrentFrame.guiSpriteDraws->push_back(draw);
                 break;
             }
             case Tile::Type::GRAPHICS_RESOURCE_NAMES:
             {
                 GuiDraw d;
+                d.hasOrder = true;
+                d.order = orders[indices[i]];
                 d.drawCallId = mDrawCallId;
                 d.topLeft.x = topLeft.x;
                 d.topLeft.y = topLeft.y;
@@ -1244,6 +1290,8 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
                 d.botRight.y = botRight.y;
                 d.name = GraphicsResourceNamesData::fromTile(tile).front();
                 d.transform = transform;
+                d.isDepthTestEnabled = drawCall.isDepthTestEnabled;
+                d.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
                 mCurrentFrame.guiDraws->push_back(d);
                 break;
             }
