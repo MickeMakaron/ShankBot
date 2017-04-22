@@ -57,11 +57,6 @@ FrameParser::FrameParser(const TibiaContext& context)
 : mContext(context)
 , mTileCache(1 << 14)
 {
-//    QImage img("glyphCompDebug/3p.png");
-//    assert(!img.isNull());
-//    assert(img.format() == QImage::Format_ARGB32);
-//    img = img.convertToFormat(QImage::Format_RGBA8888);
-//    getTileNumber(img.constBits(), img.width(), img.height(), sb::utility::PixelFormat::RGBA);
 }
 
 FrameParser::Tile::Tile(size_t width, size_t height, Type type, const std::shared_ptr<GenericType>& data)
@@ -169,9 +164,6 @@ void FrameParser::copyGlyphs(const DrawCall& drawCall)
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED_NO_ORDER || buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
-//    std::cout << buffer.info.numVertices << std::endl;
-//    std::cout << drawCall.numIndices << std::endl;
-//    assert(buffer.info.numVertices == 4);
 
     Vertex* positions = (Vertex*)((char*)buffer.data + buffer.getVerticesOffset());
     auto texCoordsAttribPointer = buffer.attribPointers.find(1);
@@ -233,22 +225,6 @@ unsigned char FrameParser::getChar(unsigned textureId, unsigned short x, unsigne
         assert(tile.getType() == Tile::Type::GLYPH);
         mTileCache.set(textureId, x, y, tile);
     }
-
-
-//    if(!mGlyphCache.get(textureId, x, y, character))
-//    {
-//        typedef TileBufferCache<unsigned char>::AreaElement CachedGlyph;
-//        CachedGlyph glyph;
-//        if(!mGlyphCache.getClosestBotRight(textureId, x, y, glyph))
-//        {
-//            if(!mGlyphCache.getClosestTopLeft(textureId, x, y, glyph))
-//                int flerp = 0;
-//            assert(mGlyphCache.getClosestTopLeft(textureId, x, y, glyph));
-//        }
-//
-//        mGlyphCache.set(textureId, x, y, glyph.element);
-//        return glyph.element;
-//    }
 
     assert(tile.getType() == Tile::Type::GLYPH);
     return GlyphData::fromTile(tile);
@@ -483,65 +459,6 @@ FrameParser::TileNumber FrameParser::getTileNumber(const unsigned char* pixels, 
     }
 
 
-//
-//    std::list<unsigned int> digits;
-//    for(size_t x = 0;;)
-//    {
-//        if(x >= width - 1)
-//        {
-////            assert(x == width - 1);
-//            break;
-//        }
-//
-//        size_t xRemaining = width - x;
-//        size_t currWidth;
-//        if(xRemaining >= MAX_GLYPH_WIDTH)
-//        {
-//            currWidth = MAX_GLYPH_WIDTH;
-//        }
-//        else
-//        {
-//            assert(xRemaining == MIN_GLYPH_WIDTH);
-//            currWidth = MIN_GLYPH_WIDTH;
-//        }
-//        std::vector<unsigned char> window(height * currWidth);
-//        for(size_t iSrc = x, iDest = 0; iSrc + currWidth <= height * width; iSrc += width, iDest += currWidth)
-//            memcpy(&window[iDest], &grayPixels[iSrc], currWidth);
-//
-//        std::list<unsigned char> topTen;
-//        unsigned char character = getChar(window.data(), currWidth, height, &topTen);
-//        if(!isNumeric(character))
-//        {
-//            for(auto c : topTen)
-//            {
-//                if(isNumeric(c))
-//                {
-//                    character = c;
-//                    break;
-//                }
-//            }
-//        }
-//        if(!isNumeric(character))
-//            return FrameParser::TileNumber();
-//
-//        unsigned int digit = character - '0';
-//        digits.push_back(digit);
-//
-////        if(digit == 1)
-////            x += MIN_GLYPH_WIDTH - 1;
-////        else
-//            x += MAX_GLYPH_WIDTH - 1;
-//    }
-//
-//    unsigned int number = 0;
-//    unsigned int magnitude = 1;
-//    for(auto it = digits.rbegin(); it != digits.rend(); it++)
-//    {
-//        number += *it * magnitude;
-//        magnitude *= 10;
-//    }
-//
-//    tileNumber.number = number;
     return tileNumber;
 }
 
@@ -594,17 +511,14 @@ unsigned char FrameParser::getChar(const unsigned char* pixels, unsigned short w
         }
     }
 
-//    std::cout << "getChar: " << std::endl;
     if(topTen)
     {
         for(const auto& pair : diffs)
         {
             if(pair.second)
+            {
                 topTen->push_front(pair.second->character);
-    //        if(pair.second)
-    //            std::cout << "\t" << pair.first << ": " << pair.second->character << std::endl;
-    //        else
-    //            std::cout << "\t" << pair.first << ": " << "NULL" << std::endl;
+            }
         }
     }
 
@@ -623,10 +537,6 @@ void FrameParser::updateMiniMapPixels(const PixelData& pixelData, const unsigned
     assert(it->second != nullptr);
 
     it->second->assign(pixels, pixels + pixelData.width * pixelData.height * BYTES_PER_PIXEL_RGBA);
-
-//    QImage img(pixels, pixelData.width, pixelData.height, QImage::Format_ARGB32);
-//    static size_t count = 0;
-//    img.save(QString::fromStdString(stringify("miniMapPixels/", count++, ".png")));
 }
 
 void FrameParser::parseGlyphPixelData(const PixelData& pixelData, const unsigned char* pixels)
@@ -637,7 +547,6 @@ void FrameParser::parseGlyphPixelData(const PixelData& pixelData, const unsigned
     const Texture& tex = mTextures[pixelData.targetTextureId];
     if(pixelData.width <= tex.height)
     {
-//                        std::cout << pixelData.texX << "x" << pixelData.texY << " (" << pixelData.width << "x" << pixelData.height << ")->" << pixelData.targetTextureId << std::endl;
         QImage* img;
         unsigned char* modifiedPixels = nullptr;
         switch(pixelData.format)
@@ -693,45 +602,10 @@ void FrameParser::parseGlyphPixelData(const PixelData& pixelData, const unsigned
         Tile tile = GlyphData::createTile(pixelData.width, pixelData.height, character);
         mTileCache.set(pixelData.targetTextureId, pixelData.texX, pixelData.texY, tile);
 
-//                        for(size_t y = 0; y < img->height(); y++)
-//                        {
-//                            const unsigned char* row = img->constScanLine(y);
-//                            for(size_t x = 0; x < img->width(); x++)
-//                            {
-//                                if(x + y * g.width >= GLYPH_SIZE)
-//                                {
-//                                    std::cout << x << "x" << y << std::endl;
-//                                    std::cout << x + y * g.width << std::endl;
-//                                }
-//                                assert(x + y * g.width < GLYPH_SIZE);
-//                                g.data[x + y * g.width] = (row[x] < 200) ? 0 : row[x];
-//                            }
-//                        }
-
-//                        memcpy(g.data.data(), img->bits(), GLYPH_SIZE);
-//                        std::cout << "------" << std::endl;
-//                        std::cout << pixelData.targetTextureId << ": " << pixelData.texX << "x" << pixelData.texY << std::endl;
-//                        mGlyphCache.set(pixelData.targetTextureId, pixelData.texX, pixelData.texY, g);
-
-//                        *img = img->scaledToWidth(32);
-
-
-
         if(modifiedPixels)
             delete[] modifiedPixels;
 
         delete img;
-//
-//                        std::stringstream sstream2;
-//                        sstream2 << "fontOutData/" << numGlyphs << ".bin";
-//                        std::ofstream file(sstream2.str(), std::ios::binary);
-//                        writeStream(pixelData.width, file);
-//                        writeStream(pixelData.height, file);
-//                        unsigned char bytesPerPixel = pixelData.getBytesPerPixel();
-//                        writeStream(bytesPerPixel, file);
-//                        writeStream(pixels, file, pixelsSize);
-//                        file.close();
-//                        numGlyphs++;
     }
 }
 
@@ -760,23 +634,6 @@ void FrameParser::parsePixelData(const PixelData& pixelData, const unsigned char
         parseGlyphPixelData(pixelData, pixels);
         return;
     }
-
-//    std::cout << "Warning: Unhandled pixel data" << std::endl;
-//
-//    QImage::Format f;
-//    if(pixelData.getBytesPerPixel() == 1)
-//        f = QImage::Format_Grayscale8;
-//    else if(pixelData.getBytesPerPixel() == 4)
-//    {
-//        f = pixelData.format == sb::utility::PixelFormat::RGBA ? QImage::Format_RGBA8888 : QImage::Format_ARGB32;
-//    }
-//    else
-//        SB_THROW("Unimplemented format: ", (int)pixelData.format);
-//
-//    QImage img(pixels, pixelData.width, pixelData.height, f);
-//
-//    static size_t unhandledCount = 0;
-//    img.save(QString::fromStdString(stringify("unhandledPixelData/", unhandledCount++, ".png")));
 }
 
 void FrameParser::parseCopyTexture(const CopyTexture& copy)
@@ -892,13 +749,10 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
 
         TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
         VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
-//        VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
         VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
-//        TextBuilder textBuilder(r, g, b, a);
         const size_t numDraws = drawCall.numIndices / 6;
         d.glyphDraws->reserve(d.glyphDraws->capacity() + numDraws);
         for(size_t i = 0; i + 5 < drawCall.numIndices; i += 6)
-//        for(size_t i = 0; i + 5 < drawCall.numIndices; i += 6)
         {
             const TexturedVertex& topLeft = vertices[indices[i]];
             const TexturedVertex& botRight = vertices[indices[i + 2]];
@@ -915,46 +769,7 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
             g.botRight.y = botRight.y;
             g.character = getChar(drawCall.sourceTextureId, topLeft.texX, topLeft.texY, botRight.texX - topLeft.texX, botRight.texY - topLeft.texY);
             d.glyphDraws->push_back(g);
-//            textBuilder.insert(character, topLeft.x, topLeft.y, botRight.x, botRight.y);
         }
-
-//
-//        std::list<TextBuilder::Text> text = textBuilder.build();
-//        for(TextBuilder::Text& t : text)
-//        {
-//            unsigned short x;
-//            unsigned short y;
-//            worldToScreenCoords
-//            (
-//                t.topLeftX, t.topLeftY,
-//                mShaderPrograms[drawCall.programId].transform,
-//                HALF_FRAME_WIDTH, HALF_FRAME_HEIGHT,
-//                x, y
-//            );
-//
-//            t.topLeftX = x;
-//            t.topLeftY = y;
-//            if(t.type == TextBuilder::Text::Type::UNKNOWN)
-//                std::cout << t.string << "|| " << (int)t.type << " (" << (int)t.r << " " << (int)t.g << " " << (int)t.b << " " << (int)t.a << std::endl;
-//        }
-//
-//        const size_t numDraws = text.size();
-//        mCurrentFrame.textDraws->reserve(mCurrentFrame.textDraws->capacity() + numDraws);
-//        for(const TextBuilder::Text& str : text)
-//        {
-//            TextLineDraw d;
-//            d.x = str.topLeftX;
-//            d.y = str.topLeftY;
-//            d.width = str.width;
-//            d.height = str.height;
-//            d.string = str.string;
-//            d.r = str.r;
-//            d.g = str.g;
-//            d.b = str.b;
-//            d.type = str.type;
-//
-//            mCurrentFrame.textDraws->push_back(d);
-//        }
 
         d.hasOrder = true;
         d.order = d.glyphDraws->empty() ? 0.f : d.glyphDraws->front().order;
@@ -969,23 +784,10 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
     {
         // Don't do anything. It's the same area being painted over and over
         // and it is only one triangle strip primitive. It might be some
-        // whitespace at the start of each line in the chat tab. Anyway,
+        // whitespace at the start of each line in the chat. Anyway,
         // nothing interesting.
         const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
         assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
-
-//        TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
-//        VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
-//
-//        std::cout << "::" << std::endl;
-//        for(size_t i = 0; i < drawCall.numIndices; i++)
-//        {
-//            const TexturedVertex& v = vertices[indices[i]];
-//            std::cout << v.texX << "x" << v.texY << "->" << v.x << "x" << v.y << std::endl;
-//        }
-
-//        assert(drawCall.numIndices == 6);
-//        assert(buffer.info.numVertices == 4);
     }
 }
 
@@ -1001,15 +803,6 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
     {
         if(drawCall.type == DrawCall::PrimitiveType::TRIANGLE_STRIP)
         {
-//            std::cout << "Rect: " << std::endl;
-//            for(size_t i = 0; i < drawCall.numIndices; i++)
-//            {
-//                const ColoredVertex& v = vertices[indices[i]];
-//                std::cout << indices[i] << ": " << v.x << "x" << v.y << " (" << (int)v.r << "," << (int)v.g << "," << (int)v.b << "," << (int)v.a << ")" << std::endl;
-//            }
-//            std::cout << "/Rect" << std::endl;
-
-
             VertexAttribPointer::Index prevIndex = -1;
             for(size_t i = 0; i < drawCall.numIndices;)
             {
@@ -1057,83 +850,9 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
                 r.isDepthTestEnabled = drawCall.isDepthTestEnabled;
                 r.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
 
-//                Vertex topLeftScreen;
-//                r.getScreenCoords(float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
-//                std::cout << "Rect draw (" << (int)color.r << "," << (int)color.g << "," << (int)color.b << "," << (int)color.a << "): " << topLeftScreen.x << "x" << topLeftScreen.y << " (" << r.botRight.x - r.topLeft.x << "x" << r.botRight.y - r.topLeft.y << ")" << std::endl;
-
-
-//                #ifndef NDEBUG
-//                    if(i + 2 < drawCall.numIndices)
-//                    {
-//                        assert(indices[i + 1] == indices[i + 2]);
-//                    }
-//                #endif // NDEBUG
                 i += 2;
             }
             mDrawCallId++;
-////
-//            for(size_t i = 0; i + 5 < drawCall.numIndices;)
-//            {
-//                const ColoredVertex& v = vertices[indices[i]];
-//                const ColoredVertex* vEnd1 = &vertices[indices[i + 4]];
-//                const ColoredVertex* vEnd2 = &vertices[indices[i + 5]];
-//                if(vEnd1->x == vEnd2->x && vEnd1->y == vEnd2->y)
-//                {
-//                    RectDraw r;
-//
-//                    const ColoredVertex& topLeft = vertices[indices[i + 2]];
-//                    const ColoredVertex& botRight = vertices[indices[i + 3]];
-//
-////                    unsigned short screenTopLeftX;
-////                    unsigned short screenTopLeftY;
-////                    unsigned short screenBotRightX;
-////                    unsigned short screenBotRightY;
-////                    worldToScreenCoords(topLeft.x, topLeft.y, program.transform, HALF_FRAME_WIDTH, HALF_FRAME_HEIGHT, screenTopLeftX, screenTopLeftY);
-////                    worldToScreenCoords(botRight.x, botRight.y, program.transform, HALF_FRAME_WIDTH, HALF_FRAME_HEIGHT, screenBotRightX, screenBotRightY);
-//
-//                    r.topLeft.x = topLeft.x;
-//                    r.topLeft.y = topLeft.y;
-//                    r.botRight.x = botRight.x;
-//                    r.botRight.y = botRight.y;
-//                    r.transform = transform;
-////                    r.width = screenBotRightX - screenTopLeftX;
-////                    r.height = screenBotRightY - screenTopLeftY;
-////                    r.screenX = screenTopLeftX;
-////                    r.screenY = screenTopLeftY;
-////                    r.r = v.r;
-////                    r.g = v.g;
-////                    r.b = v.b;
-////                    r.a = v.a;
-//                    r.color = Color(topLeft.r, topLeft.g, topLeft.b, topLeft.a);
-//                    mCurrentFrame.rectDraws->push_back(r);
-//
-//                    Vertex topLeftScreen;
-//                    r.getScreenCoords(float(mCurrentFrame.width) / 2.f, float(mCurrentFrame.height) / 2.f, topLeftScreen.x, topLeftScreen.y);
-//                    std::cout << "Rect draw (" << (int)topLeft.r << "," << (int)topLeft.g << "," << (int)topLeft.b << "," << (int)topLeft.a << "): " << topLeftScreen.x << "x" << topLeftScreen.y << " (" << r.botRight.x - r.topLeft.x << "x" << r.botRight.y - r.topLeft.y << ")" << std::endl;
-//
-//                    i += 6;
-//                }
-//                else
-//                {
-//                    i += 5;
-//                    while(i + 1 < drawCall.numIndices)
-//                    {
-//                        vEnd1 = &vertices[indices[i]];
-//                        vEnd2 = &vertices[indices[i + 1]];
-//                        if(vEnd1->x == vEnd2->x && vEnd1->y == vEnd2->y)
-//                        {
-//                            i += 2;
-//                            break;
-//                        }
-//                        else
-//                            i++;
-//                    }
-//                }
-////                                    unsigned short screenX;
-////                                    unsigned short screenY;
-////                                    worldToScreenCoords(v.x, v.y, program.transform, HALF_FRAME_WIDTH, HALF_FRAME_HEIGHT, screenX, screenY);
-////                                    std::cout << "\t" << (int)v.r << " " << (int)v.g << " " << (int)v.b << " " << (int)v.a << "->" << screenX << "x" << screenY << std::endl;
-//            }
         }
 
     }
@@ -1151,13 +870,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
     const Texture& tex = mTextures[drawCall.sourceTextureId];
     const size_t numDraws = drawCall.numIndices / 6;
     mCurrentFrame.spriteDraws->reserve(mCurrentFrame.spriteDraws->capacity() + numDraws);
-//    for(size_t i = 0; i < drawCall.numIndices; i++)
-//    {
-//        const TexturedVertex& v = vertices[indices[i]];
-//        std::cout << v.texX << "x" << v.texY << "->" << v.x << "x" << v.y << std::endl;
-//
-//    }
-//    for(size_t i = 1; i + 3 < drawCall.numIndices; i += 6)
+
     for(size_t i = 0; i < drawCall.numIndices; i += 6)
     {
         const TexturedVertex& topLeft = vertices[indices[i]];
@@ -1194,7 +907,6 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
 
             default:
                 break;
-//                SB_THROW("Unexpected tile type: ", (int)tile.getType());
         }
     }
     mDrawCallId++;
@@ -1216,28 +928,8 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
     mCurrentFrame.guiDraws->reserve(mCurrentFrame.guiDraws->capacity() + numDraws);
     std::shared_ptr<Matrix<float, 4, 4>> transform = std::make_shared<Matrix<float, 4, 4>>(program.transform);
 
-//    if(drawCall.type == DrawCall::PrimitiveType::TRIANGLE)
-//    {
-//        std::cout << "TRIANGLE:" << std::endl;
-//        for(size_t i = 0; i < drawCall.numIndices; i++)
-//        {
-//            const TexturedVertex& v = vertices[indices[i]];
-//            std::cout << v.texX << "x" << v.texY << "->" << v.x << "x" << v.y << std::endl;
-//        }
-//    }
-//    else
-//    {
-//        std::cout << "TRIANGLE STRIP:" << std::endl;
-//        for(size_t i = 0; i < drawCall.numIndices; i++)
-//        {
-//            const TexturedVertex& v = vertices[indices[i]];
-//            std::cout << v.texX << "x" << v.texY << "->" << v.x << "x" << v.y << std::endl;
-//        }
-//    }
-
     const size_t BOT_RIGHT_OFFSET = (drawCall.type == DrawCall::PrimitiveType::TRIANGLE ? 2 : 3);
     for(size_t i = 0; i < drawCall.numIndices; i += 6)
-//    for(size_t i = (drawCall.type == DrawCall::PrimitiveType::TRIANGLE ? 0 : 1); i < drawCall.numIndices; i += 6)
     {
         assert(i + BOT_RIGHT_OFFSET < drawCall.numIndices);
         const TexturedVertex& topLeft = vertices[indices[i]];
@@ -1335,8 +1027,6 @@ void FrameParser::parseUnshadedViewDraw(const DrawCall& drawCall)
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
     assert(drawCall.numIndices == 4);
-//    assert(drawCall.numIndices == 6);
-//    assert(buffer.info.numVertices == 4);
 
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
@@ -1368,15 +1058,9 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall)
         return;
     }
 
-//    assert(drawCall.targetTextureId == 0);
-
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
     assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
-//    if(drawCall.numIndices != 6 && drawCall.numIndices != 12)
-//        int flerp = 0;
-//    assert(drawCall.numIndices == 6 || drawCall.numIndices == 12);
     assert(drawCall.numIndices == 4);
-//    assert(buffer.info.numVertices == 4 || buffer.info.numVertices == 8);
 
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
@@ -1420,17 +1104,6 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall)
 
     mCurrentFrame.miniMapDraws->push_back(d);
     mDrawCallId++;
-
-//    const Texture& tex = mTextures[drawCall.sourceTextureId];
-//    std::cout   << "Minimap " << drawCall.sourceTextureId << ": " << std::endl
-//                << "\tScreen topleft: " << mCurrentFrame.miniMapScreenX << "x" << mCurrentFrame.miniMapScreenY << std::endl
-//                << "\tLocal topleft: " << topLeft.x << "x" << topLeft.y << std::endl
-//                << "\tScreen botright: " << screenBotRight.x << "x" << screenBotRight.y << std::endl
-//                << "\tLocal botright: " << botRight.x << "x" << botRight.y << std::endl
-//                << "\tScreen Size: " << mCurrentFrame.miniMapScreenWidth << "x" << mCurrentFrame.miniMapScreenHeight << std::endl
-//                << "\tTex topleft: " << topLeft.texX * tex.width << "x" << topLeft.texY * tex.height << std::endl
-//                << "\tTex botRight: " << botRight.texX * tex.width << "x" << botRight.texY * tex.height << std::endl
-//                << "\tTex size: " << (botRight.texX - topLeft.texX) * tex.width << "x" << (botRight.texY - topLeft.texY) * tex.height << std::endl;
 }
 
 void FrameParser::parseDrawCall(const DrawCall& drawCall)
@@ -1499,7 +1172,6 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
 
         mCurrentFrame.width = frame.width;
         mCurrentFrame.height = frame.height;
-//        std::cout << "NEW FRAME" << std::endl;
 
         const char* FRAME_END = data + frame.size;
         data += sizeof(frame);
@@ -1604,13 +1276,6 @@ std::list<GraphicsLayer::Frame> FrameParser::parse(const SharedMemoryProtocol::S
                     SB_THROW("Unimplemented message type: ", (int)message.messageType);
             }
         }
-//
-//        for(const TextLineDraw& d : currentFrame.textDraws)
-//            std::cout << d.string << "->" << d.x << "x" << d.y << " (" << d.width << "x" << d.height << ")" << std::endl;
-
-//        for(const GuiDraw& d : currentFrame.guiDraws)
-//            std::cout << d.name << "->" << d.x << "x" << d.y << " (" << d.width << "x" << d.height << ")" << std::endl;
-
         assert(data == FRAME_END);
         frames.push_back(std::move(mCurrentFrame));
         mCurrentFrame = Frame();
@@ -1729,7 +1394,6 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             }
             else if(spriteId >= Constants::GRAPHICS_RESOURCE_ID_START && spriteId <= Constants::GRAPHICS_RESOURCE_ID_END)
             {
-//                std::cout << "SPRITE ID: " << spriteId << std::endl;
                 graphicsResourceNames.push_back(mContext.getGraphicsResourceNames()[spriteId - Constants::GRAPHICS_RESOURCE_ID_START]);
                 width = data.width;
                 height = data.height;
@@ -1767,8 +1431,6 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
     }
     else
     {
-//        std::cout << "COLOR FAIL: " << data.targetTextureId << ": " << data.texX << "x" << data.texY << " (" << data.width << "x" << data.height << ")" << std::endl;
-
         ids.clear();
         static size_t failCount = 0;
         if(!mContext.getSpriteTransparencyTree().find(transparency, ids))
