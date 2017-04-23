@@ -436,23 +436,66 @@ void SideBarWindowDiff::parse(const SideBarWindow* oldW, const SideBarWindow* ne
         mData.windowEvents.push_back(e);
     }
 }
-
+#include <iostream>
 void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldData, const std::vector<ContainerWindow>& newData)
 {
     using T = SideBarWindow::Type;
 
+    const auto toPointer = [](const ContainerWindow& w)
+    {
+        return &w;
+    };
 
-    bool isEqual =  oldData.size() == newData.size() &&
-                    std::equal(oldData.begin(),
-                               oldData.end(),
-                               newData.begin(),
-                               [](const ContainerWindow& oldW, const ContainerWindow& newW)
-                               {
-                                   return isContainerEqual(oldW, newW) && isContainerContentsEqual(oldW, newW);
-                               });
+    const auto sortPredicate = [](const SideBarWindow* w1, const SideBarWindow* w2)
+    {
+        if(w1->titleBar.x == w2->titleBar.x)
+        {
+            return w1->titleBar.y < w2->titleBar.y;
+        }
+        else
+        {
+            return w1->titleBar.x > w2->titleBar.x;
+        }
+    };
 
+    const auto isContainerDataEqual = [](const ContainerWindow* oldW, const ContainerWindow* newW)
+    {
+        return isContainerEqual(*oldW, *newW) && isContainerContentsEqual(*oldW, *newW);
+    };
+
+
+    std::vector<const ContainerWindow*> oldContainers(oldData.size());
+    std::vector<const ContainerWindow*> newContainers(newData.size());
+    std::transform(oldData.begin(), oldData.end(), oldContainers.begin(), toPointer);
+    std::transform(newData.begin(), newData.end(), newContainers.begin(), toPointer);
+    std::sort(oldContainers.begin(), oldContainers.end(), sortPredicate);
+    std::sort(newContainers.begin(), newContainers.end(), sortPredicate);
+
+
+    bool isEqual =  oldContainers.size() == newContainers.size() &&
+                    std::equal(oldContainers.begin(),
+                               oldContainers.end(),
+                               newContainers.begin(),
+                               isContainerDataEqual);
+
+//    for(size_t i = 0; i < std::max(oldContainers.size(), newContainers.size()); i++)
+//    {
+//        const ContainerWindow* o = (i < oldContainers.size() ? oldContainers[i] : nullptr);
+//        const ContainerWindow* n = (i < newContainers.size() ? newContainers[i] : nullptr);
+//        if(o)
+//        {
+//            std::cout << o->titleBar.x << "x" << o->titleBar.y;
+//        }
+//        std::cout << "\t\t";
+//        if(n)
+//        {
+//            std::cout << n->titleBar.x << "x" << n->titleBar.y;
+//        }
+//        std::cout << std::endl;
+//    }
     if(isEqual)
     {
+//        std::cout << "CONTAINERS EQUAL" << std::endl;
         mPreviousEqualFrame = mCurrentEqualFrame;
         mCurrentEqualFrame = mCurrentFrame;
     }
@@ -461,56 +504,53 @@ void SideBarWindowDiff::parseContainers(const std::vector<ContainerWindow>& oldD
         return;
     }
 
-    const std::vector<ContainerWindow>& previousEqualData = mPreviousEqualFrame.data->containers;
-    const std::vector<ContainerWindow>& currentEqualData = mCurrentEqualFrame.data->containers;
-
-    isEqual =   mPreviousEqualFrame.data == mPreviousFrame.data &&
-                mCurrentEqualFrame.data == mCurrentFrame.data &&
-                previousEqualData.size() == currentEqualData.size() &&
-                std::equal(previousEqualData.begin(),
-                           previousEqualData.end(),
-                           currentEqualData.begin(),
-                           [](const ContainerWindow& oldW, const ContainerWindow& newW)
-                           {
-                               return oldW.titleBar.x == newW.titleBar.x &&
-                                      oldW.titleBar.y == newW.titleBar.y &&
-                                      oldW.clientArea.height == newW.clientArea.height;
-                           });
-    if(isEqual)
+    const auto isWindowEqual = [](const SideBarWindow* oldW, const SideBarWindow* newW)
     {
-        return;
+        return  oldW->titleBar.x == newW->titleBar.x &&
+                oldW->titleBar.y == newW->titleBar.y &&
+                oldW->clientArea.height == newW->clientArea.height;
+    };
+
+    if(mPreviousEqualFrame.data == mPreviousFrame.data &&
+       mCurrentEqualFrame.data == mCurrentFrame.data)
+    {
+        if(std::equal(oldContainers.begin(), oldContainers.end(), newContainers.begin(), isWindowEqual))
+        {
+            return;
+        }
+    }
+    else
+    {
+        const std::vector<ContainerWindow>& prev = mPreviousEqualFrame.data->containers;
+        const std::vector<ContainerWindow>& curr = mCurrentEqualFrame.data->containers;
+        oldContainers.resize(prev.size());
+        newContainers.resize(curr.size());
+        std::transform(prev.begin(), prev.end(), oldContainers.begin(), toPointer);
+        std::transform(curr.begin(), curr.end(), newContainers.begin(), toPointer);
+        std::sort(oldContainers.begin(), oldContainers.end(), sortPredicate);
+        std::sort(newContainers.begin(), newContainers.end(), sortPredicate);
     }
 
-    if(previousEqualData.empty())
+    if(oldContainers.empty())
     {
-        for(const ContainerWindow& w : currentEqualData)
+        for(const ContainerWindow* w : newContainers)
         {
-            parse(nullptr, &w, T::CONTAINER);
+            parse(nullptr, w, T::CONTAINER);
         }
         return;
     }
 
-    if(currentEqualData.empty())
+    if(newContainers.empty())
     {
-        for(const ContainerWindow& w : previousEqualData)
+        for(const ContainerWindow* w : oldContainers)
         {
-            parse(&w, nullptr, T::CONTAINER);
+            parse(w, nullptr, T::CONTAINER);
         }
         return;
     }
 
 
-    std::vector<const ContainerWindow*> oldContainers(previousEqualData.size());
-    std::vector<const ContainerWindow*> newContainers(currentEqualData.size());
-    std::transform(previousEqualData.begin(),
-                   previousEqualData.end(),
-                   oldContainers.begin(),
-                   [](const ContainerWindow& w){return &w;});
 
-    std::transform(currentEqualData.begin(),
-                   currentEqualData.end(),
-                   newContainers.begin(),
-                   [](const ContainerWindow& w){return &w;});
 
     using XGroup = std::pair<std::vector<const ContainerWindow*>, std::vector<const ContainerWindow*>>;
     using WindowGroup = std::map<int, XGroup>;
