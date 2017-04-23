@@ -77,6 +77,7 @@ namespace GraphicsLayer
         float localY = 0;
         float width = 0;
         float height = 0;
+        float order;
         std::string string;
         Type type = Type::INVALID;
     };

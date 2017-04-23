@@ -375,6 +375,7 @@ void TextBuilder::build()
 //        t.topLeftY = line.topLeftY;
         t.width = line.botRightX - line.topLeftX;
         t.height = line.botRightY - line.topLeftY;
+        t.order = mTextDraw.order;
         t.string.reserve(line.characters.size());
         for(const unsigned char& c : line.characters)
             t.string.push_back(c);
