@@ -75,10 +75,13 @@ namespace GraphicsLayer
             std::vector<GuiParser::SideBarWindow>::const_iterator pairWindowWithTitle(const std::vector<GuiParser::SideBarWindow>& windows, const Text& text) const;
 
             void assignWindow(SideBarWindow& w, const GuiParser::SideBarWindow& window);
-            void parseBattle(const GuiParser::SideBarWindow& window, size_t& iGuiSprite);
+            void parseBattle(const GuiParser::SideBarWindow& window, std::vector<std::vector<const SpriteDraw*>>& guiSprites);
             void parseVip(const GuiParser::SideBarWindow& window);
-            void parseContainer(const GuiParser::SideBarWindow& window, size_t& iSlot, size_t& iGuiSprite, size_t& iCount);
-            void parsePrey(const GuiParser::SideBarWindow& window, size_t& iGuiSprite);
+            void parseContainer(const GuiParser::SideBarWindow& window,
+                                std::vector<GuiParser::Container>& containerSlots,
+                                std::vector<std::vector<const SpriteDraw*>>& guiSprites,
+                                std::vector<TextParser::Container>& containerCounts);
+            void parsePrey(const GuiParser::SideBarWindow& window, std::vector<std::vector<const SpriteDraw*>>& guiSprites);
             void parseSkills(const GuiParser::SideBarWindow& window);
 
         private:

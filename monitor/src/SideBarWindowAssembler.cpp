@@ -122,29 +122,85 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
     mRect = &rect;
     mGuiSprite = &guiSprite;
 
-    size_t iGuiSprite = 0;
-    size_t iSlot = 0;
-    if(!text.isInventoryMinimized && !mGuiSprite->drawGroups.empty() && mGuiSprite->drawGroups[0][0]->topLeft.x > 20.f)
-    {
-        iGuiSprite++;
-        iSlot++;
-    }
-
     try
     {
 
         SB_EXPECT(mGui->game.sideBarWindows.windows.size(), ==, text.windowOrder.size());
         size_t iCount = 0;
-        for(size_t iWindow = 0; iWindow < mGui->game.sideBarWindows.windows.size(); iWindow++)
+
+        std::vector<GuiParser::SideBarWindow> windows = gui.game.sideBarWindows.windows;
+        std::vector<TextParser::WindowOrder> order = text.windowOrder;
+        std::vector<TextParser::Container> containerCounts = text.containers;
+        std::vector<GuiParser::Container> containerSlots = gui.game.sideBarWindows.containers;
+        std::vector<std::vector<const SpriteDraw*>> guiSprites = guiSprite.drawGroups;
+
+        std::sort(windows.begin(),
+                  windows.end(),
+                  [](const GuiParser::SideBarWindow& lhs, const GuiParser::SideBarWindow& rhs)
+                  {
+                      return lhs.order > rhs.order;
+                  });
+        std::sort(order.begin(),
+                  order.end(),
+                  [](const TextParser::WindowOrder& lhs, const TextParser::WindowOrder& rhs)
+                  {
+                      return lhs.window->title.order > rhs.window->title.order;
+                  });
+        std::sort(containerCounts.begin(),
+                  containerCounts.end(),
+                  [](const TextParser::Container& lhs, const TextParser::Container& rhs)
+                  {
+                      return lhs.title.order > rhs.title.order;
+                  });
+        std::sort(containerSlots.begin(),
+                  containerSlots.end(),
+                  [](const GuiParser::Container& lhs, const GuiParser::Container& rhs)
+                  {
+                      return lhs.slots.front().draw->order > rhs.slots.front().draw->order;
+                  });
+
+        std::sort(guiSprites.begin(),
+                  guiSprites.end(),
+                  [](const std::vector<const SpriteDraw*>& lhs, const std::vector<const SpriteDraw*>& rhs)
+                  {
+                      return lhs.front()->order > rhs.front()->order;
+                  });
+
+
+//        for(const GuiParser::SideBarWindow& w : windows)
+//        {
+//            std::cout << "window: " << w.order << "\t\t" << w.titleBar.screen.x << "x" << w.titleBar.screen.y << std::endl;
+//        }
+//        for(const GuiParser::Container& c : containerSlots)
+//        {
+//            std::cout << "container: " << c.slots.front().draw->order << "\t\t" << c.slots.size() << std::endl;
+//        }
+//        for(const std::vector<const SpriteDraw*>& group : guiSprites)
+//        {
+//            std::cout << "gui sprites: " << group.front()->order << "\t\t" << group.size() << std::endl;
+//        }
+//        for(const TextParser::WindowOrder& o : order)
+//        {
+//            std::cout << "widget title: " << o.window->title.order << "\t\t" << (int)o.type << std::endl;
+//        }
+//        for(const TextParser::Container& c : containerCounts)
+//        {
+//            std::cout << "container count: " << c.title.order << "\t\t" << c.counts.size() << " \"" << c.title.string << "\"" << std::endl;
+//        }
+
+
+        while(!windows.empty())
         {
-            const GuiParser::SideBarWindow& window = mGui->game.sideBarWindows.windows[iWindow];
+            GuiParser::SideBarWindow window = windows.back();
+            windows.pop_back();
 
             using T = SideBarWindow::Type;
-            T windowType = text.windowOrder[iWindow];
+            T windowType = order.back().type;
+            order.pop_back();
             switch(windowType)
             {
                 case T::BATTLE:
-                    parseBattle(window, iGuiSprite);
+                    parseBattle(window, guiSprites);
                     break;
 
                 case T::VIP:
@@ -152,11 +208,11 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
                     break;
 
                 case T::CONTAINER:
-                    parseContainer(window, iSlot, iGuiSprite, iCount);
+                    parseContainer(window, containerSlots, guiSprites, containerCounts);
                     break;
 
                 case T::PREY:
-                    parsePrey(window, iGuiSprite);
+                    parsePrey(window, guiSprites);
                     break;
 
                 case T::SKILLS:
@@ -283,7 +339,7 @@ void SideBarWindowAssembler::assignWindow(SideBarWindow& w, const GuiParser::Sid
     w.isMinimized = window.isMinimized();
 }
 
-void SideBarWindowAssembler::parseBattle(const GuiParser::SideBarWindow& window, size_t& iGuiSprite)
+void SideBarWindowAssembler::parseBattle(const GuiParser::SideBarWindow& window, std::vector<std::vector<const SpriteDraw*>>& guiSprites)
 {
     mData.battle.reset(new BattleWindow());
     assignWindow(*mData.battle, window);
@@ -298,8 +354,9 @@ void SideBarWindowAssembler::parseBattle(const GuiParser::SideBarWindow& window,
         return;
     }
 
-    const std::vector<const SpriteDraw*> sprites = mGuiSprite->drawGroups[iGuiSprite];
-    iGuiSprite++;
+    SB_EXPECT_FALSE(guiSprites.empty());
+    const std::vector<const SpriteDraw*> sprites = guiSprites.back();
+    guiSprites.pop_back();
 
     const std::vector<Text>& names = mText->battle.names;
     const std::vector<RectParser::Bar>& bars = mRect->battleBars;
@@ -371,50 +428,74 @@ void SideBarWindowAssembler::parseVip(const GuiParser::SideBarWindow& window)
     }
 }
 
-void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& window, size_t& iSlot, size_t& iGuiSprite, size_t& iCount)
+void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& window,
+                                            std::vector<GuiParser::Container>& containerSlots,
+                                            std::vector<std::vector<const SpriteDraw*>>& guiSprites,
+                                            std::vector<TextParser::Container>& containerCounts)
 {
     mData.containers.emplace_back();
     ContainerWindow& c = mData.containers.back();
 
     assignWindow(c, window);
 
-    if(iGuiSprite < mGuiSprite->drawGroups.size())
+    const auto isIcon = [&c, this](const std::vector<const SpriteDraw*>& group)
     {
+        if(group.size() != 1)
+        {
+            return false;
+        }
         Vertex iconTopLeft;
-        mGuiSprite->drawGroups[iGuiSprite][0]->getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, iconTopLeft.x, iconTopLeft.y);
+        group[0]->getScreenCoords(mHalfFrameWidth, mHalfFrameHeight, iconTopLeft.x, iconTopLeft.y);
         int dIconLeft = round(iconTopLeft.x) - c.titleBar.x;
         int dIconTop = round(iconTopLeft.y) - c.titleBar.y;
-        if(mGuiSprite->drawGroups[iGuiSprite].size() == 1 && dIconLeft > 0 && dIconLeft < 6 && dIconTop > 0 && dIconTop < 6)
-        {
-            iGuiSprite++;
-        }
-    }
+        return  dIconLeft > 0 &&
+                dIconLeft < 6 &&
+                dIconTop > 0 &&
+                dIconTop < 6;
+    };
 
-    SB_EXPECT(iCount, <, mText->containers.size());
-    const std::vector<Text>& counts = mText->containers[iCount].counts;
-    iCount++;
+    SB_EXPECT_FALSE(containerCounts.empty());
+    const std::vector<Text> counts = containerCounts.back().counts;
+    containerCounts.pop_back();
 
     if(c.isMinimized)
     {
+        if(!guiSprites.empty() && isIcon(guiSprites.back()))
+        {
+            guiSprites.pop_back();
+        }
         return;
     }
 
-    SB_EXPECT(iSlot, <, mGui->game.sideBarWindows.containers.size());
-    const std::vector<GuiElement>& slots = mGui->game.sideBarWindows.containers[iSlot].slots;
-    iSlot++;
+    SB_EXPECT_FALSE(containerSlots.empty());
+    const std::vector<GuiElement> slots = containerSlots.back().slots;
+    containerSlots.pop_back();
     c.capacity = slots.size();
     SB_EXPECT(c.capacity, >, 0);
 
-    if(iGuiSprite >= mGuiSprite->drawGroups.size())
+    if(guiSprites.empty())
     {
         return;
+    }
+
+    if(isIcon(guiSprites.back()))
+    {
+        guiSprites.pop_back();
+        if(guiSprites.empty())
+        {
+            return;
+        }
     }
 
 
 
     static const int SLOT_SPACING_X = Constants::TILE_PIXEL_WIDTH + Constants::CONTAINER_SEPARATOR_PIXEL_WIDTH;
     static const int SLOT_SPACING_Y = Constants::TILE_PIXEL_HEIGHT + Constants::CONTAINER_SEPARATOR_PIXEL_WIDTH;
-    const std::vector<const SpriteDraw*>& sprites = mGuiSprite->drawGroups[iGuiSprite];
+    const std::vector<const SpriteDraw*>& sprites = guiSprites.back();
+    if(sprites[0]->order > window.order)
+    {
+        return;
+    }
 
     int maxElementX = 0;
     int maxElementY = 0;
@@ -529,10 +610,15 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
 
     SB_EXPECT(iSprite, ==, sprites.size());
     SB_EXPECT(iCountText, ==, counts.size());
-    iGuiSprite++;
+    guiSprites.pop_back();
+
+    if(!guiSprites.empty() && isIcon(guiSprites.back()))
+    {
+        guiSprites.pop_back();
+    }
 }
 
-void SideBarWindowAssembler::parsePrey(const GuiParser::SideBarWindow& window, size_t& iGuiSprite)
+void SideBarWindowAssembler::parsePrey(const GuiParser::SideBarWindow& window, std::vector<std::vector<const SpriteDraw*>>& guiSprites)
 {
     mData.prey.reset(new PreyWindow());
     assignWindow(*mData.prey, window);
@@ -562,9 +648,9 @@ void SideBarWindowAssembler::parsePrey(const GuiParser::SideBarWindow& window, s
 
     if(!validIndices.empty())
     {
-        SB_EXPECT(iGuiSprite, <, mGuiSprite->drawGroups.size());
-        SB_EXPECT(validIndices.size(), ==, mGuiSprite->drawGroups[iGuiSprite].size());
-        iGuiSprite++;
+        SB_EXPECT_FALSE(guiSprites.empty());
+        SB_EXPECT(validIndices.size(), ==, guiSprites.back().size());
+        guiSprites.pop_back();
     }
 
     mData.prey->bonuses.resize(names.size());
