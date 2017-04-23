@@ -101,30 +101,6 @@ void GuiParser::parse(const Frame& frame)
 
 void GuiParser::parsePass1()
 {
-    std::reverse(mData.game.sideBarWindows.containers.begin(), mData.game.sideBarWindows.containers.end());
-
-    std::vector<SideBarWindow>& windows = mData.game.sideBarWindows.windows;
-    std::reverse(windows.begin(), windows.end());
-    if(windows.size() > 2)
-    {
-        bool doReverse = false;
-        int dx = windows[1].titleBar.screen.x - windows[0].titleBar.screen.x;
-        int dy = windows[1].titleBar.screen.y - windows[0].titleBar.screen.y;
-        if(dx == 0)
-        {
-            doReverse = (dy < 0);
-        }
-        else
-        {
-            doReverse = (dx > 0);
-        }
-
-        if(doReverse)
-        {
-            std::reverse(windows.begin(), (mData.game.sideBarWindows.isWindowBeingMoved ? windows.end() - 1 : windows.end()));
-        }
-    }
-
     if(pass1.hpManaBorders.empty())
     {
         return;
@@ -798,6 +774,7 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         mData.game.sideBarWindows.windows.emplace_back();
         SideBarWindow& w = mData.game.sideBarWindows.windows.back();
         const GuiDraw* d = &(*mDraws)[i];
+        w.order = d->order;
         unsigned short drawCallId = d->drawCallId;
 
         w.titleBar.local.x = round(d->topLeft.x);
