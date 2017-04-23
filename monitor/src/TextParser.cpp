@@ -274,9 +274,9 @@ void TextParser::handleContainerText(size_t& i)
     const std::vector<Text>& title = mBuilders[i]->getText();
     SB_EXPECT(title.size(), ==, 1);
 
-    mData.windowOrder.push_back(GraphicsLayer::SideBarWindow::Type::CONTAINER);
     mData.containers.emplace_back();
     Container& c = mData.containers.back();
+    mData.windowOrder.emplace_back(&c, GraphicsLayer::SideBarWindow::Type::CONTAINER);
 
     c.title = title[0];
 
@@ -300,8 +300,8 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
-        mData.windowOrder.push_back(GraphicsLayer::SideBarWindow::Type::UNJUSTIFIED_POINTS);
         mData.unjustifiedPoints.title = title[0];
+        mData.windowOrder.emplace_back(&mData.unjustifiedPoints, GraphicsLayer::SideBarWindow::Type::UNJUSTIFIED_POINTS);
         i++;
         if(i >= mBuilders.size())
         {
@@ -322,8 +322,8 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
-        mData.windowOrder.push_back(GraphicsLayer::SideBarWindow::Type::PREY);
         mData.prey.title = title[0];
+        mData.windowOrder.emplace_back(&mData.prey, GraphicsLayer::SideBarWindow::Type::PREY);
 
         if(mGuiData->game.sideBarWindows.prey.bonuses.empty())
         {
@@ -340,8 +340,8 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
-        mData.windowOrder.push_back(GraphicsLayer::SideBarWindow::Type::VIP);
         mData.vip.title = title[0];
+        mData.windowOrder.emplace_back(&mData.vip, GraphicsLayer::SideBarWindow::Type::VIP);
         i++;
         while(i < mBuilders.size())
         {
@@ -369,8 +369,8 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
-        mData.windowOrder.push_back(GraphicsLayer::SideBarWindow::Type::BATTLE);
         mData.battle.title = title[0];
+        mData.windowOrder.emplace_back(&mData.battle, GraphicsLayer::SideBarWindow::Type::BATTLE);
         i++;
         std::map<std::string, unsigned short> names;
         for(const Text& t : mData.names)
@@ -440,8 +440,8 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
     {
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
-        mData.windowOrder.push_back(GraphicsLayer::SideBarWindow::Type::SKILLS);
         mData.skills.title = title[0];
+        mData.windowOrder.emplace_back(&mData.skills, GraphicsLayer::SideBarWindow::Type::SKILLS);
         i++;
         if(i >= mBuilders.size())
         {
@@ -584,6 +584,30 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         readPercent(F::MANA_LEECH_AMOUNT, it, text, "  Amount");
 
         SB_EXPECT(++it, ==, text.end());
+    };
+
+    handlers["Browse Field"] = [this](size_t& i)
+    {
+        handleContainerText(i);
+        i++;
+        SB_EXPECT(i, <, mBuilders.size());
+        SB_EXPECT(mBuilders[i]->getTextType(), ==, Text::Type::GUI);
+        const std::vector<Text>& text = mBuilders[i]->getText();
+        SB_EXPECT(text.size(), ==, 1);
+
+        std::stringstream sstream(text.front().string);
+        std::string tmp;
+        sstream >> tmp;
+        SB_EXPECT(tmp, ==, "Page");
+        sstream >> tmp;
+        SB_EXPECT_TRUE(sb::utility::isNumeric(tmp));
+        unsigned short page = sb::utility::strToInt(tmp);
+
+        sstream >> tmp;
+        SB_EXPECT(tmp, ==, "of");
+        sstream >> tmp;
+        SB_EXPECT_TRUE(sb::utility::isNumeric(tmp));
+        unsigned short numPages = sb::utility::strToInt(tmp);
     };
 
     handlers["Chat on"] = [this](size_t& i)
