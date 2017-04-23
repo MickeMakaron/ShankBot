@@ -92,10 +92,10 @@ namespace GraphicsLayer
 
             struct WindowOrder
             {
-                WindowOrder(const SideBarWindow* window, GraphicsLayer::SideBarWindow::Type type)
-                : type(type), window(window){}
+                WindowOrder(Text title, GraphicsLayer::SideBarWindow::Type type)
+                : type(type), title(title){}
                 GraphicsLayer::SideBarWindow::Type type;
-                const SideBarWindow* window;
+                Text title;
             };
 
             struct Data

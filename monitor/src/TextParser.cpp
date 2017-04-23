@@ -276,9 +276,9 @@ void TextParser::handleContainerText(size_t& i)
 
     mData.containers.emplace_back();
     Container& c = mData.containers.back();
-    mData.windowOrder.emplace_back(&c, GraphicsLayer::SideBarWindow::Type::CONTAINER);
-
     c.title = title[0];
+    mData.windowOrder.emplace_back(title[0], GraphicsLayer::SideBarWindow::Type::CONTAINER);
+
 
     i++;
     if(i < mBuilders.size() && mBuilders[i]->getTextType() == Text::Type::ITEM_STACK_COUNT)
@@ -301,7 +301,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
         mData.unjustifiedPoints.title = title[0];
-        mData.windowOrder.emplace_back(&mData.unjustifiedPoints, GraphicsLayer::SideBarWindow::Type::UNJUSTIFIED_POINTS);
+        mData.windowOrder.emplace_back(title[0], GraphicsLayer::SideBarWindow::Type::UNJUSTIFIED_POINTS);
         i++;
         if(i >= mBuilders.size())
         {
@@ -323,7 +323,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
         mData.prey.title = title[0];
-        mData.windowOrder.emplace_back(&mData.prey, GraphicsLayer::SideBarWindow::Type::PREY);
+        mData.windowOrder.emplace_back(title[0], GraphicsLayer::SideBarWindow::Type::PREY);
 
         if(mGuiData->game.sideBarWindows.prey.bonuses.empty())
         {
@@ -341,7 +341,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
         mData.vip.title = title[0];
-        mData.windowOrder.emplace_back(&mData.vip, GraphicsLayer::SideBarWindow::Type::VIP);
+        mData.windowOrder.emplace_back(title[0], GraphicsLayer::SideBarWindow::Type::VIP);
         i++;
         while(i < mBuilders.size())
         {
@@ -370,7 +370,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
         mData.battle.title = title[0];
-        mData.windowOrder.emplace_back(&mData.battle, GraphicsLayer::SideBarWindow::Type::BATTLE);
+        mData.windowOrder.emplace_back(title[0], GraphicsLayer::SideBarWindow::Type::BATTLE);
         i++;
         std::map<std::string, unsigned short> names;
         for(const Text& t : mData.names)
@@ -441,7 +441,7 @@ std::map<std::string, std::function<void(size_t&)>> TextParser::initGuiTextHandl
         const std::vector<Text>& title = mBuilders[i]->getText();
         SB_EXPECT(title.size(), ==, 1);
         mData.skills.title = title[0];
-        mData.windowOrder.emplace_back(&mData.skills, GraphicsLayer::SideBarWindow::Type::SKILLS);
+        mData.windowOrder.emplace_back(title[0], GraphicsLayer::SideBarWindow::Type::SKILLS);
         i++;
         if(i >= mBuilders.size())
         {
