@@ -144,7 +144,7 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
                   order.end(),
                   [](const TextParser::WindowOrder& lhs, const TextParser::WindowOrder& rhs)
                   {
-                      return lhs.window->title.order > rhs.window->title.order;
+                      return lhs.title.order > rhs.title.order;
                   });
         std::sort(containerCounts.begin(),
                   containerCounts.end(),
@@ -181,7 +181,7 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
 //        }
 //        for(const TextParser::WindowOrder& o : order)
 //        {
-//            std::cout << "widget title: " << o.window->title.order << "\t\t" << (int)o.type << std::endl;
+//            std::cout << "widget title: " << o.title.order << "\t\t" << (int)o.type << " \"" << o.title.string << "\"" << std::endl;
 //        }
 //        for(const TextParser::Container& c : containerCounts)
 //        {
@@ -497,25 +497,23 @@ void SideBarWindowAssembler::parseContainer(const GuiParser::SideBarWindow& wind
         return;
     }
 
-    int maxElementX = 0;
-    int maxElementY = 0;
+    const int firstSlotX = round(slots[0].draw->topLeft.x);
+    const int firstSlotY = round(slots[0].draw->topLeft.y);
+    int maxIndex = -1;
     if(!sprites.empty())
     {
-        maxElementX = std::max(round(sprites.back()->topLeft.x), maxElementX);
-        maxElementY = std::max(round(sprites.back()->topLeft.y), maxElementY);
+        int x = (round(sprites.back()->topLeft.x) - firstSlotX) / SLOT_SPACING_X;
+        int y = (round(sprites.back()->topLeft.y) - firstSlotY) / SLOT_SPACING_Y;
+        maxIndex = std::max(x + y * Constants::CONTAINER_WIDTH, maxIndex);
     }
     if(!counts.empty())
     {
-        maxElementX = std::max(round(counts.back().localX), maxElementX);
-        maxElementY = std::max(round(counts.back().localY), maxElementY);
+        int x = (round(counts.back().localX) - firstSlotX) / SLOT_SPACING_X;
+        int y = (round(counts.back().localY) - firstSlotY) / SLOT_SPACING_Y;
+        maxIndex = std::max(x + y * Constants::CONTAINER_WIDTH, maxIndex);
     }
 
-    const int firstSlotX = round(slots[0].draw->topLeft.x);
-    const int firstSlotY = round(slots[0].draw->topLeft.y);
-    size_t maxElementSlotX = (maxElementX - firstSlotX) / SLOT_SPACING_X;
-    size_t maxElementSlotY = (maxElementY - firstSlotY) / SLOT_SPACING_Y;
-    size_t numItems = maxElementSlotX + maxElementSlotY * Constants::CONTAINER_WIDTH + 1;
-
+    size_t numItems = maxIndex + 1;
     if(numItems > c.capacity)
     {
         return;
