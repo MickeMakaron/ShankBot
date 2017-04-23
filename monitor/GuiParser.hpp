@@ -361,6 +361,7 @@ namespace GraphicsLayer
             {
                 DrawRect titleBar;
                 DrawRect clientArea;
+                float order;
 
                 bool isMinimized() const {return clientArea.local.height == 4;}
             };
