@@ -90,6 +90,14 @@ namespace GraphicsLayer
                 std::vector<Text> counts;
             };
 
+            struct WindowOrder
+            {
+                WindowOrder(const SideBarWindow* window, GraphicsLayer::SideBarWindow::Type type)
+                : type(type), window(window){}
+                GraphicsLayer::SideBarWindow::Type type;
+                const SideBarWindow* window;
+            };
+
             struct Data
             {
                 std::vector<Text> names;
@@ -107,8 +115,7 @@ namespace GraphicsLayer
                 std::vector<Text> clickableNpcText;
                 std::vector<Container> containers;
                 std::vector<Text> inventoryStackCounts;
-                std::vector<GraphicsLayer::SideBarWindow::Type> windowOrder;
-
+                std::vector<WindowOrder> windowOrder;
 
                 UnjustifiedPoints unjustifiedPoints;
                 Prey prey;
