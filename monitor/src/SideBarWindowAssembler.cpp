@@ -175,27 +175,27 @@ void SideBarWindowAssembler::assemble(const Frame& frame, const GuiParser::Data&
             }
         }
 
-
-        for(const GuiParser::SideBarWindow& w : windows)
-        {
-            std::cout << "window: " << w.order << "\t\t" << w.titleBar.screen.x << "x" << w.titleBar.screen.y << std::endl;
-        }
-        for(const GuiParser::Container& c : containerSlots)
-        {
-            std::cout << "container: " << c.slots.front().draw->order << "\t\t" << c.slots.size() << std::endl;
-        }
-        for(const std::vector<const SpriteDraw*>& group : guiSprites)
-        {
-            std::cout << "gui sprites: " << group.front()->order << "\t\t" << group.size() << std::endl;
-        }
-        for(const TextParser::WindowOrder& o : order)
-        {
-            std::cout << "widget title: " << o.title.order << "\t\t" << (int)o.type << " \"" << o.title.string << "\"" << std::endl;
-        }
-        for(const TextParser::Container& c : containerCounts)
-        {
-            std::cout << "container count: " << c.title.order << "\t\t" << c.counts.size() << " \"" << c.title.string << "\"" << std::endl;
-        }
+//
+//        for(const GuiParser::SideBarWindow& w : windows)
+//        {
+//            std::cout << "window: " << w.order << "\t\t" << w.titleBar.screen.x << "x" << w.titleBar.screen.y << std::endl;
+//        }
+//        for(const GuiParser::Container& c : containerSlots)
+//        {
+//            std::cout << "container: " << c.slots.front().draw->order << "\t\t" << c.slots.size() << std::endl;
+//        }
+//        for(const std::vector<const SpriteDraw*>& group : guiSprites)
+//        {
+//            std::cout << "gui sprites: " << group.front()->order << "\t\t" << group.size() << std::endl;
+//        }
+//        for(const TextParser::WindowOrder& o : order)
+//        {
+//            std::cout << "widget title: " << o.title.order << "\t\t" << (int)o.type << " \"" << o.title.string << "\"" << std::endl;
+//        }
+//        for(const TextParser::Container& c : containerCounts)
+//        {
+//            std::cout << "container count: " << c.title.order << "\t\t" << c.counts.size() << " \"" << c.title.string << "\"" << std::endl;
+//        }
 
 
         while(!windows.empty())
