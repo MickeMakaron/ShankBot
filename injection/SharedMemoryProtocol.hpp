@@ -133,6 +133,7 @@ namespace GraphicsLayer
             unsigned short programId = 0;
             bool isDepthTestEnabled = false;
             bool isDepthWriteEnabled = true;
+            unsigned char enabledVaos = 0; // Bitwise
             unsigned int sourceTextureId = 0;
             unsigned int targetTextureId = 0;
             unsigned int indicesOffset = 0;
