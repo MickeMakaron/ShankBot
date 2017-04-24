@@ -124,6 +124,18 @@ void Monitor::setDepthRange(double near, double far)
     THROW_ASSERT(false);
 }
 
+void Monitor::toggleVao(GLuint index, bool doEnable)
+{
+    THROW_ASSERT(index < 8);
+    if(doEnable)
+    {
+        mVaoEnableData |= 1 << index;
+    }
+    else
+    {
+        mVaoEnableData &= ~(1 << index);
+    }
+}
 
 void Monitor::setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
@@ -196,6 +208,7 @@ void Monitor::appendDrawArraysToDataBuffer(GLenum mode, GLint indicesOffset, GLs
     drawCall.type = DrawCall::PrimitiveType::TRIANGLE_FAN;
     drawCall.isDepthTestEnabled = mIsDepthTestEnabled;
     drawCall.isDepthWriteEnabled = mIsDepthWriteEnabled;
+    drawCall.enabledVaos = mVaoEnableData;
 
     if(mBoundFramebuffer != 0)
     {
@@ -253,6 +266,7 @@ void Monitor::appendDrawElementsToDataBuffer(GLenum mode, const GLvoid* indicesO
     drawCall.numIndices = count;
     drawCall.isDepthTestEnabled = mIsDepthTestEnabled;
     drawCall.isDepthWriteEnabled = mIsDepthWriteEnabled;
+    drawCall.enabledVaos = mVaoEnableData;
     switch(mode)
     {
         case GL_TRIANGLES:

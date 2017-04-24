@@ -63,6 +63,7 @@ namespace GraphicsLayer
             void setDepthFunc(GLenum func);
             void setDepthMask(bool doEnable);
             void setDepthRange(double near, double far);
+            void toggleVao(GLuint index, bool doEnable);
             void setViewport(GLint x, GLint y, GLsizei width, GLsizei height);
             void setPixelStore(GLenum pname, GLint param);
             void setProgram(GLuint program);
@@ -169,7 +170,7 @@ namespace GraphicsLayer
             std::map<GLuint, SharedMemoryProtocol::VertexBufferWrite> mVertexBuffers;
             std::map<GLuint, GLuint> mVaoToVbo;
             std::vector<GLuint> mTextureBuffers;
-
+            unsigned char mVaoEnableData = 0;
             SharedMemoryProtocol::SharedMemorySegment* mShm = nullptr;
 
             float mPeakDataOccupancy = 0.f;

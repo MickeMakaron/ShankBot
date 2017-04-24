@@ -29,6 +29,9 @@
 
 int main(int argc, char** argv)
 {
+//    int* d = (int*)size_t(-1);
+//    *d = 1;
+
     std::string tibiaDir = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/monitor/tibia";
     std::string versionControlDir = "C:/Users/Vendrii/Documents/programming/projects/ShankBot/monitor/version-control";
     GraphicsLayer::ShankBot sb(tibiaDir, versionControlDir);
