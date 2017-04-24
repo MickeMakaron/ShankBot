@@ -106,6 +106,22 @@ void APIENTRY disable(GLenum cap)
     detour.callAs(disable, cap);
 }
 
+void APIENTRY enableVertexAttribArray(GLuint index)
+{
+    static DetourHolder& detour = injection->getDetour(enableVertexAttribArray);
+    detour.callAs(enableVertexAttribArray, index);
+
+    monitor->toggleVao(index, true);
+}
+
+
+void APIENTRY disableVertexAttribArray(GLuint index)
+{
+    static DetourHolder& detour = injection->getDetour(disableVertexAttribArray);
+    detour.callAs(disableVertexAttribArray, index);
+    monitor->toggleVao(index, false);
+}
+
 void APIENTRY depthFunc(GLenum func)
 {
     static DetourHolder& detour = injection->getDetour(depthFunc);
@@ -439,6 +455,8 @@ void inject()
         DetourHolder("glUniform4fv", uniform4fv),
         DetourHolder("glUniformMatrix4fv", uniformMatrix4fv),
         DetourHolder("glBlendColor", blendColor),
+        DetourHolder("glEnableVertexAttribArray", enableVertexAttribArray),
+        DetourHolder("glDisableVertexAttribArray", disableVertexAttribArray),
 //        DetourHolder("glAttachShader", attachShader),
 //        DetourHolder("glShaderSource", shaderSource),
     });
