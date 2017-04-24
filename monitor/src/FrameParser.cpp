@@ -149,7 +149,10 @@ unsigned int FrameParser::VertexBuffer::getOrdersOffset() const
         case VertexType::COLORED:
         {
             auto it = attribPointers.find(2);
-            assert(it != attribPointers.end());
+            if(it == attribPointers.end())
+            {
+                return -1;
+            }
             return it->second.offset;
         }
 
@@ -163,6 +166,7 @@ void FrameParser::copyGlyphs(const DrawCall& drawCall)
     assert(drawCall.type == DrawCall::PrimitiveType::TRIANGLE_FAN);
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
+    size_t bufferEnd = size_t((char*)buffer.data + buffer.numBytes);
     assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED_NO_ORDER || buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
 
     Vertex* positions = (Vertex*)((char*)buffer.data + buffer.getVerticesOffset());
@@ -170,6 +174,8 @@ void FrameParser::copyGlyphs(const DrawCall& drawCall)
     assert(texCoordsAttribPointer != buffer.attribPointers.end());
     Vertex* texCoords = (Vertex*)((char*)positions + texCoordsAttribPointer->second.offset);
 
+    assert(size_t(&texCoords[0]) < bufferEnd);
+    assert(size_t(&texCoords[2]) < bufferEnd);
     const Vertex& topLeft = texCoords[0];
     const Vertex& botRight = texCoords[2];
     const Texture& srcTex = mTextures[drawCall.sourceTextureId];
@@ -180,6 +186,7 @@ void FrameParser::copyGlyphs(const DrawCall& drawCall)
 
 
     // NDC coords (x=[-1, 1], y=[-1, 1])
+    assert(size_t(&positions[0]) < bufferEnd);
     const Vertex& offset = positions[0];
     const Texture& targetTex = mTextures[drawCall.targetTextureId];
     unsigned short offsetX = (targetTex.width / 2) * (offset.x + 1.f);
@@ -748,18 +755,32 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
         assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
 
         TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
-        VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
+        VertexAttribPointer::Order* orders = nullptr;
+        if(drawCall.enabledVaos & (1 << 2) && buffer.getOrdersOffset() != -1)
+        {
+            orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
+        }
+        size_t bufferEnd = size_t((char*)buffer.data + buffer.numBytes);
+        const bool hasOrder = orders != nullptr;
         VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
         const size_t numDraws = drawCall.numIndices / 6;
         d.glyphDraws->reserve(d.glyphDraws->capacity() + numDraws);
         for(size_t i = 0; i + 5 < drawCall.numIndices; i += 6)
         {
+            assert(size_t(&indices[i]) < bufferEnd);
+            assert(size_t(&indices[i + 2]) < bufferEnd);
+            assert(size_t(&vertices[indices[i]]) < bufferEnd);
+            assert(size_t(&vertices[indices[i + 2]]) < bufferEnd);
             const TexturedVertex& topLeft = vertices[indices[i]];
             const TexturedVertex& botRight = vertices[indices[i + 2]];
 
             GlyphDraw g;
-            g.hasOrder = true;
-            g.order = orders[indices[i]];
+            g.hasOrder = hasOrder;
+            if(hasOrder)
+            {
+                assert(size_t(&orders[indices[i]]) < bufferEnd);
+            }
+            g.order = hasOrder ? orders[indices[i]] : -1337.f;
             g.drawCallId = mDrawCallId;
             g.isDepthTestEnabled = drawCall.isDepthTestEnabled;
             g.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
@@ -771,7 +792,7 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
             d.glyphDraws->push_back(g);
         }
 
-        d.hasOrder = true;
+        d.hasOrder = hasOrder;
         d.order = d.glyphDraws->empty() ? 0.f : d.glyphDraws->front().order;
         d.drawCallId = mDrawCallId;
         d.isDepthTestEnabled = drawCall.isDepthTestEnabled;
@@ -794,8 +815,11 @@ void FrameParser::parseGlyphDraw(const DrawCall& drawCall)
 void FrameParser::parseRectDraw(const DrawCall& drawCall)
 {
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
+    size_t bufferEnd = size_t((char*)buffer.data + buffer.numBytes);
+
     ColoredVertex* vertices = (ColoredVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
+    assert(drawCall.enabledVaos & (1 << 2) && buffer.getOrdersOffset() != -1);
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const ShaderProgram& program = mShaderPrograms[drawCall.programId];
     std::shared_ptr<Matrix<float, 4, 4>> transform = std::make_shared<Matrix<float, 4, 4>>(program.transform);
@@ -811,10 +835,14 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
                 float top = std::numeric_limits<float>::max();
                 float bot = std::numeric_limits<float>::min();
 
+                assert(size_t(&indices[i]) < bufferEnd);
+                assert(size_t(&vertices[indices[i]]) < bufferEnd);
                 const ColoredVertex& firstV = vertices[indices[i]];
                 Color color(firstV.r, firstV.g, firstV.b, firstV.a);
                 while(i < drawCall.numIndices && indices[i] != prevIndex)
                 {
+                    assert(size_t(&indices[i]) < bufferEnd);
+                    assert(size_t(&vertices[indices[i]]) < bufferEnd);
                     const ColoredVertex& v = vertices[indices[i]];
                     if(color.packed != Color(v.r, v.g, v.b, v.a).packed)
                     {
@@ -845,6 +873,7 @@ void FrameParser::parseRectDraw(const DrawCall& drawCall)
                 r.transform = transform;
                 r.color = color;
                 r.hasOrder = true;
+                assert(size_t(&orders[indices[i]]) < bufferEnd);
                 r.order = orders[indices[i]];
                 r.drawCallId = mDrawCallId;
                 r.isDepthTestEnabled = drawCall.isDepthTestEnabled;
@@ -864,8 +893,10 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
     mUnshadedViewBufferId = drawCall.targetTextureId;
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
+    size_t bufferEnd = size_t((char*)buffer.data + buffer.numBytes);
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
+    assert(drawCall.enabledVaos & (1 << 2) && buffer.getOrdersOffset() != -1);
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const Texture& tex = mTextures[drawCall.sourceTextureId];
     const size_t numDraws = drawCall.numIndices / 6;
@@ -873,6 +904,8 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
 
     for(size_t i = 0; i < drawCall.numIndices; i += 6)
     {
+        assert(size_t(&indices[i]) < bufferEnd);
+        assert(size_t(&vertices[indices[i]]) < bufferEnd);
         const TexturedVertex& topLeft = vertices[indices[i]];
 
         size_t texX = topLeft.texX * tex.width;
@@ -891,6 +924,7 @@ void FrameParser::parseSpriteDraw(const DrawCall& drawCall)
                 draw.topLeft.x = topLeft.x;
                 draw.topLeft.y = topLeft.y;
                 draw.hasOrder = true;
+                assert(size_t(&orders[indices[i]]) < bufferEnd);
                 draw.order = orders[indices[i]];
                 draw.isDepthTestEnabled = drawCall.isDepthTestEnabled;
                 draw.isDepthWriteEnabled = drawCall.isDepthWriteEnabled;
@@ -917,8 +951,11 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
     assert(drawCall.type == DrawCall::PrimitiveType::TRIANGLE || drawCall.type == DrawCall::PrimitiveType::TRIANGLE_STRIP);
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
+    size_t bufferEnd = size_t((char*)buffer.data + buffer.numBytes);
+
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Order* orders = (VertexAttribPointer::Order*)((char*)buffer.data + buffer.getOrdersOffset());
+    assert(drawCall.enabledVaos & (1 << 2) && buffer.getOrdersOffset() != -1);
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
     const Texture& tex = mTextures[drawCall.sourceTextureId];
     const unsigned short HALF_FRAME_WIDTH = mCurrentFrame.width / 2;
@@ -932,6 +969,10 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
     for(size_t i = 0; i < drawCall.numIndices; i += 6)
     {
         assert(i + BOT_RIGHT_OFFSET < drawCall.numIndices);
+        assert(size_t(&indices[i]) < bufferEnd);
+        assert(size_t(&indices[i + BOT_RIGHT_OFFSET]) < bufferEnd);
+        assert(size_t(&vertices[indices[i]]) < bufferEnd);
+        assert(size_t(&vertices[indices[i + BOT_RIGHT_OFFSET]]) < bufferEnd);
         const TexturedVertex& topLeft = vertices[indices[i]];
         const TexturedVertex& botRight = vertices[indices[i + BOT_RIGHT_OFFSET]];
 
@@ -957,6 +998,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
             {
                 SpriteDraw draw;
                 draw.hasOrder = true;
+                assert(size_t(&orders[indices[i]]) < bufferEnd);
                 draw.order = orders[indices[i]];
                 draw.drawCallId = mDrawCallId;
                 draw.topLeft.x = topLeft.x;
@@ -974,6 +1016,7 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
             {
                 GuiDraw d;
                 d.hasOrder = true;
+                assert(size_t(&orders[indices[i]]) < bufferEnd);
                 d.order = orders[indices[i]];
                 d.drawCallId = mDrawCallId;
                 d.topLeft.x = topLeft.x;
@@ -1025,11 +1068,16 @@ void FrameParser::parseUnshadedViewDraw(const DrawCall& drawCall)
     assert(drawCall.targetTextureId == 0);
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
+    size_t bufferEnd = size_t((char*)buffer.data + buffer.numBytes);
     assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
+
     assert(drawCall.numIndices == 4);
 
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
+
+    assert(size_t(&indices[0]) < bufferEnd);
+    assert(size_t(&vertices[indices[0]]) < bufferEnd);
     const TexturedVertex& topLeft = vertices[indices[0]];
 
     worldToScreenCoords
@@ -1040,6 +1088,8 @@ void FrameParser::parseUnshadedViewDraw(const DrawCall& drawCall)
         mCurrentFrame.viewX, mCurrentFrame.viewY
     );
 
+    assert(size_t(&indices[4]) < bufferEnd);
+    assert(size_t(&vertices[indices[4]]) < bufferEnd);
     const TexturedVertex& botRight = vertices[indices[4]];
     mCurrentFrame.viewWidth = botRight.x;
     mCurrentFrame.viewHeight = botRight.y;
@@ -1059,11 +1109,14 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall)
     }
 
     const VertexBuffer& buffer = mVertexBuffers[drawCall.bufferId];
+    size_t bufferEnd = size_t((char*)buffer.data + buffer.numBytes);
     assert(buffer.vertexType == VertexBuffer::VertexType::TEXTURED);
     assert(drawCall.numIndices == 4);
 
     TexturedVertex* vertices = (TexturedVertex*)((char*)buffer.data + buffer.getVerticesOffset());
     VertexAttribPointer::Index* indices = (VertexAttribPointer::Index*)((char*)buffer.data + drawCall.indicesOffset);
+    assert(size_t(&indices[0]) < bufferEnd);
+    assert(size_t(&vertices[indices[0]]) < bufferEnd);
     const TexturedVertex& topLeft = vertices[indices[0]];
     mCurrentFrame.hasMiniMapMoved = true;
     mCurrentFrame.miniMapX = topLeft.x;
@@ -1077,6 +1130,8 @@ void FrameParser::parseMiniMapDraw(const DrawCall& drawCall)
         mCurrentFrame.miniMapScreenX, mCurrentFrame.miniMapScreenY
     );
 
+    assert(size_t(&indices[3]) < bufferEnd);
+    assert(size_t(&vertices[indices[3]]) < bufferEnd);
     const TexturedVertex& botRight = vertices[indices[3]];
     Vertex screenBotRight;
     worldToScreenCoords
