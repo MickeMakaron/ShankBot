@@ -195,6 +195,59 @@ bool SideBarWindowDiff::isContainerContentsMoved(const ContainerWindow& oldW, co
                 break;
             }
         }
+        if(iRemovedItem < newItems.size())
+        {
+            std::vector<size_t> mismatchIndices;
+            for(size_t i = iRemovedItem + 1; i < oldItems.size(); i++)
+            {
+                if(oldItems[i].sprite != nullptr &&
+                   !isItemEqual(oldItems[i], newItems[i - 1]))
+                {
+                    mismatchIndices.push_back(i);
+                    if(mismatchIndices.size() > 1)
+                    {
+                        break;
+                    }
+                }
+            }
+            if(mismatchIndices.size() > 1)
+            {
+                size_t iRemovedItem2;
+                for(iRemovedItem2 = iRemovedItem + 1; iRemovedItem2 < newItems.size(); iRemovedItem2++)
+                {
+                    if(oldItems[iRemovedItem2].sprite != nullptr &&
+                       !isItemEqual(oldItems[iRemovedItem2], newItems[iRemovedItem2]))
+                    {
+                        break;
+                    }
+                }
+                if(iRemovedItem2 == newItems.size())
+                {
+                    iRemovedItem = iRemovedItem2;
+                }
+                else
+                {
+                    mismatchIndices.clear();
+                    for(size_t i = iRemovedItem2 + 1; i < oldItems.size(); i++)
+                    {
+                        if(oldItems[i].sprite != nullptr &&
+                           !isItemEqual(oldItems[i], newItems[i - 1]))
+                        {
+                            mismatchIndices.push_back(i);
+                            if(mismatchIndices.size() > 1)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    if(mismatchIndices.empty())
+                    {
+                        iRemovedItem = iRemovedItem2;
+                    }
+                }
+            }
+        }
+
         assert(iRemovedItem != oldItems.size());
         simulatedNewItems.insert(simulatedNewItems.end(), oldItems.begin(), oldItems.begin() + iRemovedItem);
         simulatedNewItems.insert(simulatedNewItems.end(), oldItems.begin() + iRemovedItem + 1, oldItems.end());
