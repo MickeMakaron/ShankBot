@@ -877,6 +877,21 @@ std::map<std::string, std::function<void(size_t&)>> GuiParser::initGuiDrawHandle
         mData.game.sideBarWindows.isWindowBeingMoved = true;
     };
 
+    handlers["dialog-frame-borderimage"] = [this](size_t& i)
+    {
+        size_t drawCallId = (*mDraws)[i].drawCallId;
+        mData.misc.dialogs.push_back((*mDraws)[i].order);
+        i++;
+        while(i < mDraws->size())
+        {
+            if((*mDraws)[i].drawCallId != drawCallId || mBaseNames[i] != "dialog-frame-borderimage")
+            {
+                i--;
+                break;
+            }
+            i++;
+        }
+    };
 
     return handlers;
 }

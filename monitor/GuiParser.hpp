@@ -420,6 +420,7 @@ namespace GraphicsLayer
             {
                 Button transferCoins;
                 Button clipBoard;
+                std::vector<float> dialogs;
             };
 
             struct Data
