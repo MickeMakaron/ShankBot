@@ -976,8 +976,10 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
         const TexturedVertex& topLeft = vertices[indices[i]];
         const TexturedVertex& botRight = vertices[indices[i + BOT_RIGHT_OFFSET]];
 
-        size_t texX = topLeft.texX * tex.width;
-        size_t texY = topLeft.texY * tex.height;
+        assert(topLeft.x < botRight.x);
+        assert(topLeft.y < botRight.y);
+        size_t texX = std::min(topLeft.texX * tex.width, botRight.texX * tex.width);
+        size_t texY = std::min(topLeft.texY * tex.height, botRight.texY * tex.height);
 
         Tile tile = getTile(drawCall.sourceTextureId, texX, texY);
         if(tile.getType() == Tile::Type::INVALID)
@@ -985,11 +987,36 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
             Vertex screenCoords;
             worldToScreenCoords(topLeft.x, topLeft.y, *transform, HALF_FRAME_WIDTH, HALF_FRAME_HEIGHT, screenCoords.x, screenCoords.y);
 
+            size_t width = std::max(int(texX - topLeft.texX * tex.width), int(texX - botRight.texX * tex.width)) * 2;
+            size_t height = std::max(int(texY - topLeft.texY * tex.height), int(texY - botRight.texY * tex.height)) * 2;
+            size_t x = texX - width / 2;
+            size_t y = texY - height / 2;
+            if(x > texX)
+            {
+                x = 0;
+            }
+            if(y > texY)
+            {
+                y = 0;
+            }
+            auto area = mTileCache.getByArea(drawCall.sourceTextureId, x, y, width, height);
+
+            std::stringstream sstream;
+            for(const auto& e : area)
+            {
+                sstream << "\t" << e.x << "x" << e.y << " "
+                                << e.element.getWidth() << "x" << e.element.getHeight()
+                                << " (" << (int)e.element.getType() << ")" << std::endl;
+            }
+
+
             SB_THROW("Cannot find GUI tile draw in any tilebuffer.", "\n",
                      "\tTexture ID: ", drawCall.sourceTextureId, " -> ", drawCall.targetTextureId, "\n",
                      "\tTexCoords: ", texX, "x", texY, "\n",
                      "\tTexSize: ", botRight.texX * tex.width - texX, "x", botRight.texY * tex.height - texY, "\n",
-                     "\tDrawCoords: ", screenCoords.x, "x", screenCoords.y, "\n");
+                     "\tDrawCoords: ", screenCoords.x, "x", screenCoords.y, "\n"
+                     "Printing nearest cached tiles below:\n",
+                     sstream.str(), "\n");
         }
 
         switch(tile.getType())
@@ -1506,7 +1533,7 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             {
                 QImage img(pixels, data.width, data.height, f);
                 std::stringstream sstream;
-                sstream << "recFail/" << failCount++ << ".png";
+                sstream << "recFail/" << failCount++ << "_" << data.texX << "x" << data.texY << "_" << data.width << "x" << data.height << ".png";
                 img.save(QString::fromStdString(sstream.str()));
 
                 std::cout << "Failed to recognize pixel data. A dump has been written to \"" << sstream.str() << "\"." << std::endl;
@@ -1560,8 +1587,9 @@ void FrameParser::updateTileBuffer(const PixelData& data, const unsigned char* p
             QImage::Format f = data.format == Format::RGBA ? QImage::Format_RGBA8888 : QImage::Format_ARGB32;
             QImage img(pixels, data.width, data.height, f);
             std::stringstream sstream;
-            sstream << "recFail/" << failCount++ << ".png";
+            sstream << "recFail/" << failCount++ << "_" << data.texX << "x" << data.texY << "_" << data.width << "x" << data.height << ".png";
             img.save(QString::fromStdString(sstream.str()));
+            std::cout << "Failed to recognize pixel data. A dump has been written to \"" << sstream.str() << "\"." << std::endl;
         }
     }
 }
