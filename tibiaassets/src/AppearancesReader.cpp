@@ -636,8 +636,8 @@ Object::ItemInfo AppearancesReader::readItemInfo(Buffer& stream) const
         ItemInfoOpCode op = (ItemInfoOpCode)readTibiaSizeIndicator(stream);
         switch(op)
         {
-            case ItemInfoOpCode::UNKNOWN1: // 0x38 0x01
-                info.unknown1 = readBoolean(stream);
+            case ItemInfoOpCode::RIGHT_CLICKABLE:
+                info.rightClickable = readBoolean(stream);
                 break;
 
             case ItemInfoOpCode::USABLE:

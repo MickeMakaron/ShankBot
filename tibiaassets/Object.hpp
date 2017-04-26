@@ -184,7 +184,7 @@ namespace tibiaassets
         struct ItemInfo
         {
             bool isGround = false;
-            bool unknown1 = false;
+            bool rightClickable = false;
             unsigned short walkSpeed = 0;
             unsigned char topOrder = 0;
             bool isContainer = false;

@@ -46,7 +46,7 @@ void ObjectResponse::objectToBinary(const sb::Object& obj, std::vector<char>& ou
 
     const sb::tibiaassets::Object::ItemInfo& info = obj.itemInfo;
     writeStream(info.isGround, out);
-    writeStream(info.unknown1, out);
+    writeStream(info.rightClickable, out);
     writeStream(info.walkSpeed, out);
     writeStream(info.topOrder, out);
     writeStream(info.isContainer, out);
@@ -105,7 +105,7 @@ size_t ObjectResponse::objectFromBinary(sb::Object& obj, const char* data, size_
     sb::tibiaassets::Object::ItemInfo& info = obj.itemInfo;
 
     readStreamSafe(info.isGround, data, end);
-    readStreamSafe(info.unknown1, data, end);
+    readStreamSafe(info.rightClickable, data, end);
     readStreamSafe(info.walkSpeed, data, end);
     readStreamSafe(info.topOrder, data, end);
     readStreamSafe(info.isContainer, data, end);

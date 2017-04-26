@@ -101,7 +101,7 @@ class SHANK_BOT_TIBIAASSETS_DECLSPEC AppearancesReader
 
         enum class ItemInfoOpCode : unsigned short
         {
-            UNKNOWN1 = 0x38, // Is 0xfe in old client ("Usable?").
+            RIGHT_CLICKABLE = 0x38, // Is 0xfe in old client ("Usable?").
             USABLE = 0x48,
             IMMOVABLE = 0x70,
             STACKABLE = 0x30,
