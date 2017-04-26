@@ -167,7 +167,6 @@ void GraphicsResourceReader::readResources(std::string path)
                     QImage::Format format = resource.format();
                     resource = resource.convertToFormat(QImage::Format_RGBA8888);
                     const unsigned char* pixels = resource.constBits();
-                    resource.save("graphicsResourcesOutTest/" + file.baseName() + ".png");
 
                     GraphicsResource r;
                     r.name = file.absoluteFilePath().toStdString();
