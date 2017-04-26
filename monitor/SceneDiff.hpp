@@ -31,10 +31,7 @@
 ///////////////////////////////////
 // Internal ShankBot headers
 #include "monitor/SceneParser.hpp"
-namespace GraphicsLayer
-{
-    struct Frame;
-}
+#include "monitor/Frame.hpp"
 ///////////////////////////////////
 
 ///////////////////////////////////
@@ -52,11 +49,14 @@ namespace GraphicsLayer
             };
 
         public:
+            SceneDiff();
             void parse(const Frame& frame, const SceneParser::Data& scene);
             const Data& getData() const;
 
         private:
             Data mData;
+            SceneParser::Data mPrevScene;
+            Frame mPrevFrame;
             unsigned int mPrevX = 0;
             unsigned int mPrevY = 0;
             unsigned char mPrevLevel = 0;
