@@ -184,7 +184,7 @@ namespace tibiaassets
         struct ItemInfo
         {
             bool isGround = false;
-            bool rightClickable = false;
+            bool isRightClickable = false;
             unsigned short walkSpeed = 0;
             unsigned char topOrder = 0;
             bool isContainer = false;
@@ -217,7 +217,7 @@ namespace tibiaassets
 //            std::string name;
 //            unsigned short profession = 0;
 //            unsigned short level = 0;
-            unsigned short defaultAction = 0;
+            unsigned short defaultAction = -1;
             unsigned char offsetX = 0;
             unsigned char offsetY = 0;
 

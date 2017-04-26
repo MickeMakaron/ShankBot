@@ -637,7 +637,7 @@ Object::ItemInfo AppearancesReader::readItemInfo(Buffer& stream) const
         switch(op)
         {
             case ItemInfoOpCode::RIGHT_CLICKABLE:
-                info.rightClickable = readBoolean(stream);
+                info.isRightClickable = readBoolean(stream);
                 break;
 
             case ItemInfoOpCode::USABLE:
