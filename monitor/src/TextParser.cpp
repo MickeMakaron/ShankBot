@@ -91,12 +91,27 @@ void TextParser::parse(const Frame& frame, const GuiParser::Data& guiData)
                         break;
 
                     case T::CHAT_TAB:
-                        do
+                        if(!mData.toggleChat.string.empty())
                         {
-                            mData.chatTabs.insert(mData.chatTabs.end(), b.getText().begin(), b.getText().end());
-                            i++;
-                        } while(i < mBuilders.size() && mBuilders[i]->getTextType() == T::CHAT_TAB);
-                        handleDefaultSideBarText(i);
+                            do
+                            {
+                                mData.chatTabs.insert(mData.chatTabs.end(), b.getText().begin(), b.getText().end());
+                                i++;
+                            } while(i < mBuilders.size() && mBuilders[i]->getTextType() == T::CHAT_TAB);
+                            handleDefaultSideBarText(i);
+                        }
+                        else
+                        {
+                            unsigned int drawCallId = (*mDraws)[i].drawCallId;
+                            do
+                            {
+                                i++;
+                            } while(i < mBuilders.size() &&
+                                    (*mDraws)[i].drawCallId == drawCallId &&
+                                    mBuilders[i]->getTextType() == T::CHAT_TAB);
+
+                            i--;
+                        }
                         break;
 
                     case T::GUI:
