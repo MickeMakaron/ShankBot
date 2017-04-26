@@ -973,8 +973,13 @@ void FrameParser::parseGuiTileDraw(const DrawCall& drawCall)
         assert(size_t(&indices[i + BOT_RIGHT_OFFSET]) < bufferEnd);
         assert(size_t(&vertices[indices[i]]) < bufferEnd);
         assert(size_t(&vertices[indices[i + BOT_RIGHT_OFFSET]]) < bufferEnd);
-        const TexturedVertex& topLeft = vertices[indices[i]];
-        const TexturedVertex& botRight = vertices[indices[i + BOT_RIGHT_OFFSET]];
+        TexturedVertex topLeft = vertices[indices[i]];
+        TexturedVertex botRight = vertices[indices[i + BOT_RIGHT_OFFSET]];
+
+        if(botRight.x < topLeft.x)
+        {
+            std::swap(topLeft, botRight);
+        }
 
         assert(topLeft.x < botRight.x);
         assert(topLeft.y < botRight.y);
