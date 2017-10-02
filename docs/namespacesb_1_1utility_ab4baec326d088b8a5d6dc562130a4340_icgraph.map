@@ -1,0 +1,6 @@
+<map id="sb::utility::stringify" name="sb::utility::stringify">
+<area shape="rect" id="node2" href="$class_graphics_layer_1_1_mini_map.html#ad995cdb1f54c15e8a06258e5f6185889" title="GraphicsLayer::MiniMap\l::update" alt="" coords="183,12,345,53"/>
+<area shape="rect" id="node4" href="$class_graphics_layer_1_1_tibia_client.html#a9a031de7a44192833c75608d4a73db03" title="GraphicsLayer::TibiaClient\l::update" alt="" coords="393,71,569,112"/>
+<area shape="rect" id="node5" href="$class_graphics_layer_1_1_mini_map.html#a834d99816d89cc8b4f7b0240add508c1" title="GraphicsLayer::MiniMap\l::getColor" alt="" coords="183,129,345,171"/>
+<area shape="rect" id="node3" href="$class_graphics_layer_1_1_mini_map.html#ad97e95bf7c28a2aece173d8f9e6edd31" title="GraphicsLayer::MiniMap\l::goTo" alt="" coords="400,5,563,47"/>
+</map>

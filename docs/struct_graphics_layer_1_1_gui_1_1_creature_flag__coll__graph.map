@@ -1,0 +1,5 @@
+<map id="GraphicsLayer::Gui::CreatureFlag" name="GraphicsLayer::Gui::CreatureFlag">
+<area shape="rect" id="node3" href="$struct_graphics_layer_1_1_gui_1_1_draw_rect.html" title="GraphicsLayer::Gui\l::DrawRect" alt="" coords="81,332,215,373"/>
+<area shape="rect" id="node4" href="$struct_graphics_layer_1_1_gui_1_1_rect.html" title="GraphicsLayer::Gui\l::Rect\&lt; int \&gt;" alt="" coords="81,213,215,255"/>
+<area shape="rect" id="node5" href="$struct_graphics_layer_1_1_vertex.html" title="GraphicsLayer::Vertex" alt="" coords="72,109,224,136"/>
+</map>

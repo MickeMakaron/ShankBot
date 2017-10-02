@@ -1,0 +1,9 @@
+<map id="LzmaUncompress" name="LzmaUncompress">
+<area shape="rect" id="node2" href="$_lzma_dec_8h.html#ab8c63d6972edb0325afc6326936afab1" title="LzmaDecode" alt="" coords="181,81,280,108"/>
+<area shape="rect" id="node3" href="$_lzma_dec_8c.html#a204698f079b0f30489b410641490aa31" title="LzmaDec_AllocateProbs" alt="" coords="328,5,495,32"/>
+<area shape="rect" id="node5" href="$_lzma_dec_8c.html#a1b158d14a209d1a349d9198f39a926b5" title="LzmaDec_FreeProbs" alt="" coords="768,31,913,57"/>
+<area shape="rect" id="node6" href="$_lzma_dec_8c.html#af78fa82d5ea8c08fdfbc5d8d7a73a127" title="LzmaDec_Init" alt="" coords="360,107,463,133"/>
+<area shape="rect" id="node8" href="$_lzma_dec_8c.html#ab3474d4a12b60cff20299518f94677c7" title="LzmaDec_DecodeToDic" alt="" coords="329,157,494,184"/>
+<area shape="rect" id="node4" href="$_lzma_dec_8c.html#ae49727972cd1f8d5384dc4c29f42d97d" title="LzmaProps_Decode" alt="" coords="561,5,701,32"/>
+<area shape="rect" id="node7" href="$_lzma_dec_8c.html#a9973d4d5eca28d1b20e60a5808c17f62" title="LzmaDec_InitDicAndState" alt="" coords="543,107,720,133"/>
+</map>

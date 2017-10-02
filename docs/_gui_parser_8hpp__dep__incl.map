@@ -1,0 +1,12 @@
+<map id="monitor/GuiParser.hpp" name="monitor/GuiParser.hpp">
+<area shape="rect" id="node2" href="$_frame_assembler_8hpp.html" title="monitor/FrameAssembler.hpp" alt="" coords="16,229,209,256"/>
+<area shape="rect" id="node4" href="$_text_parser_8hpp.html" title="monitor/TextParser.hpp" alt="" coords="244,155,403,181"/>
+<area shape="rect" id="node5" href="$_side_bar_window_assembler_8hpp.html" title="monitor/SideBarWindowAssembler.hpp" alt="" coords="437,229,687,256"/>
+<area shape="rect" id="node10" href="$_side_bar_window_8hpp.html" title="monitor/SideBarWindow.hpp" alt="" coords="338,80,525,107"/>
+<area shape="rect" id="node11" href="$_gui_parser_8cpp.html" title="monitor/src/GuiParser.cpp" alt="" coords="600,80,775,107"/>
+<area shape="rect" id="node3" href="$_frame_assembler_8cpp.html" title="monitor/src/FrameAssembler.cpp" alt="" coords="5,311,220,338"/>
+<area shape="rect" id="node9" href="$_text_parser_8cpp.html" title="monitor/src/TextParser.cpp" alt="" coords="233,229,413,256"/>
+<area shape="rect" id="node6" href="$_side_bar_window_diff_8hpp.html" title="monitor/SideBarWindowDiff.hpp" alt="" coords="567,311,775,338"/>
+<area shape="rect" id="node8" href="$_side_bar_window_assembler_8cpp.html" title="monitor/src/SideBarWindow\lAssembler.cpp" alt="" coords="359,304,543,345"/>
+<area shape="rect" id="node7" href="$_side_bar_window_diff_8cpp.html" title="monitor/src/SideBarWindow\lDiff.cpp" alt="" coords="579,393,763,435"/>
+</map>

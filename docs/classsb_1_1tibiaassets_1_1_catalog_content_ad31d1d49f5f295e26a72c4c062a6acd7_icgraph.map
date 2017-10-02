@@ -1,0 +1,5 @@
+<map id="sb::tibiaassets::CatalogContent::getSpriteSheets" name="sb::tibiaassets::CatalogContent::getSpriteSheets">
+<area shape="rect" id="node2" href="$class_frame_parse_test.html#a6db1a8a6dab8e15d99c6561d57b75934" title="FrameParseTest::FrameParseTest" alt="" coords="223,5,447,32"/>
+<area shape="rect" id="node3" href="$classsb_1_1tibiaassets_1_1_sprite_reader.html#aef5b0584b4b1a63b8522e257c6728a75" title="sb::tibiaassets::SpriteReader\l::getSprite" alt="" coords="239,57,430,98"/>
+<area shape="rect" id="node4" href="$classsb_1_1tibiaassets_1_1_sprite_reader.html#a0c992022875763ae6892865593584f81" title="sb::tibiaassets::SpriteReader\l::forEachSprite" alt="" coords="239,122,430,163"/>
+</map>

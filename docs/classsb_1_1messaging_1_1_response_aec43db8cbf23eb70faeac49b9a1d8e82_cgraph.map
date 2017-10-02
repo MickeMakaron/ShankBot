@@ -1,0 +1,5 @@
+<map id="sb::messaging::Response::readResponseType" name="sb::messaging::Response::readResponseType">
+<area shape="rect" id="node2" href="$classsb_1_1messaging_1_1_message.html#a380c48888cebe7fc93da55cfb4cab82c" title="sb::messaging::Message\l::fromBinary" alt="" coords="231,5,399,47"/>
+<area shape="rect" id="node4" href="$classsb_1_1messaging_1_1_response.html#a24a100636d414581c2017d85d2133159" title="sb::messaging::Response\l::getResponseType" alt="" coords="228,71,403,112"/>
+<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a4756bdd17ebbde9c946a9727176591b4" title="sb::utility::readStream" alt="" coords="451,13,601,39"/>
+</map>

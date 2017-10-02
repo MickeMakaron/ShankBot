@@ -1,0 +1,8 @@
+<map id="GraphicsLayer::SceneParser::parse" name="GraphicsLayer::SceneParser::parse">
+<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#a501eb3f027e6eba6b133f54be6778583" title="sb::utility::round" alt="" coords="283,5,398,32"/>
+<area shape="rect" id="node3" href="$class_graphics_layer_1_1_scene_parser.html#a2d0fc6c3a49ffeed1a646e832e35f1ea" title="GraphicsLayer::SceneParser\l::getTileWidth" alt="" coords="246,57,435,98"/>
+<area shape="rect" id="node4" href="$class_graphics_layer_1_1_scene_parser.html#afb3fb09c478216a4750d3da3d26c2062" title="GraphicsLayer::SceneParser\l::getTileHeight" alt="" coords="246,122,435,163"/>
+<area shape="rect" id="node5" href="$class_graphics_layer_1_1_tibia_context.html#acb650f49c86434351a8699731863648f" title="GraphicsLayer::TibiaContext\l::getObjects" alt="" coords="487,151,675,193"/>
+<area shape="rect" id="node6" href="$class_graphics_layer_1_1_tibia_context.html#a705d6fa16993edb85475a4fcaf3c0af2" title="GraphicsLayer::TibiaContext\l::getSpriteInfo" alt="" coords="247,239,435,281"/>
+<area shape="rect" id="node7" href="$class_graphics_layer_1_1_sprite_info.html#a6c6455d73eedfdc082ca6973ba8e7c1b" title="GraphicsLayer::SpriteInfo::get" alt="" coords="243,305,439,332"/>
+</map>

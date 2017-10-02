@@ -1,0 +1,5 @@
+<map id="sb::utility::packBytes" name="sb::utility::packBytes">
+<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#afc84bba09800f76be669859a2259c7f8" title="sb::utility::rgbaToColor\lTreeSprite" alt="" coords="223,5,377,47"/>
+<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a385aab787836150004886626624e5a23" title="sb::utility::rgbaToTransparency\lTreeSprite" alt="" coords="199,71,401,112"/>
+<area shape="rect" id="node4" href="$namespacesb_1_1utility.html#aca844f389b950ac49244dec0b72d7525" title="sb::utility::writeStream" alt="" coords="223,137,377,163"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="FrameFileTest::expectEqAfterWriteRead" name="FrameFileTest::expectEqAfterWriteRead">
+<area shape="rect" id="node2" href="$namespace_graphics_layer_1_1_frame_file.html#a43d813b21cfcb3c6b72e2a0150ab87e2" title="GraphicsLayer::FrameFile\l::write" alt="" coords="251,82,423,123"/>
+<area shape="rect" id="node8" href="$namespace_graphics_layer_1_1_frame_file.html#aa6712360f2c3235cf8ea75baffbfdfcc" title="GraphicsLayer::FrameFile\l::read" alt="" coords="251,147,423,189"/>
+<area shape="rect" id="node14" href="$namespacesb_1_1test.html#ab77f3f9441ba7f8cac84dfafed119c0c" title="sb::test::expectEq" alt="" coords="272,213,401,240"/>
+<area shape="rect" id="node3" href="$namespace_graphics_layer_1_1_frame_file.html#a4320f37ae5c276679447f7409e722289" title="GraphicsLayer::FrameFile\l::writeBin" alt="" coords="471,17,643,58"/>
+<area shape="rect" id="node7" href="$namespace_graphics_layer_1_1_frame_file.html#a5b8baacada01592562fb1c4fbdf87e57" title="GraphicsLayer::FrameFile\l::writeImages" alt="" coords="471,82,643,123"/>
+<area shape="rect" id="node4" href="$namespacesb_1_1utility.html#a70198548df3a6a400106e36484c89b22" title="sb::utility::writeStream" alt="" coords="923,5,1076,32"/>
+<area shape="rect" id="node5" href="$namespace_graphics_layer_1_1_frame_file.html#a367ce776d64d547e16f7e4ba526ab6f6" title="GraphicsLayer::FrameFile\l::write" alt="" coords="691,27,863,69"/>
+<area shape="rect" id="node6" href="$namespacesb_1_1utility.html#ad8ea661222abcd66eeb8e3bda44d6224" title="sb::utility::getBytesPer\lPixel" alt="" coords="922,66,1077,107"/>
+<area shape="rect" id="node9" href="$namespace_graphics_layer_1_1_frame_file.html#a1759d78e77c8e7f0614685c40d942f9e" title="GraphicsLayer::FrameFile\l::readBin" alt="" coords="471,147,643,189"/>
+<area shape="rect" id="node12" href="$namespace_graphics_layer_1_1_frame_file.html#af483de117ef3bf3b2b67fbdcb6460b11" title="GraphicsLayer::FrameFile\l::readImages" alt="" coords="471,213,643,254"/>
+<area shape="rect" id="node10" href="$namespacesb_1_1utility.html#abc317b463cd576065e89a14ccd713487" title="sb::utility::readStreamSafe" alt="" coords="911,149,1088,176"/>
+<area shape="rect" id="node11" href="$namespace_graphics_layer_1_1_frame_file.html#a75085ad29e0d10938d7f3cbcac5e0246" title="GraphicsLayer::FrameFile\l::read" alt="" coords="691,93,863,134"/>
+<area shape="rect" id="node13" href="$namespacesb_1_1utility_1_1file.html#a78dd88c447f7ad78f1526b9fc336900d" title="sb::utility::file::\lfileExists" alt="" coords="723,213,831,254"/>
+</map>

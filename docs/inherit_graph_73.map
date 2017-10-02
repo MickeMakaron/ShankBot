@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$struct_graphics_layer_1_1_gui_1_1_side_bar_window.html" title="GraphicsLayer::Gui\l::SideBarWindow" alt="" coords="5,136,140,177"/>
+<area shape="rect" id="node2" href="$struct_graphics_layer_1_1_gui_1_1_battle_list.html" title="GraphicsLayer::Gui\l::BattleList" alt="" coords="201,5,336,47"/>
+<area shape="rect" id="node3" href="$struct_graphics_layer_1_1_gui_1_1_prey.html" title="GraphicsLayer::Gui\l::Prey" alt="" coords="201,71,336,112"/>
+<area shape="rect" id="node4" href="$struct_graphics_layer_1_1_gui_1_1_skills.html" title="GraphicsLayer::Gui\l::Skills" alt="" coords="201,136,336,177"/>
+<area shape="rect" id="node5" href="$struct_graphics_layer_1_1_gui_1_1_unjustified_points.html" title="GraphicsLayer::Gui\l::UnjustifiedPoints" alt="" coords="201,201,336,243"/>
+<area shape="rect" id="node6" href="$struct_graphics_layer_1_1_gui_1_1_vip.html" title="GraphicsLayer::Gui::Vip" alt="" coords="188,267,349,294"/>
+</map>

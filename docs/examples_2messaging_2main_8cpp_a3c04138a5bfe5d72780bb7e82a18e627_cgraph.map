@@ -1,0 +1,31 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$classsb_1_1_requester.html#ac56bb55e908b528109dc045770ad955b" title="sb::Requester::objects" alt="" coords="105,421,259,447"/>
+<area shape="rect" id="node19" href="$examples_2messaging_2main_8cpp.html#ac95ef8b74d1d31e8165a195a41d0cf39" title="resolveCommand" alt="" coords="120,627,244,654"/>
+<area shape="rect" id="node20" href="$classsb_1_1_requester.html#a9ccb205811210eaf0a98d5f66db1345d" title="sb::Requester::login" alt="" coords="113,577,251,603"/>
+<area shape="rect" id="node23" href="$examples_2messaging_2main_8cpp.html#a353e9cc5e2dc82ef9a2212a8f2c65ffa" title="handleLoginResponse" alt="" coords="107,678,257,705"/>
+<area shape="rect" id="node24" href="$examples_2messaging_2main_8cpp.html#ad08bb3424633c9a976ab9e260c85e6b2" title="parseGoCommand" alt="" coords="117,729,247,755"/>
+<area shape="rect" id="node25" href="$classsb_1_1_requester.html#ac99e4645a50ff7b78ed66a07a0093c9f" title="sb::Requester::go" alt="" coords="119,526,245,553"/>
+<area shape="rect" id="node27" href="$examples_2messaging_2main_8cpp.html#a723e396a33ed91c3c1542704c14912f6" title="handleGoResult" alt="" coords="125,779,239,806"/>
+<area shape="rect" id="node28" href="$classsb_1_1_requester.html#a541252f2c2d3cf74dae097e8e69a47c6" title="sb::Requester::frame" alt="" coords="109,471,255,498"/>
+<area shape="rect" id="node30" href="$examples_2messaging_2main_8cpp.html#aed863aef914e425505c3be7b4e59c74b" title="handleFrameResponse" alt="" coords="104,830,260,857"/>
+<area shape="rect" id="node3" href="$classsb_1_1messaging_1_1_requester.html#a5d802a6ba39cff749210d39f3ee34e67" title="sb::messaging::Requester\l::request" alt="" coords="331,355,506,396"/>
+<area shape="rect" id="node13" href="$classsb_1_1messaging_1_1_message.html#a380c48888cebe7fc93da55cfb4cab82c" title="sb::messaging::Message\l::fromBinary" alt="" coords="613,537,781,579"/>
+<area shape="rect" id="node16" href="$classsb_1_1messaging_1_1_response.html#aec43db8cbf23eb70faeac49b9a1d8e82" title="sb::messaging::Response\l::readResponseType" alt="" coords="331,523,506,564"/>
+<area shape="rect" id="node18" href="$classsb_1_1messaging_1_1_object_response.html#ac60f9963be7de03a6039bda741d401f4" title="sb::messaging::ObjectResponse::get" alt="" coords="577,109,816,135"/>
+<area shape="rect" id="node4" href="$classsb_1_1messaging_1_1_connection.html#abc2db92faeb23ecc2b404bb21ad346b7" title="sb::messaging::Connection\l::sendMessage" alt="" coords="606,31,787,72"/>
+<area shape="rect" id="node7" href="$classsb_1_1messaging_1_1_connection_manager.html#a4243c137483addc0ab9641642fdb5bb9" title="sb::messaging::Connection\lManager::poll" alt="" coords="606,211,787,252"/>
+<area shape="rect" id="node9" href="$classsb_1_1messaging_1_1_connection.html#ac9f2f2b4c6011c04a61c0180838572d1" title="sb::messaging::Connection\l::read" alt="" coords="606,276,787,317"/>
+<area shape="rect" id="node11" href="$classsb_1_1messaging_1_1_connection.html#adea6e63db88242ccff98a48095eb4bbb" title="sb::messaging::Connection\l::getMessages" alt="" coords="606,341,787,383"/>
+<area shape="rect" id="node12" href="$classsb_1_1messaging_1_1_message.html#ad1893ec7ed9d75c03a35d119e522b780" title="sb::messaging::Message\l::readMessageType" alt="" coords="613,407,781,448"/>
+<area shape="rect" id="node15" href="$classsb_1_1messaging_1_1_response.html#a4eb227fa5a47dac8bf701e18069b9326" title="sb::messaging::Response\l::getResult" alt="" coords="609,472,784,513"/>
+<area shape="rect" id="node5" href="$classsb_1_1messaging_1_1_message.html#a5c98d77ed5fefe57b3c8056681ede78b" title="sb::messaging::Message\l::toBinary" alt="" coords="871,5,1039,47"/>
+<area shape="rect" id="node6" href="$namespacesb_1_1utility.html#a70198548df3a6a400106e36484c89b22" title="sb::utility::writeStream" alt="" coords="1093,71,1247,98"/>
+<area shape="rect" id="node8" href="$classsb_1_1messaging_1_1_connection.html#a3fc5d3f591b3d69f3f3e59404eff0418" title="sb::messaging::Connection\l::getState" alt="" coords="864,224,1045,265"/>
+<area shape="rect" id="node10" href="$classsb_1_1messaging_1_1_connection.html#a551a7fa5a7d65481ba232024497128ce" title="sb::messaging::Connection\l::drop" alt="" coords="864,289,1045,331"/>
+<area shape="rect" id="node14" href="$namespacesb_1_1utility.html#a4756bdd17ebbde9c946a9727176591b4" title="sb::utility::readStream" alt="" coords="879,173,1030,199"/>
+<area shape="rect" id="node17" href="$classsb_1_1messaging_1_1_response.html#a24a100636d414581c2017d85d2133159" title="sb::messaging::Response\l::getResponseType" alt="" coords="609,603,784,644"/>
+<area shape="rect" id="node21" href="$classsb_1_1messaging_1_1_login_request.html#a04ad6b6bb3b4ed71153f42e8b1c91ccc" title="sb::messaging::LoginRequest::set" alt="" coords="308,690,529,717"/>
+<area shape="rect" id="node22" href="$classsb_1_1messaging_1_1_login_response.html#a75f4a81d04e5d2a06db8ffc2c18e791f" title="sb::messaging::LoginResponse\l::getCharacters" alt="" coords="316,741,521,783"/>
+<area shape="rect" id="node26" href="$classsb_1_1messaging_1_1_go_request.html#aaa76f17eefb5ac0460c7a3d51df89f89" title="sb::messaging::GoRequest::set" alt="" coords="315,589,522,615"/>
+<area shape="rect" id="node29" href="$classsb_1_1messaging_1_1_frame_response.html#aafdc3ed32b476f87456a1e75dd4ccf60" title="sb::messaging::FrameResponse::get" alt="" coords="578,159,815,186"/>
+</map>

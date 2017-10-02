@@ -1,0 +1,6 @@
+<map id="sb::tibiaassets::AppearancesReader::getObjects" name="sb::tibiaassets::AppearancesReader::getObjects">
+<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#a38d5552e58a138408c26391ae7158d17" title="sb::utility::readTibiaSize\lIndicator" alt="" coords="244,5,407,47"/>
+<area shape="rect" id="node3" href="$structsb_1_1utility_1_1_buffer.html#a52d4f1d9cb06d144a34ec4089e412210" title="sb::utility::Buffer\l::tellg" alt="" coords="266,71,385,112"/>
+<area shape="rect" id="node4" href="$namespacesb_1_1utility.html#a4756bdd17ebbde9c946a9727176591b4" title="sb::utility::readStream" alt="" coords="250,137,401,163"/>
+<area shape="rect" id="node5" href="$structsb_1_1utility_1_1_buffer.html#ac308f05241d403590399691158c911fe" title="sb::utility::Buffer\l::seekg" alt="" coords="266,188,385,229"/>
+</map>

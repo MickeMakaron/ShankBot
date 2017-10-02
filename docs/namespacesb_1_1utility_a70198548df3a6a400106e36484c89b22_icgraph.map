@@ -1,0 +1,24 @@
+<map id="sb::utility::writeStream" name="sb::utility::writeStream">
+<area shape="rect" id="node2" href="$structsb_1_1messaging_1_1_attack_request.html#a365de744e2ca830b577e002d22991368" title="sb::messaging::AttackRequest\l::getY" alt="" coords="207,5,409,47"/>
+<area shape="rect" id="node3" href="$classsb_1_1messaging_1_1_event_queue.html#ab7de5a41befc94aac0f461391e67f14a" title="sb::messaging::EventQueue\l::EventQueue" alt="" coords="215,71,401,112"/>
+<area shape="rect" id="node4" href="$classsb_1_1messaging_1_1_frame_response.html#aafdc3ed32b476f87456a1e75dd4ccf60" title="sb::messaging::FrameResponse::get" alt="" coords="744,149,981,175"/>
+<area shape="rect" id="node7" href="$classsb_1_1messaging_1_1_go_request.html#a3c84dd16be86d2e8d0a3f555284182f1" title="sb::messaging::GoRequest\l::getY" alt="" coords="217,188,399,229"/>
+<area shape="rect" id="node8" href="$classsb_1_1messaging_1_1_message.html#a5c98d77ed5fefe57b3c8056681ede78b" title="sb::messaging::Message\l::toBinary" alt="" coords="224,253,392,295"/>
+<area shape="rect" id="node14" href="$classsb_1_1messaging_1_1_object_response.html#ac60f9963be7de03a6039bda741d401f4" title="sb::messaging::ObjectResponse::get" alt="" coords="457,319,696,346"/>
+<area shape="rect" id="node15" href="$classsb_1_1messaging_1_1_response.html#a55c42f63164bb17d4f6f3d2229c99e1c" title="sb::messaging::Response\l::toBinaryDerived" alt="" coords="221,371,395,412"/>
+<area shape="rect" id="node16" href="$namespace_graphics_layer_1_1_frame_file.html#a72749ba1831cfbc637a6084ed90c0aaa" title="GraphicsLayer::FrameFile\l::write" alt="" coords="222,436,394,477"/>
+<area shape="rect" id="node17" href="$namespace_graphics_layer_1_1_frame_file.html#a4320f37ae5c276679447f7409e722289" title="GraphicsLayer::FrameFile\l::writeBin" alt="" coords="222,501,394,543"/>
+<area shape="rect" id="node21" href="$namespace_graphics_layer_1_1_glyphs_file.html#a57527adbdb5cf0c2b26205e5a4ce04a0" title="GraphicsLayer::GlyphsFile\l::write" alt="" coords="220,567,396,608"/>
+<area shape="rect" id="node5" href="$classsb_1_1_requester.html#a541252f2c2d3cf74dae097e8e69a47c6" title="sb::Requester::frame" alt="" coords="1034,163,1179,190"/>
+<area shape="rect" id="node6" href="$examples_2messaging_2main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1232,239,1283,266"/>
+<area shape="rect" id="node9" href="$classsb_1_1messaging_1_1_connection.html#abc2db92faeb23ecc2b404bb21ad346b7" title="sb::messaging::Connection\l::sendMessage" alt="" coords="486,253,667,295"/>
+<area shape="rect" id="node10" href="$classsb_1_1messaging_1_1_requester.html#a5d802a6ba39cff749210d39f3ee34e67" title="sb::messaging::Requester\l::request" alt="" coords="775,253,950,295"/>
+<area shape="rect" id="node11" href="$classsb_1_1_requester.html#ac99e4645a50ff7b78ed66a07a0093c9f" title="sb::Requester::go" alt="" coords="1043,214,1170,241"/>
+<area shape="rect" id="node12" href="$classsb_1_1_requester.html#a9ccb205811210eaf0a98d5f66db1345d" title="sb::Requester::login" alt="" coords="1037,265,1176,291"/>
+<area shape="rect" id="node13" href="$classsb_1_1_requester.html#ac56bb55e908b528109dc045770ad955b" title="sb::Requester::objects" alt="" coords="1029,315,1184,342"/>
+<area shape="rect" id="node18" href="$namespace_graphics_layer_1_1_frame_file.html#a43d813b21cfcb3c6b72e2a0150ab87e2" title="GraphicsLayer::FrameFile\l::write" alt="" coords="491,501,663,543"/>
+<area shape="rect" id="node19" href="$class_frame_file_test.html#aa3c803a741a1a2847f5a09e6126d1edc" title="FrameFileTest::expectEqAfter\lWriteRead" alt="" coords="764,468,961,509"/>
+<area shape="rect" id="node20" href="$class_frame_file_test.html#a62f14005bb1dff233acc6993f518ab68" title="FrameFileTest::expectWrite\lReadTrue" alt="" coords="771,533,955,575"/>
+<area shape="rect" id="node22" href="$class_glyphs_file_test.html#a3d0a776faa34eaa08ddbd36862479b00" title="GlyphsFileTest::expectEq\lAfterWriteRead" alt="" coords="490,567,663,608"/>
+<area shape="rect" id="node23" href="$class_glyphs_file_test.html#a2e601af11dbae2afe204afda24c0e154" title="GlyphsFileTest::expectWrite\lReadTrue" alt="" coords="483,632,671,673"/>
+</map>

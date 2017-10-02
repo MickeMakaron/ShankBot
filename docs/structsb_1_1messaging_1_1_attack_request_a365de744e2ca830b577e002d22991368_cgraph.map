@@ -1,0 +1,4 @@
+<map id="sb::messaging::AttackRequest::getY" name="sb::messaging::AttackRequest::getY">
+<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#a4756bdd17ebbde9c946a9727176591b4" title="sb::utility::readStream" alt="" coords="257,5,408,32"/>
+<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a70198548df3a6a400106e36484c89b22" title="sb::utility::writeStream" alt="" coords="256,56,409,83"/>
+</map>

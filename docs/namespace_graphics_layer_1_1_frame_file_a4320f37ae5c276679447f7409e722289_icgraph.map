@@ -1,0 +1,5 @@
+<map id="GraphicsLayer::FrameFile::writeBin" name="GraphicsLayer::FrameFile::writeBin">
+<area shape="rect" id="node2" href="$namespace_graphics_layer_1_1_frame_file.html#a43d813b21cfcb3c6b72e2a0150ab87e2" title="GraphicsLayer::FrameFile\l::write" alt="" coords="225,39,397,80"/>
+<area shape="rect" id="node3" href="$class_frame_file_test.html#aa3c803a741a1a2847f5a09e6126d1edc" title="FrameFileTest::expectEqAfter\lWriteRead" alt="" coords="445,5,643,47"/>
+<area shape="rect" id="node4" href="$class_frame_file_test.html#a62f14005bb1dff233acc6993f518ab68" title="FrameFileTest::expectWrite\lReadTrue" alt="" coords="452,71,636,112"/>
+</map>

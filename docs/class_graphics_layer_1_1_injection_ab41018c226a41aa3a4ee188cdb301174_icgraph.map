@@ -1,0 +1,8 @@
+<map id="GraphicsLayer::Injection::hookModule" name="GraphicsLayer::Injection::hookModule">
+<area shape="rect" id="node2" href="$namespace_graphics_layer.html#afe67adb8623727327bf866bea5244ce7" title="GraphicsLayer::inject" alt="" coords="699,39,844,66"/>
+<area shape="rect" id="node4" href="$namespace_graphics_layer.html#a3398b492590d08c5f0690210ebaa792e" title="GraphicsLayer::hookExtended\lOpenGlFunctions" alt="" coords="216,32,413,73"/>
+<area shape="rect" id="node6" href="$namespace_graphics_layer.html#abea04111a28aa3e2eb68c35413e11586" title="GraphicsLayer::hookModule\lExports" alt="" coords="223,97,407,138"/>
+<area shape="rect" id="node3" href="$inject_8cpp.html#a3a076aabd6ee240d295702061c2a1f75" title="DllMain" alt="" coords="892,39,959,66"/>
+<area shape="rect" id="node5" href="$namespace_graphics_layer.html#a262c3d2688c7afd43fb992ab6b95cb41" title="GraphicsLayer::makeCurrent" alt="" coords="461,39,651,66"/>
+<area shape="rect" id="node7" href="$namespace_graphics_layer.html#a94cd7dad38a3b3fee156e27be2b29d27" title="GraphicsLayer::loadLibrary" alt="" coords="467,96,645,123"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="monitor/TibiaContext.hpp" name="monitor/TibiaContext.hpp">
+<area shape="rect" id="node2" href="$_tibia_client_8hpp.html" title="monitor/TibiaClient.hpp" alt="" coords="283,87,439,114"/>
+<area shape="rect" id="node3" href="$_shank_bot_8hpp.html" title="monitor/ShankBot.hpp" alt="" coords="93,177,243,203"/>
+<area shape="rect" id="node9" href="$_frame_file_json_8cpp.html" title="monitor/src/FrameFileJson.cpp" alt="" coords="464,87,667,114"/>
+<area shape="rect" id="node10" href="$_frame_parser_8cpp.html" title="monitor/src/FrameParser.cpp" alt="" coords="691,87,882,114"/>
+<area shape="rect" id="node11" href="$_gui_8cpp.html" title="monitor/src/Gui.cpp" alt="" coords="907,87,1043,114"/>
+<area shape="rect" id="node12" href="$_gui_parser_8cpp.html" title="monitor/src/GuiParser.cpp" alt="" coords="1067,87,1242,114"/>
+<area shape="rect" id="node13" href="$_gui_sprite_parser_8cpp.html" title="monitor/src/GuiSpriteParser.cpp" alt="" coords="1267,87,1475,114"/>
+<area shape="rect" id="node14" href="$_outfit_resolver_8cpp.html" title="monitor/src/OutfitResolver.cpp" alt="" coords="1499,87,1699,114"/>
+<area shape="rect" id="node15" href="$_scene_8cpp.html" title="monitor/src/Scene.cpp" alt="" coords="1722,87,1875,114"/>
+<area shape="rect" id="node16" href="$_scene_parser_8cpp.html" title="monitor/src/SceneParser.cpp" alt="" coords="1899,87,2090,114"/>
+<area shape="rect" id="node17" href="$_side_bar_window_assembler_8cpp.html" title="monitor/src/SideBarWindow\lAssembler.cpp" alt="" coords="2115,80,2299,121"/>
+<area shape="rect" id="node18" href="$_tibia_context_8cpp.html" title="monitor/src/TibiaContext.cpp" alt="" coords="2323,87,2514,114"/>
+<area shape="rect" id="node19" href="$_frame_parse_test_8cpp.html" title="test/src/FrameParseTest.cpp" alt="" coords="2539,87,2731,114"/>
+<area shape="rect" id="node6" href="$_graphics_monitor_reader_8cpp.html" title="monitor/src/GraphicsMonitor\lReader.cpp" alt="" coords="268,169,455,211"/>
+<area shape="rect" id="node7" href="$_tibia_client_8cpp.html" title="monitor/src/TibiaClient.cpp" alt="" coords="479,177,657,203"/>
+<area shape="rect" id="node8" href="$tibia_io_utility_8cpp.html" title="monitor/src/tibiaIoUtility.cpp" alt="" coords="682,177,867,203"/>
+<area shape="rect" id="node4" href="$monitor_2src_2main_8cpp.html" title="monitor/src/main.cpp" alt="" coords="5,259,149,285"/>
+<area shape="rect" id="node5" href="$_shank_bot_8cpp.html" title="monitor/src/ShankBot.cpp" alt="" coords="173,259,347,285"/>
+</map>

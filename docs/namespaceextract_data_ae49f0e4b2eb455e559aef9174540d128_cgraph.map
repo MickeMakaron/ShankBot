@@ -1,0 +1,12 @@
+<map id="extractData.main" name="extractData.main">
+<area shape="rect" id="node2" href="$namespaceextract_data.html#ac911ec537881b71657b98f899b6e6075" title="extractData.readData" alt="" coords="176,155,323,181"/>
+<area shape="rect" id="node3" href="$namespace_graphics_layer_1_1_frame_file.html#aa6712360f2c3235cf8ea75baffbfdfcc" title="GraphicsLayer::FrameFile\l::read" alt="" coords="371,89,543,130"/>
+<area shape="rect" id="node10" href="$namespaceextract_data.html#a9e10965bd7c8936af64684c1b7d86ae5" title="extractData.bit32ToInt" alt="" coords="381,155,533,181"/>
+<area shape="rect" id="node11" href="$namespaceextract_data.html#ae6ebf9216f24c2e27a540d791720c209" title="extractData.bit16ToInt" alt="" coords="381,205,533,232"/>
+<area shape="rect" id="node4" href="$namespace_graphics_layer_1_1_frame_file.html#a1759d78e77c8e7f0614685c40d942f9e" title="GraphicsLayer::FrameFile\l::readBin" alt="" coords="591,57,763,98"/>
+<area shape="rect" id="node8" href="$namespace_graphics_layer_1_1_frame_file.html#af483de117ef3bf3b2b67fbdcb6460b11" title="GraphicsLayer::FrameFile\l::readImages" alt="" coords="591,122,763,163"/>
+<area shape="rect" id="node5" href="$namespacesb_1_1utility.html#abc317b463cd576065e89a14ccd713487" title="sb::utility::readStreamSafe" alt="" coords="1031,5,1208,32"/>
+<area shape="rect" id="node6" href="$namespace_graphics_layer_1_1_frame_file.html#a75085ad29e0d10938d7f3cbcac5e0246" title="GraphicsLayer::FrameFile\l::read" alt="" coords="811,57,983,98"/>
+<area shape="rect" id="node7" href="$namespacesb_1_1utility.html#ad8ea661222abcd66eeb8e3bda44d6224" title="sb::utility::getBytesPer\lPixel" alt="" coords="1042,57,1197,98"/>
+<area shape="rect" id="node9" href="$namespacesb_1_1utility_1_1file.html#a78dd88c447f7ad78f1526b9fc336900d" title="sb::utility::file::\lfileExists" alt="" coords="843,122,951,163"/>
+</map>

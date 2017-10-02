@@ -1,0 +1,16 @@
+<map id="GraphicsLayer::FrameParser::parse" name="GraphicsLayer::FrameParser::parse">
+<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#ad8ea661222abcd66eeb8e3bda44d6224" title="sb::utility::getBytesPer\lPixel" alt="" coords="267,5,421,47"/>
+<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a7f15f3b45ecd8bb2296b2913a0638fdb" title="sb::utility::rgbaToColor\lTreeSprite" alt="" coords="267,71,421,112"/>
+<area shape="rect" id="node4" href="$namespacesb_1_1utility.html#aa68a44e6b03b85c82a43bb92d0422dab" title="sb::utility::bgraToColor\lTreeSprite" alt="" coords="267,136,421,177"/>
+<area shape="rect" id="node5" href="$class_graphics_layer_1_1_tile_buffer_cache.html#ad1c8f2ce8f4d8a2aa384181082ec058d" title="GraphicsLayer::TileBuffer\lCache::removeByArea" alt="" coords="259,201,429,243"/>
+<area shape="rect" id="node6" href="$class_graphics_layer_1_1_tile_buffer_cache.html#a6d94df110c7f0b782db96cd48d2b8ea8" title="GraphicsLayer::TileBuffer\lCache::set" alt="" coords="259,267,429,308"/>
+<area shape="rect" id="node7" href="$namespacesb_1_1utility.html#ae088c8634719c4b1d1cf3ff9a46f2775" title="sb::utility::rgbaToTransparency\lTreeSprite" alt="" coords="243,332,445,373"/>
+<area shape="rect" id="node8" href="$class_graphics_layer_1_1_tibia_context.html#a3034af0cf286295cacd4a27087b86290" title="GraphicsLayer::TibiaContext\l::getSpriteColorTree" alt="" coords="250,397,438,439"/>
+<area shape="rect" id="node9" href="$class_graphics_layer_1_1_sequence_tree.html#a15c716bb40369a393855ac1c9d37f417" title="GraphicsLayer::SequenceTree\l::find" alt="" coords="245,463,443,504"/>
+<area shape="rect" id="node10" href="$class_graphics_layer_1_1_tibia_context.html#a4493531097a728d829934e905a7aaeda" title="GraphicsLayer::TibiaContext\l::getSpriteTransparencyTree" alt="" coords="250,528,438,569"/>
+<area shape="rect" id="node11" href="$class_graphics_layer_1_1_tibia_context.html#a983406dd5a622ac403e807d2248143bf" title="GraphicsLayer::TibiaContext\l::getSpriteObjectBindings" alt="" coords="250,593,438,635"/>
+<area shape="rect" id="node12" href="$class_graphics_layer_1_1_sprite_object_bindings.html#aaef7c5714b155c93ff1ff2567ac6a6a4" title="GraphicsLayer::SpriteObject\lBindings::getObjects" alt="" coords="251,659,437,700"/>
+<area shape="rect" id="node13" href="$class_graphics_layer_1_1_tibia_context.html#abe84a32c1b1e3d8ba8d38d87849ba5aa" title="GraphicsLayer::TibiaContext\l::getGraphicsResourceNames" alt="" coords="245,724,443,765"/>
+<area shape="rect" id="node14" href="$class_graphics_layer_1_1_combat_square_sample.html#a926b83202115635a8138ebe6c6dbb152" title="GraphicsLayer::CombatSquare\lSample::getType" alt="" coords="243,789,445,831"/>
+<area shape="rect" id="node15" href="$class_graphics_layer_1_1_tibia_context.html#acb650f49c86434351a8699731863648f" title="GraphicsLayer::TibiaContext\l::getObjects" alt="" coords="250,855,438,896"/>
+</map>

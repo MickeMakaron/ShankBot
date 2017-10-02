@@ -1,0 +1,7 @@
+<map id="GraphicsLayer::Monitor::getWindowProc" name="GraphicsLayer::Monitor::getWindowProc">
+<area shape="rect" id="node2" href="$namespace_graphics_layer.html#affc7e411648a77c6b249a89cade930e6" title="GraphicsLayer::windowClass\lProcDetour" alt="" coords="211,5,403,47"/>
+<area shape="rect" id="node3" href="$class_graphics_layer_1_1_monitor.html#a29a3c7800072f3692d47584640632d6b" title="GraphicsLayer::Monitor\l::setClassWindowProc" alt="" coords="451,5,608,47"/>
+<area shape="rect" id="node4" href="$namespace_graphics_layer.html#a3c182f9fd36fde90a94fda41f338d7ff" title="GraphicsLayer::registerClassExA" alt="" coords="656,13,872,39"/>
+<area shape="rect" id="node5" href="$namespace_graphics_layer.html#afe67adb8623727327bf866bea5244ce7" title="GraphicsLayer::inject" alt="" coords="920,13,1065,39"/>
+<area shape="rect" id="node6" href="$inject_8cpp.html#a3a076aabd6ee240d295702061c2a1f75" title="DllMain" alt="" coords="1113,13,1180,39"/>
+</map>

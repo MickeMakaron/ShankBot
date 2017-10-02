@@ -1,0 +1,12 @@
+<map id="GraphicsLayer::FrameFile::read" name="GraphicsLayer::FrameFile::read">
+<area shape="rect" id="node2" href="$namespace_graphics_layer_1_1_frame_file.html#a7a57b5b614d9f64e1e009792481ff5fd" title="GraphicsLayer::FrameFile\l::read" alt="" coords="225,79,397,120"/>
+<area shape="rect" id="node3" href="$namespace_graphics_layer_1_1_frame_file.html#a1759d78e77c8e7f0614685c40d942f9e" title="GraphicsLayer::FrameFile\l::readBin" alt="" coords="225,144,397,185"/>
+<area shape="rect" id="node4" href="$namespace_graphics_layer_1_1_frame_file.html#aa6712360f2c3235cf8ea75baffbfdfcc" title="GraphicsLayer::FrameFile\l::read" alt="" coords="445,144,617,185"/>
+<area shape="rect" id="node5" href="$class_graphics_layer_1_1_frame_assembler.html#a81fbd85add4ac70e8a106ba5e4daa32d" title="GraphicsLayer::FrameAssembler\l::update" alt="" coords="671,5,884,47"/>
+<area shape="rect" id="node6" href="$namespaceextract_data.html#ac911ec537881b71657b98f899b6e6075" title="extractData.readData" alt="" coords="704,71,851,98"/>
+<area shape="rect" id="node8" href="$namespaceextract_sprites.html#a832785d9c1d0675f75284657775fe9a6" title="extractSprites.extractSprites" alt="" coords="683,122,871,149"/>
+<area shape="rect" id="node9" href="$class_frame_file_test.html#aa3c803a741a1a2847f5a09e6126d1edc" title="FrameFileTest::expectEqAfter\lWriteRead" alt="" coords="679,173,876,215"/>
+<area shape="rect" id="node10" href="$class_frame_file_test.html#a62f14005bb1dff233acc6993f518ab68" title="FrameFileTest::expectWrite\lReadTrue" alt="" coords="685,239,869,280"/>
+<area shape="rect" id="node11" href="$class_frame_parse_test.html#a6db1a8a6dab8e15d99c6561d57b75934" title="FrameParseTest::FrameParseTest" alt="" coords="665,305,889,331"/>
+<area shape="rect" id="node7" href="$namespaceextract_data.html#ae49f0e4b2eb455e559aef9174540d128" title="extractData.main" alt="" coords="937,71,1060,98"/>
+</map>

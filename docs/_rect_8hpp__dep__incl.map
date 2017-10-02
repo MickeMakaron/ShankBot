@@ -1,0 +1,17 @@
+<map id="utility/Rect.hpp" name="utility/Rect.hpp">
+<area shape="rect" id="node2" href="$_gui_parser_8hpp.html" title="monitor/GuiParser.hpp" alt="" coords="477,80,629,107"/>
+<area shape="rect" id="node13" href="$_scene_parser_8hpp.html" title="monitor/SceneParser.hpp" alt="" coords="717,80,886,107"/>
+<area shape="rect" id="node3" href="$_frame_assembler_8hpp.html" title="monitor/FrameAssembler.hpp" alt="" coords="571,304,765,331"/>
+<area shape="rect" id="node5" href="$_text_parser_8hpp.html" title="monitor/TextParser.hpp" alt="" coords="378,229,537,256"/>
+<area shape="rect" id="node6" href="$_side_bar_window_assembler_8hpp.html" title="monitor/SideBarWindowAssembler.hpp" alt="" coords="94,304,343,331"/>
+<area shape="rect" id="node11" href="$_side_bar_window_8hpp.html" title="monitor/SideBarWindow.hpp" alt="" coords="193,155,380,181"/>
+<area shape="rect" id="node12" href="$_gui_parser_8cpp.html" title="monitor/src/GuiParser.cpp" alt="" coords="405,155,579,181"/>
+<area shape="rect" id="node4" href="$_frame_assembler_8cpp.html" title="monitor/src/FrameAssembler.cpp" alt="" coords="561,386,775,413"/>
+<area shape="rect" id="node10" href="$_text_parser_8cpp.html" title="monitor/src/TextParser.cpp" alt="" coords="367,304,547,331"/>
+<area shape="rect" id="node7" href="$_side_bar_window_diff_8hpp.html" title="monitor/SideBarWindowDiff.hpp" alt="" coords="5,386,213,413"/>
+<area shape="rect" id="node9" href="$_side_bar_window_assembler_8cpp.html" title="monitor/src/SideBarWindow\lAssembler.cpp" alt="" coords="237,379,421,420"/>
+<area shape="rect" id="node8" href="$_side_bar_window_diff_8cpp.html" title="monitor/src/SideBarWindow\lDiff.cpp" alt="" coords="17,468,201,509"/>
+<area shape="rect" id="node14" href="$_scene_diff_8hpp.html" title="monitor/SceneDiff.hpp" alt="" coords="921,155,1073,181"/>
+<area shape="rect" id="node16" href="$_scene_parser_8cpp.html" title="monitor/src/SceneParser.cpp" alt="" coords="706,155,897,181"/>
+<area shape="rect" id="node15" href="$_scene_diff_8cpp.html" title="monitor/src/SceneDiff.cpp" alt="" coords="910,229,1085,256"/>
+</map>

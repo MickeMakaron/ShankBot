@@ -1,0 +1,8 @@
+<map id="sb::utility::file::basename" name="sb::utility::file::basename">
+<area shape="rect" id="node2" href="$struct_graphics_layer_1_1_gui_1_1_container.html#a85bed88cf15d5a7956d66cae9ad8584d" title="GraphicsLayer::Gui\l::Container::getVisibleItems" alt="" coords="167,5,351,47"/>
+<area shape="rect" id="node3" href="$class_graphics_layer_1_1_mini_map.html#aa9c44dd1f3de3ce31cbe765d13e224dd" title="GraphicsLayer::MiniMap\l::MiniMap" alt="" coords="177,71,340,112"/>
+<area shape="rect" id="node4" href="$classsb_1_1tibiaassets_1_1_graphics_resource_reader.html#a408dedacbba4c661632b7fa77d8f78fe" title="sb::tibiaassets::Graphics\lResourceReader::readNames" alt="" coords="161,136,356,177"/>
+<area shape="rect" id="node5" href="$namespacesb_1_1utility_1_1file.html#ad3f804eadb970090d1cb576766d17325" title="sb::utility::file::\lcopyFile" alt="" coords="205,201,313,243"/>
+<area shape="rect" id="node6" href="$namespacesb_1_1utility_1_1file.html#a9cecd089bb65569b89b7337ba052a30c" title="sb::utility::file::\lrecursiveCopy" alt="" coords="404,231,512,272"/>
+<area shape="rect" id="node7" href="$class_graphics_layer_1_1_version_control.html#abe2b8ac63ac0fb031f0cd246e07bf7d1" title="GraphicsLayer::VersionControl\l::checkout" alt="" coords="560,231,760,272"/>
+</map>

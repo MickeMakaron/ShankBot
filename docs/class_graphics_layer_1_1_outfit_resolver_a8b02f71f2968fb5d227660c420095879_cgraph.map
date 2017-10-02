@@ -1,0 +1,9 @@
+<map id="GraphicsLayer::OutfitResolver::clear" name="GraphicsLayer::OutfitResolver::clear">
+<area shape="rect" id="node2" href="$class_graphics_layer_1_1_scene.html#a6bd68f43879491bf382aad74419baf72" title="GraphicsLayer::Scene\l::forEach" alt="" coords="271,5,421,47"/>
+<area shape="rect" id="node3" href="$class_graphics_layer_1_1_tibia_context.html#acb650f49c86434351a8699731863648f" title="GraphicsLayer::TibiaContext\l::getObjects" alt="" coords="252,71,440,112"/>
+<area shape="rect" id="node4" href="$class_graphics_layer_1_1_text_builder.html#a15478b812c558ed52d98cce55206c4f6" title="GraphicsLayer::TextBuilder\l::getTextType" alt="" coords="256,136,436,177"/>
+<area shape="rect" id="node5" href="$class_graphics_layer_1_1_text_builder.html#a1ea4881572fc6a4d73afa1987b700357" title="GraphicsLayer::TextBuilder\l::getText" alt="" coords="256,201,436,243"/>
+<area shape="rect" id="node6" href="$struct_graphics_layer_1_1_draw.html#a03003637783245790e116299d503da95" title="GraphicsLayer::Draw\l::getScreenCoords" alt="" coords="273,267,419,308"/>
+<area shape="rect" id="node7" href="$namespacesb_1_1utility.html#a42313e0a941958c78aa28d65c5f8c659" title="sb::utility::worldToScreen\lCoords" alt="" coords="488,267,659,308"/>
+<area shape="rect" id="node8" href="$structsb_1_1utility_1_1_matrix.html#a75ed86a789715ce8c92fc9668ed145c9" title="sb::utility::Matrix\l::transposedMul" alt="" coords="707,267,825,308"/>
+</map>

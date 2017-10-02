@@ -1,0 +1,13 @@
+<map id="utility/file.hpp" name="utility/file.hpp">
+<area shape="rect" id="node2" href="$_frame_file_8cpp.html" title="monitor/src/FrameFile.cpp" alt="" coords="5,87,180,114"/>
+<area shape="rect" id="node3" href="$_gui_8cpp.html" title="monitor/src/Gui.cpp" alt="" coords="205,87,341,114"/>
+<area shape="rect" id="node4" href="$_gui_parser_8cpp.html" title="monitor/src/GuiParser.cpp" alt="" coords="365,87,540,114"/>
+<area shape="rect" id="node5" href="$_mini_map_8cpp.html" title="monitor/src/MiniMap.cpp" alt="" coords="565,87,730,114"/>
+<area shape="rect" id="node6" href="$_shank_bot_8cpp.html" title="monitor/src/ShankBot.cpp" alt="" coords="754,87,927,114"/>
+<area shape="rect" id="node7" href="$_tibia_client_8cpp.html" title="monitor/src/TibiaClient.cpp" alt="" coords="951,87,1130,114"/>
+<area shape="rect" id="node8" href="$_version_control_8cpp.html" title="monitor/src/VersionControl.cpp" alt="" coords="1154,87,1357,114"/>
+<area shape="rect" id="node9" href="$_catalog_content_8cpp.html" title="tibiaassets/src/CatalogContent.cpp" alt="" coords="1381,87,1607,114"/>
+<area shape="rect" id="node10" href="$_graphics_resource_reader_8cpp.html" title="tibiaassets/src/Graphics\lResourceReader.cpp" alt="" coords="1631,80,1794,121"/>
+<area shape="rect" id="node11" href="$_sprite_reader_8cpp.html" title="tibiaassets/src/SpriteReader.cpp" alt="" coords="1819,87,2031,114"/>
+<area shape="rect" id="node12" href="$file_8cpp.html" title="utility/src/file.cpp" alt="" coords="2055,87,2176,114"/>
+</map>

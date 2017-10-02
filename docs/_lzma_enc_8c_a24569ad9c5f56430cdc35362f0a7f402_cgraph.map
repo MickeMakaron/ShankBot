@@ -1,0 +1,8 @@
+<map id="LzmaEnc_CodeOneMemBlock" name="LzmaEnc_CodeOneMemBlock">
+<area shape="rect" id="node2" href="$_lzma_enc_8c.html#a97d495178836300d3f2f41279ab4d924" title="LzmaEnc_Init" alt="" coords="493,5,596,32"/>
+<area shape="rect" id="node3" href="$_lzma_enc_8c.html#aaa8025379038fa3bb0392dc5d5f6b29c" title="LzmaEnc_InitPrices" alt="" coords="255,31,393,57"/>
+<area shape="rect" id="node4" href="$_lzma_enc_8c.html#a2686436c7efca3ce0b2c9f66d14f10ea" title="LzmaEnc_Finish" alt="" coords="265,81,383,108"/>
+<area shape="rect" id="node5" href="$_lz_find_mt_8h.html#ab05936f9e72c6dab29e8680102121740" title="MatchFinderMt_ReleaseStream" alt="" coords="441,81,648,108"/>
+<area shape="rect" id="node6" href="$_lz_find_8h.html#a0de8238f0ad7247187e8e8f7b8f6273f" title="MatchFinder_Normalize3" alt="" coords="696,81,863,108"/>
+<area shape="rect" id="node7" href="$_lz_find_8c.html#af20649c50f586d14d31435d0611447cd" title="MatchFinder_ReduceOffsets" alt="" coords="911,81,1100,108"/>
+</map>

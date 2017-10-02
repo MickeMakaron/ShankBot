@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$structsb_1_1messaging_1_1_message_base.html" title="sb::messaging::MessageBase\l\&lt; MessageType::EVENT, NewEventType,\l Fields... \&gt;" alt="" coords="143,5,413,61"/>
+<area shape="rect" id="node4" href="$structsb_1_1messaging_1_1_message_base.html" title="sb::messaging::MessageBase\l\&lt; type, Fields \&gt;" alt="" coords="179,85,377,126"/>
+<area shape="rect" id="node3" href="$structsb_1_1messaging_1_1_event_base.html" title="sb::messaging::EventBase\l\&lt; type, Fields \&gt;" alt="" coords="461,13,640,54"/>
+</map>

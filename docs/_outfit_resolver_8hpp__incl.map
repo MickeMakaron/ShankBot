@@ -1,0 +1,12 @@
+<map id="monitor/OutfitResolver.hpp" name="monitor/OutfitResolver.hpp">
+<area shape="rect" id="node2" href="$_scene_8hpp.html" title="Scene.hpp" alt="" coords="285,80,369,107"/>
+<area shape="rect" id="node11" href="$_text_8hpp.html" title="Text.hpp" alt="" coords="393,80,466,107"/>
+<area shape="rect" id="node3" href="$_constants_8hpp.html" title="Constants.hpp" alt="" coords="204,155,311,181"/>
+<area shape="rect" id="node6" href="$_draw_8hpp.html" title="Draw.hpp" alt="" coords="358,155,437,181"/>
+<area shape="rect" id="node4" href="$constants_8hpp.html" title="tibiaassets/constants.hpp" alt="" coords="5,229,176,256"/>
+<area shape="rect" id="node5" href="$_color_8hpp.html" title="utility/Color.hpp" alt="" coords="201,229,314,256"/>
+<area shape="rect" id="node7" href="$_matrix_8hpp.html" title="utility/Matrix.hpp" alt="" coords="338,229,457,256"/>
+<area shape="rect" id="node8" href="$_vertex_8hpp.html" title="utility/Vertex.hpp" alt="" coords="481,229,601,256"/>
+<area shape="rect" id="node9" href="$tibiaassets_2_object_8hpp.html" title="tibiaassets/Object.hpp" alt="" coords="625,229,777,256"/>
+<area shape="rect" id="node10" href="$tibiaassets_2config_8hpp.html" title="tibiaassets/config.hpp" alt="" coords="627,304,776,331"/>
+</map>

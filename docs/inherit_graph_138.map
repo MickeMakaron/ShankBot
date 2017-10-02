@@ -1,0 +1,12 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_message.html" title="GraphicsLayer::SharedMemory\lProtocol::Message" alt="" coords="5,267,208,308"/>
+<area shape="rect" id="node2" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_copy_texture.html" title="GraphicsLayer::SharedMemory\lProtocol::CopyTexture" alt="" coords="256,5,459,47"/>
+<area shape="rect" id="node3" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_draw_call.html" title="GraphicsLayer::SharedMemory\lProtocol::DrawCall" alt="" coords="256,71,459,112"/>
+<area shape="rect" id="node4" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_file_io.html" title="GraphicsLayer::SharedMemory\lProtocol::FileIo" alt="" coords="256,136,459,177"/>
+<area shape="rect" id="node5" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_pixel_data.html" title="GraphicsLayer::SharedMemory\lProtocol::PixelData" alt="" coords="256,201,459,243"/>
+<area shape="rect" id="node6" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_texture_data.html" title="GraphicsLayer::SharedMemory\lProtocol::TextureData" alt="" coords="256,267,459,308"/>
+<area shape="rect" id="node7" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_transformation_matrix.html" title="GraphicsLayer::SharedMemory\lProtocol::TransformationMatrix" alt="" coords="256,332,459,373"/>
+<area shape="rect" id="node8" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_uniform4f.html" title="GraphicsLayer::SharedMemory\lProtocol::Uniform4f" alt="" coords="256,397,459,439"/>
+<area shape="rect" id="node9" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_vertex_attrib_pointer.html" title="GraphicsLayer::SharedMemory\lProtocol::VertexAttribPointer" alt="" coords="256,463,459,504"/>
+<area shape="rect" id="node10" href="$struct_graphics_layer_1_1_shared_memory_protocol_1_1_vertex_buffer_write.html" title="GraphicsLayer::SharedMemory\lProtocol::VertexBufferWrite" alt="" coords="256,528,459,569"/>
+</map>

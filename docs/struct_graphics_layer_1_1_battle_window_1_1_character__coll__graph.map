@@ -1,0 +1,5 @@
+<map id="GraphicsLayer::BattleWindow::Character" name="GraphicsLayer::BattleWindow::Character">
+<area shape="rect" id="node2" href="$struct_graphics_layer_1_1_sprite_draw.html" title="GraphicsLayer::SpriteDraw" alt="" coords="713,143,892,169"/>
+<area shape="rect" id="node3" href="$struct_graphics_layer_1_1_draw.html" title="GraphicsLayer::Draw" alt="" coords="456,143,601,169"/>
+<area shape="rect" id="node4" href="$struct_graphics_layer_1_1_vertex.html" title="GraphicsLayer::Vertex" alt="" coords="115,120,267,147"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="GraphicsLayer::Gui::DefaultSideBar" name="GraphicsLayer::Gui::DefaultSideBar">
+<area shape="rect" id="node3" href="$struct_graphics_layer_1_1_gui_1_1_tmp_button.html" title="GraphicsLayer::Gui\l::TmpButton" alt="" coords="637,273,771,315"/>
+<area shape="rect" id="node12" href="$struct_graphics_layer_1_1_gui_1_1_default_side_bar_1_1_mini_map.html" title="GraphicsLayer::Gui\l::DefaultSideBar::MiniMap" alt="" coords="1033,139,1207,180"/>
+<area shape="rect" id="node15" href="$struct_graphics_layer_1_1_gui_1_1_default_side_bar_1_1_combat_controls.html" title="GraphicsLayer::Gui\l::DefaultSideBar::CombatControls" alt="" coords="1009,397,1231,439"/>
+<area shape="rect" id="node5" href="$struct_graphics_layer_1_1_gui_1_1_rect.html" title="GraphicsLayer::Gui\l::Rect\&lt; int \&gt;" alt="" coords="341,273,476,315"/>
+<area shape="rect" id="node14" href="$struct_graphics_layer_1_1_gui_1_1_draw_rect.html" title="GraphicsLayer::Gui\l::DrawRect" alt="" coords="637,144,771,185"/>
+<area shape="rect" id="node6" href="$struct_graphics_layer_1_1_vertex.html" title="GraphicsLayer::Vertex" alt="" coords="112,418,264,445"/>
+<area shape="rect" id="node8" href="$struct_graphics_layer_1_1_gui_1_1_default_side_bar_1_1_status_bar.html" title="GraphicsLayer::Gui\l::DefaultSideBar::StatusBar" alt="" coords="1028,515,1212,556"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="sb::messaging::Message::toBinary" name="sb::messaging::Message::toBinary">
+<area shape="rect" id="node2" href="$classsb_1_1messaging_1_1_connection.html#abc2db92faeb23ecc2b404bb21ad346b7" title="sb::messaging::Connection\l::sendMessage" alt="" coords="221,74,403,115"/>
+<area shape="rect" id="node3" href="$classsb_1_1messaging_1_1_requester.html#a5d802a6ba39cff749210d39f3ee34e67" title="sb::messaging::Requester\l::request" alt="" coords="451,74,625,115"/>
+<area shape="rect" id="node4" href="$classsb_1_1_requester.html#a541252f2c2d3cf74dae097e8e69a47c6" title="sb::Requester::frame" alt="" coords="678,5,823,32"/>
+<area shape="rect" id="node6" href="$classsb_1_1_requester.html#ac99e4645a50ff7b78ed66a07a0093c9f" title="sb::Requester::go" alt="" coords="687,56,814,83"/>
+<area shape="rect" id="node7" href="$classsb_1_1_requester.html#a9ccb205811210eaf0a98d5f66db1345d" title="sb::Requester::login" alt="" coords="681,107,820,133"/>
+<area shape="rect" id="node8" href="$classsb_1_1_requester.html#ac56bb55e908b528109dc045770ad955b" title="sb::Requester::objects" alt="" coords="673,157,828,184"/>
+<area shape="rect" id="node5" href="$examples_2messaging_2main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="876,81,927,108"/>
+</map>

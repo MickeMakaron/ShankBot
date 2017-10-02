@@ -1,0 +1,8 @@
+<map id="GraphicsLayer::TextParser::SideBarWindow" name="GraphicsLayer::TextParser::SideBarWindow">
+<area shape="rect" id="node2" href="$struct_graphics_layer_1_1_text_parser_1_1_battle.html" title="GraphicsLayer::TextParser\l::Battle" alt="" coords="245,5,424,47"/>
+<area shape="rect" id="node3" href="$struct_graphics_layer_1_1_text_parser_1_1_container.html" title="GraphicsLayer::TextParser\l::Container" alt="" coords="245,71,424,112"/>
+<area shape="rect" id="node4" href="$struct_graphics_layer_1_1_text_parser_1_1_prey.html" title="GraphicsLayer::TextParser\l::Prey" alt="" coords="245,136,424,177"/>
+<area shape="rect" id="node5" href="$struct_graphics_layer_1_1_text_parser_1_1_skills.html" title="GraphicsLayer::TextParser\l::Skills" alt="" coords="245,201,424,243"/>
+<area shape="rect" id="node6" href="$struct_graphics_layer_1_1_text_parser_1_1_unjustified_points.html" title="GraphicsLayer::TextParser\l::UnjustifiedPoints" alt="" coords="245,267,424,308"/>
+<area shape="rect" id="node7" href="$struct_graphics_layer_1_1_text_parser_1_1_vip.html" title="GraphicsLayer::TextParser::Vip" alt="" coords="232,333,437,359"/>
+</map>
