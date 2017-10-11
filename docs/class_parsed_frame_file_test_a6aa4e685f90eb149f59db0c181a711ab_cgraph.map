@@ -1,7 +1,0 @@
-<map id="ParsedFrameFileTest::expectEqAfterWriteRead" name="ParsedFrameFileTest::expectEqAfterWriteRead">
-<area shape="rect" id="node2" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#afa607fac7b66d468349b6945f9cad751" title="GraphicsLayer::ParsedFrame\lFile::write" alt="" coords="228,5,420,47"/>
-<area shape="rect" id="node3" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#aba6c8f54617fc2bb9941048fbe4715a1" title="GraphicsLayer::ParsedFrame\lFile::read" alt="" coords="228,71,420,112"/>
-<area shape="rect" id="node6" href="$namespacesb_1_1test.html#ab77f3f9441ba7f8cac84dfafed119c0c" title="sb::test::expectEq" alt="" coords="259,137,389,163"/>
-<area shape="rect" id="node4" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#aa1b0850abe093bbf0b387be2f4fe6469" title="GraphicsLayer::ParsedFrame\lFile::fromJson" alt="" coords="468,71,660,112"/>
-<area shape="rect" id="node5" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#aaedb4ec4f0c0fd73fbdc8721354f5bb4" title="GraphicsLayer::ParsedFrame\lFile::fromJson" alt="" coords="708,71,900,112"/>
-</map>

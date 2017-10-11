@@ -1,9 +1,0 @@
-<map id="GraphicsLayer::TileBufferCache::removeByArea" name="GraphicsLayer::TileBufferCache::removeByArea">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_frame_parser.html#a8b48df5ef3517daedc7b274dfe57cf0d" title="GraphicsLayer::FrameParser\l::FrameParser" alt="" coords="224,5,413,47"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_frame_parser.html#a819fac96319ef2618f0ed7374ca584b7" title="GraphicsLayer::FrameParser\l::parse" alt="" coords="224,71,413,112"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_graphics_monitor_reader.html#af2c71d796c197c0fde83c36993f9b02d" title="GraphicsLayer::GraphicsMonitor\lReader::getNewFrame" alt="" coords="461,71,671,112"/>
-<area shape="rect" id="node5" href="$namespace_graphics_layer.html#a360da3f104030789b49dc9a2f85cab27" title="GraphicsLayer::getContextMenu" alt="" coords="719,27,929,54"/>
-<area shape="rect" id="node7" href="$namespace_graphics_layer.html#ac302e43dbb05f62eb871b9e51fb61fc6" title="GraphicsLayer::clearGreenText" alt="" coords="723,78,925,105"/>
-<area shape="rect" id="node8" href="$namespace_graphics_layer.html#ad75efd7ce84ab27f70ca6c7efd875f95" title="GraphicsLayer::getGreenText" alt="" coords="980,107,1173,134"/>
-<area shape="rect" id="node6" href="$class_graphics_layer_1_1_outfit_resolver.html#a76deedf7faf85f3c33d686d3a8e91a23" title="GraphicsLayer::OutfitResolver\l::getNpcs" alt="" coords="977,20,1176,61"/>
-</map>

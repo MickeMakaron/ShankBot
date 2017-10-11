@@ -1,7 +1,0 @@
-<map id="sb::messaging::Response::readResponseType" name="sb::messaging::Response::readResponseType">
-<area shape="rect" id="node2" href="$classsb_1_1_requester.html#a541252f2c2d3cf74dae097e8e69a47c6" title="sb::Requester::frame" alt="" coords="233,5,378,32"/>
-<area shape="rect" id="node4" href="$classsb_1_1_requester.html#ac99e4645a50ff7b78ed66a07a0093c9f" title="sb::Requester::go" alt="" coords="242,56,369,83"/>
-<area shape="rect" id="node5" href="$classsb_1_1_requester.html#a9ccb205811210eaf0a98d5f66db1345d" title="sb::Requester::login" alt="" coords="236,107,375,133"/>
-<area shape="rect" id="node6" href="$classsb_1_1_requester.html#ac56bb55e908b528109dc045770ad955b" title="sb::Requester::objects" alt="" coords="228,157,383,184"/>
-<area shape="rect" id="node3" href="$examples_2messaging_2main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="431,81,481,108"/>
-</map>

@@ -1,9 +1,0 @@
-<map id="GraphicsLayer::createWindowExA" name="GraphicsLayer::createWindowExA">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_injection.html#a9241f39122312cfa3f6203e382ea1ebe" title="GraphicsLayer::Injection\l::getDetour" alt="" coords="565,5,727,47"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_detour_holder.html#abb43ca4ab98a6906b6cceea8bd3cd4e6" title="GraphicsLayer::DetourHolder\l::callAs" alt="" coords="551,71,741,112"/>
-<area shape="rect" id="node5" href="$class_graphics_layer_1_1_monitor.html#a6c0c37ff1e92e71abcb758b1f6ab619e" title="GraphicsLayer::Monitor\l::setWindowProc" alt="" coords="567,201,725,243"/>
-<area shape="rect" id="node7" href="$namespace_graphics_layer.html#a46362834547d0fe76f11756f0a8ff851" title="GraphicsLayer::createWindowExW" alt="" coords="276,129,503,155"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_detour_holder.html#ab8a5b4a7aca70b7d00adaa5a47bb1c81" title="GraphicsLayer::DetourHolder\l::getDetourFunc" alt="" coords="789,5,980,47"/>
-<area shape="rect" id="node6" href="$namespace_graphics_layer.html#a71137864a859ac31ceb8707c9f2cd379" title="GraphicsLayer::toString" alt="" coords="805,175,964,202"/>
-<area shape="rect" id="node8" href="$class_graphics_layer_1_1_monitor.html#ab3b54472b5564002a39efae888ea3e82" title="GraphicsLayer::Monitor\l::createWindow" alt="" coords="567,136,725,177"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="GraphicsLayer::TibiaContext::getSpriteInfo" name="GraphicsLayer::TibiaContext::getSpriteInfo">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_scene.html#ab78ec7544fe44cec178f3089af02e938" title="GraphicsLayer::Scene\l::getTileHeight" alt="" coords="261,5,411,47"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_scene_parser.html#a399652f70115bd6ca1d8b7bb7e2b650e" title="GraphicsLayer::SceneParser\l::parse" alt="" coords="241,71,431,112"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_outfit_resolver.html#a092e8df9930b12bd004277bc445b7e31" title="GraphicsLayer::OutfitResolver\l::resolve" alt="" coords="479,5,677,47"/>
-</map>

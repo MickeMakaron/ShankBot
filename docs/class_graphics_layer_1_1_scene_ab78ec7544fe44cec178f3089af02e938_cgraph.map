@@ -1,6 +1,0 @@
-<map id="GraphicsLayer::Scene::getTileHeight" name="GraphicsLayer::Scene::getTileHeight">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_scene.html#aa136d4681be5f8d0c1875324ac614b6b" title="GraphicsLayer::Scene\l::getTileWidth" alt="" coords="227,5,377,47"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_tibia_context.html#a705d6fa16993edb85475a4fcaf3c0af2" title="GraphicsLayer::TibiaContext\l::getSpriteInfo" alt="" coords="208,71,396,112"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_sprite_info.html#a6c6455d73eedfdc082ca6973ba8e7c1b" title="GraphicsLayer::SpriteInfo::get" alt="" coords="204,137,400,163"/>
-<area shape="rect" id="node5" href="$class_graphics_layer_1_1_tibia_context.html#acb650f49c86434351a8699731863648f" title="GraphicsLayer::TibiaContext\l::getObjects" alt="" coords="208,188,396,229"/>
-</map>

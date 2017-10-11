@@ -1,6 +1,0 @@
-<map id="LzmaEnc_Destroy" name="LzmaEnc_Destroy">
-<area shape="rect" id="node2" href="$_lzma_enc_8c.html#a468c61c864910402968dee57bc958ea8" title="LzmaEnc_Destruct" alt="" coords="184,56,319,83"/>
-<area shape="rect" id="node3" href="$_lz_find_mt_8h.html#a8f04458f06b00f3c982627cc01f566ce" title="MatchFinderMt_Destruct" alt="" coords="367,5,533,32"/>
-<area shape="rect" id="node4" href="$_lz_find_8h.html#a7cd763a949f7a5f1bad61a9ebf0f7c30" title="MatchFinder_Free" alt="" coords="387,56,513,83"/>
-<area shape="rect" id="node5" href="$_lzma_enc_8c.html#a7f6d9c0dba37c4249c29a54283c9747b" title="LzmaEnc_FreeLits" alt="" coords="385,107,515,133"/>
-</map>

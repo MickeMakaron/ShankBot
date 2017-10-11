@@ -1,9 +1,0 @@
-<map id="lzma/Compiler.h" name="lzma/Compiler.h">
-<area shape="rect" id="node2" href="$_precomp_8h.html" title="lzma/Precomp.h" alt="" coords="391,80,509,107"/>
-<area shape="rect" id="node3" href="$_alloc_8c.html" title="lzma/src/Alloc.c" alt="" coords="5,155,121,181"/>
-<area shape="rect" id="node4" href="$_lz_find_8c.html" title="lzma/src/LzFind.c" alt="" coords="145,155,272,181"/>
-<area shape="rect" id="node5" href="$_lz_find_mt_8c.html" title="lzma/src/LzFindMt.c" alt="" coords="297,155,438,181"/>
-<area shape="rect" id="node6" href="$_lzma_dec_8c.html" title="lzma/src/LzmaDec.c" alt="" coords="461,155,604,181"/>
-<area shape="rect" id="node7" href="$_lzma_enc_8c.html" title="lzma/src/LzmaEnc.c" alt="" coords="628,155,771,181"/>
-<area shape="rect" id="node8" href="$_threads_8c.html" title="lzma/src/Threads.c" alt="" coords="795,155,929,181"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="sb::utility::readTibiaSizeIndicator" name="sb::utility::readTibiaSizeIndicator">
-<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#ae207b9db27a411a0f7f56bc9b6ae17c8" title="sb::utility::__declspec" alt="" coords="237,5,386,32"/>
-<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#aca844f389b950ac49244dec0b72d7525" title="sb::utility::writeStream" alt="" coords="235,56,388,83"/>
-<area shape="rect" id="node4" href="$classsb_1_1tibiaassets_1_1_appearances_reader.html#aff8fc84ee335a7fe0edf8eb504499a13" title="sb::tibiaassets::Appearances\lReader::getObjects" alt="" coords="216,107,407,149"/>
-<area shape="rect" id="node5" href="$classsb_1_1tibiaassets_1_1_sprite_reader.html#a65dc64fb62c0174662f5bb181b3121fa" title="sb::tibiaassets::SpriteReader\l::SpriteReader" alt="" coords="216,173,407,214"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="MatchFinder_Normalize3" name="MatchFinder_Normalize3">
-<area shape="rect" id="node2" href="$_lz_find_mt_8c.html#ab05936f9e72c6dab29e8680102121740" title="MatchFinderMt_ReleaseStream" alt="" coords="220,5,427,32"/>
-<area shape="rect" id="node3" href="$_lzma_enc_8c.html#a2686436c7efca3ce0b2c9f66d14f10ea" title="LzmaEnc_Finish" alt="" coords="475,5,593,32"/>
-<area shape="rect" id="node4" href="$_lzma_enc_8c.html#a24569ad9c5f56430cdc35362f0a7f402" title="LzmaEnc_CodeOneMemBlock" alt="" coords="641,5,843,32"/>
-</map>

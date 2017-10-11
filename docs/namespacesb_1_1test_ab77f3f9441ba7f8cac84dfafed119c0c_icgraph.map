@@ -1,6 +1,0 @@
-<map id="sb::test::expectEq" name="sb::test::expectEq">
-<area shape="rect" id="node2" href="$class_frame_file_test.html#aa3c803a741a1a2847f5a09e6126d1edc" title="FrameFileTest::expectEqAfter\lWriteRead" alt="" coords="183,5,380,47"/>
-<area shape="rect" id="node3" href="$_frame_parse_test_8cpp.html#adb62207c2c275dc106a17a941f35fe2e" title="TEST_F" alt="" coords="246,71,317,98"/>
-<area shape="rect" id="node4" href="$class_glyphs_file_test.html#a3d0a776faa34eaa08ddbd36862479b00" title="GlyphsFileTest::expectEq\lAfterWriteRead" alt="" coords="195,123,368,164"/>
-<area shape="rect" id="node5" href="$class_parsed_frame_file_test.html#a6aa4e685f90eb149f59db0c181a711ab" title="ParsedFrameFileTest\l::expectEqAfterWriteRead" alt="" coords="194,188,369,229"/>
-</map>

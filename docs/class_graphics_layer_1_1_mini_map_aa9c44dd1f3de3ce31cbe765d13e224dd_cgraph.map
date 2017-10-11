@@ -1,9 +1,0 @@
-<map id="GraphicsLayer::MiniMap::MiniMap" name="GraphicsLayer::MiniMap::MiniMap">
-<area shape="rect" id="node2" href="$namespacesb_1_1utility_1_1file.html#adda46aeb272d075b57a7aea19f2d9be4" title="sb::utility::file::\lbasename" alt="" coords="249,5,357,47"/>
-<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a05e3e09ee95ca095606282b53f419225" title="sb::utility::isNumeric" alt="" coords="232,71,375,98"/>
-<area shape="rect" id="node4" href="$namespacesb_1_1utility.html#aae2f5fa412be206353b4735480de69bb" title="sb::utility::strToInt" alt="" coords="239,122,367,149"/>
-<area shape="rect" id="node5" href="$namespacesb_1_1utility_1_1file.html#a7795b8dc7795783256d8e8d33dd35b9e" title="sb::utility::file::\lgetLatestModifiedFileTime" alt="" coords="216,239,391,280"/>
-<area shape="rect" id="node8" href="$namespacesb_1_1utility_1_1file.html#aeae9fe40f7b80f5baad5947d6c41f439" title="sb::utility::file::\lgetLatestModifiedFiles" alt="" coords="227,173,380,215"/>
-<area shape="rect" id="node6" href="$namespacesb_1_1utility_1_1file.html#a055ee7a7c3a017b8f210b3fdc0f3f87a" title="sb::utility::file::\lforEachFile" alt="" coords="454,173,562,215"/>
-<area shape="rect" id="node7" href="$namespacesb_1_1utility_1_1file.html#a187155807d5a28853ff778fcbe6e6a42" title="sb::utility::file::\lgetFileModifiedTime" alt="" coords="439,239,577,280"/>
-</map>

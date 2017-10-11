@@ -1,5 +1,0 @@
-<map id="GraphicsLayer::GraphicsMonitorReader::GraphicsMonitorReader" name="GraphicsLayer::GraphicsMonitorReader::GraphicsMonitorReader">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_tibia_client.html#a6edf0318492a56d4a19580fc5d23195b" title="GraphicsLayer::TibiaClient\l::isAlive" alt="" coords="263,5,439,47"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_tibia_client.html#aac95bcd4f7a57c04d22f539f4eba8431" title="GraphicsLayer::TibiaClient\l::getInput" alt="" coords="263,71,439,112"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_input.html#a8eb15c80c1103b5722edf7b87dccd7ee" title="GraphicsLayer::Input\l::sendPaintMessage" alt="" coords="279,136,422,177"/>
-</map>

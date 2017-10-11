@@ -1,6 +1,0 @@
-<map id="GraphicsLayer::windowClassProcDetour" name="GraphicsLayer::windowClassProcDetour">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_monitor.html#a6d3d44d47808c42749aa05f47b2244ab" title="GraphicsLayer::Monitor\l::getWindowProc" alt="" coords="270,5,427,47"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_monitor.html#a2b92d325ab4fcc6257e9ee3cd6cb0b26" title="GraphicsLayer::Monitor\l::getWindowProcByClassName" alt="" coords="245,71,452,112"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_monitor.html#a6c0c37ff1e92e71abcb758b1f6ab619e" title="GraphicsLayer::Monitor\l::setWindowProc" alt="" coords="270,136,427,177"/>
-<area shape="rect" id="node5" href="$namespace_graphics_layer.html#a71137864a859ac31ceb8707c9f2cd379" title="GraphicsLayer::toString" alt="" coords="500,143,659,170"/>
-</map>

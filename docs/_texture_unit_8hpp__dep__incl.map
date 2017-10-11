@@ -1,7 +1,0 @@
-<map id="injection/TextureUnit.hpp" name="injection/TextureUnit.hpp">
-<area shape="rect" id="node2" href="$_texture_unit_holder_8hpp.html" title="injection/TextureUnitHolder.hpp" alt="" coords="157,80,363,107"/>
-<area shape="rect" id="node3" href="$_monitor_8hpp.html" title="injection/Monitor.hpp" alt="" coords="101,162,243,189"/>
-<area shape="rect" id="node6" href="$_texture_unit_holder_8cpp.html" title="injection/src/TextureUnit\lHolder.cpp" alt="" coords="267,155,431,196"/>
-<area shape="rect" id="node4" href="$inject_8cpp.html" title="injection/src/inject.cpp" alt="" coords="5,244,157,271"/>
-<area shape="rect" id="node5" href="$_monitor_8cpp.html" title="injection/src/Monitor.cpp" alt="" coords="182,244,346,271"/>
-</map>

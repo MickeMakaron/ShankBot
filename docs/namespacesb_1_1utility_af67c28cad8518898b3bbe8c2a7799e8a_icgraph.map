@@ -1,6 +1,0 @@
-<map id="sb::utility::centerDiff" name="sb::utility::centerDiff">
-<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#a2377459939532b8243d4117084294af6" title="sb::utility::tryStringify" alt="" coords="207,31,353,57"/>
-<area shape="rect" id="node5" href="$namespacesb_1_1utility.html#a2fda2ca2510887c20a9bfacfa4917cf1" title="sb::utility::compressSmall\lEndianMultiByteValue" alt="" coords="193,82,367,123"/>
-<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a80e9c57bf5060a260e059a0a04efc1fa" title="sb::utility::tryStringify" alt="" coords="419,5,566,32"/>
-<area shape="rect" id="node4" href="$namespacesb_1_1utility.html#a0840ad51ce62c9b1877f9a205c389fce" title="sb::utility::throwExpect" alt="" coords="415,56,571,83"/>
-</map>

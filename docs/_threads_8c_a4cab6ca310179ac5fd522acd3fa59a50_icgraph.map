@@ -1,6 +1,0 @@
-<map id="BOOLToWRes" name="BOOLToWRes">
-<area shape="rect" id="node2" href="$_threads_8h.html#a4c894884b1268b8d00d2a96489ba89e3" title="Event_Set" alt="" coords="190,5,273,32"/>
-<area shape="rect" id="node4" href="$_threads_8h.html#adcebff2a2a5098940f037eb6ba9d6873" title="Event_Reset" alt="" coords="182,56,281,83"/>
-<area shape="rect" id="node5" href="$_threads_8h.html#a51b22b5cb07125cf25e502042c6ce1f3" title="Semaphore_Create" alt="" coords="164,107,299,133"/>
-<area shape="rect" id="node3" href="$_lz_find_mt_8c.html#a9388955f0272d2954a5f7d30de7e595f" title="BtThreadFunc" alt="" coords="347,5,451,32"/>
-</map>

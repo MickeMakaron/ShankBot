@@ -1,6 +1,0 @@
-<map id="GraphicsLayer::enable" name="GraphicsLayer::enable">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_injection.html#a9241f39122312cfa3f6203e382ea1ebe" title="GraphicsLayer::Injection\l::getDetour" alt="" coords="219,5,382,47"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_monitor.html#a269b33ea764bd0d239eb95d30c3d97bf" title="GraphicsLayer::Monitor\l::setDepthTest" alt="" coords="222,71,379,112"/>
-<area shape="rect" id="node5" href="$class_graphics_layer_1_1_detour_holder.html#abb43ca4ab98a6906b6cceea8bd3cd4e6" title="GraphicsLayer::DetourHolder\l::callAs" alt="" coords="205,136,396,177"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_detour_holder.html#ab8a5b4a7aca70b7d00adaa5a47bb1c81" title="GraphicsLayer::DetourHolder\l::getDetourFunc" alt="" coords="444,5,635,47"/>
-</map>

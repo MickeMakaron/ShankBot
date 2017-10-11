@@ -1,6 +1,0 @@
-<map id="BtThreadFunc" name="BtThreadFunc">
-<area shape="rect" id="node2" href="$_threads_8c.html#a4c894884b1268b8d00d2a96489ba89e3" title="Event_Set" alt="" coords="191,5,274,32"/>
-<area shape="rect" id="node4" href="$_threads_8c.html#a6d392082486c2dd897b1256a5b5eb8f7" title="Semaphore_Release1" alt="" coords="157,56,308,83"/>
-<area shape="rect" id="node3" href="$_threads_8c.html#a4cab6ca310179ac5fd522acd3fa59a50" title="BOOLToWRes" alt="" coords="377,5,488,32"/>
-<area shape="rect" id="node5" href="$_threads_8c.html#a1dfc591d0c0c4fcc8881567bfa146498" title="Semaphore_ReleaseN" alt="" coords="356,56,509,83"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="GraphicsLayer::TextBuilder::insert" name="GraphicsLayer::TextBuilder::insert">
-<area shape="rect" id="node2" href="$struct_graphics_layer_1_1_draw.html#a03003637783245790e116299d503da95" title="GraphicsLayer::Draw\l::getScreenCoords" alt="" coords="233,5,379,47"/>
-<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a42313e0a941958c78aa28d65c5f8c659" title="sb::utility::worldToScreen\lCoords" alt="" coords="427,5,597,47"/>
-<area shape="rect" id="node4" href="$structsb_1_1utility_1_1_matrix.html#a75ed86a789715ce8c92fc9668ed145c9" title="sb::utility::Matrix\l::transposedMul" alt="" coords="645,5,764,47"/>
-</map>

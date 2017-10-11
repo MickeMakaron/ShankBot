@@ -1,6 +1,0 @@
-<map id="sb::messaging::Response" name="sb::messaging::Response">
-<area shape="rect" id="node3" href="$classsb_1_1messaging_1_1_frame_response.html" title="sb::messaging::FrameResponse" alt="" coords="445,5,655,32"/>
-<area shape="rect" id="node4" href="$classsb_1_1messaging_1_1_login_response.html" title="sb::messaging::LoginResponse" alt="" coords="447,56,653,83"/>
-<area shape="rect" id="node5" href="$classsb_1_1messaging_1_1_object_response.html" title="sb::messaging::ObjectResponse" alt="" coords="444,107,656,133"/>
-<area shape="rect" id="node2" href="$classsb_1_1messaging_1_1_message.html" title="sb::messaging::Message" alt="" coords="5,56,173,83"/>
-</map>

@@ -1,9 +1,0 @@
-<map id="GraphicsLayer::makeCurrent" name="GraphicsLayer::makeCurrent">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_injection.html#a9241f39122312cfa3f6203e382ea1ebe" title="GraphicsLayer::Injection\l::getDetour" alt="" coords="260,5,423,47"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_detour_holder.html#abb43ca4ab98a6906b6cceea8bd3cd4e6" title="GraphicsLayer::DetourHolder\l::callAs" alt="" coords="246,71,437,112"/>
-<area shape="rect" id="node5" href="$namespace_graphics_layer.html#a3398b492590d08c5f0690210ebaa792e" title="GraphicsLayer::hookExtended\lOpenGlFunctions" alt="" coords="243,136,440,177"/>
-<area shape="rect" id="node8" href="$class_graphics_layer_1_1_monitor.html#a21b2428d0d3ab9580506d97eedc65aeb" title="GraphicsLayer::Monitor\l::clearDataBuffer" alt="" coords="263,201,420,243"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_detour_holder.html#ab8a5b4a7aca70b7d00adaa5a47bb1c81" title="GraphicsLayer::DetourHolder\l::getDetourFunc" alt="" coords="488,5,679,47"/>
-<area shape="rect" id="node6" href="$class_graphics_layer_1_1_injection.html#ab41018c226a41aa3a4ee188cdb301174" title="GraphicsLayer::Injection\l::hookModule" alt="" coords="502,136,665,177"/>
-<area shape="rect" id="node7" href="$class_graphics_layer_1_1_detour_holder.html#a4516821a7f296f6f50d21c6d2f465a03" title="GraphicsLayer::DetourHolder\l::renew" alt="" coords="727,136,917,177"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="GraphicsLayer::TibiaContext::getGraphicsResourceNames" name="GraphicsLayer::TibiaContext::getGraphicsResourceNames">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_frame_parser.html#a819fac96319ef2618f0ed7374ca584b7" title="GraphicsLayer::FrameParser\l::parse" alt="" coords="252,56,441,97"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_graphics_monitor_reader.html#af2c71d796c197c0fde83c36993f9b02d" title="GraphicsLayer::GraphicsMonitor\lReader::getNewFrame" alt="" coords="489,56,699,97"/>
-<area shape="rect" id="node4" href="$namespace_graphics_layer.html#a360da3f104030789b49dc9a2f85cab27" title="GraphicsLayer::getContextMenu" alt="" coords="747,13,957,39"/>
-<area shape="rect" id="node6" href="$namespace_graphics_layer.html#ac302e43dbb05f62eb871b9e51fb61fc6" title="GraphicsLayer::clearGreenText" alt="" coords="751,63,953,90"/>
-<area shape="rect" id="node7" href="$namespace_graphics_layer.html#ad75efd7ce84ab27f70ca6c7efd875f95" title="GraphicsLayer::getGreenText" alt="" coords="1008,93,1201,119"/>
-<area shape="rect" id="node5" href="$class_graphics_layer_1_1_outfit_resolver.html#a76deedf7faf85f3c33d686d3a8e91a23" title="GraphicsLayer::OutfitResolver\l::getNpcs" alt="" coords="1005,5,1204,47"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="GraphicsLayer::GuiParser::getData" name="GraphicsLayer::GuiParser::getData">
-<area shape="rect" id="node2" href="$namespacesb_1_1utility.html#a501eb3f027e6eba6b133f54be6778583" title="sb::utility::round" alt="" coords="241,5,355,32"/>
-<area shape="rect" id="node3" href="$struct_graphics_layer_1_1_draw.html#a03003637783245790e116299d503da95" title="GraphicsLayer::Draw\l::getScreenCoords" alt="" coords="225,57,371,98"/>
-<area shape="rect" id="node4" href="$namespacesb_1_1utility.html#a42313e0a941958c78aa28d65c5f8c659" title="sb::utility::worldToScreen\lCoords" alt="" coords="419,57,589,98"/>
-<area shape="rect" id="node5" href="$structsb_1_1utility_1_1_matrix.html#a75ed86a789715ce8c92fc9668ed145c9" title="sb::utility::Matrix\l::transposedMul" alt="" coords="637,57,756,98"/>
-</map>

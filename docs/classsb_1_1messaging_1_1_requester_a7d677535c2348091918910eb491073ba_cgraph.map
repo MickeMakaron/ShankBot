@@ -1,6 +1,0 @@
-<map id="sb::messaging::Requester::Requester" name="sb::messaging::Requester::Requester">
-<area shape="rect" id="node2" href="$classsb_1_1messaging_1_1_connection_manager.html#aeb356b0749004b5a829cdd277dd9d12f" title="sb::messaging::Connection\lManager::addConnection" alt="" coords="228,5,409,47"/>
-<area shape="rect" id="node3" href="$classsb_1_1messaging_1_1_connection_manager.html#a4243c137483addc0ab9641642fdb5bb9" title="sb::messaging::Connection\lManager::poll" alt="" coords="228,71,409,112"/>
-<area shape="rect" id="node5" href="$classsb_1_1messaging_1_1_connection_manager.html#ac7ed70b2cf9918597d1a5d025d35fe41" title="sb::messaging::Connection\lManager::getConnection" alt="" coords="228,136,409,177"/>
-<area shape="rect" id="node4" href="$classsb_1_1messaging_1_1_connection.html#a3fc5d3f591b3d69f3f3e59404eff0418" title="sb::messaging::Connection\l::getState" alt="" coords="457,71,639,112"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="GraphicsLayer::ParsedFrameFile::write" name="GraphicsLayer::ParsedFrameFile::write">
-<area shape="rect" id="node2" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#a64bb64c323d443cd4db95894a4d90c84" title="GraphicsLayer::ParsedFrame\lFile::toJson" alt="" coords="245,5,437,47"/>
-<area shape="rect" id="node3" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#a2f8fd82576de15d5c0ebc8f0e26f57f9" title="GraphicsLayer::ParsedFrame\lFile::toString" alt="" coords="245,71,437,112"/>
-<area shape="rect" id="node4" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#aba6c8f54617fc2bb9941048fbe4715a1" title="GraphicsLayer::ParsedFrame\lFile::read" alt="" coords="245,136,437,177"/>
-<area shape="rect" id="node5" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#aa1b0850abe093bbf0b387be2f4fe6469" title="GraphicsLayer::ParsedFrame\lFile::fromJson" alt="" coords="485,136,677,177"/>
-<area shape="rect" id="node6" href="$namespace_graphics_layer_1_1_parsed_frame_file.html#aaedb4ec4f0c0fd73fbdc8721354f5bb4" title="GraphicsLayer::ParsedFrame\lFile::fromJson" alt="" coords="725,136,917,177"/>
-</map>

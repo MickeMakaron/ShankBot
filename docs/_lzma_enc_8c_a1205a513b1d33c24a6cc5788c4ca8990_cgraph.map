@@ -1,8 +1,0 @@
-<map id="LzmaEnc_Create" name="LzmaEnc_Create">
-<area shape="rect" id="node2" href="$_lzma_enc_8c.html#ae75399a1aab501f1fd7cd6bcc4c2f7ec" title="LzmaEnc_Construct" alt="" coords="176,81,317,108"/>
-<area shape="rect" id="node3" href="$_lz_find_8h.html#a487aeb881073394dc1c0755d4790c5ea" title="MatchFinder_Construct" alt="" coords="373,5,531,32"/>
-<area shape="rect" id="node4" href="$_lz_find_mt_8h.html#a12919af4249f297f157a5f862d4ea040" title="MatchFinderMt_Construct" alt="" coords="365,56,539,83"/>
-<area shape="rect" id="node5" href="$_lzma_enc_8c.html#a336bf0e92adf6ff680547c58fd60baa6" title="LzmaEncProps_Init" alt="" coords="384,107,520,133"/>
-<area shape="rect" id="node6" href="$_lzma_enc_8c.html#a1d041ccb4b74f5608f08bc9cc97ae4cd" title="LzmaEnc_SetProps" alt="" coords="383,157,521,184"/>
-<area shape="rect" id="node7" href="$_lzma_enc_8c.html#acd23d29a44a6a248851b7e0ef8016d87" title="LzmaEncProps_Normalize" alt="" coords="587,157,764,184"/>
-</map>

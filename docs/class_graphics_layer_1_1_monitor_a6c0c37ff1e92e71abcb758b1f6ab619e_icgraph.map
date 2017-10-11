@@ -1,9 +1,0 @@
-<map id="GraphicsLayer::Monitor::setWindowProc" name="GraphicsLayer::Monitor::setWindowProc">
-<area shape="rect" id="node2" href="$namespace_graphics_layer.html#ad959e576aa91b9999180d103d39f35cd" title="GraphicsLayer::createWindowExA" alt="" coords="485,56,708,83"/>
-<area shape="rect" id="node6" href="$namespace_graphics_layer.html#a46362834547d0fe76f11756f0a8ff851" title="GraphicsLayer::createWindowExW" alt="" coords="211,5,437,32"/>
-<area shape="rect" id="node7" href="$namespace_graphics_layer.html#affc7e411648a77c6b249a89cade930e6" title="GraphicsLayer::windowClass\lProcDetour" alt="" coords="228,107,420,149"/>
-<area shape="rect" id="node8" href="$class_graphics_layer_1_1_monitor.html#a29a3c7800072f3692d47584640632d6b" title="GraphicsLayer::Monitor\l::setClassWindowProc" alt="" coords="518,107,675,149"/>
-<area shape="rect" id="node3" href="$namespace_graphics_layer.html#a3c182f9fd36fde90a94fda41f338d7ff" title="GraphicsLayer::registerClassExA" alt="" coords="756,107,972,133"/>
-<area shape="rect" id="node4" href="$namespace_graphics_layer.html#afe67adb8623727327bf866bea5244ce7" title="GraphicsLayer::inject" alt="" coords="1020,56,1165,83"/>
-<area shape="rect" id="node5" href="$inject_8cpp.html#a3a076aabd6ee240d295702061c2a1f75" title="DllMain" alt="" coords="1213,56,1280,83"/>
-</map>

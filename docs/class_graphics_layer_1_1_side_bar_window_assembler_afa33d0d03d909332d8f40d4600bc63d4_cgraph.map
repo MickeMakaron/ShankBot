@@ -1,6 +1,0 @@
-<map id="GraphicsLayer::SideBarWindowAssembler::SideBarWindowAssembler" name="GraphicsLayer::SideBarWindowAssembler::SideBarWindowAssembler">
-<area shape="rect" id="node2" href="$struct_graphics_layer_1_1_draw.html#a03003637783245790e116299d503da95" title="GraphicsLayer::Draw\l::getScreenCoords" alt="" coords="300,5,445,47"/>
-<area shape="rect" id="node5" href="$namespacesb_1_1utility.html#a501eb3f027e6eba6b133f54be6778583" title="sb::utility::round" alt="" coords="315,71,430,98"/>
-<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a42313e0a941958c78aa28d65c5f8c659" title="sb::utility::worldToScreen\lCoords" alt="" coords="493,5,664,47"/>
-<area shape="rect" id="node4" href="$structsb_1_1utility_1_1_matrix.html#a75ed86a789715ce8c92fc9668ed145c9" title="sb::utility::Matrix\l::transposedMul" alt="" coords="712,5,831,47"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="GraphicsLayer::Semaphore::wait_until" name="GraphicsLayer::Semaphore::wait_until">
-<area shape="rect" id="node2" href="$class_graphics_layer_1_1_semaphore.html#a53f71cf6adac5abd503a2b2676955ca8" title="GraphicsLayer::Semaphore\l::Semaphore" alt="" coords="233,5,413,47"/>
-<area shape="rect" id="node3" href="$class_graphics_layer_1_1_semaphore.html#ad724685ed0e23b1ae702fa6be96e5374" title="GraphicsLayer::Semaphore\l::operator=" alt="" coords="233,71,413,112"/>
-<area shape="rect" id="node4" href="$class_graphics_layer_1_1_semaphore.html#a1d7c51da55f9ac913a6a711cb6d6e52a" title="GraphicsLayer::Semaphore\l::signal" alt="" coords="233,136,413,177"/>
-<area shape="rect" id="node5" href="$class_graphics_layer_1_1_semaphore.html#a85500356c2f7d1057d4568227e7f35b7" title="GraphicsLayer::Semaphore\l::wait" alt="" coords="233,201,413,243"/>
-<area shape="rect" id="node6" href="$class_graphics_layer_1_1_semaphore.html#a89d8598ee4f5ac2162593e8df7dbf97b" title="GraphicsLayer::Semaphore\l::try_wait" alt="" coords="233,267,413,308"/>
-<area shape="rect" id="node7" href="$class_graphics_layer_1_1_semaphore.html#a3e2591d30f21dd344decfc919d0066f9" title="GraphicsLayer::Semaphore\l::wait_for" alt="" coords="233,332,413,373"/>
-</map>

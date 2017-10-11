@@ -1,7 +1,0 @@
-<map id="GlyphsFileTest::expectEqAfterWriteRead" name="GlyphsFileTest::expectEqAfterWriteRead">
-<area shape="rect" id="node2" href="$namespace_graphics_layer_1_1_glyphs_file.html#a57527adbdb5cf0c2b26205e5a4ce04a0" title="GraphicsLayer::GlyphsFile\l::write" alt="" coords="227,5,403,47"/>
-<area shape="rect" id="node4" href="$namespace_graphics_layer_1_1_glyphs_file.html#acb33b19266daaf75d92a65d35d9198e8" title="GraphicsLayer::GlyphsFile\l::read" alt="" coords="227,71,403,112"/>
-<area shape="rect" id="node6" href="$namespacesb_1_1test.html#ab77f3f9441ba7f8cac84dfafed119c0c" title="sb::test::expectEq" alt="" coords="250,137,379,163"/>
-<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#a70198548df3a6a400106e36484c89b22" title="sb::utility::writeStream" alt="" coords="451,13,604,39"/>
-<area shape="rect" id="node5" href="$namespacesb_1_1utility.html#a4756bdd17ebbde9c946a9727176591b4" title="sb::utility::readStream" alt="" coords="452,78,603,105"/>
-</map>

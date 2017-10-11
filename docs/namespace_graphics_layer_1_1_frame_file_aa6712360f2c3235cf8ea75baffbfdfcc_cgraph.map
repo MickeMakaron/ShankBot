@@ -1,8 +1,0 @@
-<map id="GraphicsLayer::FrameFile::read" name="GraphicsLayer::FrameFile::read">
-<area shape="rect" id="node2" href="$namespace_graphics_layer_1_1_frame_file.html#a1759d78e77c8e7f0614685c40d942f9e" title="GraphicsLayer::FrameFile\l::readBin" alt="" coords="225,57,397,98"/>
-<area shape="rect" id="node6" href="$namespace_graphics_layer_1_1_frame_file.html#af483de117ef3bf3b2b67fbdcb6460b11" title="GraphicsLayer::FrameFile\l::readImages" alt="" coords="225,122,397,163"/>
-<area shape="rect" id="node3" href="$namespacesb_1_1utility.html#abc317b463cd576065e89a14ccd713487" title="sb::utility::readStreamSafe" alt="" coords="665,5,843,32"/>
-<area shape="rect" id="node4" href="$namespace_graphics_layer_1_1_frame_file.html#a75085ad29e0d10938d7f3cbcac5e0246" title="GraphicsLayer::FrameFile\l::read" alt="" coords="445,57,617,98"/>
-<area shape="rect" id="node5" href="$namespacesb_1_1utility.html#ad8ea661222abcd66eeb8e3bda44d6224" title="sb::utility::getBytesPer\lPixel" alt="" coords="677,57,831,98"/>
-<area shape="rect" id="node7" href="$namespacesb_1_1utility_1_1file.html#a78dd88c447f7ad78f1526b9fc336900d" title="sb::utility::file::\lfileExists" alt="" coords="477,122,585,163"/>
-</map>
